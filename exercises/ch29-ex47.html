@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 29.47 · Field Inside a Fat Wire — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="magnetism" data-screen-label="Ex 29.47 Fat Wire">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 29 · Ex. 47</span><span lang="cs">Kap. 29 · Úl. 47</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Magnetic Field — Chapter 29 · Exercise 47</span><span lang="cs">4. téma · Magnetické pole — Kapitola 29 · Úloha 47</span></div>
+        <h1><span lang="en">Field Inside a Fat Wire</span><span lang="cs">Pole uvnitř silného vodiče</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>47</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Inside a long cylindrical conductor of radius
+                    <span class="given" data-tex="a = 3.1\ \mathrm{mm}"></span> the current density
+                    points along the axis and grows with radius as
+                    <span class="given" data-tex="J = J_0\,r/a"></span>, where
+                    <span class="given" data-tex="J_0 = 310\ \mathrm{A\,m^{-2}}"></span>.
+                </p>
+                <p lang="cs">
+                    Uvnitř dlouhého válcového vodiče o poloměru
+                    <span class="given" data-tex="a = 3{,}1\ \mathrm{mm}"></span> míří proudová hustota
+                    podél osy a roste s poloměrem jako
+                    <span class="given" data-tex="J = J_0\,r/a"></span>, kde
+                    <span class="given" data-tex="J_0 = 310\ \mathrm{A\,m^{-2}}"></span>.
+                </p>
+                <p lang="en">
+                    Find the magnitude of the magnetic field at
+                    (a) <span data-tex="r = 0"></span>,
+                    (b) <span data-tex="r = a/2"></span>, and
+                    (c) <span data-tex="r = a"></span>.
+                </p>
+                <p lang="cs">
+                    Určete velikost magnetického pole v bodech
+                    (a) <span data-tex="r = 0"></span>,
+                    (b) <span data-tex="r = a/2"></span> a
+                    (c) <span data-tex="r = a"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Ampère's law probe</span><span lang="cs">Sonda Ampérova zákona</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="B\,2\pi r = \mu_0 I_{\text{enc}},\quad I_{\text{enc}} = \dfrac{2\pi J_0 r^3}{3a}"></div>
+                <div class="sim-hint"><span lang="en">grow the Amperian loop · inside, B rises as r²</span><span lang="cs">zvětšujte Ampérovu smyčku · uvnitř roste B s r²</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Loop radius r / a</span><span lang="cs">Poloměr smyčky r / a</span></span>
+                            <span class="sim-control-val" id="p-r-val">0.50</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="0" max="1.6" step="0.01" value="0.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Density scale J₀</span><span lang="cs">Škála hustoty J₀</span></span>
+                            <span class="sim-control-val" id="p-j-val">310 A/m²</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-j" min="100" max="600" step="5" value="310">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I_{\text{enc}}(r)"></span>
+                        <span class="readout-val" id="r-ienc">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="B(r)"></span>
+                        <span class="readout-val" id="r-b">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Printed points (J₀ = 310)</span><span lang="cs">Vytištěné body (J₀ = 310)</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="B(a/2)"></span>
+                        <span class="readout-val" id="r-bhalf">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="B(a)"></span>
+                        <span class="readout-val" id="r-bsurf">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The current enclosed by an Amperian circle of radius <span data-tex="r"></span>:
+                    <span data-tex="I_{\text{enc}} = \int_0^r \dfrac{J_0 r'}{a}\,2\pi r'\,\mathrm{d}r' = \dfrac{2\pi J_0 r^3}{3a}"></span>.</span>
+                    <span lang="cs">Proud obklopený Ampérovou kružnicí o poloměru <span data-tex="r"></span>:
+                    <span data-tex="I_{\text{enc}} = \int_0^r \dfrac{J_0 r'}{a}\,2\pi r'\,\mathrm{d}r' = \dfrac{2\pi J_0 r^3}{3a}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Ampère's law then gives, inside the wire,
+                    <span data-tex="B(r) = \dfrac{\mu_0 I_{\text{enc}}}{2\pi r} = \dfrac{\mu_0 J_0 r^2}{3a}"></span> —
+                    quadratic in <span data-tex="r"></span>, starting from zero on the axis.</span>
+                    <span lang="cs">Ampérův zákon pak uvnitř vodiče dává
+                    <span data-tex="B(r) = \dfrac{\mu_0 I_{\text{enc}}}{2\pi r} = \dfrac{\mu_0 J_0 r^2}{3a}"></span> —
+                    kvadratickou funkci <span data-tex="r"></span>, počínající nulou na ose.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">(a) <span data-tex="B(0) = 0"></span>.&nbsp;&nbsp;
+                    (b) <span data-tex="B(a/2) = \dfrac{\mu_0 J_0 a}{12} = \dfrac{4\pi\cdot 10^{-7}\cdot 310\cdot 3.1\cdot 10^{-3}}{12} = 0.10\ \mathrm{\mu T}"></span>.&nbsp;&nbsp;
+                    (c) <span data-tex="B(a) = \dfrac{\mu_0 J_0 a}{3} = 0.40\ \mathrm{\mu T}"></span>.</span>
+                    <span lang="cs">(a) <span data-tex="B(0) = 0"></span>.&nbsp;&nbsp;
+                    (b) <span data-tex="B(a/2) = \dfrac{\mu_0 J_0 a}{12} = \dfrac{4\pi\cdot 10^{-7}\cdot 310\cdot 3{,}1\cdot 10^{-3}}{12} = 0{,}10\ \mathrm{\mu T}"></span>.&nbsp;&nbsp;
+                    (c) <span data-tex="B(a) = \dfrac{\mu_0 J_0 a}{3} = 0{,}40\ \mathrm{\mu T}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="B(0) = 0"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="B(a/2) \approx 0.10\ \mathrm{\mu T}"></span><span lang="cs" data-tex="B(a/2) \approx 0{,}10\ \mathrm{\mu T}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="B(a) \approx 0.40\ \mathrm{\mu T}"></span><span lang="cs" data-tex="B(a) \approx 0{,}40\ \mathrm{\mu T}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/magnetism.html"><span lang="en">← Topic: Magnetic Field</span><span lang="cs">← Téma: Magnetické pole</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 29 · Ex. 47</span><span lang="cs">Kap. 29 · Úl. 47</span></span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a6878',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const MU0 = 4 * Math.PI * 1e-7;
+    const A_M = 3.1e-3;
+    const DEFAULTS = { r: 0.50, j: 310 };
+    let state = { ...DEFAULTS };
+
+    const SLIDERS = [
+        ['p-r', 'r', v => v.toFixed(2)],
+        ['p-j', 'j', v => v.toFixed(0) + ' A/m²'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+
+    /* B in T at x = r/a for current J0 */
+    function bOf(x, j0) {
+        if (x <= 0) return 0;
+        if (x <= 1) return MU0 * j0 * (x * A_M) * (x * A_M) / (3 * A_M);
+        const iTot = 2 * Math.PI * j0 * A_M * A_M / 3;
+        return MU0 * iTot / (2 * Math.PI * x * A_M);
+    }
+    function iEnc(x, j0) {
+        const r = Math.min(x, 1) * A_M;
+        return 2 * Math.PI * j0 * Math.pow(r, 3) / (3 * A_M);
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        /* ── left: cross-section ─────────────────────────────────── */
+        const cx = W * 0.26, cy = H * 0.5;
+        const Rpx = Math.min(W * 0.4, H * 0.74) / 2;
+
+        for (let i = 22; i >= 1; i--) {
+            const t = i / 22;
+            ctx.fillStyle = 'rgba(90,104,120,' + (0.55 * t).toFixed(3) + ')';
+            ctx.beginPath(); ctx.arc(cx, cy, Rpx * t, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, Math.PI * 2); ctx.stroke();
+
+        /* Amperian loop */
+        const rp = Math.min(state.r, 1.6) * Rpx;
+        if (rp > 2) {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 2; ctx.setLineDash([7, 5]);
+            ctx.beginPath(); ctx.arc(cx, cy, rp, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            /* tangential B ticks */
+            const bNow = bOf(state.r, state.j), bMax = bOf(1, state.j);
+            const tick = 6 + 16 * (bMax > 0 ? bNow / (bMax * 1.0) : 0);
+            for (let i = 0; i < 8; i++) {
+                const a = i * Math.PI / 4;
+                const x1 = cx + Math.cos(a) * rp, y1 = cy + Math.sin(a) * rp;
+                ctx.strokeStyle = col.acc; ctx.lineWidth = 2; ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(x1 - Math.sin(a) * tick / 2, y1 + Math.cos(a) * tick / 2);
+                ctx.lineTo(x1 + Math.sin(a) * tick / 2, y1 - Math.cos(a) * tick / 2);
+                ctx.stroke();
+            }
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('J ∝ r (out of page)', cx, cy + Rpx + 10);
+
+        /* ── right: B(r) graph ───────────────────────────────────── */
+        const mL = W * 0.54, mR = 26, mT = 36, mB = 52;
+        const pw = W - mL - mR, ph = H - mT - mB;
+        const bMaxPlot = bOf(1, state.j) * 1.15;
+        const xPix = x => mL + (x / 1.6) * pw;
+        const yPix = b => mT + ph - (b / bMaxPlot) * ph;
+
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        [0.5, 1.0, 1.5].forEach(g => {
+            ctx.beginPath(); ctx.moveTo(xPix(g), mT); ctx.lineTo(xPix(g), mT + ph); ctx.stroke();
+        });
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, pw, ph);
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(xPix(1), mT); ctx.lineTo(xPix(1), mT + ph); ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('a/2', xPix(0.5), mT + ph + 6);
+        ctx.fillText('a',   xPix(1),   mT + ph + 6);
+        ctx.fillText('r',   mL + pw / 2, mT + ph + 22);
+        ctx.save();
+        ctx.translate(mL - 12, mT + ph / 2); ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('B (µT)', 0, 0);
+        ctx.restore();
+
+        /* curve */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 200; i++) {
+            const x = 1.6 * i / 200;
+            const px = xPix(x), py = yPix(bOf(x, state.j));
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        /* printed dots */
+        [0.5, 1.0].forEach(x => {
+            ctx.fillStyle = col.soft;
+            ctx.beginPath(); ctx.arc(xPix(x), yPix(bOf(x, state.j)), 3, 0, Math.PI * 2); ctx.fill();
+        });
+
+        /* probe dot */
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.arc(xPix(Math.min(state.r, 1.6)), yPix(bOf(state.r, state.j)), 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-ienc').textContent  = (iEnc(state.r, state.j) * 1e3).toFixed(3) + ' mA';
+        $('r-b').textContent     = (bOf(state.r, state.j) * 1e6).toFixed(3) + ' µT';
+        $('r-bhalf').textContent = (bOf(0.5, state.j) * 1e6).toFixed(2) + ' µT';
+        $('r-bsurf').textContent = (bOf(1.0, state.j) * 1e6).toFixed(2) + ' µT';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

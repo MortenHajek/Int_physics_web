@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 21.14 · Reading a Force Curve — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-1" data-screen-label="Ex 21.14 Force Curve">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 21 · Ex. 14</span><span lang="cs">Kap. 21 · Úl. 14</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 1 · Electrostatics I — Chapter 21 · Exercise 14</span><span lang="cs">1. téma · Elektrostatika I — Kapitola 21 · Úloha 14</span></div>
+        <h1><span lang="en">Reading a Force Curve</span><span lang="cs">Čtení grafu síly</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>14</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Two fixed particles with charges <span data-tex="Q_1"></span> and
+                    <span data-tex="Q_2"></span> sit on the <em>x</em>-axis, a distance
+                    <span class="given" data-tex="8.00\ \mathrm{cm}"></span> apart. A third particle with
+                    charge <span class="given" data-tex="Q_3 = +8.00\cdot 10^{-19}\ \mathrm{C}"></span>
+                    placed between them feels a resultant electrostatic force
+                    <span data-tex="\vec{F}_3"></span>. The <em>x</em>-component of that force
+                    as a function of the particle's <em>x</em>-coordinate is shown in the graph;
+                    the axis scale is <span class="given" data-tex="x_{\mathrm{s}} = 8.0\ \mathrm{cm}"></span>.
+                </p>
+                <p lang="cs">
+                    Dvě nehybné částice s náboji <span data-tex="Q_1"></span> a
+                    <span data-tex="Q_2"></span> leží na ose <em>x</em> ve vzájemné vzdálenosti
+                    <span class="given" data-tex="8{,}00\ \mathrm{cm}"></span>. Pokud mezi ně umístíme
+                    na osu <em>x</em> třetí částici s nábojem
+                    <span class="given" data-tex="Q_3 = +8{,}00\cdot 10^{-19}\ \mathrm{C}"></span>,
+                    působí na ni výsledná elektrostatická síla <span data-tex="\vec{F}_3"></span>.
+                    Závislost <em>x</em>-ové složky této síly na <em>x</em>-ové souřadnici částice
+                    je zobrazena v grafu; měřítko osy je dáno
+                    <span class="given" data-tex="x_{\mathrm{s}} = 8{,}0\ \mathrm{cm}"></span>.
+                </p>
+                <p lang="en">
+                    Determine (a) the <strong>sign</strong> of charge <span data-tex="Q_1"></span> and
+                    (b) the <strong>ratio</strong> <span data-tex="Q_2/Q_1"></span>.
+                </p>
+                <p lang="cs">
+                    Určete (a) <strong>znaménko</strong> náboje <span data-tex="Q_1"></span> a
+                    (b) <strong>poměr</strong> <span data-tex="Q_2/Q_1"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Match the graph</span><span lang="cs">Trefte tištěný graf</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F_{3x}(x) = k Q_3\!\left[\dfrac{Q_1}{x^2} - \dfrac{Q_2}{(L-x)^2}\right]"></div>
+                <div class="sim-hint"><span lang="en">tune the ratio until the zero crossing hits the printed one</span><span lang="cs">laďte poměr, dokud nulový bod nepadne na tištěný</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Ratio Q₂ / Q₁</span><span lang="cs">Poměr Q₂ / Q₁</span></span>
+                            <span class="sim-control-val" id="p-ratio-val">4.00</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-ratio" min="1" max="16" step="0.25" value="4">
+                    </div>
+                    <div class="toggle-row" id="mode-pos">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">Q₁ positive</span><span lang="cs">Q₁ kladný</span></span>
+                    </div>
+                    <div class="toggle-row" id="mode-neg">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Q₁ negative</span><span lang="cs">Q₁ záporný</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F_{3x}\ (x\to 0)"></span>
+                        <span class="readout-val" id="r-near">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="x_0\ (F_{3x}=0)"></span>
+                        <span class="readout-val" id="r-x0">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q_2/Q_1"></span>
+                        <span class="readout-val" id="r-ratio">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · crossing at 2.0 cm</span><span lang="cs">Cíl · nulový bod v 2,0 cm</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">match</span><span lang="cs">shoda</span></span>
+                        <span class="readout-val" id="r-match">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-target">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">printed zero crossing</span><span lang="cs">tištěný nulový bod</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-inset">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">particle sketch</span><span lang="cs">náčrtek částic</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Sign of Q₁.</strong> Close to particle 1 its force dominates. The graph shows
+                    <span data-tex="F_{3x} > 0"></span> as <span data-tex="x \to 0"></span>:
+                    the positive charge <span data-tex="Q_3"></span> is pushed <em>away</em> from
+                    particle 1, so the two repel — <span data-tex="Q_1"></span> is
+                    <strong>positive</strong>.</span>
+                    <span lang="cs"><strong>Znaménko Q₁.</strong> Blízko částice 1 převládá její síla. Graf ukazuje
+                    <span data-tex="F_{3x} > 0"></span> pro <span data-tex="x \to 0"></span>:
+                    kladný náboj <span data-tex="Q_3"></span> je od částice 1 <em>odtlačován</em>,
+                    obě se tedy odpuzují — <span data-tex="Q_1"></span> je
+                    <strong>kladný</strong>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Zero crossing.</strong> The curve crosses zero at
+                    <span data-tex="x_0 = 2.0\ \mathrm{cm}"></span> (one quarter of the
+                    <span data-tex="8.0\ \mathrm{cm}"></span> separation). There the two Coulomb pulls
+                    balance:
+                    <span data-tex="\dfrac{k\,Q_1 Q_3}{x_0^2} = \dfrac{k\,Q_2 Q_3}{(L-x_0)^2}"></span>.</span>
+                    <span lang="cs"><strong>Nulový bod.</strong> Křivka protíná nulu v
+                    <span data-tex="x_0 = 2{,}0\ \mathrm{cm}"></span> (čtvrtina vzdálenosti
+                    <span data-tex="8{,}0\ \mathrm{cm}"></span>). Tam se obě Coulombovy síly
+                    vyrovnají:
+                    <span data-tex="\dfrac{k\,Q_1 Q_3}{x_0^2} = \dfrac{k\,Q_2 Q_3}{(L-x_0)^2}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Solving for the ratio:
+                    <span data-tex="\dfrac{Q_2}{Q_1} = \left(\dfrac{L-x_0}{x_0}\right)^{\!2} = \left(\dfrac{6.0}{2.0}\right)^{\!2} = 9.0"></span>.
+                    Both charges must have the same sign, otherwise the forces could not cancel
+                    between the particles.</span>
+                    <span lang="cs">Vyřešíme poměr:
+                    <span data-tex="\dfrac{Q_2}{Q_1} = \left(\dfrac{L-x_0}{x_0}\right)^{\!2} = \left(\dfrac{6{,}0}{2{,}0}\right)^{\!2} = 9{,}0"></span>.
+                    Oba náboje musí mít stejné znaménko, jinak by se síly mezi částicemi
+                    nemohly vyrušit.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en">Q₁ is positive</span><span lang="cs">Q₁ je kladný</span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="Q_2/Q_1 = 9.0"></span><span lang="cs" data-tex="Q_2/Q_1 = 9{,}0"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-1.html"><span lang="en">← Topic: Electrostatics I</span><span lang="cs">← Téma: Elektrostatika I</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 21 · Ex. 14</span><span lang="cs">Kap. 21 · Úl. 14</span></span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#3D2E8A',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const L = 8.0;               /* cm, separation of particles 1 and 2 */
+    const X_TGT = 2.0;           /* cm, printed zero crossing           */
+    const DEFAULTS = { ratio: 4.0, positive: true };   /* deliberately off-target */
+    let state = { ...DEFAULTS };
+    const show = { target: true, inset: true };
+
+    const inp = document.getElementById('p-ratio');
+    const lbl = document.getElementById('p-ratio-val');
+    inp.addEventListener('input', () => {
+        state.ratio = +inp.value;
+        lbl.textContent = state.ratio.toFixed(2);
+    });
+
+    function setSign(pos) {
+        state.positive = pos;
+        document.querySelector('#mode-pos .toggle-box').classList.toggle('on', pos);
+        document.querySelector('#mode-neg .toggle-box').classList.toggle('on', !pos);
+    }
+    document.getElementById('mode-pos').addEventListener('click', () => setSign(true));
+    document.getElementById('mode-neg').addEventListener('click', () => setSign(false));
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        inp.value = state.ratio;
+        lbl.textContent = state.ratio.toFixed(2);
+        setSign(true);
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-target', 'target');
+    wireToggle('tgl-inset',  'inset');
+
+    /* F3x in graph units (10^-23 N); the vertical scale is set by |Q1|,
+       which the exercise never gives — the crossing position is what matters. */
+    function fx(x) {
+        const s = state.positive ? 1 : -1;
+        return 2 * s * (1 / (x * x) - state.ratio / ((L - x) * (L - x)));
+    }
+    /* zero crossing exists only for like-signed charges: x0 = L/(1+sqrt(ratio)) */
+    function crossing() { return L / (1 + Math.sqrt(state.ratio)); }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        const mL = 64, mR = 30, mT = 42, mB = 46;
+        const pw = W - mL - mR, ph = H - mT - mB;
+        const xPix = x => mL + (x / L) * pw;
+        const yPix = f => mT + ph / 2 - (f / 1.1) * (ph / 2);
+
+        /* frame + grid */
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        for (let gx = 0; gx <= 4; gx++) {
+            ctx.beginPath();
+            ctx.moveTo(xPix(gx * 2), mT); ctx.lineTo(xPix(gx * 2), mT + ph);
+            ctx.stroke();
+        }
+        for (let gy = -1; gy <= 1; gy += 0.5) {
+            ctx.beginPath();
+            ctx.moveTo(mL, yPix(gy)); ctx.lineTo(mL + pw, yPix(gy));
+            ctx.stroke();
+        }
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, pw, ph);
+        ctx.beginPath(); ctx.moveTo(mL, yPix(0)); ctx.lineTo(mL + pw, yPix(0)); ctx.stroke();
+
+        /* axis labels */
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        for (let gx = 0; gx <= 4; gx++)
+            ctx.fillText((gx * 2).toFixed(0), xPix(gx * 2), mT + ph + 8);
+        ctx.fillText('x (cm)', mL + pw / 2, mT + ph + 24);
+        ctx.save();
+        ctx.translate(18, mT + ph / 2); ctx.rotate(-Math.PI / 2);
+        ctx.fillText('F₃ₓ (10⁻²³ N)', 0, 0);
+        ctx.restore();
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('+1', mL - 8, yPix(1));
+        ctx.fillText('0',  mL - 8, yPix(0));
+        ctx.fillText('−1', mL - 8, yPix(-1));
+
+        /* printed zero crossing target */
+        if (show.target) {
+            const matched = isMatched();
+            const tc = matched ? col.acc : col.soft;
+            ctx.strokeStyle = tc; ctx.lineWidth = 1.4; ctx.setLineDash([6, 5]);
+            ctx.beginPath();
+            ctx.moveTo(xPix(X_TGT), mT); ctx.lineTo(xPix(X_TGT), mT + ph);
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = tc;
+            ctx.beginPath(); ctx.arc(xPix(X_TGT), yPix(0), 4.5, 0, Math.PI * 2); ctx.fill();
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText((matched ? '✓ ' : '') + (isCS()
+                             ? 'tištěný nulový bod · 2,0 cm'
+                             : 'printed crossing · 2.0 cm'),
+                         xPix(X_TGT) + 7, mT + 14);
+        }
+
+        /* live curve, clipped to the frame */
+        ctx.save();
+        ctx.beginPath(); ctx.rect(mL, mT, pw, ph); ctx.clip();
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= 420; i++) {
+            const x = 0.25 + (L - 0.5) * i / 420;
+            const f = fx(x);
+            const px = xPix(x), py = yPix(Math.max(-4, Math.min(4, f)));
+            if (!started) { ctx.moveTo(px, py); started = true; }
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        /* live crossing dot */
+        if (state.positive) {
+            const x0 = crossing();
+            ctx.fillStyle = col.ink;
+            ctx.beginPath(); ctx.arc(xPix(x0), yPix(0), 3.5, 0, Math.PI * 2); ctx.fill();
+        }
+
+        /* particle sketch inset (fig 21-27a) */
+        if (show.inset) {
+            const ix = mL + pw - 168, iy = mT + 16, iw = 152, ih = 44;
+            ctx.fillStyle = col.paper; ctx.globalAlpha = 0.92;
+            ctx.fillRect(ix, iy, iw, ih); ctx.globalAlpha = 1;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.strokeRect(ix, iy, iw, ih);
+            const ly = iy + ih / 2 + 6;
+            ctx.strokeStyle = col.soft;
+            ctx.beginPath(); ctx.moveTo(ix + 10, ly); ctx.lineTo(ix + iw - 10, ly); ctx.stroke();
+            const p1 = ix + 22, p2 = ix + iw - 22;
+            const p3 = p1 + (p2 - p1) * crossing() / L;
+            ctx.fillStyle = col.acc;
+            ctx.beginPath(); ctx.arc(p1, ly, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(p2, ly, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = col.ink;
+            ctx.beginPath(); ctx.arc(p3, ly, 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = col.soft;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('1', p1, ly - 8);
+            ctx.fillText('2', p2, ly - 8);
+            ctx.fillText('3', p3, ly - 8);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const cs = isCS();
+        $('r-near').textContent  = state.positive
+            ? (cs ? 'kladná (odpuzování)' : 'positive (repelled)')
+            : (cs ? 'záporná (přitahování)' : 'negative (attracted)');
+        $('r-x0').textContent    = state.positive
+            ? crossing().toFixed(2) + ' cm'
+            : (cs ? 'bez průchodu nulou' : 'no crossing');
+        $('r-ratio').textContent = state.ratio.toFixed(2);
+        $('r-match').textContent = isMatched() ? (cs ? '✓ shoda' : '✓ matched') : '—';
+    }
+
+    function isCS() {
+        return document.documentElement.getAttribute('data-lang') === 'cs';
+    }
+
+    function isMatched() {
+        return state.positive && Math.abs(crossing() - X_TGT) < 0.06;
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

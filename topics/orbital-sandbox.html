@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orbital Sandbox · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+</head>
+<body class="orbital" data-screen-label="04 Orbital">
+
+<div class="page">
+
+    <!-- Top bar -->
+    <header class="topbar">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Physics Playground</span>
+            <small>Vol. I · Mechanics</small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html">All topics</a>
+            <a href="#lab">Lab</a>
+            <a href="#concepts">Concepts</a>
+            <span class="edition">Edition 0.1 — Draft</span>
+        </nav>
+    </header>
+
+    <!-- Topic hero -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ 03 · orbital</div>
+            <h1>Orbital Sandbox</h1>
+            <p class="lede">Place a body, give it a kick, and watch Kepler's laws emerge. Tug on the mass of the central star and see eccentric orbits stretch into parabolas at escape velocity.</p>
+            <div style="display:flex; gap:8px; margin-top:24px; flex-wrap:wrap;">
+                <span class="tag">indigo</span>
+                <span class="tag">#2a4a8a</span>
+                <span class="tag">interactive</span>
+            </div>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big">F = <em>G</em> <em>Mm</em>/<em>r</em><sup>2</sup></div>
+            <div class="eq-caption">Newtonian gravitation — the universal inverse-square law</div>
+        </div>
+    </section>
+
+    <!-- Lab: canvas + side panels -->
+    <section id="lab" class="lab">
+
+        <!-- Main canvas placeholder -->
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Simulation canvas</span>
+                <span>60 fps · paused</span>
+            </div>
+            <div class="placeholder">
+                <div class="ph-inner">
+                    <strong>// simulation canvas</strong>
+                    Claude Code will mount the renderer here.<br />
+                    Three.js scene with a parametric orbit trail. Symplectic Euler integrator for energy stability.
+                </div>
+            </div>
+        </div>
+
+        <!-- Side stack: controls + graph -->
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <span>reset</span>
+                </div>
+                <div class="panel-body">
+        <div class="control" data-pos="50">
+            <span class="name">Central mass (M)</span>
+            <span class="val">1.00 M☉</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="50">
+            <span class="name">Initial radius (r₀)</span>
+            <span class="val">1.00 AU</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="50">
+            <span class="name">Initial velocity (v₀)</span>
+            <span class="val">29.8 km/s</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="50">
+            <span class="name">Velocity angle</span>
+            <span class="val">90°</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="65">
+            <span class="name">Trail length</span>
+            <span class="val">600 steps</span>
+            <span class="slot"></span>
+        </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Phase / energy plot</span>
+                    <span>D3.js</span>
+                </div>
+                <div class="graph-area">
+                    <!-- Placeholder: live graph will be wired here -->
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Concepts -->
+    <section id="concepts">
+        <div class="section-head">
+            <h2>What this teaches</h2>
+            <span class="count">three core ideas</span>
+        </div>
+        <div class="concepts" style="margin-top:0; padding-top:0; border-top:none;">
+        <div class="concept">
+            <h4>Conic sections</h4>
+            <p>Circle, ellipse, parabola, hyperbola — all from a single initial velocity.</p>
+        </div>
+        <div class="concept">
+            <h4>Kepler's 2nd</h4>
+            <p>Equal areas in equal times, shaded live as the orbit progresses.</p>
+        </div>
+        <div class="concept">
+            <h4>Energy & escape</h4>
+            <p>Total E switches sign at escape velocity. Watch the orbit unbind.</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- Lesson notes placeholder -->
+    <section style="margin-top:64px;">
+        <div class="section-head">
+            <h2>Lesson notes</h2>
+            <span class="count">// to be written</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:32px;">
+            <div>
+                <div class="label">01 · Intuition</div>
+                <p class="note" style="margin-top:8px;">
+                    Plain-language framing of the phenomenon. What should the student
+                    feel before any math? — to be filled in.
+                </p>
+            </div>
+            <div>
+                <div class="label">02 · Derivation</div>
+                <p class="note" style="margin-top:8px;">
+                    Step-by-step build of the governing equation, rendered with KaTeX.
+                    Each step toggleable. — to be filled in.
+                </p>
+            </div>
+            <div>
+                <div class="label">03 · Exercises</div>
+                <p class="note" style="margin-top:8px;">
+                    Three or four guided problems that use the simulation. Answers
+                    revealed after attempt. — to be filled in.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prev / next -->
+    <section style="margin-top:96px; display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+        <a href="spring-system.html" style="border:none; padding:20px 24px; border:1.5px solid var(--ink); background:var(--paper); display:block;">
+            <div class="label" style="color:var(--ink-faint);">← Previous</div>
+            <div style="font-family:var(--f-serif); font-size:22px; margin-top:6px;">Spring System</div>
+        </a>
+        <a href="collision-lab.html" style="border:none; padding:20px 24px; border:1.5px solid var(--ink); background:var(--paper); display:block; text-align:right;">
+            <div class="label" style="color:var(--ink-faint);">Next →</div>
+            <div style="font-family:var(--f-serif); font-size:22px; margin-top:6px;">Collision Lab</div>
+        </a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ 03 Orbital Sandbox</span>
+        <span>Edit: src/topics/orbital-sandbox/</span>
+    </footer>
+
+</div>
+
+<!--
+    ============================================================
+    TODO (Claude Code):
+    - Mount renderer in .canvas-panel .placeholder
+    - Wire .control[data-pos] elements to real <input type="range">
+      and bind to simulation state
+    - Render KaTeX equations live in .eq-big where useful
+    - Plot live data in .graph-area via D3.js
+    ============================================================
+-->
+
+</body>
+</html>

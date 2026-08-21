@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 24.20 · Potential of a Movable Pair — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-2" data-screen-label="Ex 24.20 Potential Pair">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 24 · Ex. 20</span><span lang="cs">Kap. 24 · Úl. 20</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 2 · Electrostatics II — Chapter 24 · Exercise 20</span><span lang="cs">2. téma · Elektrostatika II — Kapitola 24 · Úloha 20</span></div>
+        <h1><span lang="en">Potential of a Movable Pair</span><span lang="cs">Potenciál pohyblivé dvojice</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>20</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Particle 1 (charge <span data-tex="Q_1"></span>) is fixed on the <em>x</em>-axis
+                    at distance <span data-tex="d"></span> to the left of the origin. Particle 2
+                    (charge <span data-tex="Q_2"></span>) can slide along the positive
+                    <em>x</em>-axis. The graph shows the electric potential
+                    <span data-tex="\varphi"></span> at the <strong>origin</strong> as a function of
+                    particle 2's coordinate <span data-tex="x"></span>. The axis scale is
+                    <span class="given" data-tex="x_{\mathrm{s}} = 16{,}0\ \mathrm{cm}"></span>, and
+                    for <span data-tex="x\to\infty"></span> the curve approaches the asymptote
+                    <span class="given" data-tex="\varphi = 5{,}76\cdot 10^{-7}\ \mathrm{V}"></span>.
+                </p>
+                <p lang="cs">
+                    Částice 1 (náboj <span data-tex="Q_1"></span>) je pevně umístěna na ose <em>x</em>
+                    ve vzdálenosti <span data-tex="d"></span> nalevo od počátku. Částice 2
+                    (náboj <span data-tex="Q_2"></span>) se může posouvat po kladné poloose
+                    <em>x</em>. Graf ukazuje elektrický potenciál
+                    <span data-tex="\varphi"></span> v <strong>počátku</strong> jako funkci
+                    souřadnice <span data-tex="x"></span> částice 2. Měřítko osy je
+                    <span class="given" data-tex="x_{\mathrm{s}} = 16{,}0\ \mathrm{cm}"></span> a
+                    pro <span data-tex="x\to\infty"></span> se křivka blíží asymptotě
+                    <span class="given" data-tex="\varphi = 5{,}76\cdot 10^{-7}\ \mathrm{V}"></span>.
+                </p>
+                <p lang="en">
+                    Express <span data-tex="Q_2"></span> in multiples of the elementary charge
+                    <span data-tex="e"></span>.
+                </p>
+                <p lang="cs">
+                    Vyjádřete <span data-tex="Q_2"></span> jako násobek elementárního náboje
+                    <span data-tex="e"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Match the potential curve</span><span lang="cs">Trefte křivku potenciálu</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\varphi(x) = \dfrac{kQ_1}{d} + \dfrac{kQ_2}{x}"></div>
+                <div class="sim-hint"><span lang="en">tune Q₂ until the curve crosses zero at the printed point</span><span lang="cs">nastavte Q₂ tak, aby křivka protla nulu v uvedeném bodě</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge Q₂</span><span lang="cs">Náboj Q₂</span></span>
+                            <span class="sim-control-val" id="p-q2-val">−10 e</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q2" min="-60" max="-5" step="1" value="-10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varphi_{\infty} = kQ_1/d"></span>
+                        <span class="readout-val">5.76 ×10⁻⁷ V</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="x_0\ (\varphi = 0)"></span>
+                        <span class="readout-val" id="r-x0">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q_2"></span>
+                        <span class="readout-val" id="r-q2">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · zero at x = 8.0 cm</span><span lang="cs">Cíl · nula v x = 8,0 cm</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">match</span><span lang="cs">shoda</span></span>
+                        <span class="readout-val" id="r-match">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-target">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">printed crossing + asymptote</span><span lang="cs">zadaný průsečík + asymptota</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The potential at the origin is the sum of two point-charge terms:
+                    <span data-tex="\varphi(x) = \dfrac{kQ_1}{d} + \dfrac{kQ_2}{x}"></span>.
+                    As <span data-tex="x\to\infty"></span> the second term dies out, so the asymptote
+                    directly gives <span data-tex="kQ_1/d = 5{,}76\cdot 10^{-7}\ \mathrm{V}"></span> —
+                    no need to know <span data-tex="Q_1"></span> or <span data-tex="d"></span>
+                    separately.</span>
+                    <span lang="cs">Potenciál v počátku je součtem dvou bodových příspěvků:
+                    <span data-tex="\varphi(x) = \dfrac{kQ_1}{d} + \dfrac{kQ_2}{x}"></span>.
+                    Pro <span data-tex="x\to\infty"></span> druhý člen vymizí, takže asymptota
+                    přímo dává <span data-tex="kQ_1/d = 5{,}76\cdot 10^{-7}\ \mathrm{V}"></span> —
+                    není třeba znát <span data-tex="Q_1"></span> ani <span data-tex="d"></span>
+                    zvlášť.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The graph crosses zero at <span data-tex="x_0 = 8{,}0\ \mathrm{cm}"></span>
+                    (half of <span data-tex="x_{\mathrm{s}}"></span>). There:
+                    <span data-tex="\dfrac{kQ_2}{x_0} = -5{,}76\cdot 10^{-7}\ \mathrm{V}"></span>,
+                    so <span data-tex="Q_2"></span> must be negative.</span>
+                    <span lang="cs">Graf protíná nulu v <span data-tex="x_0 = 8{,}0\ \mathrm{cm}"></span>
+                    (polovina <span data-tex="x_{\mathrm{s}}"></span>). Tam platí:
+                    <span data-tex="\dfrac{kQ_2}{x_0} = -5{,}76\cdot 10^{-7}\ \mathrm{V}"></span>,
+                    takže <span data-tex="Q_2"></span> musí být záporný.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><span data-tex="Q_2 = -\dfrac{5{,}76\cdot 10^{-7}\cdot 0{,}080}{8{,}99\cdot 10^{9}} = -5{,}13\cdot 10^{-18}\ \mathrm{C} = \dfrac{-5{,}13\cdot 10^{-18}}{1{,}602\cdot 10^{-19}}\,e"></span>.</span>
+                    <span lang="cs"><span data-tex="Q_2 = -\dfrac{5{,}76\cdot 10^{-7}\cdot 0{,}080}{8{,}99\cdot 10^{9}} = -5{,}13\cdot 10^{-18}\ \mathrm{C} = \dfrac{-5{,}13\cdot 10^{-18}}{1{,}602\cdot 10^{-19}}\,e"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value" data-tex="Q_2 = -32\,e"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-2.html"><span lang="en">← Topic: Electrostatics II</span><span lang="cs">← Téma: Elektrostatika II</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 24 · Ex. 20</span><span lang="cs">Kap. 24 · Úl. 20</span></span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const K = 8.99e9, E_CH = 1.602e-19;
+    const PHI_INF = 5.76e-7;         /* V */
+    const XS = 16.0;                 /* cm */
+    const X_TGT = 8.0;               /* cm, printed zero crossing */
+    const DEFAULTS = { q2: -10 };    /* in e — deliberately off-target */
+    let state = { ...DEFAULTS };
+    const show = { target: true };
+
+    const inp = document.getElementById('p-q2');
+    const lbl = document.getElementById('p-q2-val');
+    inp.addEventListener('input', () => {
+        state.q2 = +inp.value;
+        lbl.textContent = state.q2.toFixed(0) + ' e';
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        inp.value = state.q2;
+        lbl.textContent = state.q2.toFixed(0) + ' e';
+    });
+    document.getElementById('tgl-target')?.addEventListener('click', function () {
+        show.target = !show.target;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function phi(xCm) {
+        return PHI_INF + K * state.q2 * E_CH / (xCm / 100);
+    }
+    /* zero crossing: x0 = -k q2 e / phi_inf */
+    function crossing() {
+        return -K * state.q2 * E_CH / PHI_INF * 100;   /* cm */
+    }
+    const isMatched = () => Math.abs(crossing() - X_TGT) < 0.15;
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const matched = isMatched();
+
+        const mL = 70, mR = 28, mT = 34, mB = 46;
+        const pw = W - mL - mR, ph = H - mT - mB;
+        const PHI_MIN = -10e-7, PHI_MAX = 6e-7;
+        const xPix = x => mL + (x / XS) * pw;
+        const yPix = p => mT + (PHI_MAX - p) / (PHI_MAX - PHI_MIN) * ph;
+
+        /* grid */
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        for (let g = 1; g <= 4; g++) {
+            ctx.beginPath(); ctx.moveTo(xPix(g * 4), mT); ctx.lineTo(xPix(g * 4), mT + ph); ctx.stroke();
+        }
+        for (let v = -10; v <= 6; v += 2) {
+            ctx.beginPath(); ctx.moveTo(mL, yPix(v * 1e-7)); ctx.lineTo(mL + pw, yPix(v * 1e-7)); ctx.stroke();
+        }
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, pw, ph);
+        ctx.beginPath(); ctx.moveTo(mL, yPix(0)); ctx.lineTo(mL + pw, yPix(0)); ctx.stroke();
+
+        /* labels */
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        [4, 8, 12, 16].forEach(x => ctx.fillText(x.toFixed(0), xPix(x), mT + ph + 8));
+        ctx.fillText('x (cm)', mL + pw / 2, mT + ph + 24);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('+4', mL - 8, yPix(4e-7));
+        ctx.fillText('0',  mL - 8, yPix(0));
+        ctx.fillText('−10', mL - 8, yPix(-10e-7));
+        ctx.save();
+        ctx.translate(16, mT + ph / 2); ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('φ (10⁻⁷ V)', 0, 0);
+        ctx.restore();
+
+        /* target markers */
+        if (show.target) {
+            const tc = matched ? col.acc : col.soft;
+            ctx.setLineDash([6, 5]); ctx.lineWidth = 1.4;
+            /* asymptote */
+            ctx.strokeStyle = tc;
+            ctx.beginPath(); ctx.moveTo(mL, yPix(PHI_INF)); ctx.lineTo(mL + pw, yPix(PHI_INF)); ctx.stroke();
+            /* crossing */
+            ctx.beginPath(); ctx.moveTo(xPix(X_TGT), mT); ctx.lineTo(xPix(X_TGT), mT + ph); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = tc;
+            ctx.beginPath(); ctx.arc(xPix(X_TGT), yPix(0), 4.5, 0, Math.PI * 2); ctx.fill();
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('asymptote 5.76·10⁻⁷ V', mL + 8, yPix(PHI_INF) - 4);
+            ctx.fillText((matched ? '✓ ' : '') + 'zero at 8.0 cm', xPix(X_TGT) + 7, mT + 16);
+        }
+
+        /* live curve */
+        ctx.save();
+        ctx.beginPath(); ctx.rect(mL, mT, pw, ph); ctx.clip();
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= 480; i++) {
+            const x = 0.4 + (XS - 0.4) * i / 480;
+            const p = phi(x);
+            const px = xPix(x), py = yPix(Math.max(PHI_MIN * 3, p));
+            if (!started) { ctx.moveTo(px, py); started = true; }
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        /* live crossing dot */
+        const x0 = crossing();
+        if (x0 > 0 && x0 < XS) {
+            ctx.fillStyle = col.ink;
+            ctx.beginPath(); ctx.arc(xPix(x0), yPix(0), 3.5, 0, Math.PI * 2); ctx.fill();
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-x0').textContent = x0.toFixed(2) + ' cm';
+        $('r-q2').textContent = state.q2.toFixed(0) + ' e = ' +
+            (state.q2 * E_CH * 1e18).toFixed(2) + ' ×10⁻¹⁸ C';
+        $('r-match').textContent = matched ? '✓ matched · Q₂ = −32 e' : '—';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

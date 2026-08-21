@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 15.35 · The Ballistic Oscillator — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="oscillation" data-screen-label="Ex 15.35 The Ballistic Oscillator">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Oscillation</span><span lang="cs">Díl I · Kmity</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 15 · Ex. 35</span><span lang="cs">Kap. 15 · Úl. 35</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 8 · Oscillation — Chapter 15 · Exercise 35</span><span lang="cs">8. téma · Kmity — Kapitola 15 · Úloha 35</span></div>
+        <h1><span lang="en">The Ballistic Oscillator</span><span lang="cs">Balistický oscilátor</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>35</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A body of mass <span class="given" data-tex="M = 5{,}4\ \mathrm{kg}"></span> rests on a
+                    horizontal frictionless surface, connected to the wall by a spring of stiffness
+                    <span class="given" data-tex="k = 6\,000\ \mathrm{N\,m^{-1}}"></span>. The system is
+                    in equilibrium when a projectile of mass
+                    <span class="given" data-tex="m = 9{,}5\ \mathrm{g}"></span> travelling at
+                    <span class="given" data-tex="v = 630\ \mathrm{m\,s^{-1}}"></span> strikes the body
+                    and embeds itself in it (fig. 15-39).
+                </p>
+                <p lang="cs">
+                    Těleso o hmotnosti <span class="given" data-tex="M = 5{,}4\ \mathrm{kg}"></span> leží na
+                    vodorovné podložce bez tření a je se stěnou spojeno pružinou o tuhosti
+                    <span class="given" data-tex="k = 6\,000\ \mathrm{N\,m^{-1}}"></span>. Soustava je
+                    v rovnováze, když do tělesa narazí projektil o hmotnosti
+                    <span class="given" data-tex="m = 9{,}5\ \mathrm{g}"></span> letící rychlostí
+                    <span class="given" data-tex="v = 630\ \mathrm{m\,s^{-1}}"></span> a uvízne v něm
+                    (obr. 15-39).
+                </p>
+                <p lang="en">
+                    (a) Find the speed of the body immediately after the impact.
+                    (b) Determine the amplitude of the resulting harmonic motion.
+                </p>
+                <p lang="cs">
+                    (a) Určete rychlost tělesa bezprostředně po nárazu.
+                    (b) Určete amplitudu výsledného harmonického pohybu.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Impact sandbox</span><span lang="cs">Sandbox: náraz</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">slow motion</span><span lang="cs">zpomaleně</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="mv = (M+m)V"></div>
+                <div class="sim-hint"><span lang="en">momentum first, then energy — never the reverse</span><span lang="cs">nejprve hybnost, pak energie — nikdy naopak</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Projectile mass m</span><span lang="cs">Hmotnost projektilu m</span></span>
+                            <span class="sim-control-val" id="p-m-val">9.5 g</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="2" max="20" step="0.1" value="9.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Projectile speed v</span><span lang="cs">Rychlost projektilu v</span></span>
+                            <span class="sim-control-val" id="p-v-val">630 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-v" min="200" max="1000" step="5" value="630">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Body mass M</span><span lang="cs">Hmotnost tělesa M</span></span>
+                            <span class="sim-control-val" id="p-mm-val">5.4 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-mm" min="1" max="10" step="0.1" value="5.4">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Spring stiffness k</span><span lang="cs">Tuhost pružiny k</span></span>
+                            <span class="sim-control-val" id="p-k-val">6000 N/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-k" min="1000" max="12000" step="100" value="6000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">After the impact</span><span lang="cs">Po nárazu</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="V = \dfrac{mv}{M+m}"></span>
+                        <span class="readout-val" id="r-V">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Harmonic motion</span><span lang="cs">Harmonický pohyb</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega = \sqrt{k/(M+m)}"></span>
+                        <span class="readout-val" id="r-om">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="A = V/\omega"></span>
+                        <span class="readout-val" id="r-A">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="f"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-amp">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">amplitude markers</span><span lang="cs">značky amplitudy</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> The impact is perfectly inelastic — mechanical energy is lost,
+                    but momentum is conserved:
+                    <span data-tex="mv = (M+m)V"></span>, so
+                    <span data-tex="V = \dfrac{0{,}0095\cdot 630}{5{,}4095} = 1{,}1\ \mathrm{m\,s^{-1}}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Náraz je dokonale nepružný — mechanická energie se ztrácí,
+                    ale hybnost se zachovává:
+                    <span data-tex="mv = (M+m)V"></span>, tedy
+                    <span data-tex="V = \dfrac{0{,}0095\cdot 630}{5{,}4095} = 1{,}1\ \mathrm{m\,s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The impact happens at the equilibrium position, so all of the (new) system's
+                    mechanical energy is kinetic:
+                    <span data-tex="\tfrac12 (M+m)V^2 = \tfrac12 k A^2"></span>.</span>
+                    <span lang="cs">Náraz nastává v rovnovážné poloze, takže veškerá mechanická energie
+                    (nové) soustavy je kinetická:
+                    <span data-tex="\tfrac12 (M+m)V^2 = \tfrac12 k A^2"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> Solving,
+                    <span data-tex="A = V\sqrt{\dfrac{M+m}{k}} = 1{,}106\sqrt{\dfrac{5{,}4095}{6000}} = 3{,}3\ \mathrm{cm}"></span>
+                    (equivalently <span data-tex="A = V/\omega"></span> with
+                    <span data-tex="\omega = 33{,}3\ \mathrm{rad\,s^{-1}}"></span>).</span>
+                    <span lang="cs"><strong>(b)</strong> Řešením dostaneme
+                    <span data-tex="A = V\sqrt{\dfrac{M+m}{k}} = 1{,}106\sqrt{\dfrac{5{,}4095}{6000}} = 3{,}3\ \mathrm{cm}"></span>
+                    (ekvivalentně <span data-tex="A = V/\omega"></span> s
+                    <span data-tex="\omega = 33{,}3\ \mathrm{rad\,s^{-1}}"></span>).</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="V \approx 1{,}1\ \mathrm{m\,s^{-1}}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="A \approx 3{,}3\ \mathrm{cm}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/oscillation.html"><span lang="en">← Topic: Oscillation</span><span lang="cs">← Téma: Kmity</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 15 · Ex. 35</span><span lang="cs">Kap. 15 · Úl. 35</span></span>
+        <span><span lang="en">Vol. I · Oscillation</span><span lang="cs">Díl I · Kmity</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6e6a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* m grams, v m/s, mm kg, k N/m */
+    const DEFAULTS = { m: 9.5, v: 630, mm: 5.4, k: 6000 };
+    let state = { ...DEFAULTS };
+    const show = { amp: true };
+    const SLOW = 0.18;                 /* slow-motion factor for the SHM phase */
+    const T_HIT = 0.8;                 /* bullet flight time in the loop, s */
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtG = v => v.toFixed(1) + ' g';
+    const fmtV = v => v.toFixed(0) + ' m/s';
+    const fmtM = v => v.toFixed(1) + ' kg';
+    const fmtK = v => v.toFixed(0) + ' N/m';
+    const SLIDERS = [['p-m', 'm', fmtG], ['p-v', 'v', fmtV],
+                     ['p-mm', 'mm', fmtM], ['p-k', 'k', fmtK]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('tgl-amp')?.addEventListener('click', function () {
+        show.amp = !show.amp;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function physics() {
+        const m = state.m / 1000;
+        const Mm = state.mm + m;
+        const V  = m * state.v / Mm;
+        const om = Math.sqrt(state.k / Mm);
+        const A  = V / om;
+        return { V, om, A, f: om / (2 * Math.PI) };
+    }
+
+    function spring(x0, y, x1, coils) {
+        const n = coils, seg = (x1 - x0) / n;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x0, y);
+        for (let i = 0; i < n; i++) {
+            const xa = x0 + seg * (i + 0.5);
+            ctx.lineTo(xa, y + (i % 2 ? -9 : 9));
+        }
+        ctx.lineTo(x1, y);
+        ctx.stroke();
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const ph = physics();
+
+        /* geometry */
+        const floorY = H * 0.62;
+        const wallX = W - 46;
+        const eqX = W * 0.58;            /* block centre at equilibrium */
+        const bw = 78, bh = 58;
+
+        /* visual amplitude (exaggerated but labelled with the real value) */
+        const Apx = Math.max(12, Math.min(W * 0.14, ph.A * 1400));
+
+        /* loop: bullet flight, then a few slow-mo periods */
+        const Tvis = 2 * Math.PI / (ph.om * SLOW);
+        const period = T_HIT + 3 * Tvis;
+        const tau = (ts / 1000) % period;
+
+        let blockX, bulletX = null, hit = tau >= T_HIT;
+        if (!hit) {
+            blockX = eqX;
+            bulletX = 40 + (eqX - bw / 2 - 48) * (tau / T_HIT);
+        } else {
+            blockX = eqX + Apx * Math.sin(ph.om * SLOW * (tau - T_HIT));
+        }
+
+        /* floor */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(24, floorY); ctx.lineTo(W - 24, floorY); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = 30; x < W - 26; x += 13) {
+            ctx.beginPath(); ctx.moveTo(x, floorY); ctx.lineTo(x - 8, floorY + 9); ctx.stroke();
+        }
+
+        /* wall (right) */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(wallX, floorY); ctx.lineTo(wallX, H * 0.16); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let y = H * 0.16 + 6; y < floorY - 4; y += 12) {
+            ctx.beginPath(); ctx.moveTo(wallX, y); ctx.lineTo(wallX + 9, y - 8); ctx.stroke();
+        }
+
+        /* amplitude markers around equilibrium */
+        if (show.amp && hit) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            [eqX - Apx, eqX, eqX + Apx].forEach((x, i) => {
+                ctx.beginPath();
+                ctx.moveTo(x, floorY + 2); ctx.lineTo(x, floorY - bh - 26);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.soft;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('−A', eqX - Apx, floorY - bh - 30);
+            ctx.fillText('0',  eqX,       floorY - bh - 30);
+            ctx.fillText('+A', eqX + Apx, floorY - bh - 30);
+            ctx.fillText('A = ' + (ph.A * 100).toFixed(1) + ' cm (view exaggerated)',
+                         eqX, floorY - bh - 44);
+        }
+
+        /* spring from block's right side to the wall */
+        spring(blockX + bw / 2, floorY - bh / 2, wallX, 9);
+
+        /* block */
+        ctx.fillStyle = col.paper;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(blockX - bw / 2, floorY - bh, bw, bh);
+        ctx.strokeRect(blockX - bw / 2, floorY - bh, bw, bh);
+        ctx.fillStyle = col.ink;
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('M', blockX, floorY - bh / 2);
+        /* embedded projectile */
+        if (hit) {
+            ctx.beginPath();
+            ctx.arc(blockX - bw / 2 + 9, floorY - bh / 2, 4, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+        }
+
+        /* flying projectile */
+        if (bulletX !== null) {
+            ctx.fillStyle = col.acc;
+            ctx.beginPath();
+            ctx.moveTo(bulletX + 8, floorY - bh / 2);
+            ctx.lineTo(bulletX - 5, floorY - bh / 2 - 3.5);
+            ctx.lineTo(bulletX - 5, floorY - bh / 2 + 3.5);
+            ctx.closePath(); ctx.fill();
+            /* speed arrow */
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(bulletX - 34, floorY - bh / 2);
+            ctx.lineTo(bulletX - 12, floorY - bh / 2);
+            ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText('v', bulletX - 14, floorY - bh / 2 - 4);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-V'))  $('r-V').textContent  = ph.V.toFixed(2) + ' m/s';
+        if ($('r-om')) $('r-om').textContent = ph.om.toFixed(1) + ' rad/s';
+        if ($('r-A'))  $('r-A').textContent  = (ph.A * 100).toFixed(2) + ' cm';
+        if ($('r-f'))  $('r-f').textContent  = ph.f.toFixed(2) + ' Hz';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 6.34 · Block on a Slab — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="dynamics" data-screen-label="Ex 6.34 Block on a Slab">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 6 · Ex. 34</span><span lang="cs">Kap. 6 · Úl. 34</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 3 · Force &amp; Motion — Chapter 6 · Exercise 34</span><span lang="cs">3. téma · Síla a pohyb — Kapitola 6 · Úloha 34</span></div>
+        <h1><span lang="en">Block on a Slab</span><span lang="cs">Kvádr na desce</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•••</span>34</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A slab of mass <span class="given" data-tex="m_1 = 40\ \mathrm{kg}"></span> lies on a
+                    perfectly smooth floor (fig. 6-39). On the slab rests a block of mass
+                    <span class="given" data-tex="m_2 = 10\ \mathrm{kg}"></span>. Between block and slab
+                    the coefficient of static friction is
+                    <span class="given" data-tex="\mu_s = 0{,}60"></span> and of kinetic friction
+                    <span class="given" data-tex="\mu_d = 0{,}40"></span>. A horizontal force of
+                    <span class="given" data-tex="F = 100\ \mathrm{N}"></span> acts on the block.
+                </p>
+                <p lang="cs">
+                    Deska o hmotnosti <span class="given" data-tex="m_1 = 40\ \mathrm{kg}"></span> leží na
+                    dokonale hladké podlaze (obr. 6-39). Na desce spočívá kvádr o hmotnosti
+                    <span class="given" data-tex="m_2 = 10\ \mathrm{kg}"></span>. Mezi kvádrem a deskou
+                    je součinitel statického tření
+                    <span class="given" data-tex="\mu_s = 0{,}60"></span> a dynamického tření
+                    <span class="given" data-tex="\mu_d = 0{,}40"></span>. Na kvádr působí vodorovná síla
+                    <span class="given" data-tex="F = 100\ \mathrm{N}"></span>.
+                </p>
+                <p lang="en">
+                    Determine the acceleration of (a) the block and (b) the slab.
+                </p>
+                <p lang="cs">
+                    Určete zrychlení (a) kvádru a (b) desky.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Two-body sandbox</span><span lang="cs">Sandbox: dvě tělesa</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="f_{s,\max} = \mu_s m_2 g"></div>
+                <div class="sim-hint"><span lang="en">friction can only carry the slab so far</span><span lang="cs">tření unese desku jen do určité míry</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Force F on the block</span><span lang="cs">Síla F na kvádr</span></span>
+                            <span class="sim-control-val" id="p-f-val">100 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-f" min="10" max="160" step="1" value="100">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Block mass m₂</span><span lang="cs">Hmotnost kvádru m₂</span></span>
+                            <span class="sim-control-val" id="p-m2-val">10 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m2" min="4" max="20" step="0.5" value="10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Slab mass m₁</span><span lang="cs">Hmotnost desky m₁</span></span>
+                            <span class="sim-control-val" id="p-m1-val">40 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m1" min="10" max="80" step="1" value="40">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Static μ_s</span><span lang="cs">Statický μ_s</span></span>
+                            <span class="sim-control-val" id="p-mus-val">0.60</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-mus" min="0.1" max="1.0" step="0.01" value="0.60">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Kinetic μ_d</span><span lang="cs">Dynamický μ_d</span></span>
+                            <span class="sim-control-val" id="p-mud-val">0.40</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-mud" min="0.05" max="1.0" step="0.01" value="0.40">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Slip test</span><span lang="cs">Test prokluzu</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="f\ \text{needed}"></span><span lang="cs" data-tex="f\ \text{potřeba}"></span></span>
+                        <span class="readout-val" id="r-need">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="f_{s,\max}"></span>
+                        <span class="readout-val" id="r-fsmax">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="\text{verdict}"></span><span lang="cs" data-tex="\text{výsledek}"></span></span>
+                        <span class="readout-val" id="r-verdict">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Accelerations</span><span lang="cs">Zrychlení</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="a_2\ \text{(block)}"></span><span lang="cs" data-tex="a_2\ \text{(kvádr)}"></span></span>
+                        <span class="readout-val" id="r-ablock">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="a_1\ \text{(slab)}"></span><span lang="cs" data-tex="a_1\ \text{(deska)}"></span></span>
+                        <span class="readout-val" id="r-aslab">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-fric">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">friction arrows</span><span lang="cs">šipky tření</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Do they move together?</strong> If they did,
+                    <span data-tex="a = F/(m_1+m_2) = 2{,}0\ \mathrm{m\,s^{-2}}"></span> and the slab
+                    would need friction
+                    <span data-tex="f = m_1 a = 80\ \mathrm{N}"></span>. But the interface can supply at
+                    most <span data-tex="\mu_s m_2 g = 0{,}60\cdot 10\cdot 9{,}8 = 59\ \mathrm{N}"></span>
+                    — so the block <strong>slips</strong> on the slab.</span>
+                    <span lang="cs"><strong>Pohybují se společně?</strong> Kdyby ano, platilo by
+                    <span data-tex="a = F/(m_1+m_2) = 2{,}0\ \mathrm{m\,s^{-2}}"></span> a deska by
+                    potřebovala tření
+                    <span data-tex="f = m_1 a = 80\ \mathrm{N}"></span>. Rozhraní ale dokáže poskytnout nejvýše
+                    <span data-tex="\mu_s m_2 g = 0{,}60\cdot 10\cdot 9{,}8 = 59\ \mathrm{N}"></span>
+                    — kvádr tedy na desce <strong>prokluzuje</strong>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">With sliding, kinetic friction acts:
+                    <span data-tex="f_k = \mu_d m_2 g = 0{,}40\cdot 98 = 39\ \mathrm{N}"></span>.
+                    <strong>(a)</strong> Block:
+                    <span data-tex="a_2 = (F - f_k)/m_2 = (100-39{,}2)/10 = 6{,}1\ \mathrm{m\,s^{-2}}"></span>.</span>
+                    <span lang="cs">Při prokluzu působí dynamické tření:
+                    <span data-tex="f_k = \mu_d m_2 g = 0{,}40\cdot 98 = 39\ \mathrm{N}"></span>.
+                    <strong>(a)</strong> Kvádr:
+                    <span data-tex="a_2 = (F - f_k)/m_2 = (100-39{,}2)/10 = 6{,}1\ \mathrm{m\,s^{-2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The slab is driven only by that same friction (the floor is
+                    smooth):
+                    <span data-tex="a_1 = f_k/m_1 = 39{,}2/40 = 0{,}98\ \mathrm{m\,s^{-2}}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Desku pohání pouze totéž tření (podlaha je hladká):
+                    <span data-tex="a_1 = f_k/m_1 = 39{,}2/40 = 0{,}98\ \mathrm{m\,s^{-2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="a_2 \approx 6{,}1\ \mathrm{m\,s^{-2}}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="a_1 \approx 0{,}98\ \mathrm{m\,s^{-2}}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/force-and-motion.html"><span lang="en">← Topic: Force &amp; Motion</span><span lang="cs">← Téma: Síla a pohyb</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 6 · Ex. 34</span><span lang="cs">Kap. 6 · Úl. 34</span></span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b94d28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    const DEFAULTS = { f: 100, m2: 10, m1: 40, mus: 0.60, mud: 0.40 };
+    let state = { ...DEFAULTS };
+    const show = { fric: true };
+
+    const fmtF  = v => v.toFixed(0) + ' N';
+    const fmtM  = v => v.toFixed(1) + ' kg';
+    const fmtMu = v => v.toFixed(2);
+    const SLIDERS = [['p-f', 'f', fmtF], ['p-m2', 'm2', fmtM], ['p-m1', 'm1', fmtM],
+                     ['p-mus', 'mus', fmtMu], ['p-mud', 'mud', fmtMu]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-fric')?.addEventListener('click', function () {
+        show.fric = !show.fric;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function physics() {
+        const { f, m1, m2, mus, mud } = state;
+        const aTogether = f / (m1 + m2);
+        const need = m1 * aTogether;
+        const fsMax = mus * m2 * g;
+        const slips = need > fsMax;
+        let aBlock, aSlab, fk;
+        if (slips) {
+            fk = mud * m2 * g;
+            aBlock = (f - fk) / m2;
+            aSlab  = fk / m1;
+        } else {
+            fk = need;
+            aBlock = aSlab = aTogether;
+        }
+        return { need, fsMax, slips, aBlock, aSlab, fk };
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const ph = physics();
+
+        /* loop with the two bodies drifting at their own rates (F points left, as printed) */
+        const cyc = (ts / 1000) % 3.0;
+        const tv  = Math.min(cyc, 2.3);
+        const scale = 9;
+        const dBlock = 0.5 * ph.aBlock * tv * tv * scale;
+        const dSlab  = 0.5 * ph.aSlab  * tv * tv * scale;
+
+        const gy = H * 0.66;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(20, gy); ctx.lineTo(W - 20, gy); ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('μ = 0 (smooth floor)', 26, gy + 8);
+
+        /* slab */
+        const sw = 250, sh = 34;
+        const sx = W * 0.60 - dSlab, sy = gy - sh;
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(sx, sy, sw, sh); ctx.strokeRect(sx, sy, sw, sh);
+        ctx.fillStyle = col.ink;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m₁', sx + sw * 0.22, sy + sh / 2);
+
+        /* rough interface dots */
+        ctx.fillStyle = col.faint;
+        for (let x = sx + 6; x < sx + sw - 4; x += 9) {
+            ctx.fillRect(x, sy - 1.5, 3, 1.5);
+        }
+
+        /* block on top (starts near the right end, slides left faster) */
+        const bw = 66, bh = 44;
+        const bx = sx + sw - bw - 16 - (dBlock - dSlab), by = sy - bh;
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(bx, by, bw, bh); ctx.strokeRect(bx, by, bw, bh);
+        ctx.fillStyle = col.ink;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m₂', bx + bw / 2, by + bh / 2);
+
+        /* applied force (to the left, as in the book figure) */
+        arrow(bx, by + bh / 2, bx - 26 - state.f * 0.7, by + bh / 2, col.acc, 2.6);
+        ctx.fillStyle = col.acc;
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+        ctx.fillText('F', bx - 30 - state.f * 0.7, by + bh / 2 - 6);
+
+        /* friction pair */
+        if (show.fric) {
+            const fLen = ph.fk * 1.1;
+            arrow(bx + bw / 2, sy - 4, bx + bw / 2 + fLen, sy - 4, col.soft, 1.7);
+            arrow(bx + bw / 2, sy + 6, bx + bw / 2 - fLen, sy + 6, col.soft, 1.7);
+            ctx.fillStyle = col.soft;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('f on block', bx + bw / 2 + fLen + 8, sy - 4);
+            ctx.textAlign = 'right';
+            ctx.fillText('f on slab', bx + bw / 2 - fLen - 8, sy + 6);
+        }
+
+        if (ph.slips) {
+            ctx.fillStyle = col.acc;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('SLIPPING', bx + bw / 2, by - 8);
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-need'))    $('r-need').textContent    = ph.need.toFixed(1) + ' N';
+        if ($('r-fsmax'))   $('r-fsmax').textContent   = ph.fsMax.toFixed(1) + ' N';
+        if ($('r-verdict')) $('r-verdict').textContent = ph.slips ? 'slips' : 'moves together';
+        if ($('r-ablock'))  $('r-ablock').textContent  = ph.aBlock.toFixed(2) + ' m/s²';
+        if ($('r-aslab'))   $('r-aslab').textContent   = ph.aSlab.toFixed(2) + ' m/s²';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

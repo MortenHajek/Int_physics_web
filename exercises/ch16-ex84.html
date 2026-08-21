@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 16.84 · Write the Wave — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="waves" data-screen-label="Ex 16.84 Write the Wave">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Waves</span><span lang="cs">Díl I · Vlny</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 16 · Ex. 84</span><span lang="cs">Kap. 16 · Úl. 84</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 9 · Waves — Chapter 16 · Exercise 84</span><span lang="cs">9. téma · Vlny — Kapitola 16 · Úloha 84</span></div>
+        <h1><span lang="en">Write the Wave</span><span lang="cs">Napište vlnu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>84</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    (a) Write the equation of a transverse sinusoidal wave travelling on a string in
+                    the <span data-tex="+y"></span> direction with angular wavenumber
+                    <span class="given" data-tex="k = 60\ \mathrm{cm^{-1}}"></span>, period
+                    <span class="given" data-tex="T = 0{,}20\ \mathrm{s}"></span> and amplitude
+                    <span class="given" data-tex="A = 3{,}0\ \mathrm{mm}"></span>. At
+                    <span data-tex="t = 0"></span> the string element at
+                    <span data-tex="y = 0"></span> has zero displacement. Assume the string elements
+                    oscillate in the <span data-tex="z"></span> direction.
+                </p>
+                <p lang="cs">
+                    (a) Napište rovnici příčného sinusového vlnění šířícího se po struně ve směru
+                    <span data-tex="+y"></span> s úhlovým vlnočtem
+                    <span class="given" data-tex="k = 60\ \mathrm{cm^{-1}}"></span>, periodou
+                    <span class="given" data-tex="T = 0{,}20\ \mathrm{s}"></span> a amplitudou
+                    <span class="given" data-tex="A = 3{,}0\ \mathrm{mm}"></span>. V čase
+                    <span data-tex="t = 0"></span> má element struny v
+                    <span data-tex="y = 0"></span> nulovou výchylku. Předpokládejte, že elementy struny
+                    kmitají ve směru <span data-tex="z"></span>.
+                </p>
+                <p lang="en">
+                    (b) What is the largest transverse speed of the string's elements?
+                </p>
+                <p lang="cs">
+                    (b) Jaká je největší příčná rychlost elementů struny?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Wave sandbox</span><span lang="cs">Sandbox: vlnění</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="z = A\sin(ky - \omega t)"></div>
+                <div class="sim-hint"><span lang="en">the wave crawls, its elements sprint</span><span lang="cs">vlna se plíží, její elementy sprintují</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Amplitude A</span><span lang="cs">Amplituda A</span></span>
+                            <span class="sim-control-val" id="p-a-val">3.0 mm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-a" min="1" max="6" step="0.1" value="3.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Wavenumber k</span><span lang="cs">Vlnočet k</span></span>
+                            <span class="sim-control-val" id="p-k-val">60 cm⁻¹</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-k" min="20" max="100" step="1" value="60">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Period T</span><span lang="cs">Perioda T</span></span>
+                            <span class="sim-control-val" id="p-t-val">0.20 s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-t" min="0.05" max="0.50" step="0.01" value="0.20">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Derived quantities</span><span lang="cs">Odvozené veličiny</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega = 2\pi/T"></span>
+                        <span class="readout-val" id="r-om">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\lambda = 2\pi/k"></span>
+                        <span class="readout-val" id="r-lam">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v = \omega/k"></span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="u_{\max} = A\omega"></span>
+                        <span class="readout-val" id="r-umax">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-elem">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">tracked element</span><span lang="cs">sledovaný element</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">A wave moving in <span data-tex="+y"></span> with zero displacement at
+                    <span data-tex="y=0,\ t=0"></span> has the form
+                    <span data-tex="z = A\sin(ky - \omega t)"></span>, where
+                    <span data-tex="\omega = 2\pi/T = 2\pi/0{,}20 = 31\ \mathrm{s^{-1}}"></span>.</span>
+                    <span lang="cs">Vlna postupující ve směru <span data-tex="+y"></span> s nulovou výchylkou v
+                    <span data-tex="y=0,\ t=0"></span> má tvar
+                    <span data-tex="z = A\sin(ky - \omega t)"></span>, kde
+                    <span data-tex="\omega = 2\pi/T = 2\pi/0{,}20 = 31\ \mathrm{s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> With the given numbers:
+                    <span data-tex="z = (3{,}0\ \mathrm{mm})\,\sin\!\big[(60\ \mathrm{cm^{-1}})\,y - (31\ \mathrm{s^{-1}})\,t\big]"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> S danými hodnotami:
+                    <span data-tex="z = (3{,}0\ \mathrm{mm})\,\sin\!\big[(60\ \mathrm{cm^{-1}})\,y - (31\ \mathrm{s^{-1}})\,t\big]"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The transverse velocity is
+                    <span data-tex="u = \partial z/\partial t = -A\omega\cos(ky-\omega t)"></span>, so
+                    <span data-tex="u_{\max} = A\omega = 3{,}0\cdot 10^{-3}\cdot 31{,}4 = 9{,}4\ \mathrm{cm\,s^{-1}}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Příčná rychlost je
+                    <span data-tex="u = \partial z/\partial t = -A\omega\cos(ky-\omega t)"></span>, tedy
+                    <span data-tex="u_{\max} = A\omega = 3{,}0\cdot 10^{-3}\cdot 31{,}4 = 9{,}4\ \mathrm{cm\,s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="z = (3{,}0\ \mathrm{mm})\sin[(60\ \mathrm{cm^{-1}})y - (31\ \mathrm{s^{-1}})t]"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="u_{\max} \approx 9{,}4\ \mathrm{cm\,s^{-1}}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/waves.html"><span lang="en">← Topic: Waves</span><span lang="cs">← Téma: Vlny</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 16 · Ex. 84</span><span lang="cs">Kap. 16 · Úl. 84</span></span>
+        <span><span lang="en">Vol. I · Waves</span><span lang="cs">Díl I · Vlny</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#1a6678',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* a mm, k cm^-1, t s */
+    const DEFAULTS = { a: 3.0, k: 60, t: 0.20 };
+    let state = { ...DEFAULTS };
+    const show = { elem: true };
+
+    const fmtA = v => v.toFixed(1) + ' mm';
+    const fmtK = v => v.toFixed(0) + ' cm⁻¹';
+    const fmtT = v => v.toFixed(2) + ' s';
+    const SLIDERS = [['p-a', 'a', fmtA], ['p-k', 'k', fmtK], ['p-t', 't', fmtT]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-elem')?.addEventListener('click', function () {
+        show.elem = !show.elem;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const om  = 2 * Math.PI / state.t;             /* s^-1 */
+        const lam = 2 * Math.PI / state.k;             /* cm */
+        const v   = om / state.k;                      /* cm/s */
+        const umax = state.a / 1000 * om;              /* m/s */
+
+        /* draw ~3 wavelengths across the canvas; time runs at true rate */
+        const x0 = 46, x1 = W - 30;
+        const midY = H * 0.46;
+        const showLam = 3;                             /* wavelengths on screen */
+        const pxPerCm = (x1 - x0) / (showLam * lam);
+        const ampPx = state.a / 6 * H * 0.22;
+        const t = ts / 1000;
+
+        /* axes: y along the string, z transverse */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x0 - 8, midY); ctx.lineTo(x1 + 8, midY);
+        ctx.moveTo(x0, midY + ampPx + 26); ctx.lineTo(x0, midY - ampPx - 26);
+        ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        ctx.fillText('y →', x1 + 6, midY + 8);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('z', x0 + 6, midY - ampPx - 12);
+
+        /* the wave: z = A sin(ky − ωt) */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 220; i++) {
+            const yCm = i / 220 * showLam * lam;
+            const z = Math.sin(state.k * yCm - om * t);
+            const px = x0 + yCm * pxPerCm;
+            const py = midY - z * ampPx;
+            i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+
+        /* wavelength dimension */
+        const lamPx = lam * pxPerCm;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x0, midY + ampPx + 18); ctx.lineTo(x0 + lamPx, midY + ampPx + 18);
+        ctx.stroke();
+        [x0, x0 + lamPx].forEach(x => {
+            ctx.beginPath(); ctx.moveTo(x, midY + ampPx + 14); ctx.lineTo(x, midY + ampPx + 22);
+            ctx.stroke();
+        });
+        ctx.fillStyle = col.soft;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('λ = ' + lam.toFixed(3) + ' cm', x0 + lamPx / 2, midY + ampPx + 24);
+
+        /* tracked element at fixed y with its transverse velocity */
+        if (show.elem) {
+            const yeCm = showLam * lam * 0.5;
+            const ph = state.k * yeCm - om * t;
+            const ze = Math.sin(ph);
+            const ue = -Math.cos(ph);                 /* ∝ ∂z/∂t */
+            const ex = x0 + yeCm * pxPerCm, ey = midY - ze * ampPx;
+            ctx.strokeStyle = col.faint; ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(ex, midY - ampPx); ctx.lineTo(ex, midY + ampPx);
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+            ctx.fillStyle = col.ink; ctx.fill();
+            ctx.lineWidth = 1.6; ctx.strokeStyle = col.paper; ctx.stroke();
+            /* velocity arrow (z-direction!) */
+            const al = ue * 30;
+            if (Math.abs(al) > 4) {
+                ctx.strokeStyle = col.ink; ctx.fillStyle = col.ink; ctx.lineWidth = 1.8;
+                ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex, ey - al); ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(ex, ey - al - Math.sign(al) * 7);
+                ctx.lineTo(ex - 4, ey - al + Math.sign(al) * 2);
+                ctx.lineTo(ex + 4, ey - al + Math.sign(al) * 2);
+                ctx.closePath(); ctx.fill();
+            }
+            ctx.fillStyle = col.soft;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('u = ' + (ue * umax * 100).toFixed(1) + ' cm/s', ex + 12, ey);
+        }
+
+        /* the assembled equation */
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('z = (' + state.a.toFixed(1) + ' mm) · sin[(' + state.k.toFixed(0) +
+                     ' cm⁻¹)y − (' + om.toFixed(0) + ' s⁻¹)t]',
+                     (x0 + x1) / 2, H - 18);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-om'))   $('r-om').textContent   = om.toFixed(1) + ' s⁻¹';
+        if ($('r-lam'))  $('r-lam').textContent  = lam.toFixed(3) + ' cm';
+        if ($('r-v'))    $('r-v').textContent    = v.toFixed(2) + ' cm/s';
+        if ($('r-umax')) $('r-umax').textContent = (umax * 100).toFixed(1) + ' cm/s';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

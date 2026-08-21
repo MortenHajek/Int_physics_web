@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 27.44 · Two Resistors Hidden in a Graph — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="circuits" data-screen-label="Ex 27.44 Hidden Resistors">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Currents &amp; Circuits</span><span lang="cs">Díl II · Proudy a obvody</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 27 · Ex. 44</span><span lang="cs">Kap. 27 · Úl. 44</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 3 · Currents &amp; Circuits — Chapter 27 · Exercise 44</span><span lang="cs">3. téma · Proudy a obvody — Kapitola 27 · Úloha 44</span></div>
+        <h1><span lang="en">Two Resistors Hidden in a Graph</span><span lang="cs">Dva rezistory skryté v grafu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>44</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    In the circuit, an ideal battery
+                    (<span class="given" data-tex="\varepsilon = 12\ \mathrm{V}"></span>) drives
+                    <span data-tex="R_1"></span> in series with the parallel pair
+                    <span data-tex="R_2 \| R_3"></span>, where <span data-tex="R_3"></span> is
+                    adjustable. The graph shows the battery current <span data-tex="I"></span>
+                    versus <span data-tex="R_3"></span>: it starts at
+                    <span class="given" data-tex="6.0\ \mathrm{mA}"></span> for
+                    <span data-tex="R_3 = 0"></span> and approaches
+                    <span class="given" data-tex="2.0\ \mathrm{mA}"></span> asymptotically as
+                    <span data-tex="R_3 \to \infty"></span>.
+                    (The sandbox plots <span data-tex="R_3"></span> up to
+                    <span data-tex="20\ \mathrm{k\Omega}"></span> so the whole relaxation is visible.)
+                </p>
+                <p lang="cs">
+                    V obvodu ideální baterie
+                    (<span class="given" data-tex="\varepsilon = 12\ \mathrm{V}"></span>) napájí
+                    <span data-tex="R_1"></span> zapojený do série s paralelní dvojicí
+                    <span data-tex="R_2 \| R_3"></span>, kde <span data-tex="R_3"></span> je
+                    proměnný. Graf ukazuje proud baterií <span data-tex="I"></span>
+                    v závislosti na <span data-tex="R_3"></span>: začíná na
+                    <span class="given" data-tex="6{,}0\ \mathrm{mA}"></span> pro
+                    <span data-tex="R_3 = 0"></span> a asymptoticky se blíží
+                    <span class="given" data-tex="2{,}0\ \mathrm{mA}"></span> pro
+                    <span data-tex="R_3 \to \infty"></span>.
+                    (Sandbox vykresluje <span data-tex="R_3"></span> až do
+                    <span data-tex="20\ \mathrm{k\Omega}"></span>, aby byl celý průběh vidět.)
+                </p>
+                <p lang="en">
+                    Determine (a) <span data-tex="R_1"></span> and (b) <span data-tex="R_2"></span>.
+                </p>
+                <p lang="cs">
+                    Určete (a) <span data-tex="R_1"></span> a (b) <span data-tex="R_2"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Match the current curve</span><span lang="cs">Trefte proudovou křivku</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="I(R_3) = \dfrac{\varepsilon}{R_1 + \frac{R_2 R_3}{R_2+R_3}}"></div>
+                <div class="sim-hint"><span lang="en">R₃ = 0 pins down R₁ · the plateau pins down R₂</span><span lang="cs">R₃ = 0 určí R₁ · plató určí R₂</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Resistance R₁</span><span lang="cs">Odpor R₁</span></span>
+                            <span class="sim-control-val" id="p-r1-val">1.0 kΩ</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r1" min="0.5" max="6" step="0.05" value="1">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Resistance R₂</span><span lang="cs">Odpor R₂</span></span>
+                            <span class="sim-control-val" id="p-r2-val">1.0 kΩ</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r2" min="0.5" max="8" step="0.05" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I(R_3{=}0) = \varepsilon/R_1"></span>
+                        <span class="readout-val" id="r-i0">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I(R_3{\to}\infty)"></span>
+                        <span class="readout-val" id="r-iinf">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · 6.0 mA and 2.0 mA</span><span lang="cs">Cíl · 6,0 mA a 2,0 mA</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">match</span><span lang="cs">shoda</span></span>
+                        <span class="readout-val" id="r-match">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-target">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">printed curve</span><span lang="cs">tištěná křivka</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-circuit">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">circuit inset</span><span lang="cs">náhled obvodu</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Short-circuit limit.</strong> With <span data-tex="R_3 = 0"></span> the
+                    parallel pair collapses to zero and only <span data-tex="R_1"></span> limits the
+                    current. The graph starts at <span data-tex="6.0\ \mathrm{mA}"></span>:
+                    <span data-tex="R_1 = \dfrac{12}{6.0\cdot 10^{-3}} = 2.0\ \mathrm{k\Omega}"></span>.</span>
+                    <span lang="cs"><strong>Mez zkratu.</strong> Pro <span data-tex="R_3 = 0"></span> se
+                    paralelní dvojice zhroutí na nulu a proud omezuje pouze <span data-tex="R_1"></span>.
+                    Graf začíná na <span data-tex="6{,}0\ \mathrm{mA}"></span>:
+                    <span data-tex="R_1 = \dfrac{12}{6{,}0\cdot 10^{-3}} = 2{,}0\ \mathrm{k\Omega}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Open-circuit limit.</strong> As <span data-tex="R_3\to\infty"></span> its
+                    branch dies and the loop is <span data-tex="R_1 + R_2"></span>. The asymptote is
+                    <span data-tex="2.0\ \mathrm{mA}"></span>:
+                    <span data-tex="R_1 + R_2 = \dfrac{12}{2.0\cdot 10^{-3}} = 6.0\ \mathrm{k\Omega}"></span>.</span>
+                    <span lang="cs"><strong>Mez naprázdno.</strong> Pro <span data-tex="R_3\to\infty"></span> jeho
+                    větev odumře a smyčka je <span data-tex="R_1 + R_2"></span>. Asymptota je
+                    <span data-tex="2{,}0\ \mathrm{mA}"></span>:
+                    <span data-tex="R_1 + R_2 = \dfrac{12}{2{,}0\cdot 10^{-3}} = 6{,}0\ \mathrm{k\Omega}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Subtracting:
+                    <span data-tex="R_2 = 6.0 - 2.0 = 4.0\ \mathrm{k\Omega}"></span>.</span>
+                    <span lang="cs">Odečtením:
+                    <span data-tex="R_2 = 6{,}0 - 2{,}0 = 4{,}0\ \mathrm{k\Omega}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="R_1 = 2.0\ \mathrm{k\Omega}"></span><span lang="cs" data-tex="R_1 = 2{,}0\ \mathrm{k\Omega}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="R_2 = 4.0\ \mathrm{k\Omega}"></span><span lang="cs" data-tex="R_2 = 4{,}0\ \mathrm{k\Omega}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/circuits.html"><span lang="en">← Topic: Currents &amp; Circuits</span><span lang="cs">← Téma: Proudy a obvody</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 27 · Ex. 44</span><span lang="cs">Kap. 27 · Úl. 44</span></span>
+        <span><span lang="en">Vol. II · Currents &amp; Circuits</span><span lang="cs">Díl II · Proudy a obvody</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#a25a28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const EMF = 12.0;                     /* V */
+    const R3S = 20.0;                     /* kΩ, axis end */
+    const R1_TGT = 2.0, R2_TGT = 4.0;     /* kΩ */
+    const DEFAULTS = { r1: 1.0, r2: 1.0 };/* deliberately off-target */
+    let state = { ...DEFAULTS };
+    const show = { target: true, circuit: true };
+
+    const SLIDERS = [
+        ['p-r1', 'r1', v => v.toFixed(2) + ' kΩ'],
+        ['p-r2', 'r2', v => v.toFixed(2) + ' kΩ'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-target',  'target');
+    wireToggle('tgl-circuit', 'circuit');
+
+    /* I in mA for R values in kΩ */
+    function current(r3, r1, r2) {
+        const rp = (r3 === Infinity) ? r2 : r2 * r3 / (r2 + r3);
+        return EMF / (r1 + rp);
+    }
+    function isMatched() {
+        return Math.abs(state.r1 - R1_TGT) < 0.06 && Math.abs(state.r2 - R2_TGT) < 0.12;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const matched = isMatched();
+
+        const mL = 62, mR = 26, mT = 34, mB = 48;
+        const pw = W - mL - mR, ph = H - mT - mB;
+        const IMAX = 7.0;
+        const xPix = r3 => mL + (r3 / R3S) * pw;
+        const yPix = i => mT + ph - Math.min(i / IMAX, 1.03) * ph;
+
+        /* grid */
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        for (let g = 1; g <= 4; g++) {
+            ctx.beginPath(); ctx.moveTo(xPix(g * 5), mT); ctx.lineTo(xPix(g * 5), mT + ph); ctx.stroke();
+        }
+        [2, 4, 6].forEach(i => {
+            ctx.beginPath(); ctx.moveTo(mL, yPix(i)); ctx.lineTo(mL + pw, yPix(i)); ctx.stroke();
+        });
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, pw, ph);
+
+        /* labels */
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('R₃s', xPix(R3S), mT + ph + 8);
+        ctx.fillText('0', xPix(0), mT + ph + 8);
+        ctx.fillText('R₃', mL + pw / 2, mT + ph + 24);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        [2, 4, 6].forEach(i => ctx.fillText(i.toFixed(0), mL - 8, yPix(i)));
+        ctx.save();
+        ctx.translate(16, mT + ph / 2); ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('I (mA)', 0, 0);
+        ctx.restore();
+
+        /* printed target curve */
+        if (show.target) {
+            const tc = matched ? col.acc : col.soft;
+            ctx.strokeStyle = tc; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
+            ctx.beginPath();
+            for (let i = 0; i <= 240; i++) {
+                const r3 = R3S * i / 240;
+                const px = xPix(r3), py = yPix(current(r3, R1_TGT, R2_TGT));
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+            /* asymptote */
+            ctx.beginPath(); ctx.moveTo(mL, yPix(2)); ctx.lineTo(mL + pw, yPix(2)); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = tc;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText((matched ? '✓ ' : '') + 'printed: 6.0 mA → 2.0 mA', mL + 10, mT + 16);
+        }
+
+        /* live curve */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 240; i++) {
+            const r3 = R3S * i / 240;
+            const px = xPix(r3), py = yPix(current(r3, state.r1, state.r2));
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        /* circuit inset */
+        if (show.circuit) {
+            const iw = 150, ih = 100;
+            const ix = mL + pw - iw - 10, iy = mT + 10;
+            ctx.fillStyle = col.paper; ctx.globalAlpha = 0.93;
+            ctx.fillRect(ix, iy, iw, ih); ctx.globalAlpha = 1;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.strokeRect(ix, iy, iw, ih);
+
+            const lx = ix + 22, rx = ix + iw - 16, mx = ix + iw * 0.55;
+            const ty = iy + 22, byy = iy + ih - 18;
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.3;
+            /* loop */
+            ctx.beginPath();
+            ctx.moveTo(lx, ty); ctx.lineTo(rx, ty);
+            ctx.lineTo(rx, byy); ctx.lineTo(lx, byy); ctx.closePath(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(mx, ty); ctx.lineTo(mx, byy); ctx.stroke();
+            /* battery marks on left */
+            ctx.strokeStyle = col.paper; ctx.lineWidth = 7;
+            ctx.beginPath(); ctx.moveTo(lx, (ty + byy) / 2 - 7); ctx.lineTo(lx, (ty + byy) / 2 + 7); ctx.stroke();
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.moveTo(lx - 8, (ty + byy) / 2 - 3); ctx.lineTo(lx + 8, (ty + byy) / 2 - 3); ctx.stroke();
+            ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(lx - 4, (ty + byy) / 2 + 3); ctx.lineTo(lx + 4, (ty + byy) / 2 + 3); ctx.stroke();
+            /* resistor zigzags simplified as boxes */
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.3;
+            ctx.strokeRect((lx + mx) / 2 - 13, ty - 5, 26, 10);       /* R1 top */
+            ctx.strokeRect(mx - 5, (ty + byy) / 2 - 13, 10, 26);      /* R2 middle */
+            ctx.strokeRect(rx - 5, (ty + byy) / 2 - 13, 10, 26);      /* R3 right */
+            ctx.fillStyle = col.soft;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('R₁', (lx + mx) / 2, ty - 8);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('R₂', mx + 9, (ty + byy) / 2);
+            ctx.fillText('R₃', rx - 30, (ty + byy) / 2);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-i0').textContent   = current(0, state.r1, state.r2).toFixed(2) + ' mA';
+        $('r-iinf').textContent = current(Infinity, state.r1, state.r2).toFixed(2) + ' mA';
+        $('r-match').textContent = matched ? '✓ matched · R₁=2.0 kΩ, R₂=4.0 kΩ' : '—';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

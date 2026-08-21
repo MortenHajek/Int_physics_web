@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 28.44 · The Rail Accelerator — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="magnetism" data-screen-label="Ex 28.44 Rail Accelerator">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 28 · Ex. 44</span><span lang="cs">Kap. 28 · Úl. 44</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Magnetic Field — Chapter 28 · Exercise 44</span><span lang="cs">4. téma · Magnetické pole — Kapitola 28 · Úloha 44</span></div>
+        <h1><span lang="en">The Rail Accelerator</span><span lang="cs">Kolejnicový urychlovač</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>44</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A metal bar of mass
+                    <span class="given" data-tex="m = 24.1\ \mathrm{mg}"></span>
+                    rests across two frictionless horizontal rails a distance
+                    <span class="given" data-tex="d = 2.56\ \mathrm{cm}"></span>
+                    apart. The whole setup sits in a vertical magnetic field of magnitude
+                    <span class="given" data-tex="B = 56.3\ \mathrm{mT}"></span>.
+                    A generator drives a constant current
+                    <span class="given" data-tex="I = 9.13\ \mathrm{mA}"></span>
+                    through one rail, across the bar, and back through the other rail.
+                </p>
+                <p lang="cs">
+                    Kovová tyč o hmotnosti
+                    <span class="given" data-tex="m = 24{,}1\ \mathrm{mg}"></span>
+                    leží napříč dvěma bezetřecími vodorovnými kolejnicemi vzdálenými
+                    <span class="given" data-tex="d = 2{,}56\ \mathrm{cm}"></span>
+                    od sebe. Celá soustava se nachází ve svislém magnetickém poli o velikosti
+                    <span class="given" data-tex="B = 56{,}3\ \mathrm{mT}"></span>.
+                    Generátor přivádí konstantní proud
+                    <span class="given" data-tex="I = 9{,}13\ \mathrm{mA}"></span>
+                    jednou kolejnicí, přes tyč, a zpět druhou kolejnicí.
+                </p>
+                <p lang="en">
+                    The bar starts from rest at <span data-tex="t = 0"></span>.
+                    Find (a) its speed at
+                    <span class="given" data-tex="t = 61.1\ \mathrm{ms}"></span>
+                    and (b) the direction in which it moves.
+                </p>
+                <p lang="cs">
+                    Tyč se z klidu rozjíždí v čase <span data-tex="t = 0"></span>.
+                    Určete (a) její rychlost v čase
+                    <span class="given" data-tex="t = 61{,}1\ \mathrm{ms}"></span>
+                    a (b) směr, kterým se pohybuje.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Rail accelerator</span><span lang="cs">Kolejnicový urychlovač</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">top view · 30× slow</span><span lang="cs">pohled shora · 30× zpomaleno</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F = BId"></div>
+                <div class="sim-hint"><span lang="en">press run · constant force, constant acceleration</span><span lang="cs">stiskněte spustit · konstantní síla, konstantní zrychlení</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Field strength B</span><span lang="cs">Intenzita pole B</span></span>
+                            <span class="sim-control-val" id="p-b-val">56.3 mT</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-b" min="10" max="100" step="0.1" value="56.3">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Current I</span><span lang="cs">Proud I</span></span>
+                            <span class="sim-control-val" id="p-i-val">9.13 mA</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-i" min="1.0" max="20.0" step="0.01" value="9.13">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Bar mass m</span><span lang="cs">Hmotnost tyče m</span></span>
+                            <span class="sim-control-val" id="p-m-val">24.1 mg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="10" max="50" step="0.1" value="24.1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Drive</span><span lang="cs">Pohon</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F = BId"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="a = F/m"></span>
+                        <span class="readout-val" id="r-a">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Motion</span><span lang="cs">Pohyb</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="t"></span>
+                        <span class="readout-val" id="r-t">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v = at"></span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v\,(t = 61.1\ \mathrm{ms})"></span>
+                        <span class="readout-val" id="r-v611">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-run">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">run</span><span lang="cs">spustit</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-dots">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">B-field dots</span><span lang="cs">tečky pole B</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The magnetic force on a current-carrying bar of length
+                    <span data-tex="d"></span> is
+                    <span data-tex="F = BId = 0.0563 \cdot 9.13\cdot 10^{-3} \cdot 0.0256 = 1.32\cdot 10^{-5}\ \mathrm{N}"></span>,
+                    constant in time.</span>
+                    <span lang="cs">Magnetická síla na tyč s proudem délky
+                    <span data-tex="d"></span> je
+                    <span data-tex="F = BId = 0{,}0563 \cdot 9{,}13\cdot 10^{-3} \cdot 0{,}0256 = 1{,}32\cdot 10^{-5}\ \mathrm{N}"></span>,
+                    v čase konstantní.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Frictionless rails</strong> → constant acceleration
+                    <span data-tex="a = F/m = 1.32\cdot 10^{-5} / 2.41\cdot 10^{-5} = 0.546\ \mathrm{m/s^2}"></span>.</span>
+                    <span lang="cs"><strong>Bezetřecí kolejnice</strong> → konstantní zrychlení
+                    <span data-tex="a = F/m = 1{,}32\cdot 10^{-5} / 2{,}41\cdot 10^{-5} = 0{,}546\ \mathrm{m/s^2}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>From rest:</strong>
+                    <span data-tex="v = at = 0.546 \cdot 0.0611 = 3.34\cdot 10^{-2}\ \mathrm{m/s}"></span>.
+                    → answer (a) <span data-tex="v \approx 3.34\ \mathrm{cm/s} \approx 3.3\ \mathrm{cm/s}"></span></span>
+                    <span lang="cs"><strong>Z klidu:</strong>
+                    <span data-tex="v = at = 0{,}546 \cdot 0{,}0611 = 3{,}34\cdot 10^{-2}\ \mathrm{m/s}"></span>.
+                    → odpověď (a) <span data-tex="v \approx 3{,}34\ \mathrm{cm/s} \approx 3{,}3\ \mathrm{cm/s}"></span></span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Direction:</strong>
+                    <span data-tex="\vec{F} = I\,\vec{L}\times\vec{B}"></span>
+                    is perpendicular to both the bar and the vertical field — the bar
+                    slides along the rails; with the drawn current sense it moves to
+                    the left, away from the generator. → answer (b)</span>
+                    <span lang="cs"><strong>Směr:</strong>
+                    <span data-tex="\vec{F} = I\,\vec{L}\times\vec{B}"></span>
+                    je kolmá jak na tyč, tak na svislé pole — tyč
+                    klouže podél kolejnic; s vyznačeným smyslem proudu se pohybuje
+                    doleva, pryč od generátoru. → odpověď (b)</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="v \approx 3.34\ \mathrm{cm/s}"></span><span lang="cs" data-tex="v \approx 3{,}34\ \mathrm{cm/s}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value">
+                    <span lang="en">along the rails, direction of
+                    <span data-tex="I\,\vec{L}\times\vec{B}"></span>
+                    (leftward in the sketch)</span>
+                    <span lang="cs">podél kolejnic, ve směru
+                    <span data-tex="I\,\vec{L}\times\vec{B}"></span>
+                    (doleva na náčrtu)</span>
+                </span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/magnetism.html"><span lang="en">← Topic: Magnetic Field</span><span lang="cs">← Téma: Magnetické pole</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 28 · Ex. 44</span><span lang="cs">Kap. 28 · Úl. 44</span></span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a6878',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* B in mT, I in mA, m in mg — the printed exercise values */
+    const DEFAULTS = { B: 56.3, I: 9.13, m: 24.1 };
+    const D_GAP   = 0.0256;   /* rail gap d, metres (fixed geometry) */
+    const T_MARK  = 0.0611;   /* the asked instant, seconds */
+    const SLOWMO  = 30;       /* animation runs 30x slower than the physics */
+    const X_TRACK = 0.008;    /* physical metres mapped onto the visible track */
+
+    let state   = { ...DEFAULTS };
+    const show  = { dots: true };
+    /* Always starts paused (the hint says press run) — this also honours
+       prefers-reduced-motion: nothing animates until the user asks. */
+    let running = false;
+    let tP      = 0;          /* physical time, seconds */
+    let lastTs  = null;
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtB = v => v.toFixed(1) + ' mT';
+    const fmtI = v => v.toFixed(2) + ' mA';
+    const fmtM = v => v.toFixed(1) + ' mg';
+    bindSlider('p-b', 'B', fmtB);
+    bindSlider('p-i', 'I', fmtI);
+    bindSlider('p-m', 'm', fmtM);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        tP = 0;
+        [['p-b', 'B', fmtB], ['p-i', 'I', fmtI], ['p-m', 'm', fmtM]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function setRunning(r) {
+        running = r;
+        const box = document.querySelector('#tgl-run .toggle-box');
+        if (box) box.classList.toggle('on', running);
+    }
+    document.getElementById('tgl-run')?.addEventListener('click', () => setRunning(!running));
+    canvas.addEventListener('click', () => setRunning(!running));
+    canvas.style.cursor = 'pointer';
+
+    document.getElementById('tgl-dots')?.addEventListener('click', function () {
+        show.dots = !show.dots;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function seg(x1, y1, x2, y2, color, lw, dash) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.lineCap = 'round';
+        if (dash) ctx.setLineDash(dash);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.25), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* double-headed dimension guide (vertical) */
+    function dimV(x, y1, y2, color) {
+        const ym = (y1 + y2) / 2;
+        arrow(x, ym, x, y1, color, 1.2);
+        arrow(x, ym, x, y2, color, 1.2);
+    }
+
+    /* uniform B out of the page — encircled-dot grid (cards/magnetism.js idiom) */
+    function drawDots() {
+        const sp = 30;
+        ctx.save();
+        ctx.globalAlpha = 0.26;
+        ctx.strokeStyle = col.ink;
+        ctx.fillStyle   = col.ink;
+        ctx.lineWidth   = 0.9;
+        const x0 = (W % sp) / 2 + sp / 2;
+        const y0 = (H % sp) / 2 + sp / 2;
+        for (let y = y0; y < H; y += sp) {
+            for (let x = x0; x < W; x += sp) {
+                ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(x, y, 1.4, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        ctx.restore();
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw(a, s) {
+        ctx.clearRect(0, 0, W, H);
+        if (show.dots) drawDots();
+
+        const railL = 34, railR = W - 24;
+        const yTop = H * 0.30, yBot = H * 0.70;
+        const cy = (yTop + yBot) / 2;
+        const xStart = railL + 116;
+        const xEnd   = railR - 64;
+        const pxPerM = (xEnd - xStart) / X_TRACK;
+        const barX   = xStart + s * pxPerM;
+
+        /* rails */
+        seg(railL, yTop, railR, yTop, col.ink, 4);
+        seg(railL, yBot, railR, yBot, col.ink, 4);
+
+        /* generator link closing the circuit on the left */
+        seg(railL, yTop, railL, cy - 15, col.ink, 2);
+        seg(railL, cy + 15, railL, yBot, col.ink, 2);
+        ctx.beginPath();
+        ctx.arc(railL, cy, 15, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = col.ink;
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('G', railL, cy + 0.5);
+
+        /* fixed rail gap d — dimension guide on the right */
+        const xd = railR - 20;
+        dimV(xd, yTop + 5, yBot - 5, col.faint);
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('d = 2.56 cm', xd - 9, cy);
+
+        /* current sense annotations on the rails */
+        arrow(railL + 54, yBot + 13, railL + 96, yBot + 13, col.soft, 1.6);
+        arrow(railL + 96, yTop - 13, railL + 54, yTop - 13, col.soft, 1.6);
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('I', railL + 75, yBot + 27);
+        ctx.fillText('I', railL + 75, yTop - 27);
+
+        /* start trace (dashed) + travelled path */
+        seg(xStart, yTop + 4, xStart, yBot - 4, col.faint, 1.2, [5, 4]);
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('t = 0', xStart, yBot + 8);
+        if (barX > xStart + 2) seg(xStart, cy, barX, cy, col.faint, 1, [3, 4]);
+
+        /* tick where the asked instant lies: x = a t^2 / 2 at t = 61.1 ms */
+        const xTick = xStart + 0.5 * a * T_MARK * T_MARK * pxPerM;
+        if (xTick <= xEnd) {
+            seg(xTick, cy - 8, xTick, cy + 8, col.acc, 1.6);
+            ctx.fillStyle = col.acc;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('t = 61.1 ms', xTick, cy + 13);
+        }
+
+        /* the sliding bar (accent) + current arrow through it */
+        seg(barX, yTop - 10, barX, yBot + 10, col.acc, 8);
+        arrow(barX - 16, cy + 17, barX - 16, cy - 17, col.soft, 1.6);
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('I', barX - 24, cy);
+
+        /* timer */
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('t = ' + (tP * 1e3).toFixed(1) + ' ms', 14, 14);
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillText(SLOWMO + 'x slow motion', 14, 30);
+    }
+
+    /* ── Frame loop ─────────────────────────────────────────────── */
+    function frame(ts) {
+        if (lastTs !== null && running) tP += (ts - lastTs) / 1000 / SLOWMO;
+        lastTs = ts;
+
+        const F = state.B * 1e-3 * state.I * 1e-3 * D_GAP;
+        const a = F / (state.m * 1e-6);
+        let s = 0.5 * a * tP * tP;
+        if (s >= X_TRACK) { tP = 0; s = 0; }   /* bar reached the right edge — restart */
+
+        draw(a, s);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-f'))    $('r-f').textContent    = (F * 1e6).toFixed(1) + ' µN';
+        if ($('r-a'))    $('r-a').textContent    = a.toFixed(3) + ' m/s²';
+        if ($('r-t'))    $('r-t').textContent    = (tP * 1e3).toFixed(1) + ' ms';
+        if ($('r-v'))    $('r-v').textContent    = (a * tP * 1e2).toFixed(2) + ' cm/s';
+        if ($('r-v611')) $('r-v611').textContent = (a * T_MARK * 1e2).toFixed(2) + ' cm/s';
+
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

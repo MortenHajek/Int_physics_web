@@ -1,0 +1,1974 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Magnetic Field · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    .canvas-wrap > canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    #bs-canvas { cursor: crosshair; touch-action: none; }
+    #lab  .canvas-wrap { min-height: 460px; }
+    #lab2 .canvas-wrap { min-height: 540px; }
+    /* The builder draws its own sources and field symbols; graph paper behind
+       them only competes, as on the circuits playground. */
+    #lab2 .canvas-wrap { background: var(--paper-deep); }
+
+    .lab-lede {
+        max-width: 76ch;
+        font-size: 15.5px;
+        line-height: 1.65;
+        color: var(--ink-soft);
+        margin: -14px 0 26px;
+    }
+    .lab-lede em { font-style: normal; font-weight: 600; color: var(--ink); }
+
+    /* Radio-style rows (single choice) */
+    .obj-row .toggle-box { border-radius: 50%; }
+    .obj-row .toggle-box.on { background: var(--paper); }
+    .obj-row .toggle-box.on::after {
+        clip-path: none;
+        border-radius: 50%;
+        inset: 3px;
+        background: var(--accent);
+    }
+
+    .btn-mini {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+    .btn-mini:hover { color: var(--accent); }
+
+    .btn-wide {
+        width: 100%;
+        padding: 8px 10px;
+        font-family: var(--f-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        background: var(--paper);
+        border: 1.5px solid var(--ink);
+        cursor: pointer;
+        color: var(--ink);
+    }
+    .btn-wide:hover { background: var(--paper-deep); }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 72px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ─────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                        
+                    
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+        border-bottom-color: var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                .topic-nav { grid-template-columns: 1fr; }
+                                .core-formula { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="magnetism" data-screen-label="II.04 Magnetic Field">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">B</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ════════ HERO ════════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ II.04 · magnetism</div>
+            <h1><span lang="en">Magnetic Field</span><span lang="cs">Magnetické pole</span></h1>
+            <p class="lede">
+                <span lang="en">There is no magnetic charge — so the field is defined by the force it exerts,
+                a force that steers but never speeds up. Currents feel it, and currents make it.</span>
+                <span lang="cs">Magnetický náboj neexistuje — pole proto definuje síla, kterou působí; síla, jež
+                zatáčí, ale nikdy nezrychluje. Proudy ji cítí a proudy ji tvoří.</span>
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\vec{F}_B = Q\,\vec{v}\times\vec{B}"></div>
+            <div class="eq-caption"><span lang="en">Lorentz force — F_B = |Q|vB·sin φ; defines the magnetic induction B, [B] = T</span><span lang="cs">Lorentzova síla — F_B = |Q|vB·sin φ; definuje magnetickou indukci B, [B] = T</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">There is no magnetic charge to build a field from, so the magnetic field has to be
+                defined by what it <em>does</em>: fire a charge through it and there is exactly one direction in
+                which it feels nothing — that direction is <span data-tex="\vec{B}"></span>, and the force
+                everywhere else follows from the cross product. Two consequences run through the whole topic.
+                First, the force is always perpendicular to the velocity, so it steers but never speeds up, and a
+                free particle circles. Second, a current is charges in motion: the same force on the carriers
+                becomes the <em>Ampère force</em> on the wire, and every current is itself a source, its field
+                built up element by element through the <em>Biot–Savart law</em> — or, where the geometry is
+                symmetric, read off Ampère's law in one line.</span>
+                <span lang="cs">Magnetický náboj, ze kterého by šlo pole poskládat, neexistuje — magnetické pole
+                proto musíme definovat tím, co <em>dělá</em>: vystřelíme do něj náboj a existuje právě jeden směr,
+                ve kterém na něj nic nepůsobí — ten směr je <span data-tex="\vec{B}"></span> a síla ve všech
+                ostatních směrech plyne z vektorového součinu. Celým tématem se pak táhnou dva důsledky. Za prvé
+                je síla vždy kolmá na rychlost, takže zatáčí, ale nikdy nezrychluje, a volná částice krouží. Za
+                druhé je proud pohyb nábojů: táž síla na nosiče se stane <em>Ampérovou silou</em> na vodič a každý
+                proud je zároveň zdrojem pole, které skládáme element po elementu
+                <em>Biotovým–Savartovým zákonem</em> — nebo, je-li geometrie symetrická, přečteme na jeden řádek
+                z Ampérova zákona.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Lorentz force</span><span lang="cs">Lorentzova síla</span></span>
+                        <span class="cf-eq" data-tex="\vec{F}_B = Q\,\vec{v}\times\vec{B}"></span>
+                        <span class="cf-eq" data-tex="F_B = |Q|\,v\,B\sin\varphi\,,\qquad [B] = \mathrm{T}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The definition of <span data-tex="\vec{B}"></span> and the engine of the
+                        whole topic. The force is perpendicular to <em>both</em>
+                        <span data-tex="\vec{v}"></span> and <span data-tex="\vec{B}"></span> — direction from the
+                        right-hand rule — so it does no work and cannot change the speed. It vanishes for a charge
+                        moving along the field and is largest across it.</span>
+                        <span lang="cs">Definice <span data-tex="\vec{B}"></span> a motor celého tématu. Síla je
+                        kolmá na <em>obojí</em>, na <span data-tex="\vec{v}"></span> i na
+                        <span data-tex="\vec{B}"></span> — směr určuje pravidlo pravé ruky — takže nekoná práci
+                        a nemůže změnit velikost rychlosti. Pro náboj letící podél pole je nulová, napříč polem
+                        největší.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Circular motion</span><span lang="cs">Pohyb po kružnici</span></span>
+                        <span class="cf-eq" data-tex="r = \dfrac{m v}{|Q| B} = \dfrac{p}{|Q| B}"></span>
+                        <span class="cf-eq" data-tex="T = \dfrac{2\pi m}{|Q| B}\,,\qquad \omega = \dfrac{|Q| B}{m}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With <span data-tex="\vec{v}\perp\vec{B}"></span> the magnetic force is
+                        exactly a centripetal force, <span data-tex="|Q|vB = mv^2/r"></span>. The radius measures
+                        the momentum — which is how particle detectors work — while the period, frequency and
+                        angular frequency depend on <em>neither</em> the speed nor the radius.</span>
+                        <span lang="cs">Při <span data-tex="\vec{v}\perp\vec{B}"></span> je magnetická síla přesně
+                        silou dostředivou, <span data-tex="|Q|vB = mv^2/r"></span>. Poloměr měří hybnost — přesně
+                        na tom stojí detektory částic — zatímco perioda, frekvence i úhlová frekvence nezávisí
+                        <em>ani</em> na rychlosti, <em>ani</em> na poloměru.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Hall effect</span><span lang="cs">Hallův jev</span></span>
+                        <span class="cf-eq" data-tex="v_d = \dfrac{U_H}{B\,d}"></span>
+                        <span class="cf-eq" data-tex="n = \dfrac{I B}{|Q|\,t\,U_H}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The field pushes the carriers sideways until the transverse electric field
+                        they build up balances it, <span data-tex="|Q|E = |Q|v_d B"></span>. Combined with
+                        <span data-tex="J = n|Q|v_d"></span> it measures the carrier density — and
+                        <em>which edge goes positive</em> reveals the sign of the carriers, which is what made the
+                        effect famous.</span>
+                        <span lang="cs">Pole tlačí nosiče do boku, dokud je příčné elektrické pole, které tím
+                        vznikne, nevyrovná: <span data-tex="|Q|E = |Q|v_d B"></span>. Spolu s
+                        <span data-tex="J = n|Q|v_d"></span> to měří koncentraci nosičů — a
+                        <em>která hrana se nabije kladně</em> prozradí jejich znaménko, čímž se jev
+                        proslavil.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Ampère force on a conductor</span><span lang="cs">Ampérova síla na vodič</span></span>
+                        <span class="cf-eq" data-tex="\vec{F}_B = I\,\vec{L}\times\vec{B}"></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}\vec{F}_B = I\,\mathrm{d}\vec{\ell}\times\vec{B}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The Lorentz force on the carriers, added up: they cannot leave the wire, so
+                        it is the wire that is pushed. <span data-tex="\vec{L}"></span> points along the current
+                        and its magnitude is the length in the field. If the wire bends, or
+                        <span data-tex="\vec{B}"></span> changes from place to place, use the element form and
+                        integrate.</span>
+                        <span lang="cs">Lorentzova síla na nosiče, sečtená: nemohou vodič opustit, takže je tlačen
+                        vodič. <span data-tex="\vec{L}"></span> míří ve směru proudu a jeho velikost je délka
+                        v poli. Je-li vodič zahnutý nebo se <span data-tex="\vec{B}"></span> místo od místa mění,
+                        použijte elementární tvar a integrujte.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Current loop — a magnetic dipole</span><span lang="cs">Proudová smyčka — magnetický dipól</span></span>
+                        <span class="cf-eq" data-tex="\vec{\mu} = N I \vec{S}\,,\qquad \vec{M} = \vec{\mu}\times\vec{B}"></span>
+                        <span class="cf-eq" data-tex="E_p(\theta) = -\vec{\mu}\cdot\vec{B} = -\mu B\cos\theta"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">On a closed loop the net force is zero but the torque is not:
+                        <span data-tex="M = N I S B\sin\theta"></span>. The loop behaves exactly like a bar
+                        magnet with moment <span data-tex="\mu = NIS"></span> — lowest energy when
+                        <span data-tex="\vec{\mu}"></span> lines up with <span data-tex="\vec{B}"></span>,
+                        highest when it points against it.</span>
+                        <span lang="cs">Na uzavřenou smyčku je výslednice sil nulová, moment však ne:
+                        <span data-tex="M = N I S B\sin\theta"></span>. Smyčka se chová přesně jako tyčový magnet
+                        s momentem <span data-tex="\mu = NIS"></span> — nejnižší energii má, když je
+                        <span data-tex="\vec{\mu}"></span> souhlasně s <span data-tex="\vec{B}"></span>,
+                        nejvyšší, když míří proti.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Biot–Savart law</span><span lang="cs">Biotův–Savartův zákon</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}\vec{B} = \dfrac{\mu_0}{4\pi}\,\dfrac{I\,\mathrm{d}\vec{\ell}\times\vec{r}}{r^3}"></span>
+                        <span class="cf-eq" data-tex="\mu_0 = 4\pi\cdot 10^{-7}\ \mathrm{H/m}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Now the current is the <em>source</em>. This is the magnetic counterpart of
+                        <span data-tex="\mathrm{d}\vec{E} = k\,\mathrm{d}Q\,\hat{r}/r^2"></span>: chop the wire
+                        into elements <span data-tex="I\,\mathrm{d}\vec{\ell}"></span>, add their contributions,
+                        <span data-tex="\vec{B} = \int \mathrm{d}\vec{B}"></span>. The cross product means
+                        <span data-tex="\mathrm{d}\vec{B}"></span> is perpendicular to the element and to the line
+                        joining it to the point.</span>
+                        <span lang="cs">Teď je proud <em>zdrojem</em>. Je to magnetický protějšek
+                        <span data-tex="\mathrm{d}\vec{E} = k\,\mathrm{d}Q\,\hat{r}/r^2"></span>: vodič nakrájíme
+                        na elementy <span data-tex="I\,\mathrm{d}\vec{\ell}"></span> a jejich příspěvky sečteme,
+                        <span data-tex="\vec{B} = \int \mathrm{d}\vec{B}"></span>. Vektorový součin znamená, že
+                        <span data-tex="\mathrm{d}\vec{B}"></span> je kolmý na element i na spojnici k danému
+                        bodu.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Straight wire, and two of them</span><span lang="cs">Přímý vodič a dva vodiče</span></span>
+                        <span class="cf-eq" data-tex="B = \dfrac{\mu_0 I}{2\pi R}"></span>
+                        <span class="cf-eq" data-tex="\dfrac{F}{L} = \dfrac{\mu_0 I_1 I_2}{2\pi d}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The field of a long straight wire circles it, right hand gripping with the
+                        thumb along the current. Put a second wire in that field and the Ampère force follows at
+                        once: parallel currents <em>attract</em>, antiparallel ones repel. A wire of finite length
+                        gives the same expression times
+                        <span data-tex="L/\sqrt{(L/2)^2+R^2}"></span>, which tends to 1 as the wire grows
+                        long.</span>
+                        <span lang="cs">Pole dlouhého přímého vodiče ho obtáčí — pravá ruka, palec ve směru proudu.
+                        Vložte do něj druhý vodič a Ampérova síla plyne okamžitě: souhlasné proudy se
+                        <em>přitahují</em>, nesouhlasné odpuzují. Vodič konečné délky dá týž výraz krát
+                        <span data-tex="L/\sqrt{(L/2)^2+R^2}"></span>, což pro dlouhý vodič jde k 1.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Loop on its axis</span><span lang="cs">Smyčka na své ose</span></span>
+                        <span class="cf-eq" data-tex="B_z = \dfrac{\mu_0 I R^2}{2\left(R^2+z^2\right)^{3/2}}"></span>
+                        <span class="cf-eq" data-tex="z \gg R:\quad B_z = \dfrac{\mu_0}{2\pi}\,\dfrac{\mu}{z^3}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Biot–Savart integrated round a circle: every element contributes the same
+                        axial component and the transverse ones cancel by symmetry. At the centre
+                        (<span data-tex="z=0"></span>) this is <span data-tex="\mu_0 I/2R"></span>; far away it
+                        falls as <span data-tex="1/z^3"></span> — the signature of a dipole, with
+                        <span data-tex="\mu = NIS"></span> again.</span>
+                        <span lang="cs">Biotův–Savartův zákon zintegrovaný po kružnici: každý element přispěje
+                        stejnou osovou složkou a příčné se symetrií vyruší. Ve středu
+                        (<span data-tex="z=0"></span>) to je <span data-tex="\mu_0 I/2R"></span>; daleko klesá
+                        jako <span data-tex="1/z^3"></span> — poznávací znamení dipólu, opět s
+                        <span data-tex="\mu = NIS"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Ampère's law</span><span lang="cs">Ampérův zákon</span></span>
+                        <span class="cf-eq" data-tex="\oint_c \vec{B}\cdot\mathrm{d}\vec{\ell} = \mu_0 I_c"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The magnetic twin of Gauss's law, and the same bargain: it is always true,
+                        but only <em>useful</em> when symmetry makes
+                        <span data-tex="\vec{B}"></span> constant along a chosen closed curve. Only the current
+                        threading the curve counts, with a sign set by the right hand — a wire outside it
+                        contributes nothing.</span>
+                        <span lang="cs">Magnetické dvojče Gaussovy věty a stejná dohoda: platí vždy, ale
+                        <em>užitečný</em> je jen tam, kde symetrie udělá <span data-tex="\vec{B}"></span>
+                        konstantní podél zvolené uzavřené křivky. Započítá se pouze proud, který křivkou
+                        prochází, se znaménkem podle pravé ruky — vodič mimo ni nepřispívá ničím.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Solenoid</span><span lang="cs">Solenoid (cívka)</span></span>
+                        <span class="cf-eq" data-tex="B = \mu_0 n I\,,\qquad n = N/\ell"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Ampère's law on a rectangle straddling the winding: three sides contribute
+                        nothing and the fourth gives <span data-tex="Bh = \mu_0 n h I"></span>. Inside a long
+                        solenoid the field is <em>uniform</em> and set only by the turns per metre and the
+                        current — not by the radius — and outside it is essentially zero.</span>
+                        <span lang="cs">Ampérův zákon na obdélníku přesahujícím vinutí: tři strany nepřispějí
+                        ničím a čtvrtá dá <span data-tex="Bh = \mu_0 n h I"></span>. Uvnitř dlouhé cívky je pole
+                        <em>homogenní</em> a určuje ho jen počet závitů na metr a proud — nikoli poloměr — a vně
+                        je prakticky nulové.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Directions before magnitudes.</strong> Every result here is a
+                    cross product, so settle the geometry with the right hand first, and use
+                    <span data-tex="\odot"></span> for out of the page and
+                    <span data-tex="\otimes"></span> for into it. Remember a magnetic force never changes a
+                    speed — if a problem asks for one, the work was done by something else.</span>
+                    <span lang="cs"><strong>Nejdřív směry, pak velikosti.</strong> Každý výsledek je tu vektorový
+                    součin, takže si geometrii nejprve vyřešte pravou rukou a používejte
+                    <span data-tex="\odot"></span> pro směr ven z papíru a <span data-tex="\otimes"></span> dovnitř.
+                    Pamatujte, že magnetická síla nikdy nemění velikost rychlosti — ptá-li se úloha na ni, práci
+                    vykonalo něco jiného.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Wire in a field → Ampère force.</strong>
+                    <span data-tex="F = BIL\sin\varphi"></span> for a straight wire in a uniform field; from there
+                    it is mechanics, <span data-tex="a = F/m"></span> and the usual kinematics. If
+                    <span data-tex="\vec{B}"></span> varies along the wire, integrate
+                    <span data-tex="\mathrm{d}\vec{F} = I\,\mathrm{d}\vec{\ell}\times\vec{B}"></span> component by
+                    component — write the cross product out before substituting anything.</span>
+                    <span lang="cs"><strong>Vodič v poli → Ampérova síla.</strong>
+                    <span data-tex="F = BIL\sin\varphi"></span> pro přímý vodič v homogenním poli; odtud dál je to
+                    mechanika, <span data-tex="a = F/m"></span> a obvyklá kinematika. Mění-li se
+                    <span data-tex="\vec{B}"></span> podél vodiče, integrujte
+                    <span data-tex="\mathrm{d}\vec{F} = I\,\mathrm{d}\vec{\ell}\times\vec{B}"></span> po složkách —
+                    vektorový součin rozepište dřív, než začnete cokoli dosazovat.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Free charge → circle.</strong> Set the magnetic force equal to
+                    the centripetal one, <span data-tex="|Q|vB = mv^2/r"></span>, and read off
+                    <span data-tex="r = mv/|Q|B"></span>. For anything about timing use
+                    <span data-tex="T = 2\pi m/|Q|B"></span> — it does not contain
+                    <span data-tex="v"></span>.</span>
+                    <span lang="cs"><strong>Volný náboj → kružnice.</strong> Položte magnetickou sílu rovnu
+                    dostředivé, <span data-tex="|Q|vB = mv^2/r"></span>, a odečtěte
+                    <span data-tex="r = mv/|Q|B"></span>. Na cokoli časového použijte
+                    <span data-tex="T = 2\pi m/|Q|B"></span> — rychlost v něm není.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Hall geometry.</strong> Balance the two forces to get
+                    <span data-tex="v_d = U_H/(Bd)"></span> across the width
+                    <span data-tex="d"></span>, then feed it into
+                    <span data-tex="I = n|Q|v_d S"></span> for the density. Keep the width and the thickness
+                    apart: the Hall voltage sits across the <em>width</em>, the cross-section uses the
+                    <em>thickness</em> as well.</span>
+                    <span lang="cs"><strong>Geometrie Hallova jevu.</strong> Z rovnováhy obou sil dostanete
+                    <span data-tex="v_d = U_H/(Bd)"></span> přes šířku <span data-tex="d"></span> a dosazením do
+                    <span data-tex="I = n|Q|v_d S"></span> koncentraci. Nepleťte si šířku a tloušťku: Hallovo
+                    napětí je přes <em>šířku</em>, do průřezu vstupuje i <em>tloušťka</em>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Loop in a field → torque and energy.</strong> Compute
+                    <span data-tex="\mu = NIS"></span> first. For a turning point — "how far does it swing" —
+                    do not integrate the torque: use energy conservation with
+                    <span data-tex="E_p = -\mu B\cos\theta"></span>, and read
+                    <span data-tex="\mu B"></span> off the graph's peak if you are given one.</span>
+                    <span lang="cs"><strong>Smyčka v poli → moment a energie.</strong> Nejdřív spočtěte
+                    <span data-tex="\mu = NIS"></span>. Na bod obratu — „kam až se otočí" — moment neintegrujte:
+                    použijte zákon zachování energie s <span data-tex="E_p = -\mu B\cos\theta"></span> a
+                    <span data-tex="\mu B"></span> odečtěte z vrcholu grafu, pokud ho máte
+                    zadaný.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Field of a current → Biot–Savart.</strong> Take the element
+                    <span data-tex="I\,\mathrm{d}\vec{\ell}"></span>, get
+                    <span data-tex="r"></span> and the angle from the sketch, and integrate. Use symmetry before
+                    algebra: on an axis the transverse contributions cancel and only one component is left to
+                    integrate.</span>
+                    <span lang="cs"><strong>Pole proudu → Biotův–Savartův zákon.</strong> Vezměte element
+                    <span data-tex="I\,\mathrm{d}\vec{\ell}"></span>, z náčrtku určete
+                    <span data-tex="r"></span> a úhel a integrujte. Symetrii použijte dřív než algebru: na ose se
+                    příčné příspěvky vyruší a zbude jediná složka.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">07</span>
+                    <span><span lang="en"><strong>Know the four standard fields.</strong> Long wire
+                    <span data-tex="\mu_0 I/2\pi R"></span>; a finite segment, the same times
+                    <span data-tex="L/\sqrt{(L/2)^2+R^2}"></span>; loop on its axis
+                    <span data-tex="\mu_0 I R^2/2(R^2+z^2)^{3/2}"></span>; solenoid
+                    <span data-tex="\mu_0 n I"></span>. Most exercises are one of these plus superposition rather
+                    than a fresh integral.</span>
+                    <span lang="cs"><strong>Znejte čtyři standardní pole.</strong> Dlouhý vodič
+                    <span data-tex="\mu_0 I/2\pi R"></span>; konečný úsek totéž krát
+                    <span data-tex="L/\sqrt{(L/2)^2+R^2}"></span>; smyčka na ose
+                    <span data-tex="\mu_0 I R^2/2(R^2+z^2)^{3/2}"></span>; solenoid
+                    <span data-tex="\mu_0 n I"></span>. Většina úloh je jedno z nich plus superpozice, ne nový
+                    integrál.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">08</span>
+                    <span><span lang="en"><strong>Symmetry? Use Ampère's law.</strong> Choose a closed curve on
+                    which <span data-tex="B"></span> is constant and parallel to
+                    <span data-tex="\mathrm{d}\vec{\ell}"></span>, so the integral collapses to
+                    <span data-tex="B\,2\pi r = \mu_0 I_c"></span>. If the current density is not uniform, find
+                    the enclosed current first by integrating,
+                    <span data-tex="I_c = \int J\,\mathrm{d}S"></span> with
+                    <span data-tex="\mathrm{d}S = 2\pi r\,\mathrm{d}r"></span>.</span>
+                    <span lang="cs"><strong>Symetrie? Ampérův zákon.</strong> Zvolte uzavřenou křivku, na níž je
+                    <span data-tex="B"></span> konstantní a rovnoběžné s
+                    <span data-tex="\mathrm{d}\vec{\ell}"></span>, aby se integrál smrskl na
+                    <span data-tex="B\,2\pi r = \mu_0 I_c"></span>. Není-li hustota proudu konstantní, nejdřív
+                    integrací určete uzavřený proud,
+                    <span data-tex="I_c = \int J\,\mathrm{d}S"></span> s
+                    <span data-tex="\mathrm{d}S = 2\pi r\,\mathrm{d}r"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">09</span>
+                    <span><span lang="en"><strong>Several sources → superpose as vectors.</strong> Fields add like
+                    forces. When two contributions are perpendicular — a solenoid along the axis and a wire
+                    circling it, say — the angle comes from
+                    <span data-tex="\tan\theta = B_1/B_2"></span> and the magnitude from
+                    <span data-tex="\sqrt{B_1^2+B_2^2}"></span>. For a loop in the field of a wire, the near and
+                    far sides feel different fields, and the net force is the difference.</span>
+                    <span lang="cs"><strong>Více zdrojů → skládejte vektorově.</strong> Pole se sčítají jako síly.
+                    Jsou-li dva příspěvky kolmé — třeba solenoid podél osy a vodič, který ji obtáčí — úhel plyne
+                    z <span data-tex="\tan\theta = B_1/B_2"></span> a velikost z
+                    <span data-tex="\sqrt{B_1^2+B_2^2}"></span>. U smyčky v poli vodiče cítí bližší a vzdálenější
+                    strana jiné pole a výsledná síla je jejich rozdíl.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">10</span>
+                    <span><span lang="en"><strong>Unknown currents out of a graph.</strong> The same trick as in
+                    the earlier topics: take the limits. A source pushed to infinity drops out and leaves the
+                    other one alone; a zero crossing means the two fields cancel there, which gives you their
+                    ratio. Two readings, two unknowns.</span>
+                    <span lang="cs"><strong>Neznámé proudy z grafu.</strong> Týž trik jako v předchozích tématech:
+                    použijte limity. Zdroj poslaný do nekonečna vypadne a zbude jen ten druhý; průchod nulou
+                    znamená, že se obě pole ruší, což dá jejich poměr. Dvě odečtení, dvě
+                    neznámé.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════ LAB ════════ -->
+    <!-- ════ § 5  LAB 1 · CHARGE IN A FIELD ════ -->
+    <section id="lab" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Charge in a magnetic field</span><span lang="cs">Náboj v magnetickém poli</span></h2>
+        </div>
+
+        <p class="lab-lede">
+            <span lang="en">The magnetic force is always perpendicular to the velocity, so it bends the path
+            without ever changing the speed — a free charge goes round in a circle whose radius measures its
+            momentum, at a period that does not depend on how fast it is going. Add an electric field across it
+            and the two forces compete: at <span data-tex="v = E/B"></span> they cancel exactly and the particle
+            sails straight through. That balance is a <em>velocity selector</em>, and it is the same condition
+            that settles the Hall voltage.</span>
+            <span lang="cs">Magnetická síla je vždy kolmá na rychlost, takže dráhu zakřivuje, aniž by kdy změnila
+            velikost rychlosti — volný náboj obíhá po kružnici, jejíž poloměr měří jeho hybnost, s periodou, která
+            nezávisí na tom, jak rychle letí. Přidejte napříč elektrické pole a obě síly se přetahují: při
+            <span data-tex="v = E/B"></span> se přesně vyruší a částice proletí rovně. Ta rovnováha je
+            <em>rychlostní filtr</em> a je to táž podmínka, která ustaví Hallovo napětí.</span>
+        </p>
+
+        <div class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Trajectory</span><span lang="cs">Dráha</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);" id="cy-status">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\vec{F} = Q\left(\vec{E} + \vec{v}\times\vec{B}\right)"></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Particle</span><span lang="cs">Částice</span></span>
+                    <button id="cy-reset" class="btn-mini" type="button" title="Reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-chg="pos">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">positive charge</span><span lang="cs">kladný náboj</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-chg="neg">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">negative charge</span><span lang="cs">záporný náboj</span></span>
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Ratio <em>|Q|/m</em></span><span lang="cs">Poměr <em>|Q|/m</em></span></span>
+                            <span class="sim-control-val" id="cy-qm-val">10 ×10⁶ C/kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="cy-qm" min="1" max="100" step="1" value="10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Speed <em>v</em>₀</span><span lang="cs">Rychlost <em>v</em>₀</span></span>
+                            <span class="sim-control-val" id="cy-v-val">50 ×10⁴ m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="cy-v" min="1" max="100" step="1" value="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Fields</span><span lang="cs">Pole</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Magnetic <em>B</em> ⊙</span><span lang="cs">Magnetické <em>B</em> ⊙</span></span>
+                            <span class="sim-control-val" id="cy-B-val">0.10 T</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="cy-B" min="1" max="100" step="1" value="10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Electric <em>E</em> ↑</span><span lang="cs">Elektrické <em>E</em> ↑</span></span>
+                            <span class="sim-control-val" id="cy-E-val">0 kV/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="cy-E" min="0" max="120" step="1" value="0">
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" style="font-size:13px;"><span lang="en">match <em>E/B</em> to <em>v</em>₀ for a straight line</span><span lang="cs">srovnejte <em>E/B</em> s <em>v</em>₀ a dráha se narovná</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="r = mv/|Q|B"></span>
+                        <span class="readout-val" id="cy-r">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T"></span>
+                        <span class="readout-val" id="cy-T">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega_c = |Q|B/m"></span>
+                        <span class="readout-val" id="cy-w">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E/B"></span>
+                        <span class="readout-val" id="cy-sel">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">speed now</span><span lang="cs">rychlost teď</span></span>
+                        <span class="readout-val" id="cy-speed">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="cy-tgl-trail">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">trail</span><span lang="cs">stopa</span></span>
+                    </div>
+                    <div class="toggle-row" id="cy-tgl-field">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">field symbols</span><span lang="cs">symboly pole</span></span>
+                    </div>
+                    <div class="toggle-row" id="cy-tgl-v">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">velocity <span data-tex="\vec{v}"></span></span><span lang="cs">rychlost <span data-tex="\vec{v}"></span></span></span>
+                    </div>
+                    <div class="toggle-row" id="cy-tgl-F">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">forces <span data-tex="\vec{F}_B,\ \vec{F}_e"></span></span><span lang="cs">síly <span data-tex="\vec{F}_B,\ \vec{F}_e"></span></span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+    </section>
+
+    <!-- ════ § 6  LAB 2 · BIOT–SAVART BUILDER ════ -->
+    <section id="lab2" style="margin-top:28px;">
+        <div class="section-head">
+            <h2><span lang="en">Biot–Savart builder</span><span lang="cs">Stavebnice Biotova–Savartova zákona</span></h2>
+        </div>
+
+        <p class="lab-lede">
+            <span lang="en">Every wire below lies in the plane of the screen and so does the probe, which means
+            <span data-tex="\mathrm{d}\vec{\ell}\times\vec{r}"></span> always points straight out of it: the field
+            at <em>P</em> is perpendicular to the page, <span data-tex="\odot"></span> towards you or
+            <span data-tex="\otimes"></span> away. Build a shape, drag the probe, and watch the contributions
+            add up.</span>
+            <span lang="cs">Každý vodič níže leží v rovině obrazovky a sonda také, takže
+            <span data-tex="\mathrm{d}\vec{\ell}\times\vec{r}"></span> míří vždy kolmo z ní: pole v bodě
+            <em>P</em> je kolmé k papíru, <span data-tex="\odot"></span> k vám, nebo
+            <span data-tex="\otimes"></span> od vás. Postavte tvar, táhněte sondou a sledujte, jak se příspěvky
+            sčítají.</span>
+        </p>
+
+        <div class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Field board</span><span lang="cs">Deska pole</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);" id="bs-status">—</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="bs-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\mathrm{d}\vec{B} = \dfrac{\mu_0}{4\pi}\,\dfrac{I\,\mathrm{d}\vec{\ell}\times\vec{r}}{r^3}"></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Build</span><span lang="cs">Stavba</span></span>
+                    <button id="bs-clear" class="btn-mini" type="button" title="Clear the board">clear</button>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-bstool="probe">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">move the probe <em>P</em></span><span lang="cs">posunout sondu <em>P</em></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bstool="wire">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">draw a wire — drag</span><span lang="cs">nakreslit vodič — tažením</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bstool="loop">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">place a loop — click</span><span lang="cs">položit smyčku — kliknutím</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bstool="select">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">select · drag an end</span><span lang="cs">vybrat · táhnout konec</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bstool="erase">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">remove</span><span lang="cs">odebrat</span></span>
+                    </div>
+
+                    <div class="readout-section" style="margin-top:8px;"><span lang="en">Ready-made</span><span lang="cs">Hotové</span></div>
+                    <div class="toggle-row obj-row" data-bspreset="infinite">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">long straight wire</span><span lang="cs">dlouhý přímý vodič</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bspreset="segment">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">finite segment <span style="color:var(--ink-faint);">(29-17)</span></span><span lang="cs">konečný úsek <span style="color:var(--ink-faint);">(29-17)</span></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bspreset="pair">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">two parallel wires</span><span lang="cs">dva rovnoběžné vodiče</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bspreset="wireloop">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">wire and loop <span style="color:var(--ink-faint);">(29-41)</span></span><span lang="cs">vodič a smyčka <span style="color:var(--ink-faint);">(29-41)</span></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-bspreset="circle">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">circular loop</span><span lang="cs">kruhová smyčka</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Selected source</span><span lang="cs">Vybraný zdroj</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);" id="bs-sel">none</span>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control" id="bs-I-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Current <em>I</em></span><span lang="cs">Proud <em>I</em></span></span>
+                            <span class="sim-control-val" id="bs-I-val">10.0 A</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="bs-I" min="0.5" max="50" step="0.5" value="10">
+                    </div>
+                    <div class="sim-control" id="bs-R-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Radius <em>R</em></span><span lang="cs">Poloměr <em>R</em></span></span>
+                            <span class="sim-control-val" id="bs-R-val">4.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="bs-R" min="1" max="12" step="0.5" value="4">
+                    </div>
+                    <div class="sim-control" id="bs-flip-ctl" style="display:none;">
+                        <button id="bs-flip" class="btn-wide" type="button">
+                            <span lang="en">reverse the current</span><span lang="cs">otočit proud</span>
+                        </button>
+                    </div>
+                    <div class="readout-row" id="bs-hint-row">
+                        <span class="readout-label" style="font-size:13px;"><span lang="en">pick a wire on the board</span><span lang="cs">vyberte vodič na desce</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Field at P</span><span lang="cs">Pole v bodě P</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="B_\perp"></span>
+                        <span class="readout-val" id="bs-B">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">direction</span><span lang="cs">směr</span></span>
+                        <span class="readout-val" id="bs-dir">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">sources</span><span lang="cs">zdrojů</span></span>
+                        <span class="readout-val" id="bs-n">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\mu_0 I/2\pi R"></span>
+                        <span class="readout-val" id="bs-cmp">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="bs-tgl-grid">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">field over the whole board</span><span lang="cs">pole na celé desce</span></span>
+                    </div>
+                    <div class="toggle-row" id="bs-tgl-contrib">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">contribution of each wire</span><span lang="cs">příspěvek každého vodiče</span></span>
+                    </div>
+                    <div class="toggle-row" id="bs-tgl-elems">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">elements <span data-tex="I\,\mathrm{d}\vec{\ell}"></span></span><span lang="cs">elementy <span data-tex="I\,\mathrm{d}\vec{\ell}"></span></span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch28-ex44.html"><span lang="en">Ch. 28 · <span class="ex-no">Ex. 44</span></span><span lang="cs">Kap. 28 · <span class="ex-no">Úl. 44</span></span></a>
+            <a class="ex-tab" href="../exercises/ch28-ex48.html"><span lang="en">Ch. 28 · <span class="ex-no">Ex. 48</span></span><span lang="cs">Kap. 28 · <span class="ex-no">Úl. 48</span></span></a>
+            <a class="ex-tab" href="../exercises/ch28-ex60.html"><span lang="en">Ch. 28 · <span class="ex-no">Ex. 60</span></span><span lang="cs">Kap. 28 · <span class="ex-no">Úl. 60</span></span></a>
+            <a class="ex-tab" href="../exercises/ch28-ex70.html"><span lang="en">Ch. 28 · <span class="ex-no">Ex. 70</span></span><span lang="cs">Kap. 28 · <span class="ex-no">Úl. 70</span></span></a>
+            <a class="ex-tab" href="../exercises/ch29-ex17.html"><span lang="en">Ch. 29 · <span class="ex-no">Ex. 17</span></span><span lang="cs">Kap. 29 · <span class="ex-no">Úl. 17</span></span></a>
+            <a class="ex-tab" href="../exercises/ch29-ex41.html"><span lang="en">Ch. 29 · <span class="ex-no">Ex. 41</span></span><span lang="cs">Kap. 29 · <span class="ex-no">Úl. 41</span></span></a>
+            <a class="ex-tab" href="../exercises/ch29-ex47.html"><span lang="en">Ch. 29 · <span class="ex-no">Ex. 47</span></span><span lang="cs">Kap. 29 · <span class="ex-no">Úl. 47</span></span></a>
+            <a class="ex-tab" href="../exercises/ch29-ex53.html"><span lang="en">Ch. 29 · <span class="ex-no">Ex. 53</span></span><span lang="cs">Kap. 29 · <span class="ex-no">Úl. 53</span></span></a>
+            <a class="ex-tab" href="../exercises/ch29-ex62.html"><span lang="en">Ch. 29 · <span class="ex-no">Ex. 62</span></span><span lang="cs">Kap. 29 · <span class="ex-no">Úl. 62</span></span></a>
+        </div>
+    </section>
+
+    <!-- ════════ PREV / NEXT ════════ -->
+    <nav class="topic-nav">
+        <a href="circuits.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Circuits</span><span lang="cs">Obvody</span></div>
+        </a>
+        <a href="induction.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Electromagnetic Induction</span><span lang="cs">Elektromagnetická indukce</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ II.04 <span lang="en">Magnetic Field</span><span lang="cs">Magnetické pole</span></span>
+        <span><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX ──────────────────────────────────────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Lab 1 · Charge in a magnetic field ── -->
+<script>
+(function () {
+    'use strict';
+
+    /* Integrates  dv/dt = (Q/m)(E + v x B)  with RK4, B out of the page (+z)
+       and E up the screen (+y), so the two forces oppose for a charge moving
+       to the right — the velocity-selector geometry.  At v = E/B they cancel.  */
+
+    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const SERIF = '"Source Serif 4", Georgia, serif';
+
+    const canvas = document.getElementById('sim-canvas');
+    if (!canvas) return;
+    const ctx  = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
+    let W = 0, H = 0, col = readCol();
+
+    function readCol() {
+        const r = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
+        const g = (k, d) => ((b.getPropertyValue(k) || r.getPropertyValue(k)).trim() || d);
+        return {
+            ink:   g('--ink',        '#363026'),
+            acc:   g('--accent',     '#5a6878'),
+            soft:  g('--ink-soft',   '#4d4436'),
+            faint: g('--ink-faint',  '#7A6A52'),
+            paper: g('--paper',      '#FFFDF6'),
+            deep:  g('--paper-deep', '#efead6'),
+        };
+    }
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const t = (en, cs) => (isCS() ? cs : en);
+    const dec = x => (isCS() ? String(x).replace(/\./g, ',') : String(x));
+
+    /* ── State ─────────────────────────────────────────────────────────── */
+    const P = { sign: +1, qm: 10e6, v0: 50e4, B: 0.10, E: 0 };
+    const show = { trail: true, field: true, vel: true, force: true };
+    let pos = { x: 0, y: 0 }, vel = { x: 0, y: 0 };
+    let trail = [];
+
+    const omega = () => P.qm * P.B;                    /* |Q|B/m            */
+    const radius = () => P.v0 / omega();               /* mv/|Q|B           */
+    const period = () => 2 * Math.PI / omega();
+    const vsel  = () => (P.B > 0 ? P.E / P.B : 0);
+
+    function reset() {
+        pos = { x: -viewHalfW() * 0.86, y: 0 };
+        vel = { x: P.v0, y: 0 };
+        trail = [];
+    }
+    /* metres visible across half the canvas */
+    function scale() { return Math.min(W, H) * 0.38 / Math.max(radius(), 1e-9); }
+    function viewHalfW() { return (W / 2) / scale(); }
+
+    function accel(v) {
+        const k = P.sign * P.qm;
+        return { x: k * (v.y * P.B), y: k * (P.E - v.x * P.B) };
+    }
+    function step(dt) {
+        const a1 = accel(vel);
+        const v2 = { x: vel.x + a1.x * dt / 2, y: vel.y + a1.y * dt / 2 };
+        const a2 = accel(v2);
+        const v3 = { x: vel.x + a2.x * dt / 2, y: vel.y + a2.y * dt / 2 };
+        const a3 = accel(v3);
+        const v4 = { x: vel.x + a3.x * dt, y: vel.y + a3.y * dt };
+        const a4 = accel(v4);
+        pos.x += dt / 6 * (vel.x + 2 * v2.x + 2 * v3.x + v4.x);
+        pos.y += dt / 6 * (vel.y + 2 * v2.y + 2 * v3.y + v4.y);
+        vel.x += dt / 6 * (a1.x + 2 * a2.x + 2 * a3.x + a4.x);
+        vel.y += dt / 6 * (a1.y + 2 * a2.y + 2 * a3.y + a4.y);
+    }
+
+    /* ── Drawing ───────────────────────────────────────────────────────── */
+    const sx = x => W / 2 + x * scale();
+    const sy = y => H / 2 - y * scale();
+
+    function label(txt, x, y, size, colr, align, bg) {
+        ctx.save();
+        ctx.font = size + 'px ' + MONO;
+        ctx.textAlign = align || 'center';
+        ctx.textBaseline = 'middle';
+        if (bg) {
+            const w = ctx.measureText(txt).width;
+            let bx = x - w / 2 - 3;
+            if (align === 'left')  bx = x - 3;
+            if (align === 'right') bx = x - w - 3;
+            ctx.fillStyle = bg; ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
+        }
+        ctx.fillStyle = colr; ctx.fillText(txt, x, y);
+        ctx.restore();
+    }
+    function arrow(x1, y1, x2, y2, head) {
+        head = head || 7;
+        const a = Math.atan2(y2 - y1, x2 - x1);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - head * Math.cos(a - 0.4), y2 - head * Math.sin(a - 0.4));
+        ctx.lineTo(x2 - head * Math.cos(a + 0.4), y2 - head * Math.sin(a + 0.4));
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw() {
+        col = readCol();
+        ctx.clearRect(0, 0, W, H);
+
+        /* B out of the page, and E up, as symbols */
+        if (show.field) {
+            const st = 46;
+            ctx.save();
+            ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.globalAlpha = 0.30;
+            ctx.lineWidth = 1.1;
+            for (let y = st / 2; y < H; y += st) {
+                for (let x = st / 2; x < W; x += st) {
+                    ctx.beginPath(); ctx.arc(x, y, 4.2, 0, Math.PI * 2); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(x, y, 1.4, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+            ctx.restore();
+            if (P.E > 0) {
+                ctx.save();
+                ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.globalAlpha = 0.28;
+                ctx.lineWidth = 1.2;
+                for (let x = st; x < W; x += st * 2) arrow(x, H - 16, x, H - 46, 5);
+                ctx.restore();
+                label('E ↑', 12, H - 30, 10, col.soft, 'left', col.paper);
+            }
+            label('B ⊙ ' + t('out of the page', 'z papíru'), 12, H - 14, 10, col.acc, 'left', col.paper);
+        }
+
+        /* trail */
+        if (show.trail && trail.length > 1) {
+            ctx.save();
+            ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.55; ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(sx(trail[0].x), sy(trail[0].y));
+            for (let i = 1; i < trail.length; i++) ctx.lineTo(sx(trail[i].x), sy(trail[i].y));
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        const px = sx(pos.x), py = sy(pos.y);
+        const sp = Math.hypot(vel.x, vel.y) || 1;
+
+        /* velocity and the two forces */
+        if (show.vel) {
+            ctx.strokeStyle = col.ink; ctx.fillStyle = col.ink; ctx.lineWidth = 1.8;
+            arrow(px, py, px + vel.x / sp * 46, py - vel.y / sp * 46, 7);
+            label('v', px + vel.x / sp * 58, py - vel.y / sp * 58, 11, col.ink, 'center', col.paper);
+        }
+        if (show.force) {
+            const fbx = P.sign * vel.y * P.B, fby = -P.sign * vel.x * P.B;
+            const fb = Math.hypot(fbx, fby);
+            if (fb > 1e-12) {
+                ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 2;
+                arrow(px, py, px + fbx / fb * 38, py - fby / fb * 38, 7);
+                label('F_B', px + fbx / fb * 50, py - fby / fb * 50, 10, col.acc, 'center', col.paper);
+            }
+            if (P.E > 0) {
+                const s = P.sign > 0 ? 1 : -1;
+                ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.lineWidth = 2;
+                arrow(px, py, px, py - s * 34, 7);
+                label('F_e', px + 16, py - s * 44, 10, col.soft, 'center', col.paper);
+            }
+        }
+
+        /* the particle */
+        ctx.fillStyle = P.sign > 0 ? col.acc : col.soft;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        label(P.sign > 0 ? '+' : '−', px, py - 0.5, 13, col.paper);
+
+        /* headline */
+        const near = P.E > 0 && Math.abs(sp - vsel()) / Math.max(sp, 1) < 0.02;
+        label(near ? t('E/B matches v — the path is straight', 'E/B se rovná v — dráha je rovná')
+                   : 'r = ' + dec((radius() * 100).toFixed(1)) + ' cm   ·   T = '
+                     + dec((period() * 1e6).toFixed(2)) + ' μs',
+              12, 16, 11, near ? col.acc : col.faint, 'left', col.paper);
+    }
+
+    /* ── Readout ───────────────────────────────────────────────────────── */
+    const $ = id => document.getElementById(id);
+    const setTxt = (id, s) => { const e = $(id); if (e) e.textContent = s; };
+    function readout() {
+        setTxt('cy-r', dec((radius() * 100).toFixed(2)) + ' cm');
+        setTxt('cy-T', dec((period() * 1e6).toFixed(2)) + ' μs');
+        setTxt('cy-w', dec((omega() / 1e6).toFixed(2)) + ' ×10⁶ rad/s');
+        setTxt('cy-sel', P.E > 0 ? dec((vsel() / 1e4).toFixed(1)) + ' ×10⁴ m/s' : '—');
+        setTxt('cy-speed', dec((Math.hypot(vel.x, vel.y) / 1e4).toFixed(1)) + ' ×10⁴ m/s');
+        const sp = Math.hypot(vel.x, vel.y);
+        setTxt('cy-status', (P.E > 0 && Math.abs(sp - vsel()) / Math.max(sp, 1) < 0.02)
+            ? t('straight through', 'proletí rovně')
+            : t('circling', 'krouží'));
+    }
+
+    /* ── Controls ──────────────────────────────────────────────────────── */
+    function radios(attr, cb) {
+        const rows = [].slice.call(document.querySelectorAll('[data-' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            rows.forEach(r => { const b = r.querySelector('.toggle-box');
+                                if (b) b.classList.toggle('on', r === row); });
+            cb(row.getAttribute('data-' + attr));
+        }));
+    }
+    radios('chg', v => { P.sign = (v === 'neg') ? -1 : 1; reset(); });
+
+    function toggle(id, cb) {
+        const row = $(id);
+        if (!row) return;
+        row.addEventListener('click', () => {
+            const b = row.querySelector('.toggle-box');
+            if (!b) return;
+            const on = !b.classList.contains('on');
+            b.classList.toggle('on', on);
+            cb(on);
+        });
+    }
+    toggle('cy-tgl-trail', v => { show.trail = v; });
+    toggle('cy-tgl-field', v => { show.field = v; });
+    toggle('cy-tgl-v',     v => { show.vel   = v; });
+    toggle('cy-tgl-F',     v => { show.force = v; });
+
+    function slider(id, valId, fmt, set) {
+        const inp = $(id);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            set(+inp.value);
+            setTxt(valId, fmt(+inp.value));
+            reset(); readout();
+        });
+    }
+    slider('cy-qm', 'cy-qm-val', v => dec(v.toFixed(0)) + ' ×10⁶ C/kg', v => P.qm = v * 1e6);
+    slider('cy-v',  'cy-v-val',  v => dec(v.toFixed(0)) + ' ×10⁴ m/s',  v => P.v0 = v * 1e4);
+    slider('cy-B',  'cy-B-val',  v => dec((v / 100).toFixed(2)) + ' T', v => P.B  = v / 100);
+    slider('cy-E',  'cy-E-val',  v => dec(v.toFixed(0)) + ' kV/m',      v => P.E  = v * 1e3);
+
+    if ($('cy-reset')) $('cy-reset').addEventListener('click', () => { reset(); readout(); });
+
+    /* ── Frame ─────────────────────────────────────────────────────────── */
+    function frame() {
+        const dtFrame = period() / 300;
+        for (let k = 0; k < 4; k++) step(dtFrame / 4);
+        trail.push({ x: pos.x, y: pos.y });
+        if (trail.length > 900) trail.shift();
+        const hw = viewHalfW(), hh = (H / 2) / scale();
+        if (pos.x > hw * 1.05 || pos.x < -hw * 1.15 ||
+            pos.y > hh * 1.15 || pos.y < -hh * 1.15) reset();
+        draw();
+        readout();
+        requestAnimationFrame(frame);
+    }
+    function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 320);
+        H = Math.max(r.height, 260);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(wrap);
+    reset();
+    readout();
+    requestAnimationFrame(frame);
+}());
+</script>
+
+<!-- ── Lab 2 · Biot–Savart builder ── -->
+<script>
+(function () {
+    'use strict';
+
+    /* ══ Geometry note ═══════════════════════════════════════════════════
+       Every source lies in the plane of the screen and so does the probe, so
+       dl × r is always along z: the field at P is a single signed number,
+       out of the page (+) or into it (−).
+
+       Straight segment: the closed form, exact and stable right up to the wire
+
+           B = (mu0 I / 4 pi d) [ s2/sqrt(s2^2+d^2) − s1/sqrt(s1^2+d^2) ]
+
+       with d the perpendicular distance and s1, s2 the ends measured along the
+       wire from the foot of that perpendicular. s1 → −inf, s2 → +inf recovers
+       mu0 I / 2 pi d.
+
+       Loop: summed straight off dB = (mu0/4pi) I dl × r / r^3 over 360
+       elements — the sandbox performs the integral the topic describes.       */
+
+    const MU0 = 4 * Math.PI * 1e-7;
+    const PXCM = 9;                    /* px per cm on the board */
+    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const SERIF = '"Source Serif 4", Georgia, serif';
+
+    let srcs = [];                     /* {kind:'wire'|'loop', ...}   */
+    let probe = { x: 0, y: 0 };        /* cm, board coordinates       */
+    let tool = 'probe', sel = -1, drag = null, ghost = null;
+    const show = { grid: true, contrib: true, elems: false };
+    let uid = 1;
+
+    const canvas = document.getElementById('bs-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
+    let W = 0, H = 0, col = readCol();
+
+    function readCol() {
+        const r = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
+        const g = (k, d) => ((b.getPropertyValue(k) || r.getPropertyValue(k)).trim() || d);
+        return {
+            ink:   g('--ink',        '#363026'),
+            acc:   g('--accent',     '#5a6878'),
+            soft:  g('--ink-soft',   '#4d4436'),
+            faint: g('--ink-faint',  '#7A6A52'),
+            paper: g('--paper',      '#FFFDF6'),
+            deep:  g('--paper-deep', '#efead6'),
+        };
+    }
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const t = (en, cs) => (isCS() ? cs : en);
+    const dec = x => (isCS() ? String(x).replace(/\./g, ',') : String(x));
+
+    function fmtB(v) {
+        const a = Math.abs(v);
+        if (!isFinite(v)) return '—';
+        if (a === 0) return dec('0.00') + ' T';
+        if (a >= 1e-3) return dec((v * 1e3).toFixed(2)) + ' mT';
+        if (a >= 1e-6) return dec((v * 1e6).toFixed(2)) + ' μT';
+        if (a >= 1e-9) return dec((v * 1e9).toFixed(2)) + ' nT';
+        return dec((v * 1e12).toFixed(1)) + ' pT';
+    }
+
+    /* ══ Board ↔ screen ══════════════════════════════════════════════════ */
+    const sx = x => W / 2 + x * PXCM;
+    const sy = y => H / 2 - y * PXCM;
+    const wx = px => (px - W / 2) / PXCM;
+    const wy = py => (H / 2 - py) / PXCM;
+
+    /* ══ The physics ═════════════════════════════════════════════════════ */
+    function fieldOfWire(s, P) {
+        const ax = s.x1, ay = s.y1, bx = s.x2, by = s.y2;
+        const lx = bx - ax, ly = by - ay;
+        const L = Math.hypot(lx, ly);
+        if (L < 1e-9) return 0;
+        const ux = lx / L, uy = ly / L;
+        const rx = P.x - ax, ry = P.y - ay;
+        const t0 = ux * rx + uy * ry;                 /* foot of the perpendicular */
+        let d = Math.abs(ux * ry - uy * rx);          /* perpendicular distance    */
+        const sign = (ux * ry - uy * rx) >= 0 ? 1 : -1;
+        d = Math.max(d, 0.25);                        /* cm, keeps the wire finite */
+        const s1 = -t0, s2 = L - t0;
+        const f = s2 / Math.hypot(s2, d) - s1 / Math.hypot(s1, d);
+        const dm = d * 1e-2;                          /* cm → m */
+        return sign * (MU0 * s.I / (4 * Math.PI * dm)) * f;
+    }
+    function fieldOfLoop(s, P) {
+        const N = 360, dth = 2 * Math.PI / N;
+        let B = 0;
+        for (let k = 0; k < N; k++) {
+            const th = (k + 0.5) * dth;
+            const px = s.cx + s.R * Math.cos(th);
+            const py = s.cy + s.R * Math.sin(th);
+            const dlx = -Math.sin(th) * s.R * dth * s.dir;
+            const dly =  Math.cos(th) * s.R * dth * s.dir;
+            const rx = P.x - px, ry = P.y - py;
+            let r = Math.hypot(rx, ry);
+            r = Math.max(r, 0.25);
+            B += (dlx * ry - dly * rx) / (r * r * r);
+        }
+        return (MU0 * s.I / (4 * Math.PI)) * B * 1e2;  /* cm → m: (cm)^2/(cm)^3 = 1/cm */
+    }
+    function fieldOf(s, P) {
+        return s.kind === 'wire' ? fieldOfWire(s, P) : fieldOfLoop(s, P);
+    }
+    function totalField(P) {
+        let B = 0;
+        for (const s of srcs) B += fieldOf(s, P);
+        return B;
+    }
+
+    /* ══ Presets ═════════════════════════════════════════════════════════ */
+    function wire(x1, y1, x2, y2, I) { return { id: uid++, kind: 'wire', x1: x1, y1: y1, x2: x2, y2: y2, I: I }; }
+    function loop(cx, cy, R, I, dir) { return { id: uid++, kind: 'loop', cx: cx, cy: cy, R: R, I: I, dir: dir || 1 }; }
+
+    const PRESETS = {
+        infinite: () => ({ s: [wire(-60, 0, 60, 0, 10)], p: { x: 0, y: 8 } }),
+        segment:  () => ({ s: [wire(-9, 0, 9, 0, 10)],   p: { x: 0, y: 13.1 } }),
+        pair:     () => ({ s: [wire(-60, 6, 60, 6, 10), wire(60, -6, -60, -6, 10)], p: { x: 0, y: 0 } }),
+        wireloop: () => ({ s: [wire(-60, 12, 60, 12, 15),
+                               wire(-15, 2, 15, 2, 10), wire(15, 2, 15, -6, 10),
+                               wire(15, -6, -15, -6, 10), wire(-15, -6, -15, 2, 10)],
+                           p: { x: 0, y: 6 } }),
+        circle:   () => ({ s: [loop(0, 0, 8, 10, 1)],    p: { x: 0, y: 0 } }),
+    };
+    function loadPreset(name) {
+        const P = (PRESETS[name] || PRESETS.infinite)();
+        srcs = P.s; probe = { x: P.p.x, y: P.p.y }; sel = -1;
+        refresh();
+    }
+
+    /* ══ Drawing ═════════════════════════════════════════════════════════ */
+    function label(txt, x, y, size, colr, align, bg) {
+        ctx.save();
+        ctx.font = size + 'px ' + MONO;
+        ctx.textAlign = align || 'center';
+        ctx.textBaseline = 'middle';
+        if (bg) {
+            const w = ctx.measureText(txt).width;
+            let bx = x - w / 2 - 3;
+            if (align === 'left')  bx = x - 3;
+            if (align === 'right') bx = x - w - 3;
+            ctx.fillStyle = bg;
+            ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
+        }
+        ctx.fillStyle = colr;
+        ctx.fillText(txt, x, y);
+        ctx.restore();
+    }
+    function dot(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+    function cross(x, y, r) {
+        ctx.beginPath();
+        ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r);
+        ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r);
+        ctx.stroke();
+    }
+    function arrowOn(x, y, ux, uy, size) {
+        ctx.beginPath();
+        ctx.moveTo(x + ux * size, y + uy * size);
+        ctx.lineTo(x - ux * size * 0.5 - uy * size * 0.55, y - uy * size * 0.5 + ux * size * 0.55);
+        ctx.lineTo(x - ux * size * 0.5 + uy * size * 0.55, y - uy * size * 0.5 - ux * size * 0.55);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function draw() {
+        col = readCol();
+        ctx.clearRect(0, 0, W, H);
+
+        /* the field over the whole board, as the textbook symbols */
+        if (show.grid) {
+            const step = 34;
+            let peak = 1e-30;
+            const vals = [];
+            for (let py = step / 2; py < H; py += step) {
+                for (let px = step / 2; px < W; px += step) {
+                    const B = totalField({ x: wx(px), y: wy(py) });
+                    vals.push([px, py, B]);
+                    peak = Math.max(peak, Math.abs(B));
+                }
+            }
+            for (const v of vals) {
+                const rel = Math.abs(v[2]) / peak;
+                if (rel < 0.012) continue;
+                const r = 1.6 + 4.4 * Math.pow(rel, 0.45);
+                ctx.save();
+                ctx.globalAlpha = 0.16 + 0.5 * Math.pow(rel, 0.5);
+                if (v[2] > 0) {
+                    ctx.strokeStyle = col.acc; ctx.lineWidth = 1.2;
+                    ctx.beginPath(); ctx.arc(v[0], v[1], r, 0, Math.PI * 2); ctx.stroke();
+                    ctx.fillStyle = col.acc; dot(v[0], v[1], Math.max(1, r * 0.34));
+                } else {
+                    ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
+                    ctx.beginPath(); ctx.arc(v[0], v[1], r, 0, Math.PI * 2); ctx.stroke();
+                    cross(v[0], v[1], r * 0.62);
+                }
+                ctx.restore();
+            }
+        }
+
+        /* sources */
+        srcs.forEach((s, i) => {
+            const hot = (i === sel);
+            ctx.strokeStyle = hot ? col.acc : col.ink;
+            ctx.lineWidth = hot ? 3 : 2.2;
+            if (s.kind === 'wire') {
+                const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2);
+                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+                const L = Math.hypot(x2 - x1, y2 - y1) || 1;
+                const ux = (x2 - x1) / L, uy = (y2 - y1) / L;
+                ctx.fillStyle = hot ? col.acc : col.ink;
+                for (let k = 1; k <= 3; k++) {
+                    const f = k / 4;
+                    arrowOn(x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, ux, uy, 6);
+                }
+                if (show.elems) {
+                    ctx.fillStyle = col.faint;
+                    for (let k = 0; k <= 10; k++) {
+                        const f = k / 10;
+                        dot(x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 1.6);
+                    }
+                }
+                label(dec(s.I.toFixed(1)) + ' A', (x1 + x2) / 2, (y1 + y2) / 2 - 14,
+                      10, hot ? col.acc : col.faint, 'center', col.paper);
+            } else {
+                const c = { x: sx(s.cx), y: sy(s.cy) }, R = s.R * PXCM;
+                ctx.beginPath(); ctx.arc(c.x, c.y, R, 0, Math.PI * 2); ctx.stroke();
+                ctx.fillStyle = hot ? col.acc : col.ink;
+                for (let k = 0; k < 4; k++) {
+                    const th = k * Math.PI / 2 + 0.3;
+                    arrowOn(c.x + R * Math.cos(th), c.y - R * Math.sin(th),
+                            s.dir * Math.sin(th), s.dir * Math.cos(th), 6);
+                }
+                label(dec(s.I.toFixed(1)) + ' A', c.x, c.y - R - 12,
+                      10, hot ? col.acc : col.faint, 'center', col.paper);
+            }
+        });
+
+        /* the wire being dragged out */
+        if (ghost) {
+            ctx.save();
+            ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.55;
+            ctx.lineWidth = 2.2; ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            ctx.moveTo(sx(ghost.x1), sy(ghost.y1));
+            ctx.lineTo(sx(ghost.x2), sy(ghost.y2));
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        /* contributions to the sum at P */
+        const px = sx(probe.x), py = sy(probe.y);
+        if (show.contrib) {
+            srcs.forEach(s => {
+                const B = fieldOf(s, probe);
+                if (!isFinite(B) || Math.abs(B) < 1e-15) return;
+                let ax, ay;
+                if (s.kind === 'wire') {
+                    const lx = s.x2 - s.x1, ly = s.y2 - s.y1;
+                    const L2 = lx * lx + ly * ly || 1;
+                    let tt = ((probe.x - s.x1) * lx + (probe.y - s.y1) * ly) / L2;
+                    tt = Math.max(0, Math.min(1, tt));
+                    ax = sx(s.x1 + lx * tt); ay = sy(s.y1 + ly * tt);
+                } else {
+                    const dx = probe.x - s.cx, dy = probe.y - s.cy;
+                    const m = Math.hypot(dx, dy) || 1;
+                    ax = sx(s.cx + s.R * dx / m); ay = sy(s.cy + s.R * dy / m);
+                }
+                ctx.save();
+                ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(px, py); ctx.stroke();
+                ctx.restore();
+                label((B >= 0 ? '+' : '−') + fmtB(Math.abs(B)),
+                      (ax + px) / 2, (ay + py) / 2,
+                      9.5, B >= 0 ? col.acc : col.soft, 'center', col.paper);
+            });
+        }
+
+        /* the probe */
+        const B = totalField(probe);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(px - 9, py); ctx.lineTo(px + 9, py);
+        ctx.moveTo(px, py - 9); ctx.lineTo(px, py + 9); ctx.stroke();
+        ctx.fillStyle = col.paper;
+        ctx.beginPath(); ctx.arc(px, py, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        if (Math.abs(B) > 1e-15) {
+            ctx.strokeStyle = B > 0 ? col.acc : col.soft;
+            ctx.fillStyle = B > 0 ? col.acc : col.soft;
+            ctx.lineWidth = 1.6;
+            if (B > 0) { dot(px, py, 2.2); }
+            else { cross(px, py, 3.4); }
+        }
+        ctx.font = '12px ' + SERIF;
+        ctx.fillStyle = col.ink;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('P', px + 12, py - 11);
+
+        label('B(P) = ' + (B >= 0 ? '' : '−') + fmtB(Math.abs(B)) + '  ' + (B >= 0 ? '⊙' : '⊗'),
+              12, 16, 11, col.acc, 'left', col.paper);
+        label(t('all wires in the page · B perpendicular to it',
+                'všechny vodiče v rovině papíru · B kolmo k ní'),
+              12, 34, 10, col.faint, 'left', col.paper);
+    }
+
+    /* ══ Readout ═════════════════════════════════════════════════════════ */
+    const $ = id => document.getElementById(id);
+    const setTxt = (id, s) => { const e = $(id); if (e) e.textContent = s; };
+
+    function refresh() {
+        const B = totalField(probe);
+        setTxt('bs-B', fmtB(Math.abs(B)));
+        setTxt('bs-dir', Math.abs(B) < 1e-15 ? '—'
+              : (B > 0 ? t('out of the page ⊙', 'z papíru ⊙') : t('into the page ⊗', 'do papíru ⊗')));
+        setTxt('bs-n', String(srcs.length));
+
+        /* the long-wire yardstick, when exactly one straight wire is present */
+        const wires = srcs.filter(s => s.kind === 'wire');
+        if (wires.length === 1 && srcs.length === 1) {
+            const s = wires[0];
+            const lx = s.x2 - s.x1, ly = s.y2 - s.y1;
+            const L = Math.hypot(lx, ly) || 1;
+            const d = Math.abs((lx / L) * (probe.y - s.y1) - (ly / L) * (probe.x - s.x1));
+            const Binf = MU0 * s.I / (2 * Math.PI * Math.max(d, 0.25) * 1e-2);
+            setTxt('bs-cmp', fmtB(Binf) + '  (' + dec((Math.abs(B) / Binf * 100).toFixed(0)) + ' %)');
+        } else {
+            setTxt('bs-cmp', '—');
+        }
+        const st = $('bs-status');
+        if (st) st.textContent = srcs.length
+            ? t('solved', 'spočteno') : t('empty board', 'prázdná deska');
+        syncPanel();
+        request();
+    }
+    function syncPanel() {
+        const s = sel >= 0 ? srcs[sel] : null;
+        setTxt('bs-sel', s ? (s.kind === 'wire' ? t('wire', 'vodič') : t('loop', 'smyčka')) : t('none', 'žádný'));
+        const showIf = (id, on) => { const e = $(id); if (e) e.style.display = on ? '' : 'none'; };
+        showIf('bs-I-ctl', !!s);
+        showIf('bs-R-ctl', !!s && s.kind === 'loop');
+        showIf('bs-flip-ctl', !!s);
+        showIf('bs-hint-row', !s);
+        if (!s) return;
+        $('bs-I').value = s.I; setTxt('bs-I-val', dec(s.I.toFixed(1)) + ' A');
+        if (s.kind === 'loop') { $('bs-R').value = s.R; setTxt('bs-R-val', dec(s.R.toFixed(1)) + ' cm'); }
+    }
+
+    /* ══ Picking ═════════════════════════════════════════════════════════ */
+    function distToWire(s, p) {
+        const lx = s.x2 - s.x1, ly = s.y2 - s.y1;
+        const L2 = lx * lx + ly * ly || 1;
+        let tt = ((p.x - s.x1) * lx + (p.y - s.y1) * ly) / L2;
+        tt = Math.max(0, Math.min(1, tt));
+        return Math.hypot(p.x - (s.x1 + lx * tt), p.y - (s.y1 + ly * tt));
+    }
+    function pick(p) {
+        let best = -1, bd = 1e9;
+        srcs.forEach((s, i) => {
+            const d = s.kind === 'wire' ? distToWire(s, p)
+                    : Math.abs(Math.hypot(p.x - s.cx, p.y - s.cy) - s.R);
+            if (d < bd) { bd = d; best = i; }
+        });
+        return bd < 1.6 ? best : -1;
+    }
+    function pickEnd(p) {
+        for (let i = 0; i < srcs.length; i++) {
+            const s = srcs[i];
+            if (s.kind !== 'wire') continue;
+            if (Math.hypot(p.x - s.x1, p.y - s.y1) < 1.6) return { i: i, end: 1 };
+            if (Math.hypot(p.x - s.x2, p.y - s.y2) < 1.6) return { i: i, end: 2 };
+        }
+        return null;
+    }
+
+    /* ══ Interaction ═════════════════════════════════════════════════════ */
+    function at(ev) {
+        const r = canvas.getBoundingClientRect();
+        return { x: wx(ev.clientX - r.left), y: wy(ev.clientY - r.top) };
+    }
+    canvas.addEventListener('pointerdown', ev => {
+        const p = at(ev);
+        canvas.setPointerCapture(ev.pointerId);
+        if (tool === 'probe') { drag = { what: 'probe' }; probe = p; refresh(); return; }
+        if (tool === 'wire')  { ghost = { x1: p.x, y1: p.y, x2: p.x, y2: p.y }; drag = { what: 'ghost' }; return; }
+        if (tool === 'loop')  {
+            srcs.push(loop(p.x, p.y, +($('bs-R') ? $('bs-R').value : 4), 10, 1));
+            sel = srcs.length - 1; refresh(); return;
+        }
+        if (tool === 'erase') { const i = pick(p); if (i >= 0) { srcs.splice(i, 1); sel = -1; } refresh(); return; }
+        /* select */
+        const e = pickEnd(p);
+        if (e) { sel = e.i; drag = { what: 'end', i: e.i, end: e.end }; refresh(); return; }
+        sel = pick(p);
+        if (sel >= 0) drag = { what: 'move', i: sel, ox: p.x, oy: p.y };
+        refresh();
+    });
+    canvas.addEventListener('pointermove', ev => {
+        if (!drag) return;
+        const p = at(ev);
+        if (drag.what === 'probe') { probe = p; refresh(); }
+        else if (drag.what === 'ghost') { ghost.x2 = p.x; ghost.y2 = p.y; request(); }
+        else if (drag.what === 'end') {
+            const s = srcs[drag.i];
+            if (drag.end === 1) { s.x1 = p.x; s.y1 = p.y; } else { s.x2 = p.x; s.y2 = p.y; }
+            refresh();
+        } else if (drag.what === 'move') {
+            const s = srcs[drag.i], dx = p.x - drag.ox, dy = p.y - drag.oy;
+            if (s.kind === 'wire') { s.x1 += dx; s.y1 += dy; s.x2 += dx; s.y2 += dy; }
+            else { s.cx += dx; s.cy += dy; }
+            drag.ox = p.x; drag.oy = p.y;
+            refresh();
+        }
+    });
+    function endDrag() {
+        if (drag && drag.what === 'ghost' && ghost) {
+            if (Math.hypot(ghost.x2 - ghost.x1, ghost.y2 - ghost.y1) > 1.2) {
+                srcs.push(wire(ghost.x1, ghost.y1, ghost.x2, ghost.y2, 10));
+                sel = srcs.length - 1;
+            }
+            ghost = null; refresh();
+        }
+        drag = null;
+    }
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+
+    function radios(attr, cb) {
+        const rows = [].slice.call(document.querySelectorAll('[data-' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            rows.forEach(r => { const b = r.querySelector('.toggle-box');
+                                if (b) b.classList.toggle('on', r === row); });
+            cb(row.getAttribute('data-' + attr));
+        }));
+    }
+    radios('bstool', v => { tool = v; });
+    radios('bspreset', v => loadPreset(v));
+
+    function toggle(id, cb) {
+        const row = $(id);
+        if (!row) return;
+        row.addEventListener('click', () => {
+            const b = row.querySelector('.toggle-box');
+            if (!b) return;
+            const on = !b.classList.contains('on');
+            b.classList.toggle('on', on);
+            cb(on);
+        });
+    }
+    toggle('bs-tgl-grid',    v => { show.grid = v; request(); });
+    toggle('bs-tgl-contrib', v => { show.contrib = v; request(); });
+    toggle('bs-tgl-elems',   v => { show.elems = v; request(); });
+
+    function slider(id, valId, fmt, set) {
+        const inp = $(id);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            const s = sel >= 0 ? srcs[sel] : null;
+            if (!s) return;
+            set(s, +inp.value);
+            setTxt(valId, fmt(+inp.value));
+            refresh();
+        });
+    }
+    slider('bs-I', 'bs-I-val', v => dec(v.toFixed(1)) + ' A',  (s, v) => s.I = v);
+    slider('bs-R', 'bs-R-val', v => dec(v.toFixed(1)) + ' cm', (s, v) => s.R = v);
+
+    if ($('bs-flip')) $('bs-flip').addEventListener('click', () => {
+        const s = sel >= 0 ? srcs[sel] : null;
+        if (!s) return;
+        if (s.kind === 'wire') {
+            const x = s.x1, y = s.y1;
+            s.x1 = s.x2; s.y1 = s.y2; s.x2 = x; s.y2 = y;
+        } else s.dir = -s.dir;
+        refresh();
+    });
+    if ($('bs-clear')) $('bs-clear').addEventListener('click', () => {
+        srcs = []; sel = -1; refresh();
+    });
+
+    /* ══ Frame ═══════════════════════════════════════════════════════════ */
+    let pending = false;
+    function request() {
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(() => { pending = false; draw(); });
+    }
+    function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 320);
+        H = Math.max(r.height, 260);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        request();
+    }
+    resize();
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(wrap);
+    document.addEventListener('langchange', refresh);
+
+    loadPreset('infinite');
+}());
+</script>
+
+</body>
+</html>

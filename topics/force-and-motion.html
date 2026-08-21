@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Force and Motion · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+                                
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name { font-size: 14px; color: var(--ink); }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label { font-family: var(--f-serif); font-style: italic; font-size: 15px; color: var(--ink-soft); }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+                        
+                        
+                                                    
+                        
+                                                
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-dir { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--ink-faint); margin-bottom: 6px; }
+    .topic-nav-title { font-family: var(--f-serif); font-size: 22px; line-height: 1.1; }
+
+        @media (max-width: 900px) { .topic-nav { grid-template-columns: 1fr; } }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="dynamics" data-screen-label="I.03 Force and Motion">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">ΣF</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.03 · dynamics</div>
+            <h1>Force and Motion</h1>
+            <p class="lede">
+                A force is any push or pull. Newton's second law tells us that forces
+                don't produce velocity — they produce <em>change</em> in velocity. Slide the
+                parameters and watch friction and applied force battle for the block.
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\sum \vec{F} = m\vec{a}"></div>
+            <div class="eq-caption">Newton's second law — net force equals mass times acceleration</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Kinematics described motion; here is its cause. Newton's second law is a <em>vector</em> statement, and
+ the practical consequence is that almost every problem reduces to the same routine: isolate one body, draw
+ every force acting on it and nothing else, choose axes, and write
+ <span data-tex="\sum F = ma"></span> once per axis. Two forces need care because they have no formula of their
+ own — the <em>normal force</em> and the <em>tension</em> are whatever they need to be to satisfy the
+ constraints, and they are found from the equations rather than looked up. Friction is the exception that
+ does have a formula, but it comes in two regimes, and choosing the wrong one is the most common way to lose
+ a problem.</span><span lang="cs">Kinematika pohyb popsala; tady je jeho příčina. Druhý Newtonův zákon je <em>vektorové</em> tvrzení
+ a praktický důsledek je, že se skoro každá úloha smrskne na tentýž postup: izolovat jedno těleso, nakreslit
+ každou sílu, která na ně působí, a nic jiného, zvolit osy a napsat
+ <span data-tex="\sum F = ma"></span> jednou pro každou osu. Dvě síly vyžadují pozornost, protože nemají vlastní
+ vzorec — <em>normálová síla</em> a <em>tahová síla v laně</em> jsou přesně takové, jaké musí být, aby byly
+ splněny vazby, a zjišťují se z rovnic, ne z tabulek. Výjimkou se vzorcem je tření, ale má dva režimy a zvolit
+ ten nesprávný je nejčastější způsob, jak úlohu ztratit.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Newton's second law</span><span lang="cs">Druhý Newtonův zákon</span></span>
+                        <span class="cf-eq" data-tex="\textstyle\sum \vec F = m\vec a"></span>
+                        <span class="cf-eq" data-tex="\textstyle\sum F_x = ma_x\,,\quad \textstyle\sum F_y = ma_y"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A vector equation, so it is really one equation per axis. Acceleration points along the <em>net</em>
+      force, not along the biggest one, and a body in equilibrium is simply the case
+      <span data-tex="\vec a = 0"></span> — not a different law.</span><span lang="cs">Vektorová rovnice, takže je to ve skutečnosti jedna rovnice na osu. Zrychlení míří ve směru
+      <em>výslednice</em>, ne největší síly, a těleso v rovnováze je prostě případ
+      <span data-tex="\vec a = 0"></span> — ne jiný zákon.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Weight and the normal force</span><span lang="cs">Tíha a normálová síla</span></span>
+                        <span class="cf-eq" data-tex="F_G = mg"></span>
+                        <span class="cf-eq" data-tex="N\ \text{— z rovnic, ne ze vzorce}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Weight always points straight down and always equals <span data-tex="mg"></span>. The normal force does
+      <em>not</em> always equal it: on a slope, or when something is pulled at an angle, it is smaller, and it
+      falls to zero at the instant a body leaves the surface — which is exactly how "when does it lift off"
+      questions are solved.</span><span lang="cs">Tíha míří vždy svisle dolů a vždy se rovná <span data-tex="mg"></span>. Normálová síla se jí
+      <em>nerovná</em> vždy: na nakloněné rovině nebo při tažení pod úhlem je menší a v okamžiku, kdy těleso
+      opustí podložku, klesne na nulu — a přesně tak se řeší otázky typu „kdy se odlepí".</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Static friction</span><span lang="cs">Statické tření</span></span>
+                        <span class="cf-eq" data-tex="f_s \le \mu_s N"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">An inequality, not an equation: static friction takes whatever value is needed to prevent sliding, up to
+      a ceiling. Use <span data-tex="f_s = \mu_s N"></span> only at the tipping point — the smallest force that
+      just starts the motion, or the largest that still holds.</span><span lang="cs">Nerovnost, ne rovnice: statické tření nabude té hodnoty, která je potřeba, aby nedošlo ke skluzu, až po
+      jistý strop. <span data-tex="f_s = \mu_s N"></span> použijte jen na mezi — nejmenší síla, která pohyb
+      právě rozjede, nebo největší, která ještě udrží.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Kinetic friction</span><span lang="cs">Dynamické tření</span></span>
+                        <span class="cf-eq" data-tex="f_d = \mu_d N"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Once sliding has begun this is an equality, it does not depend on speed, and it always opposes the
+      <em>relative</em> motion of the surfaces. Since
+      <span data-tex="\mu_d < \mu_s"></span>, getting something moving is harder than keeping it moving.</span><span lang="cs">Jakmile skluz začne, je to rovnost, nezávisí na rychlosti a míří vždy proti <em>vzájemnému</em> pohybu
+      povrchů. Protože <span data-tex="\mu_d < \mu_s"></span>, je těžší těleso rozpohybovat než pohyb
+      udržet.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Connected bodies</span><span lang="cs">Spojená tělesa</span></span>
+                        <span class="cf-eq" data-tex="a_1 = a_2 = \ldots = a"></span>
+                        <span class="cf-eq" data-tex="T\ \text{— vnitřní, ruší se v součtu}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Bodies joined by an inextensible cord share one acceleration — that constraint is the extra equation
+      that makes the system solvable. Treat the whole train as one body to get the acceleration, then cut it
+      apart at a cord to get the tension there.</span><span lang="cs">Tělesa spojená nepružným lanem mají jedno společné zrychlení — tahle vazba je ta rovnice navíc, díky níž
+      je soustava řešitelná. Pro zrychlení berte celý vlak jako jedno těleso a pak ho rozřízněte u lana, jehož
+      tahovou sílu chcete.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">On a slope</span><span lang="cs">Na nakloněné rovině</span></span>
+                        <span class="cf-eq" data-tex="F_{G\parallel} = mg\sin\theta"></span>
+                        <span class="cf-eq" data-tex="F_{G\perp} = mg\cos\theta"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Tilt the axes to lie along and across the slope and only the weight needs resolving; everything else is
+      already aligned. Note which function goes with which: the component <em>down the slope</em> carries the
+      sine and vanishes when the slope is flat.</span><span lang="cs">Nakloňte osy podél a napříč svahem a rozkládat je potřeba jen tíhu; všechno ostatní už je srovnané.
+      Všimněte si, co ke které funkci patří: složka <em>podél svahu</em> nese sinus a pro vodorovnou rovinu je
+      nulová.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>One body, one diagram.</strong> Isolate the object and draw only the forces acting
+       <em>on</em> it — never forces it exerts on something else. Every force must have a source you can
+       name.</span><span lang="cs"><strong>Jedno těleso, jeden náčrtek.</strong> Izolujte těleso a kreslete jen síly působící
+       <em>na ně</em> — nikdy síly, kterými ono působí na něco jiného. Každá síla musí mít původce, kterého
+       umíte pojmenovat.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Choose axes to kill the most components.</strong> Along the motion if there is any; along the
+       slope on an incline. Then resolve the weight and nothing else.</span><span lang="cs"><strong>Volte osy tak, aby zmizelo co nejvíc složek.</strong> Podél pohybu, pokud nějaký je; podél
+       svahu na nakloněné rovině. Pak rozložte tíhu a nic jiného.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Write <span data-tex="\sum F = ma"></span> per axis.</strong> The perpendicular axis is usually
+       the one with <span data-tex="a = 0"></span>, and that is where the normal force comes from — solve it
+       first, because friction depends on it.</span><span lang="cs"><strong>Napište <span data-tex="\sum F = ma"></span> pro každou osu.</strong> Kolmá osa má obvykle
+       <span data-tex="a = 0"></span> a právě z ní plyne normálová síla — vyřešte ji jako první, protože na ní
+       závisí tření.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Pick the right friction regime.</strong> "Just about to move" or "does not slip" means static
+       and the inequality at its limit; "is sliding" means kinetic and an equality. Read the sentence, not the
+       diagram.</span><span lang="cs"><strong>Vyberte správný režim tření.</strong> „Právě se chystá pohnout" nebo „neprokluzuje" znamená
+       statické a nerovnost na mezi; „klouže" znamená dynamické a rovnost. Řiďte se větou, ne obrázkem.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Systems: whole first, then cut.</strong> Sum the masses and the external forces to get the
+       common acceleration — internal tensions cancel. Then isolate one block to expose the tension you were
+       asked for.</span><span lang="cs"><strong>Soustavy: nejdřív celek, pak řez.</strong> Sečtěte hmotnosti a vnější síly a získejte společné
+       zrychlení — vnitřní tahy se vyruší. Pak izolujte jeden kvádr a odhalte tahovou sílu, na kterou se
+       ptali.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Unknown angle? Solve for it last.</strong> Keep <span data-tex="\sin\theta"></span> as a
+       symbol through the algebra and take the arcsine at the very end; substituting a guessed angle early
+       makes the equations unsolvable.</span><span lang="cs"><strong>Neznámý úhel? Řešte ho až nakonec.</strong> Nechte <span data-tex="\sin\theta"></span> celou
+       algebrou jako symbol a arkussinus vezměte úplně na konci; dosazení odhadnutého úhlu předem udělá
+       soustavu neřešitelnou.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="lab" class="lab" style="margin-top:72px;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Block on surface — kinetic friction sandbox</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\sum F = ma"></div>
+                <div class="sim-hint">adjust force and friction with sliders</div>
+            </div>
+        </div>
+        <div class="side-stack">
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;background:none;border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Mass <em>m</em></span>
+                            <span class="sim-control-val" id="p-mass-val">5 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-mass" min="1" max="20" step="1" value="5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Applied force <em>F</em></span>
+                            <span class="sim-control-val" id="p-force-val">30 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-force" min="0" max="100" step="1" value="30">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Friction <em>μ<sub>k</sub></em></span>
+                            <span class="sim-control-val" id="p-mu-val">0.30</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-mu" min="0" max="0.8" step="0.05" value="0.3">
+                    </div>
+                </div>
+            </div>
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Readout</span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section">Forces</div>
+                    <div class="readout-row">
+                        <span class="readout-label">F<sub>net</sub></span>
+                        <span class="readout-val" id="r-fnet">— N</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">f<sub>friction</sub></span>
+                        <span class="readout-val" id="r-ff">— N</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">Motion</div>
+                    <div class="readout-row">
+                        <span class="readout-label">a</span>
+                        <span class="readout-val" id="r-acc">— m/s²</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">v</span>
+                        <span class="readout-val" id="r-vel">— m/s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch05-ex47.html"><span lang="en">Ch. 5 · <span class="ex-no">Ex. 47</span></span><span lang="cs">Kap. 5 · <span class="ex-no">Úl. 47</span></span></a>
+            <a class="ex-tab" href="../exercises/ch05-ex51.html"><span lang="en">Ch. 5 · <span class="ex-no">Ex. 51</span></span><span lang="cs">Kap. 5 · <span class="ex-no">Úl. 51</span></span></a>
+            <a class="ex-tab" href="../exercises/ch05-ex69.html"><span lang="en">Ch. 5 · <span class="ex-no">Ex. 69</span></span><span lang="cs">Kap. 5 · <span class="ex-no">Úl. 69</span></span></a>
+            <a class="ex-tab" href="../exercises/ch06-ex20.html"><span lang="en">Ch. 6 · <span class="ex-no">Ex. 20</span></span><span lang="cs">Kap. 6 · <span class="ex-no">Úl. 20</span></span></a>
+            <a class="ex-tab" href="../exercises/ch06-ex34.html"><span lang="en">Ch. 6 · <span class="ex-no">Ex. 34</span></span><span lang="cs">Kap. 6 · <span class="ex-no">Úl. 34</span></span></a>
+            <a class="ex-tab" href="../exercises/ch06-ex59.html"><span lang="en">Ch. 6 · <span class="ex-no">Ex. 59</span></span><span lang="cs">Kap. 6 · <span class="ex-no">Úl. 59</span></span></a>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="particle-motion.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Particle Motion</span><span lang="cs">Pohyb částice</span></div>
+        </a>
+        <a href="work-and-energy.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Work and Energy</span><span lang="cs">Práce a energie</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.03 Force and Motion</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--accent').trim()    || '#b94d28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFFEC',
+            deep:  s.getPropertyValue('--paper-deep').trim()|| '#efead6',
+        };
+    }
+    let col = readCol();
+
+    const DEFAULTS = { mass: 5, force: 30, mu: 0.3 };
+    let state = { ...DEFAULTS };
+    let velX = 0, posX = 0;
+
+    const BLOCK_W = 64, BLOCK_H = 44;
+    const PIXELS_PER_METER = 60;
+
+    function physics(dt) {
+        const g = 9.8;
+        const ff = state.mu * state.mass * g;
+        const fnet = Math.max(0, state.force - ff);
+        const a = fnet / state.mass;
+        velX += a * dt;
+        posX += velX * dt;
+        return { fnet, ff, a };
+    }
+
+    function bindSlider(inputId, valId, key, fmt) {
+        const inp = document.getElementById(inputId);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(+inp.value);
+            velX = 0;
+        });
+    }
+    bindSlider('p-mass',  'p-mass-val',  'mass',  v => v + ' kg');
+    bindSlider('p-force', 'p-force-val', 'force', v => v + ' N');
+    bindSlider('p-mu',    'p-mu-val',    'mu',    v => v.toFixed(2));
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        velX = 0; posX = 0;
+        [['p-mass','p-mass-val','mass', v => v + ' kg'],
+         ['p-force','p-force-val','force', v => v + ' N'],
+         ['p-mu','p-mu-val','mu', v => (+v).toFixed(2)]].forEach(([id, vid, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(vid);
+            if (inp) inp.value = DEFAULTS[key];
+            if (lbl) lbl.textContent = fmt(DEFAULTS[key]);
+        });
+    });
+
+    function drawArrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(14, len * 0.25), hw = hl * 0.45;
+        ctx.save();
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawGround(gY) {
+        ctx.save();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(0, gY); ctx.lineTo(W, gY); ctx.stroke();
+        const hatchStep = 14;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        for (let x = 0; x < W + 40; x += hatchStep) {
+            ctx.beginPath();
+            ctx.moveTo(x, gY);
+            ctx.lineTo(x - 18, gY + 18);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function drawBlock(bx, by) {
+        ctx.save();
+        ctx.fillStyle = col.deep;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+        ctx.fillRect(bx, by, BLOCK_W, BLOCK_H);
+        ctx.strokeRect(bx, by, BLOCK_W, BLOCK_H);
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m', bx + BLOCK_W / 2, by + BLOCK_H / 2);
+        ctx.restore();
+    }
+
+    function draw(fnet, ff, a) {
+        ctx.clearRect(0, 0, W, H);
+
+        const gY = H * 0.68;
+        const bY = gY - BLOCK_H;
+
+        const wrapPx = (posX * PIXELS_PER_METER) % (W + BLOCK_W + 40);
+        let bX = (wrapPx + W * 0.15) % (W + BLOCK_W + 40) - BLOCK_W;
+
+        drawGround(gY);
+        drawBlock(bX, bY);
+
+        const bCX = bX + BLOCK_W / 2;
+        const bMY = bY + BLOCK_H / 2;
+
+        const forceScale = Math.min(2.5, 160 / Math.max(state.force, 1));
+        const fArrowLen = state.force * forceScale;
+        if (fArrowLen > 4) {
+            drawArrow(bX + BLOCK_W, bMY, bX + BLOCK_W + fArrowLen, bMY, col.acc, 2.5);
+            ctx.save();
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('F', bX + BLOCK_W + fArrowLen + 4, bMY - 2);
+            ctx.restore();
+        }
+
+        const ffArrowLen = ff * forceScale;
+        if (ffArrowLen > 4 && velX > 0.01) {
+            drawArrow(bX, bMY, bX - ffArrowLen, bMY, col.soft, 2);
+            ctx.save();
+            ctx.fillStyle = col.soft;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText('f', bX - ffArrowLen - 4, bMY - 2);
+            ctx.restore();
+        }
+
+        if (velX > 0.05) {
+            const speedPx = Math.min(velX * 18, 90);
+            ctx.save();
+            ctx.fillStyle = col.acc + 'c0';
+            ctx.font = '700 12px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('v = ' + velX.toFixed(2) + ' m/s', bCX, bY - 6);
+            ctx.restore();
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-fnet')) $('r-fnet').textContent = fnet.toFixed(2) + ' N';
+        if ($('r-ff'))   $('r-ff').textContent   = ff.toFixed(2)   + ' N';
+        if ($('r-acc'))  $('r-acc').textContent  = a.toFixed(3)    + ' m/s²';
+        if ($('r-vel'))  $('r-vel').textContent  = velX.toFixed(2) + ' m/s';
+    }
+
+    let lastT = 0, fpsFrames = 0, fpsTs = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        const dt = Math.min((ts - lastT) / 1000, 0.033);
+        lastT = ts;
+        fpsFrames++;
+        if (ts - fpsTs >= 1000) {
+            if (fpsEl) fpsEl.textContent = fpsFrames + ' fps · live';
+            fpsFrames = 0; fpsTs = ts;
+        }
+        const { fnet, ff, a } = physics(dt);
+        draw(fnet, ff, a);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

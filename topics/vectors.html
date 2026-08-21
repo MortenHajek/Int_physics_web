@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vectors · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+    <style>
+    /* ================================================================
+       VECTORS PAGE — textbook spread, large type, minimalistic
+       ================================================================ */
+
+    /* ── Readout rows ───────────────────────────────────────────────── */
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 12px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 17px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 16px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 88px;
+        text-align: right;
+    }
+    .readout-divider {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 10px 0 4px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 4px;
+    }
+
+    /* ── Toggle rows ────────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 13px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 18px; height: 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 100ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 16px; color: var(--ink); }
+
+    /* ── Canvas wrap (shared) ───────────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 400px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+            var(--paper-deep);
+    }
+    .canvas-wrap canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 14px; right: 16px;
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+
+    /* ── Foundations strip ──────────────────────────────────────────── */
+    .theory-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 72px;
+        padding: 48px 0 64px;
+        border-bottom: 1.5px solid var(--ink-faint);
+        margin-bottom: 72px;
+    }
+    .theory-text h3 {
+        font-family: var(--f-serif);
+        font-size: 34px;
+        font-weight: 400;
+        margin: 0 0 24px;
+        line-height: 1.15;
+    }
+    .theory-text p {
+        font-size: 18px;
+        line-height: 1.75;
+        color: var(--ink-soft);
+        margin: 0 0 18px;
+        max-width: 52ch;
+    }
+    .theory-text p strong {
+        color: var(--ink);
+        font-weight: 600;
+    }
+    .notation-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 32px;
+    }
+    .notation-table th {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-faint);
+        text-align: left;
+        padding: 10px 0;
+        border-bottom: 1.5px solid var(--ink-faint);
+    }
+    .notation-table td {
+        padding: 14px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        font-size: 17px;
+        vertical-align: middle;
+    }
+    .notation-table tr:last-child td { border-bottom: none; }
+    .notation-table td:first-child {
+        font-family: var(--f-mono);
+        font-size: 14px;
+        color: var(--ink-faint);
+        width: 96px;
+    }
+    .eq-row {
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+        padding-top: 14px;
+        font-size: 18px;
+    }
+    .eq-item {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+    .eq-item .eq-tag {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        width: 56px;
+        flex-shrink: 0;
+    }
+
+    /* ── Sim section eyebrow ────────────────────────────────────────── */
+    .sim-eyebrow {
+        display: flex;
+        align-items: baseline;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+    .sim-eyebrow .pip {
+        display: inline-block;
+        width: 10px; height: 10px;
+        background: var(--accent);
+        flex-shrink: 0;
+        position: relative;
+        top: -3px;
+    }
+    .sim-eyebrow .eyebrow-num {
+        font-family: var(--f-mono);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--accent);
+    }
+    .sim-eyebrow .eyebrow-title {
+        font-family: var(--f-serif);
+        font-size: 52px;
+        font-weight: 400;
+        color: var(--ink);
+        line-height: 1.05;
+        letter-spacing: -0.01em;
+    }
+
+    /* ── Section-level takeaway block (one per interactive) ─────────── */
+    .takeaway {
+        margin-top: 36px;
+        padding: 28px 36px;
+        background: var(--paper-deep);
+        border: 1.5px solid var(--ink);
+        border-left: 5px solid var(--accent);
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 40px;
+        align-items: start;
+    }
+    .takeaway .tk-label {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--accent);
+        padding-top: 8px;
+        border-top: 2px solid var(--accent);
+        align-self: start;
+    }
+    .takeaway .tk-body {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.55;
+        color: var(--ink);
+        margin: 0;
+    }
+    .takeaway .tk-body strong {
+        color: var(--ink);
+        font-weight: 600;
+        background: linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--accent) 22%, transparent) 62%);
+        padding: 0 2px;
+    }
+    .takeaway .tk-body .katex { font-size: 1.05em; }
+
+    /* ── Side panel formula ─────────────────────────────────────────── */
+    .formula-panel {
+        padding: 26px 22px;
+    }
+    .formula-big {
+        font-size: 36px;
+        font-weight: 400;
+        text-align: center;
+        padding: 22px 0 18px;
+        border-bottom: 1.5px solid var(--ink-faint);
+        margin-bottom: 22px;
+    }
+    .formula-note {
+        font-size: 12px;
+        color: var(--ink-faint);
+        text-align: center;
+        font-family: var(--f-mono);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        margin-bottom: 24px;
+    }
+    .formula-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        font-size: 17px;
+        gap: 16px;
+    }
+    .formula-line:last-child { border-bottom: none; }
+    .formula-line .fl-label {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        flex-shrink: 0;
+    }
+
+    /* ── Cross product: formula section below canvas ─────────────────── */
+    .cross-formula-section {
+        margin-top: 0;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+        padding: 42px 44px 46px;
+    }
+    .cross-formula-section h3 {
+        font-family: var(--f-serif);
+        font-size: 30px;
+        font-weight: 400;
+        margin: 0 0 32px;
+        line-height: 1.15;
+    }
+    .cross-formula-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 44px 72px;
+        align-items: start;
+    }
+    .cross-formula-block h4 {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin: 0 0 20px;
+    }
+    .cross-formula-block .eq-big-wrap {
+        font-size: 1.3em;
+        line-height: 2.2;
+    }
+    .cross-component-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+    .cross-comp-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 14px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        font-size: 18px;
+    }
+    .cross-comp-row:last-child { border-bottom: none; }
+    .cross-comp-row .comp-letter {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        width: 28px;
+        flex-shrink: 0;
+    }
+
+    /* ── Slider controls ────────────────────────────────────────────── */
+    .ctrl-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .ctrl-row:last-child { border-bottom: none; }
+    .ctrl-row label {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--ink-soft);
+        width: 48px;
+        flex-shrink: 0;
+    }
+    .ctrl-row input[type=range] {
+        flex: 1;
+        accent-color: var(--accent);
+        cursor: pointer;
+        height: 20px;
+    }
+    .ctrl-row .ctrl-val {
+        font-family: var(--f-mono);
+        font-size: 13px;
+        color: var(--accent);
+        width: 44px;
+        text-align: right;
+    }
+
+    /* ── Sim separator ──────────────────────────────────────────────── */
+    .sim-sep { height: 88px; }
+
+    /* ── Page-local hero/section bumps ──────────────────────────────── */
+    .topic-hero .lede { font-size: 21px; line-height: 1.55; max-width: 44ch; }
+    .section-head h2 { font-size: 44px; letter-spacing: -0.01em; }
+
+                                                                                
+    @media (max-width: 900px) {
+        .theory-strip { grid-template-columns: 1fr; gap: 40px; }
+        .cross-formula-grid { grid-template-columns: 1fr; }
+        .takeaway { grid-template-columns: 1fr; gap: 14px; padding: 24px 28px; }
+        .takeaway .tk-body { font-size: 19px; }
+        .sim-eyebrow .eyebrow-title { font-size: 38px; }
+                .section-head h2 { font-size: 34px; }
+    }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+    </style>
+</head>
+<body class="vectors" data-screen-label="I.01 Vectors">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∇</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#addition">Addition</a>
+            <a href="#dot">Dot product</a>
+            <a href="#cross">Cross product</a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ── Hero ──────────────────────────────────────────────────── -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.01 · vectors</div>
+            <h1>Vectors</h1>
+            <p class="lede">A vector carries both <em>magnitude</em> and <em>direction</em>. Add them, project them onto each other with the dot product, or find their perpendicular axis with the cross product.</p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\vec{c} = \vec{a} + \vec{b}"></div>
+            <div class="eq-caption">Vector addition — resultant is the sum of components</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Physics needs two kinds of quantity. A <em>scalar</em> is one number — mass, temperature, time.
+ A <em>vector</em> is a number and a direction, and writing it as a triple of components is the move that
+ turns geometry into arithmetic: once <span data-tex="\vec a = a_x\hat\imath + a_y\hat\jmath + a_z\hat k"></span>,
+ every question about lengths and angles becomes a calculation you cannot get wrong by mis-drawing. Two
+ products do almost all the work: one multiplies the parts of two vectors that lie <em>along</em> each other
+ and returns a scalar, the other multiplies the parts that lie <em>across</em> each other and returns a vector
+ perpendicular to both.</span><span lang="cs">Fyzika potřebuje dva druhy veličin. <em>Skalár</em> je jedno číslo — hmotnost, teplota, čas.
+ <em>Vektor</em> je číslo a směr a zápis po složkách je právě ten krok, který promění geometrii v počítání:
+ jakmile máte <span data-tex="\vec a = a_x\hat\imath + a_y\hat\jmath + a_z\hat k"></span>, stane se z každé
+ otázky o délkách a úhlech výpočet, který nezkazíte špatným náčrtkem. Skoro všechnu práci zastanou dva
+ součiny: jeden násobí ty části vektorů, které leží <em>podél</em> sebe, a vrací skalár, druhý ty, které leží
+ <em>napříč</em>, a vrací vektor kolmý k oběma.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Components</span><span lang="cs">Složky</span></span>
+                        <span class="cf-eq" data-tex="\vec a = a_x\hat\imath + a_y\hat\jmath + a_z\hat k"></span>
+                        <span class="cf-eq" data-tex="|\vec a| = \sqrt{a_x^2+a_y^2+a_z^2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The coordinate triple <em>is</em> the decomposition into unit vectors — there is nothing more to it.
+      Adding vectors means adding matching components, and the length follows from Pythagoras in three
+      dimensions.</span><span lang="cs">Trojice souřadnic <em>je</em> rozklad do jednotkových vektorů — nic víc v tom není. Sčítat vektory
+      znamená sčítat odpovídající složky a délka plyne z Pythagorovy věty ve třech rozměrech.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Dot product</span><span lang="cs">Skalární součin</span></span>
+                        <span class="cf-eq" data-tex="\vec a \cdot \vec b = a_x b_x + a_y b_y + a_z b_z"></span>
+                        <span class="cf-eq" data-tex="\vec a \cdot \vec b = |\vec a||\vec b|\cos\varphi"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Returns a <em>number</em>. It measures how much of one vector lies along the other, so it vanishes for
+      perpendicular vectors — which is the quickest test for a right angle there is. Both forms give the same
+      answer, so equating them extracts the angle.</span><span lang="cs">Vrací <em>číslo</em>. Měří, kolik jednoho vektoru leží podél druhého, takže pro kolmé vektory je nulový
+      — a to je nejrychlejší test pravého úhlu, jaký existuje. Oba tvary dávají totéž, takže jejich porovnáním
+      vytáhnete úhel.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Cross product</span><span lang="cs">Vektorový součin</span></span>
+                        <span class="cf-eq" data-tex="\vec a \times \vec b = \begin{vmatrix}\hat\imath & \hat\jmath & \hat k\\ a_x & a_y & a_z\\ b_x & b_y & b_z\end{vmatrix}"></span>
+                        <span class="cf-eq" data-tex="|\vec a \times \vec b| = |\vec a||\vec b|\sin\varphi"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Returns a <em>vector</em>, perpendicular to both, with a direction given by the right hand. Its length
+      is the area of the parallelogram the two vectors span, so it vanishes for parallel vectors. Order matters:
+      swapping the two reverses the result.</span><span lang="cs">Vrací <em>vektor</em> kolmý k oběma, se směrem podle pravé ruky. Jeho velikost je obsah rovnoběžníku,
+      který oba vektory napínají, takže pro rovnoběžné vektory je nulový. Na pořadí záleží: prohození obou
+      výsledek otočí.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Scalar triple product</span><span lang="cs">Smíšený součin</span></span>
+                        <span class="cf-eq" data-tex="\vec a \cdot (\vec b \times \vec c)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A number again, and geometrically the volume of the box built on the three vectors. Zero means the three
+      lie in one plane. Compute it inside out: the cross product first, then the dot — never the other way
+      round, which is not even defined.</span><span lang="cs">Opět číslo a geometricky objem rovnoběžnostěnu postaveného na těch třech vektorech. Nula znamená, že
+      všechny tři leží v jedné rovině. Počítejte zevnitř ven: nejdřív vektorový součin, pak skalární — nikdy
+      obráceně, to ani není definované.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Distributive over addition</span><span lang="cs">Distributivnost vůči sčítání</span></span>
+                        <span class="cf-eq" data-tex="\vec a \cdot (\vec b + \vec c) = \vec a\cdot\vec b + \vec a\cdot\vec c"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Both products distribute, so an expression like <span data-tex="\vec a\cdot(\vec b+\vec c)"></span> can
+      be attacked either way: add first and then multiply once, or multiply twice and add. Adding first is
+      usually less arithmetic and fewer chances to slip.</span><span lang="cs">Oba součiny jsou distributivní, takže výraz jako <span data-tex="\vec a\cdot(\vec b+\vec c)"></span>
+      lze vzít z obou stran: nejdřív sečíst a pak jednou násobit, nebo dvakrát násobit a sečíst. Sečíst nejdřív
+      je obvykle méně počítání a méně příležitostí udělat chybu.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Write everything in components first.</strong> Before any product, put each vector down as
+       three numbers. Nearly every mistake in this topic is a component copied wrong, not a rule
+       misremembered.</span><span lang="cs"><strong>Nejdřív vše rozepište do složek.</strong> Před jakýmkoli součinem si každý vektor napište jako
+       tři čísla. Skoro každá chyba v tomto tématu je špatně opsaná složka, ne špatně zapamatované
+       pravidlo.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Simplify inside the brackets.</strong> For <span data-tex="\vec a\cdot(\vec b+\vec c)"></span>
+       add <span data-tex="\vec b"></span> and <span data-tex="\vec c"></span> component by component, then
+       take one product.</span><span lang="cs"><strong>Zjednodušte, co je v závorce.</strong> U <span data-tex="\vec a\cdot(\vec b+\vec c)"></span>
+       sečtěte <span data-tex="\vec b"></span> a <span data-tex="\vec c"></span> po složkách a pak udělejte
+       jediný součin.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Dot: multiply and add. Cross: the determinant.</strong> Write the 3×3 determinant with the
+       unit vectors on the top row and expand it — that ordering is what keeps the signs right.</span><span lang="cs"><strong>Skalární: násob a sečti. Vektorový: determinant.</strong> Napište determinant 3×3
+       s jednotkovými vektory v prvním řádku a rozviňte ho — právě to pořadí udrží znaménka správně.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>A triple product goes inside out.</strong>
+       <span data-tex="\vec a\cdot(\vec b\times\vec c)"></span> means cross first, dot second. The bracket is
+       not decoration.</span><span lang="cs"><strong>Smíšený součin počítejte zevnitř.</strong>
+       <span data-tex="\vec a\cdot(\vec b\times\vec c)"></span> znamená nejdřív vektorový, pak skalární.
+       Závorka není ozdoba.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Check the type of the answer.</strong> A dot product must come out as a single number and a
+       cross product as three. If you have written three numbers where one was wanted, you have used the wrong
+       product.</span><span lang="cs"><strong>Zkontrolujte typ výsledku.</strong> Skalární součin musí vyjít jako jedno číslo, vektorový
+       jako tři. Máte-li tři čísla tam, kde mělo být jedno, použili jste špatný součin.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Foundations ───────────────────────────────────────────── -->
+    <section>
+        <div class="section-head">
+            <h2><span lang="en">Foundations</span><span lang="cs">Základy</span></h2>
+        </div>
+        <div class="theory-strip">
+            <div class="theory-text">
+                <h3>Scalars, vectors, and the (x,&nbsp;y,&nbsp;z) shorthand</h3>
+                <p>A <strong>scalar</strong> &mdash; temperature, mass, time &mdash; is a single number. A <strong>vector</strong> &mdash; displacement, velocity, force &mdash; is a number <em>and</em> a direction, drawn with an arrow: <span data-tex="\vec{a}"></span>.</p>
+                <p>Every vector sits on three perpendicular axes built from unit-length arrows <span data-tex="\hat{\imath}"></span>, <span data-tex="\hat{\jmath}"></span>, <span data-tex="\hat{k}"></span>. Writing <span data-tex="\vec{a}=(3,\,2,\,1)"></span> is just shorthand for <span data-tex="3\hat{\imath}+2\hat{\jmath}+1\hat{k}"></span> &mdash; <strong>the coordinate triple <em>is</em> the unit-vector decomposition</strong>.</p>
+                <table class="notation-table">
+                    <thead>
+                        <tr><th>Symbol</th><th>Meaning</th><th>Axis</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span data-tex="\hat{\imath}"></span></td>
+                            <td>unit vector, length 1</td>
+                            <td>+x</td>
+                        </tr>
+                        <tr>
+                            <td><span data-tex="\hat{\jmath}"></span></td>
+                            <td>unit vector, length 1</td>
+                            <td>+y</td>
+                        </tr>
+                        <tr>
+                            <td><span data-tex="\hat{k}"></span></td>
+                            <td>unit vector, length 1</td>
+                            <td>+z</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <div class="eq-row">
+                    <div class="eq-item">
+                        <span class="eq-tag">2D</span>
+                        <span data-tex="\vec{a} = a_x\,\hat{\imath} + a_y\,\hat{\jmath}"></span>
+                    </div>
+                    <div class="eq-item">
+                        <span class="eq-tag">3D</span>
+                        <span data-tex="\vec{a} = a_x\,\hat{\imath} + a_y\,\hat{\jmath} + a_z\,\hat{k}"></span>
+                    </div>
+                    <div class="eq-item">
+                        <span class="eq-tag">Mag.</span>
+                        <span data-tex="|\vec{a}| = \sqrt{a_x^2 + a_y^2 + a_z^2}"></span>
+                    </div>
+                    <div class="eq-item">
+                        <span class="eq-tag">Unit</span>
+                        <span data-tex="\hat{a} = \dfrac{\vec{a}}{|\vec{a}|}"></span>
+                    </div>
+                    <div class="eq-item">
+                        <span class="eq-tag">Ortho.</span>
+                        <span data-tex="\hat{\imath}\cdot\hat{\imath}=1,\quad \hat{\imath}\cdot\hat{\jmath}=0"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 1 — VECTOR ADDITION                                -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="addition">
+        <div class="sim-eyebrow">
+            <span class="pip"></span>
+            <span class="eyebrow-num">§ 01</span>
+            <span class="eyebrow-title">Vector Addition</span>
+        </div>
+
+        <section class="lab">
+            <div class="canvas-panel">
+                <div class="canvas-head">
+                    <span><span class="accent-pip"></span>Addition sandbox</span>
+                    <span id="add-fps">live</span>
+                </div>
+                <div class="canvas-wrap" id="add-wrap">
+                    <canvas id="add-canvas" style="cursor:crosshair;"></canvas>
+                    <div class="sim-hint">drag handles to move vectors</div>
+                </div>
+            </div>
+
+            <div class="side-stack">
+                <!-- Live readout -->
+                <div class="side-panel">
+                    <div class="panel-head">
+                        <span><span class="accent-pip"></span>Readout</span>
+                        <span>live</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="readout-divider">vector a</div>
+                        <div class="readout-row">
+                            <span class="readout-label">|<span data-tex="\vec{a}"></span>|</span>
+                            <span class="readout-val" id="r-mag-a">—</span>
+                        </div>
+                        <div class="readout-row">
+                            <span class="readout-label">θ<sub>a</sub></span>
+                            <span class="readout-val" id="r-ang-a">—</span>
+                        </div>
+                        <div class="readout-divider" style="margin-top:6px;">vector b</div>
+                        <div class="readout-row">
+                            <span class="readout-label">|<span data-tex="\vec{b}"></span>|</span>
+                            <span class="readout-val" id="r-mag-b">—</span>
+                        </div>
+                        <div class="readout-row">
+                            <span class="readout-label">θ<sub>b</sub></span>
+                            <span class="readout-val" id="r-ang-b">—</span>
+                        </div>
+                        <div class="readout-divider" style="margin-top:6px;">resultant c = a + b</div>
+                        <div class="readout-row">
+                            <span class="readout-label">|<span data-tex="\vec{c}"></span>|</span>
+                            <span class="readout-val" id="r-mag-c">—</span>
+                        </div>
+                        <div class="readout-row">
+                            <span class="readout-label">θ<sub>c</sub></span>
+                            <span class="readout-val" id="r-ang-c">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formula -->
+                <div class="side-panel">
+                    <div class="panel-head"><span><span class="accent-pip"></span>Formula</span></div>
+                    <div class="formula-panel">
+                        <div class="formula-big" data-tex="\vec{c} = \vec{a} + \vec{b}"></div>
+                        <div class="formula-note">head-to-tail addition</div>
+                        <div class="formula-line">
+                            <span class="fl-label">x</span>
+                            <span data-tex="c_x = a_x + b_x"></span>
+                        </div>
+                        <div class="formula-line">
+                            <span class="fl-label">y</span>
+                            <span data-tex="c_y = a_y + b_y"></span>
+                        </div>
+                        <div class="formula-line">
+                            <span class="fl-label">|c|</span>
+                            <span data-tex="\sqrt{c_x^2+c_y^2}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toggles -->
+                <div class="side-panel">
+                    <div class="panel-head"><span><span class="accent-pip"></span>Display</span></div>
+                    <div class="panel-body">
+                        <div class="toggle-row" id="tgl-components">
+                            <div class="toggle-box on"></div>
+                            <span class="toggle-name">x / y components</span>
+                        </div>
+                        <div class="toggle-row" id="tgl-angles">
+                            <div class="toggle-box on"></div>
+                            <span class="toggle-name">angle arcs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="takeaway">
+            <div class="tk-label">Takeaway · 01</div>
+            <p class="tk-body">Vectors add <strong>component-by-component</strong>: <span data-tex="c_x = a_x + b_x"></span>, <span data-tex="c_y = a_y + b_y"></span>. Geometrically, place the tail of <em>b</em> at the head of <em>a</em> &mdash; the arrow from start to finish is <span data-tex="\vec{c} = \vec{a} + \vec{b}"></span>.</p>
+        </div>
+    </div>
+
+    <div class="sim-sep"></div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2 — DOT PRODUCT                                   -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="dot">
+        <div class="sim-eyebrow">
+            <span class="pip"></span>
+            <span class="eyebrow-num">§ 02</span>
+            <span class="eyebrow-title">Dot Product</span>
+        </div>
+
+        <section class="lab">
+            <div class="canvas-panel">
+                <div class="canvas-head">
+                    <span><span class="accent-pip"></span>Dot product sandbox</span>
+                    <span id="dot-fps">live</span>
+                </div>
+                <div class="canvas-wrap" id="dot-wrap">
+                    <canvas id="dot-canvas" style="cursor:crosshair;"></canvas>
+                    <div class="sim-hint">drag handles to change angle</div>
+                </div>
+            </div>
+
+            <div class="side-stack">
+                <div class="side-panel">
+                    <div class="panel-head">
+                        <span><span class="accent-pip"></span>Readout</span>
+                        <span>live</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="readout-divider">components</div>
+                        <div class="readout-row">
+                            <span class="readout-label"><span data-tex="a_x,\; a_y"></span></span>
+                            <span class="readout-val" id="dot-r-a">—</span>
+                        </div>
+                        <div class="readout-row">
+                            <span class="readout-label"><span data-tex="b_x,\; b_y"></span></span>
+                            <span class="readout-val" id="dot-r-b">—</span>
+                        </div>
+                        <div class="readout-divider" style="margin-top:6px;">result</div>
+                        <div class="readout-row">
+                            <span class="readout-label">angle θ</span>
+                            <span class="readout-val" id="dot-r-theta">—</span>
+                        </div>
+                        <div class="readout-row">
+                            <span class="readout-label"><span data-tex="\vec{a}\cdot\vec{b}"></span></span>
+                            <span class="readout-val" id="dot-r-dot">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-panel">
+                    <div class="panel-head"><span><span class="accent-pip"></span>Formula</span></div>
+                    <div class="formula-panel">
+                        <div class="formula-big" data-tex="\vec{a}\cdot\vec{b} = |\vec{a}||\vec{b}|\cos\theta"></div>
+                        <div class="formula-note">result is a scalar</div>
+                        <div class="formula-line">
+                            <span class="fl-label">components</span>
+                            <span data-tex="= a_x b_x + a_y b_y + a_z b_z"></span>
+                        </div>
+                        <div class="formula-line">
+                            <span class="fl-label">angle</span>
+                            <span data-tex="\cos\theta = \frac{\vec{a}\cdot\vec{b}}{|\vec{a}||\vec{b}|}"></span>
+                        </div>
+                        <div class="formula-line">
+                            <span class="fl-label">⊥ check</span>
+                            <span data-tex="\vec{a}\cdot\vec{b}=0\;\Leftrightarrow\;\theta=90°"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <div class="takeaway">
+            <div class="tk-label">Takeaway · 02</div>
+            <p class="tk-body">The dot product returns <strong>one number</strong>: <span data-tex="\vec{a}\cdot\vec{b} = |\vec{a}|\,|\vec{b}|\,\cos\theta = a_x b_x + a_y b_y + a_z b_z"></span>. It measures how much the two vectors point the same way &mdash; <strong>positive</strong> when aligned, <strong>zero</strong> when perpendicular, <strong>negative</strong> when opposed.</p>
+        </div>
+    </div>
+
+    <div class="sim-sep"></div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 3 — CROSS PRODUCT (Isometric 3D)                  -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="cross">
+        <div class="sim-eyebrow">
+            <span class="pip"></span>
+            <span class="eyebrow-num">§ 03</span>
+            <span class="eyebrow-title">Cross Product</span>
+        </div>
+
+        <section class="lab" style="margin-bottom:0;">
+            <div class="canvas-panel">
+                <div class="canvas-head">
+                    <span><span class="accent-pip"></span>Cross product sandbox · isometric 3D</span>
+                    <span id="cross-fps">live</span>
+                </div>
+                <div class="canvas-wrap" id="cross-wrap">
+                    <canvas id="cross-canvas"></canvas>
+                    <div class="sim-hint">use sliders to rotate b⃗</div>
+                </div>
+            </div>
+
+            <div class="side-stack">
+                <!-- Sliders -->
+                <div class="side-panel">
+                    <div class="panel-head"><span><span class="accent-pip"></span>Vector b⃗ controls</span></div>
+                    <div class="panel-body">
+                        <div class="ctrl-row">
+                            <label>azimuth</label>
+                            <input type="range" id="cross-phi" min="0" max="180" value="0" step="1">
+                            <span class="ctrl-val" id="cross-phi-val">0°</span>
+                        </div>
+                        <div class="ctrl-row">
+                            <label>elevation</label>
+                            <input type="range" id="cross-theta" min="-80" max="80" value="80" step="1">
+                            <span class="ctrl-val" id="cross-theta-val">80°</span>
+                        </div>
+                        <div class="ctrl-row">
+                            <label>|b⃗| scale</label>
+                            <input type="range" id="cross-scale" min="0.3" max="2.0" value="1.0" step="0.05">
+                            <span class="ctrl-val" id="cross-scale-val">1.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Readout -->
+                <div class="side-panel">
+                    <div class="panel-head">
+                        <span><span class="accent-pip"></span>Readout</span>
+                        <span>live</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="readout-divider">a⃗ = î  (fixed)</div>
+                        <div class="readout-row">
+                            <span class="readout-label"><span data-tex="(a_x,a_y,a_z)"></span></span>
+                            <span class="readout-val">(1, 0, 0)</span>
+                        </div>
+                        <div class="readout-divider" style="margin-top:6px;">b⃗  (controlled)</div>
+                        <div class="readout-row">
+                            <span class="readout-label"><span data-tex="(b_x,b_y,b_z)"></span></span>
+                            <span class="readout-val" id="cross-r-b">—</span>
+                        </div>
+                        <div class="readout-divider" style="margin-top:6px;">c⃗ = a⃗ × b⃗</div>
+                        <div class="readout-row">
+                            <span class="readout-label"><span data-tex="(c_x,c_y,c_z)"></span></span>
+                            <span class="readout-val" id="cross-r-c">—</span>
+                        </div>
+                        <div class="readout-row">
+                            <span class="readout-label">|<span data-tex="\vec{c}"></span>|</span>
+                            <span class="readout-val" id="cross-r-mag">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Full-width formula section ──────────────────────────── -->
+        <div class="cross-formula-section">
+            <h3>Cross product formula — expanded</h3>
+            <div class="cross-formula-grid">
+                <!-- Left: determinant -->
+                <div class="cross-formula-block">
+                    <h4>3 × 3 determinant</h4>
+                    <div class="cross-comp-row" style="border:none; padding:0; font-size:18px;">
+                        <span data-tex="\vec{c} = \vec{a}\times\vec{b} = \begin{vmatrix}\hat{\imath}&\hat{\jmath}&\hat{k}\\a_x&a_y&a_z\\b_x&b_y&b_z\end{vmatrix}"></span>
+                    </div>
+                    <div style="margin-top:28px;">
+                        <div class="formula-line" style="font-size:16px;">
+                            <span class="fl-label">magnitude</span>
+                            <span data-tex="|\vec{c}|=|\vec{a}||\vec{b}|\sin\theta"></span>
+                        </div>
+                        <div class="formula-line" style="font-size:16px;">
+                            <span class="fl-label">direction</span>
+                            <span style="font-size:15px; color:var(--ink-soft);">right-hand rule: curl fingers a⃗ → b⃗, thumb = c⃗</span>
+                        </div>
+                        <div class="formula-line" style="font-size:16px;">
+                            <span class="fl-label">parallel</span>
+                            <span data-tex="\vec{a}\times\vec{b}=\vec{0}\;\Leftrightarrow\;\theta=0°"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: component expansion -->
+                <div class="cross-formula-block">
+                    <h4>Component expansion</h4>
+                    <div class="cross-component-list">
+                        <div class="cross-comp-row">
+                            <span class="comp-letter">cx</span>
+                            <span data-tex="c_x = a_y b_z - a_z b_y"></span>
+                        </div>
+                        <div class="cross-comp-row">
+                            <span class="comp-letter">cy</span>
+                            <span data-tex="c_y = a_z b_x - a_x b_z"></span>
+                        </div>
+                        <div class="cross-comp-row">
+                            <span class="comp-letter">cz</span>
+                            <span data-tex="c_z = a_x b_y - a_y b_x"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="takeaway">
+            <div class="tk-label">Takeaway · 03</div>
+            <p class="tk-body">The cross product returns a <strong>new vector</strong> perpendicular to both inputs. Its length <span data-tex="|\vec{a}\times\vec{b}| = |\vec{a}|\,|\vec{b}|\,\sin\theta"></span> equals the area of the parallelogram they span; its direction follows the <strong>right-hand rule</strong> (curl fingers <span data-tex="\vec{a}\to\vec{b}"></span>, thumb points along <span data-tex="\vec{c}"></span>).</p>
+        </div>
+    </div>
+
+    <div class="sim-sep"></div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- EXERCISES                                                  -->
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch03-ex57.html"><span lang="en">Ch. 3 · <span class="ex-no">Ex. 57</span></span><span lang="cs">Kap. 3 · <span class="ex-no">Úl. 57</span></span></a>
+        </div>
+    </section>
+
+    <!-- ── Prev / Next ─────────────────────────────────────────── -->
+    <section style="margin-top:96px; display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+        <a href="../index.html" style="text-decoration:none; padding:24px 28px; border:1.5px solid var(--ink); background:var(--paper); display:block; transition:transform 160ms ease, box-shadow 160ms ease;" onmouseover="this.style.transform='translate(-2px,-2px)';this.style.boxShadow='4px 4px 0 var(--ink)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div class="label" style="color:var(--ink-faint);">← Back</div>
+            <div style="font-family:var(--f-serif); font-size:24px; margin-top:8px;">All Topics</div>
+        </a>
+        <a href="particle-motion.html" style="text-decoration:none; padding:24px 28px; border:1.5px solid var(--ink); background:var(--paper); display:block; text-align:right; transition:transform 160ms ease, box-shadow 160ms ease;" onmouseover="this.style.transform='translate(-2px,-2px)';this.style.boxShadow='4px 4px 0 var(--ink)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div class="label" style="color:var(--ink-faint);">Next → § I.02</div>
+            <div style="font-family:var(--f-serif); font-size:24px; margin-top:8px; color:var(--ink);">Particle motion</div>
+        </a>
+    </section>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.01 Vectors</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX render ──────────────────────────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Reveal toggle ─────────────────────────────────────────────── -->
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- SIMULATION 1 — VECTOR ADDITION  (no parallelogram)           -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const HIT_R      = 24;
+    const LABEL_SIZE = 20;   // px — vector letter labels
+    const LABEL_LIFT = 26;   // px above letter for arrow accent
+
+    let O  = { x: 0, y: 0 };
+    let ha = { x: 0, y: 0 };
+    let hc = { x: 0, y: 0 };
+    let dragging = null;
+
+    let showComponents = true;
+    let showAngles     = true;
+
+    const canvas = document.getElementById('add-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = document.getElementById('add-wrap');
+    let W = 0, H = 0;
+
+    function initPositions() {
+        O  = { x: W * 0.18, y: H * 0.58 };
+        ha = { x: W * 0.18 + W * 0.30, y: H * 0.58 - H * 0.28 };
+        hc = { x: W * 0.18 + W * 0.54, y: H * 0.58 + H * 0.08 };
+    }
+
+    function resize() {
+        const rect = wrap.getBoundingClientRect();
+        W = Math.max(rect.width || 600, 10);
+        H = Math.max(rect.height || 400, 10);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        initPositions();
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--c-vectors').trim() || '#1e5080',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#F8F3E5',
+        };
+    }
+    let col = readCol();
+
+    function arrow(x1, y1, x2, y2, color, dashed, lw) {
+        lw = lw || 2.0;
+        const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx/len, uy = dy/len;
+        const hl = Math.min(14, len*0.18), hw = hl*0.40;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.setLineDash(dashed ? [6,3] : []);
+        ctx.beginPath(); ctx.moveTo(x1,y1);
+        ctx.lineTo(x2-ux*hl*0.55, y2-uy*hl*0.55); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x2,y2);
+        ctx.lineTo(x2-ux*hl-uy*hw, y2-uy*hl+ux*hw);
+        ctx.lineTo(x2-ux*hl+uy*hw, y2-uy*hl-ux*hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function vecLabel(x, y, letter, color) {
+        ctx.fillStyle = color; ctx.strokeStyle = color;
+        ctx.lineWidth = 1.2; ctx.setLineDash([]); ctx.lineCap = 'round';
+        const ay = y - LABEL_LIFT;
+        ctx.beginPath(); ctx.moveTo(x-8,ay); ctx.lineTo(x+3,ay); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x+8,ay); ctx.lineTo(x+3,ay-4); ctx.lineTo(x+3,ay+4);
+        ctx.closePath(); ctx.fill();
+        ctx.font = `italic ${LABEL_SIZE}px "Source Serif 4",Georgia,serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(letter, x, y);
+    }
+
+    function perpPt(x1,y1,x2,y2,t,d,side) {
+        const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+        if (len<1) return {x:x1,y:y1};
+        return { x:x1+dx*t+(dy/len)*side*d, y:y1+dy*t+(-dx/len)*side*d };
+    }
+
+    function handle(x, y, color) {
+        ctx.strokeStyle = color; ctx.fillStyle = col.paper;
+        ctx.lineWidth = 1.8; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+        const ax=ha.x-O.x, ay=ha.y-O.y;
+        const bx=hc.x-ha.x, by=hc.y-ha.y;
+        const cx=hc.x-O.x, cy=hc.y-O.y;
+
+        if (showComponents) {
+            ctx.lineWidth=1; ctx.lineCap='butt';
+            ctx.strokeStyle=col.soft+'90'; ctx.setLineDash([4,3]);
+            ctx.beginPath(); ctx.moveTo(ha.x,ha.y); ctx.lineTo(ha.x,O.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(O.x,O.y); ctx.lineTo(ha.x,O.y); ctx.stroke();
+            ctx.setLineDash([]);
+            const s=7, sx=ha.x<O.x?s:-s;
+            ctx.strokeStyle=col.soft+'80'; ctx.lineWidth=0.9;
+            ctx.strokeRect(ha.x+sx-s, O.y-s, s, s);
+            ctx.fillStyle=col.soft;
+            ctx.font='11px "JetBrains Mono",monospace';
+            ctx.textAlign='center'; ctx.textBaseline='top';
+            ctx.fillText('aₓ', (O.x+ha.x)/2, O.y+5);
+            ctx.textAlign=ay<0?'left':'right'; ctx.textBaseline='middle';
+            ctx.fillText('aᵧ', ha.x+(ay<0?6:-6), (O.y+ha.y)/2);
+        }
+
+        if (showAngles) {
+            const angA=Math.atan2(ay,ax), angC=Math.atan2(cy,cx);
+            function arcAngle(end,r,color) {
+                if (Math.abs(end)<0.03) return;
+                ctx.strokeStyle=color; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+                ctx.beginPath(); ctx.arc(O.x,O.y,r,0,end,end<0); ctx.stroke(); ctx.setLineDash([]);
+                const mid=end/2;
+                ctx.fillStyle=color; ctx.font='11px "JetBrains Mono",monospace';
+                ctx.textAlign='center'; ctx.textBaseline='middle';
+                ctx.fillText(Math.abs(Math.round(end*180/Math.PI))+'°',
+                    O.x+(r+16)*Math.cos(mid), O.y+(r+16)*Math.sin(mid));
+            }
+            arcAngle(angA, 40, col.ink);
+            if (Math.abs(angC-angA)>0.05) arcAngle(angC, 60, col.acc);
+        }
+
+        // c — dashed, soft color
+        arrow(O.x,O.y,hc.x,hc.y,col.soft,true,1.8);
+        const cL=perpPt(O.x,O.y,hc.x,hc.y,0.50,22,+1);
+        vecLabel(cL.x,cL.y,'c',col.soft);
+
+        // a — ink
+        arrow(O.x,O.y,ha.x,ha.y,col.ink,false,2.4);
+        const aL=perpPt(O.x,O.y,ha.x,ha.y,0.50,22,+1);
+        vecLabel(aL.x,aL.y,'a',col.ink);
+
+        // b — accent
+        arrow(ha.x,ha.y,hc.x,hc.y,col.acc,false,2.4);
+        const bL=perpPt(ha.x,ha.y,hc.x,hc.y,0.50,22,-1);
+        vecLabel(bL.x,bL.y,'b',col.acc);
+
+        // Origin dot
+        ctx.fillStyle=col.ink; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(O.x,O.y,4,0,Math.PI*2); ctx.fill();
+
+        handle(ha.x,ha.y,col.ink);
+        handle(hc.x,hc.y,col.acc);
+
+        // Readout
+        const SC=50;
+        document.getElementById('r-mag-a').textContent=(Math.hypot(ax,ay)/SC).toFixed(2)+' u';
+        document.getElementById('r-ang-a').textContent=(Math.atan2(-ay,ax)*180/Math.PI).toFixed(1)+'°';
+        document.getElementById('r-mag-b').textContent=(Math.hypot(bx,by)/SC).toFixed(2)+' u';
+        document.getElementById('r-ang-b').textContent=(Math.atan2(-by,bx)*180/Math.PI).toFixed(1)+'°';
+        document.getElementById('r-mag-c').textContent=(Math.hypot(cx,cy)/SC).toFixed(2)+' u';
+        document.getElementById('r-ang-c').textContent=(Math.atan2(-cy,cx)*180/Math.PI).toFixed(1)+'°';
+    }
+
+    function canvasPt(e) {
+        const r=canvas.getBoundingClientRect();
+        const src=e.touches?e.touches[0]:e;
+        return {x:src.clientX-r.left, y:src.clientY-r.top};
+    }
+
+    canvas.addEventListener('pointerdown', e => {
+        const p=canvasPt(e);
+        const da=Math.hypot(p.x-ha.x,p.y-ha.y), dc=Math.hypot(p.x-hc.x,p.y-hc.y);
+        if (da<HIT_R && da<=dc) dragging='a';
+        else if (dc<HIT_R) dragging='c';
+        if (dragging) { canvas.setPointerCapture(e.pointerId); e.preventDefault(); }
+    });
+    canvas.addEventListener('pointermove', e => {
+        const p=canvasPt(e);
+        if (!dragging) {
+            const da=Math.hypot(p.x-ha.x,p.y-ha.y), dc=Math.hypot(p.x-hc.x,p.y-hc.y);
+            canvas.style.cursor=(da<HIT_R||dc<HIT_R)?'grab':'crosshair';
+            return;
+        }
+        e.preventDefault();
+        if (dragging==='a') {
+            const dx=p.x-ha.x, dy=p.y-ha.y;
+            ha={x:p.x,y:p.y}; hc={x:hc.x+dx,y:hc.y+dy};
+        } else { hc={x:p.x,y:p.y}; }
+    });
+    canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
+    canvas.addEventListener('pointercancel', ()=>{dragging=null;});
+
+    function wireToggle(id,get,set) {
+        const row=document.getElementById(id); if(!row) return;
+        const box=row.querySelector('.toggle-box');
+        row.addEventListener('click',()=>{set(!get()); box.classList.toggle('on');});
+    }
+    wireToggle('tgl-components',()=>showComponents,v=>{showComponents=v;});
+    wireToggle('tgl-angles',    ()=>showAngles,    v=>{showAngles=v;});
+
+    let lastT=0, frames=0;
+    const fpsEl=document.getElementById('add-fps');
+    function frame(ts) {
+        draw(); frames++;
+        if (ts-lastT>=1000) { if(fpsEl) fpsEl.textContent=frames+' fps · live'; frames=0; lastT=ts; }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- SIMULATION 2 — DOT PRODUCT                                   -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const HIT_R      = 24;
+    const LABEL_SIZE = 20;
+    const LABEL_LIFT = 26;
+
+    let O  = { x: 0, y: 0 };
+    let ha = { x: 0, y: 0 };
+    let hb = { x: 0, y: 0 };
+    let dragging = null;
+
+    const canvas = document.getElementById('dot-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = document.getElementById('dot-wrap');
+    let W = 0, H = 0;
+
+    function initPositions() {
+        O  = { x: W*0.38, y: H*0.55 };
+        ha = { x: O.x + W*0.32, y: O.y - H*0.22 };
+        hb = { x: O.x + W*0.18, y: O.y + H*0.28 };
+    }
+
+    function resize() {
+        const rect = wrap.getBoundingClientRect();
+        W = Math.max(rect.width||600, 10);
+        H = Math.max(rect.height||400, 10);
+        canvas.width  = Math.round(W*dpr);
+        canvas.height = Math.round(H*dpr);
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+        initPositions();
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--c-vectors').trim() || '#1e5080',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#F8F3E5',
+        };
+    }
+    let col = readCol();
+
+    function arrow(x1,y1,x2,y2,color,lw) {
+        lw=lw||2.2;
+        const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+        if (len<2) return;
+        const ux=dx/len,uy=dy/len,hl=Math.min(14,len*0.18),hw=hl*0.40;
+        ctx.strokeStyle=color; ctx.fillStyle=color;
+        ctx.lineWidth=lw; ctx.lineCap='round'; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2-ux*hl*0.55,y2-uy*hl*0.55); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2,y2);
+        ctx.lineTo(x2-ux*hl-uy*hw,y2-uy*hl+ux*hw);
+        ctx.lineTo(x2-ux*hl+uy*hw,y2-uy*hl-ux*hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function vecLabel(x,y,letter,color) {
+        ctx.fillStyle=color; ctx.strokeStyle=color;
+        ctx.lineWidth=1.2; ctx.setLineDash([]); ctx.lineCap='round';
+        const ay=y-LABEL_LIFT;
+        ctx.beginPath(); ctx.moveTo(x-8,ay); ctx.lineTo(x+3,ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+8,ay); ctx.lineTo(x+3,ay-4); ctx.lineTo(x+3,ay+4); ctx.closePath(); ctx.fill();
+        ctx.font=`italic ${LABEL_SIZE}px "Source Serif 4",Georgia,serif`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(letter,x,y);
+    }
+
+    function perpPt(x1,y1,x2,y2,t,d,side) {
+        const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+        if (len<1) return {x:x1,y:y1};
+        return {x:x1+dx*t+(dy/len)*side*d, y:y1+dy*t+(-dx/len)*side*d};
+    }
+
+    function handle(x,y,color) {
+        ctx.strokeStyle=color; ctx.fillStyle=col.paper;
+        ctx.lineWidth=1.8; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+        const ax=ha.x-O.x, ay=ha.y-O.y;
+        const bx=hb.x-O.x, by=hb.y-O.y;
+        const lenA=Math.hypot(ax,ay), lenB=Math.hypot(bx,by);
+
+        let theta=0;
+        if (lenA>1 && lenB>1) {
+            const cosT=(ax*bx+ay*by)/(lenA*lenB);
+            theta=Math.acos(Math.max(-1,Math.min(1,cosT)));
+        }
+        const dot=(ax*bx+ay*by);
+
+        // Projection line (component of b along a)
+        if (lenA>2) {
+            const ux=ax/lenA, uy=ay/lenA;
+            const proj=(ax*bx+ay*by)/lenA;
+            const px=O.x+ux*proj, py=O.y+uy*proj;
+            ctx.strokeStyle=col.acc+'55'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+            ctx.beginPath(); ctx.moveTo(hb.x,hb.y); ctx.lineTo(px,py); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Angle arc
+        if (lenA>10 && lenB>10 && theta>0.03) {
+            const angA=Math.atan2(ay,ax), angB=Math.atan2(by,bx);
+            const R=44;
+            ctx.strokeStyle=col.acc+'90'; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
+            ctx.beginPath(); ctx.arc(O.x,O.y,R,angA,angB,angB<angA); ctx.stroke();
+            ctx.setLineDash([]);
+            const midAng=(angA+angB)/2;
+            ctx.fillStyle=col.acc;
+            ctx.font='13px "JetBrains Mono",monospace';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText(Math.round(theta*180/Math.PI)+'°',
+                O.x+(R+20)*Math.cos(midAng), O.y+(R+20)*Math.sin(midAng));
+        }
+
+        arrow(O.x,O.y,ha.x,ha.y,col.ink,2.4);
+        const aL=perpPt(O.x,O.y,ha.x,ha.y,0.52,22,+1);
+        vecLabel(aL.x,aL.y,'a',col.ink);
+
+        arrow(O.x,O.y,hb.x,hb.y,col.acc,2.4);
+        const bL=perpPt(O.x,O.y,hb.x,hb.y,0.52,22,-1);
+        vecLabel(bL.x,bL.y,'b',col.acc);
+
+        ctx.fillStyle=col.ink; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(O.x,O.y,4,0,Math.PI*2); ctx.fill();
+
+        handle(ha.x,ha.y,col.ink);
+        handle(hb.x,hb.y,col.acc);
+
+        const SC=50;
+        document.getElementById('dot-r-a').textContent=(ax/SC).toFixed(2)+', '+(ay/SC).toFixed(2);
+        document.getElementById('dot-r-b').textContent=(bx/SC).toFixed(2)+', '+(by/SC).toFixed(2);
+        document.getElementById('dot-r-theta').textContent=(theta*180/Math.PI).toFixed(1)+'°';
+        document.getElementById('dot-r-dot').textContent=(dot/(SC*SC)).toFixed(3)+' u²';
+    }
+
+    function canvasPt(e) {
+        const r=canvas.getBoundingClientRect();
+        const src=e.touches?e.touches[0]:e;
+        return {x:src.clientX-r.left, y:src.clientY-r.top};
+    }
+
+    canvas.addEventListener('pointerdown', e => {
+        const p=canvasPt(e);
+        const da=Math.hypot(p.x-ha.x,p.y-ha.y), db=Math.hypot(p.x-hb.x,p.y-hb.y);
+        if (da<HIT_R && da<=db) dragging='a';
+        else if (db<HIT_R) dragging='b';
+        if (dragging) { canvas.setPointerCapture(e.pointerId); e.preventDefault(); }
+    });
+    canvas.addEventListener('pointermove', e => {
+        const p=canvasPt(e);
+        if (!dragging) {
+            const da=Math.hypot(p.x-ha.x,p.y-ha.y), db=Math.hypot(p.x-hb.x,p.y-hb.y);
+            canvas.style.cursor=(da<HIT_R||db<HIT_R)?'grab':'crosshair';
+            return;
+        }
+        e.preventDefault();
+        if (dragging==='a') ha={x:p.x,y:p.y};
+        else hb={x:p.x,y:p.y};
+    });
+    canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
+    canvas.addEventListener('pointercancel', ()=>{dragging=null;});
+
+    let lastT=0, frames=0;
+    const fpsEl=document.getElementById('dot-fps');
+    function frame(ts) {
+        draw(); frames++;
+        if (ts-lastT>=1000) { if(fpsEl) fpsEl.textContent=frames+' fps · live'; frames=0; lastT=ts; }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- SIMULATION 3 — CROSS PRODUCT (Isometric 3D)                  -->
+<!-- c vector magnitude scales with b scale                        -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const DEG   = Math.PI / 180;
+    const COS30 = Math.cos(30 * DEG);
+    const SIN30 = 0.5;
+
+    const LABEL_SIZE = 18;
+    const LABEL_LIFT = 24;
+
+    // Isometric projection
+    function iso(v, scale, cx, cy) {
+        return {
+            x: cx + (v.x - v.z) * COS30 * scale,
+            y: cy - v.y * scale + (v.x + v.z) * SIN30 * scale
+        };
+    }
+
+    // State
+    let phi_b   = 0;
+    let theta_b = 80 * DEG;
+    let bScale  = 1.0;
+
+    const a3 = { x:1, y:0, z:0 };
+
+    function getB() {
+        return {
+            x: Math.cos(phi_b) * Math.cos(theta_b) * bScale,
+            y: Math.sin(theta_b) * bScale,
+            z: Math.sin(phi_b) * Math.cos(theta_b) * bScale
+        };
+    }
+
+    function cross3(a, b) {
+        return {
+            x: a.y*b.z - a.z*b.y,
+            y: a.z*b.x - a.x*b.z,
+            z: a.x*b.y - a.y*b.x
+        };
+    }
+
+    const canvas = document.getElementById('cross-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = document.getElementById('cross-wrap');
+    let W = 0, H = 0;
+
+    function resize() {
+        const rect = wrap.getBoundingClientRect();
+        W = Math.max(rect.width||600, 10);
+        H = Math.max(rect.height||400, 10);
+        canvas.width  = Math.round(W*dpr);
+        canvas.height = Math.round(H*dpr);
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:    s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:    s.getPropertyValue('--c-vectors').trim() || '#1e5080',
+            orange: '#c06820',
+            soft:   s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint:  s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper:  s.getPropertyValue('--paper').trim()     || '#F8F3E5',
+        };
+    }
+    let col = readCol();
+
+    function getScale() { return Math.min(W, H) * 0.26; }
+    function getOrigin() { return { cx: W * 0.42, cy: H * 0.52 }; }
+
+    function arrow3D(from, to, color, lw) {
+        const scale = getScale();
+        const { cx, cy } = getOrigin();
+        const p1 = iso(from, scale, cx, cy);
+        const p2 = iso(to,   scale, cx, cy);
+        const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy);
+        if (len<2) return;
+        const ux=dx/len, uy=dy/len;
+        const hl=Math.min(14,len*0.20), hw=hl*0.42;
+        ctx.strokeStyle=color; ctx.fillStyle=color;
+        ctx.lineWidth=lw||2.2; ctx.lineCap='round'; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x-ux*hl*0.55,p2.y-uy*hl*0.55); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(p2.x,p2.y);
+        ctx.lineTo(p2.x-ux*hl-uy*hw, p2.y-uy*hl+ux*hw);
+        ctx.lineTo(p2.x-ux*hl+uy*hw, p2.y-uy*hl-ux*hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function vecLabel3D(v, letter, color, offX, offY) {
+        const scale = getScale();
+        const { cx, cy } = getOrigin();
+        const mid = iso({ x:v.x*0.52, y:v.y*0.52, z:v.z*0.52 }, scale, cx, cy);
+        const lx = mid.x + (offX||0), ly = mid.y + (offY||0);
+        ctx.fillStyle=color; ctx.strokeStyle=color;
+        ctx.lineWidth=1.2; ctx.setLineDash([]); ctx.lineCap='round';
+        const ay=ly-LABEL_LIFT;
+        ctx.beginPath(); ctx.moveTo(lx-7,ay); ctx.lineTo(lx+2,ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(lx+7,ay); ctx.lineTo(lx+2,ay-3.5); ctx.lineTo(lx+2,ay+3.5); ctx.closePath(); ctx.fill();
+        ctx.font=`italic ${LABEL_SIZE}px "Source Serif 4",Georgia,serif`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(letter, lx, ly);
+    }
+
+    function axisLabel3D(v, text, color) {
+        const scale = getScale();
+        const { cx, cy } = getOrigin();
+        const p = iso({ x:v.x*1.20, y:v.y*1.20, z:v.z*1.20 }, scale, cx, cy);
+        ctx.fillStyle=color;
+        ctx.font='bold 12px "JetBrains Mono",monospace';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(text, p.x, p.y);
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+
+        const scale = getScale();
+        const { cx, cy } = getOrigin();
+        const O3 = {x:0,y:0,z:0};
+        const b = getB();
+        const c = cross3(a3, b);
+        const cMag = Math.hypot(c.x,c.y,c.z);
+
+        // XZ grid
+        ctx.strokeStyle = col.faint+'50';
+        ctx.lineWidth = 0.6; ctx.setLineDash([]);
+        for (let i=-1; i<=1; i++) {
+            const p1=iso({x:-1,y:0,z:i},scale,cx,cy), p2=iso({x:1,y:0,z:i},scale,cx,cy);
+            ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+            const q1=iso({x:i,y:0,z:-1},scale,cx,cy), q2=iso({x:i,y:0,z:1},scale,cx,cy);
+            ctx.beginPath(); ctx.moveTo(q1.x,q1.y); ctx.lineTo(q2.x,q2.y); ctx.stroke();
+        }
+
+        // Axes
+        const AL=1.25;
+        arrow3D(O3,{x:AL,y:0,z:0},col.faint+'90',1);
+        arrow3D(O3,{x:0,y:AL,z:0},col.faint+'90',1);
+        arrow3D(O3,{x:0,y:0,z:AL},col.faint+'90',1);
+        axisLabel3D({x:AL,y:0,z:0},'x',col.faint);
+        axisLabel3D({x:0,y:AL,z:0},'y',col.faint);
+        axisLabel3D({x:0,y:0,z:AL},'z',col.faint);
+
+        // Plane spanned by a and b
+        const pa=iso(a3,scale,cx,cy);
+        const pb=iso(b,scale,cx,cy);
+        const pab=iso({x:a3.x+b.x,y:a3.y+b.y,z:a3.z+b.z},scale,cx,cy);
+        const pO=iso(O3,scale,cx,cy);
+        ctx.beginPath();
+        ctx.moveTo(pO.x,pO.y); ctx.lineTo(pa.x,pa.y); ctx.lineTo(pab.x,pab.y); ctx.lineTo(pb.x,pb.y);
+        ctx.closePath();
+        ctx.fillStyle=col.acc+'18'; ctx.fill();
+        ctx.strokeStyle=col.acc+'40'; ctx.lineWidth=0.8; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+
+        // c = a × b  — draw with actual magnitude (not normalized)
+        if (cMag > 0.01) {
+            arrow3D(O3, c, col.orange, 2.6);
+            vecLabel3D(c, 'c', col.orange, 16, -14);
+        }
+
+        // a and b
+        arrow3D(O3, a3, col.ink, 2.6);
+        vecLabel3D(a3, 'a', col.ink, 16, 8);
+
+        arrow3D(O3, b, col.acc, 2.6);
+        vecLabel3D(b, 'b', col.acc, -16, 8);
+
+        // Origin dot
+        const pOrigin = iso(O3, scale, cx, cy);
+        ctx.fillStyle=col.ink; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(pOrigin.x,pOrigin.y,4,0,Math.PI*2); ctx.fill();
+
+        const fmt = v => v.toFixed(2);
+        document.getElementById('cross-r-b').textContent=
+            '('+fmt(b.x)+', '+fmt(b.y)+', '+fmt(b.z)+')';
+        document.getElementById('cross-r-c').textContent=
+            '('+fmt(c.x)+', '+fmt(c.y)+', '+fmt(c.z)+')';
+        document.getElementById('cross-r-mag').textContent=cMag.toFixed(3)+' u';
+    }
+
+    function wireSlider(id, valId, fromSlider, toDisplay) {
+        const sl=document.getElementById(id), vl=document.getElementById(valId);
+        if (!sl) return;
+        sl.addEventListener('input', () => {
+            fromSlider(parseFloat(sl.value));
+            if (vl) vl.textContent=toDisplay(parseFloat(sl.value));
+        });
+        if (vl) vl.textContent=toDisplay(parseFloat(sl.value));
+    }
+    wireSlider('cross-phi',   'cross-phi-val',   v=>{phi_b=v*DEG;},       v=>v+'°');
+    wireSlider('cross-theta', 'cross-theta-val', v=>{theta_b=v*DEG;},     v=>v+'°');
+    wireSlider('cross-scale', 'cross-scale-val', v=>{bScale=v;},          v=>parseFloat(v).toFixed(2));
+
+    let lastT=0, frames=0;
+    const fpsEl=document.getElementById('cross-fps');
+    function frame(ts) {
+        draw(); frames++;
+        if (ts-lastT>=1000) { if(fpsEl) fpsEl.textContent=frames+' fps · live'; frames=0; lastT=ts; }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

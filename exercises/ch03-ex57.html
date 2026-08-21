@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 3.57 · Three Vectors — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="vectors" data-screen-label="Ex 3.57 Three Vectors">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Vectors</span><span lang="cs">Díl I · Vektory</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 3 · Ex. 57</span><span lang="cs">Kap. 3 · Úl. 57</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 1 · Vectors — Chapter 3 · Exercise 57</span><span lang="cs">1. téma · Vektory — Kapitola 3 · Úloha 57</span></div>
+        <h1><span lang="en">Three Vectors</span><span lang="cs">Tři vektory</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>57</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Given the vectors
+                    <span class="given" data-tex="\vec a = -3{,}0\,\vec i + 3{,}0\,\vec j + 2{,}0\,\vec k"></span>,
+                    <span class="given" data-tex="\vec b = -2{,}0\,\vec i - 4{,}0\,\vec j + 2{,}0\,\vec k"></span> and
+                    <span class="given" data-tex="\vec c = 2{,}0\,\vec i + 3{,}0\,\vec j + 1{,}0\,\vec k"></span>,
+                </p>
+                <p lang="cs">
+                    Jsou dány vektory
+                    <span class="given" data-tex="\vec a = -3{,}0\,\vec i + 3{,}0\,\vec j + 2{,}0\,\vec k"></span>,
+                    <span class="given" data-tex="\vec b = -2{,}0\,\vec i - 4{,}0\,\vec j + 2{,}0\,\vec k"></span> a
+                    <span class="given" data-tex="\vec c = 2{,}0\,\vec i + 3{,}0\,\vec j + 1{,}0\,\vec k"></span>,
+                </p>
+                <p lang="en">
+                    determine (a) <span data-tex="\vec a \cdot (\vec b + \vec c)"></span>,
+                    (b) <span data-tex="\vec a \cdot (\vec b \times \vec c)"></span> and
+                    (c) <span data-tex="\vec a \times (\vec b + \vec c)"></span>.
+                </p>
+                <p lang="cs">
+                    určete (a) <span data-tex="\vec a \cdot (\vec b + \vec c)"></span>,
+                    (b) <span data-tex="\vec a \cdot (\vec b \times \vec c)"></span> a
+                    (c) <span data-tex="\vec a \times (\vec b + \vec c)"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Vector sandbox</span><span lang="cs">Sandbox: vektory</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\vec a \cdot (\vec b \times \vec c)"></div>
+                <div class="sim-hint"><span lang="en">reshape a with the sliders · view sways slowly</span><span lang="cs">měňte tvar a posuvníky · pohled se pomalu natáčí</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Component aₓ</span><span lang="cs">Složka aₓ</span></span>
+                            <span class="sim-control-val" id="p-ax-val">−3.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-ax" min="-5" max="5" step="0.1" value="-3.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Component a_y</span><span lang="cs">Složka a_y</span></span>
+                            <span class="sim-control-val" id="p-ay-val">3.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-ay" min="-5" max="5" step="0.1" value="3.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Component a_z</span><span lang="cs">Složka a_z</span></span>
+                            <span class="sim-control-val" id="p-az-val">2.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-az" min="-5" max="5" step="0.1" value="2.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Fixed sum</span><span lang="cs">Pevný součet</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\vec b + \vec c"></span>
+                        <span class="readout-val" id="r-bc">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Products with a</span><span lang="cs">Součiny s a</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\vec a \cdot (\vec b + \vec c)"></span>
+                        <span class="readout-val" id="r-dot">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\vec a \cdot (\vec b \times \vec c)"></span>
+                        <span class="readout-val" id="r-triple">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\vec a \times (\vec b + \vec c)"></span>
+                        <span class="readout-val" id="r-cross">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\vec a \times (\vec b + \vec c)|"></span>
+                        <span class="readout-val" id="r-crossmag">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-bc">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">b, c and their sum</span><span lang="cs">b, c a jejich součet</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-cross">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">cross product a×(b+c)</span><span lang="cs">vektorový součin a×(b+c)</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">First form the sum:
+                    <span data-tex="\vec b + \vec c = (-2+2,\,-4+3,\,2+1) = (0,\,-1,\,3)"></span>.</span>
+                    <span lang="cs">Nejprve sečteme:
+                    <span data-tex="\vec b + \vec c = (-2+2,\,-4+3,\,2+1) = (0,\,-1,\,3)"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Dot product</strong>:
+                    <span data-tex="\vec a \cdot (\vec b + \vec c) = (-3)(0) + (3)(-1) + (2)(3) = 3{,}0"></span>.</span>
+                    <span lang="cs"><strong>Skalární součin</strong>:
+                    <span data-tex="\vec a \cdot (\vec b + \vec c) = (-3)(0) + (3)(-1) + (2)(3) = 3{,}0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Scalar triple product</strong>: first
+                    <span data-tex="\vec b \times \vec c = (-4\cdot1 - 2\cdot3,\ 2\cdot2 - (-2)\cdot1,\ -2\cdot3-(-4)\cdot2) = (-10,\,6,\,2)"></span>,
+                    then
+                    <span data-tex="\vec a \cdot (\vec b \times \vec c) = 30 + 18 + 4 = 52"></span>.</span>
+                    <span lang="cs"><strong>Smíšený součin</strong>: nejprve
+                    <span data-tex="\vec b \times \vec c = (-4\cdot1 - 2\cdot3,\ 2\cdot2 - (-2)\cdot1,\ -2\cdot3-(-4)\cdot2) = (-10,\,6,\,2)"></span>,
+                    poté
+                    <span data-tex="\vec a \cdot (\vec b \times \vec c) = 30 + 18 + 4 = 52"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Cross product</strong> with the sum:
+                    <span data-tex="\vec a \times (\vec b + \vec c) = \begin{vmatrix}\vec i & \vec j & \vec k \\ -3 & 3 & 2 \\ 0 & -1 & 3\end{vmatrix} = (9+2,\ 0+9,\ 3-0)"></span>,
+                    i.e. <span data-tex="11\,\vec i + 9\,\vec j + 3{,}0\,\vec k"></span>. Note it is
+                    perpendicular to both factors — the sandbox shows this.</span>
+                    <span lang="cs"><strong>Vektorový součin</strong> se součtem:
+                    <span data-tex="\vec a \times (\vec b + \vec c) = \begin{vmatrix}\vec i & \vec j & \vec k \\ -3 & 3 & 2 \\ 0 & -1 & 3\end{vmatrix} = (9+2,\ 0+9,\ 3-0)"></span>,
+                    tedy <span data-tex="11\,\vec i + 9{,}0\,\vec j + 3{,}0\,\vec k"></span>. Všimněte si, že je
+                    kolmý na oba činitele — sandbox to znázorňuje.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="\vec a \cdot (\vec b + \vec c) = 3{,}0"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="\vec a \cdot (\vec b \times \vec c) = 52"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value" data-tex="\vec a \times (\vec b + \vec c) = 11\,\vec i + 9{,}0\,\vec j + 3{,}0\,\vec k"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/vectors.html"><span lang="en">← Topic: Vectors</span><span lang="cs">← Téma: Vektory</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 3 · Ex. 57</span><span lang="cs">Kap. 3 · Úl. 57</span></span>
+        <span><span lang="en">Vol. I · Vectors</span><span lang="cs">Díl I · Vektory</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#1e5080',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const B = [-2, -4, 2], C = [2, 3, 1];
+    const DEFAULTS = { ax: -3.0, ay: 3.0, az: 2.0 };
+    let state = { ...DEFAULTS };
+    const show = { bc: true, cross: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtC = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+    function bindSlider(id, key) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmtC(state[key]);
+        });
+    }
+    bindSlider('p-ax', 'ax');
+    bindSlider('p-ay', 'ay');
+    bindSlider('p-az', 'az');
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-ax', 'ax'], ['p-ay', 'ay'], ['p-az', 'az']].forEach(([id, key]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmtC(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-bc',    'bc');
+    wireToggle('tgl-cross', 'cross');
+
+    /* ── Vector algebra ─────────────────────────────────────────── */
+    const add   = (u, w) => [u[0]+w[0], u[1]+w[1], u[2]+w[2]];
+    const dot   = (u, w) => u[0]*w[0] + u[1]*w[1] + u[2]*w[2];
+    const cross = (u, w) => [u[1]*w[2]-u[2]*w[1], u[2]*w[0]-u[0]*w[2], u[0]*w[1]-u[1]*w[0]];
+    const mag   = u => Math.hypot(u[0], u[1], u[2]);
+    const fmtVec = u => '(' + u.map(v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1)).join(', ') + ')';
+
+    /* ── Axonometric projection (azimuth sways slowly) ──────────── */
+    const EL = 0.42;   /* camera elevation, rad */
+    function project(p, th, ox, oy, s) {
+        const xr = p[0] * Math.cos(th) - p[1] * Math.sin(th);
+        const yr = p[0] * Math.sin(th) + p[1] * Math.cos(th);
+        return [ox + xr * s, oy + yr * Math.sin(EL) * s - p[2] * Math.cos(EL) * s];
+    }
+
+    function arrow3(from, to, th, ox, oy, s, color, lw, dashed) {
+        const [x1, y1] = project(from, th, ox, oy, s);
+        const [x2, y2] = project(to,   th, ox, oy, s);
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return [x2, y2];
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        if (dashed) ctx.setLineDash([6, 5]);
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+        return [x2, y2];
+    }
+
+    function vLabel(txt, px, py, color) {
+        ctx.fillStyle = color;
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(txt, px + 7, py - 6);
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const th = -0.62 + 0.22 * Math.sin(ts / 3400);
+        const ox = W * 0.5, oy = H * 0.55;
+        const s = Math.min(W, H) / 15.5;
+
+        const a  = [state.ax, state.ay, state.az];
+        const bc = add(B, C);
+        const cr = cross(a, bc);
+
+        /* axes */
+        const AX = 5.2;
+        ctx.lineWidth = 1;
+        [[ [ -AX,0,0 ], [ AX,0,0 ], 'x' ],
+         [ [ 0,-AX,0 ], [ 0,AX,0 ], 'y' ],
+         [ [ 0,0,-2.5 ], [ 0,0,AX ], 'z' ]].forEach(([p0, p1, name]) => {
+            const [x1, y1] = project(p0, th, ox, oy, s);
+            const [x2, y2] = project(p1, th, ox, oy, s);
+            ctx.strokeStyle = col.faint;
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(name, x2 + 9, y2);
+        });
+
+        const O = [0, 0, 0];
+
+        if (show.bc) {
+            let p = arrow3(O, B, th, ox, oy, s, col.soft, 1.5, false);
+            vLabel('b', p[0], p[1], col.soft);
+            p = arrow3(O, C, th, ox, oy, s, col.soft, 1.5, false);
+            vLabel('c', p[0], p[1], col.soft);
+            p = arrow3(O, bc, th, ox, oy, s, col.ink, 2, true);
+            vLabel('b+c', p[0], p[1], col.ink);
+        }
+
+        if (show.cross) {
+            /* scaled to fit: cross products grow fast */
+            const m = mag(cr);
+            const sc = m > 6 ? 6 / m : 1;
+            const crv = cr.map(v => v * sc);
+            const p = arrow3(O, crv, th, ox, oy, s, col.ink, 2.4, false);
+            vLabel('a×(b+c)', p[0], p[1], col.ink);
+            if (sc < 1) {
+                ctx.fillStyle = col.faint;
+                ctx.font = '9px "JetBrains Mono", monospace';
+                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                ctx.fillText('(drawn at ' + (sc * 100).toFixed(0) + '% scale)', p[0] + 8, p[1] + 6);
+            }
+        }
+
+        /* a drawn last, on top, in accent */
+        const p = arrow3(O, a, th, ox, oy, s, col.acc, 2.6, false);
+        vLabel('a', p[0], p[1], col.acc);
+
+        /* origin dot */
+        ctx.beginPath();
+        const [oxp, oyp] = project(O, th, ox, oy, s);
+        ctx.arc(oxp, oyp, 3, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-bc'))       $('r-bc').textContent       = fmtVec(bc);
+        if ($('r-dot'))      $('r-dot').textContent      = dot(a, bc).toFixed(1);
+        if ($('r-triple'))   $('r-triple').textContent   = dot(a, cross(B, C)).toFixed(1);
+        if ($('r-cross'))    $('r-cross').textContent    = fmtVec(cr);
+        if ($('r-crossmag')) $('r-crossmag').textContent = mag(cr).toFixed(1);
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

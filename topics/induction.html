@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Electromagnetic Induction · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ─────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                                        
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                        
+                    
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+        border-bottom-color: var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                        .topic-nav { grid-template-columns: 1fr; }
+                                        .core-formula { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .lab-lede {
+        max-width: 76ch;
+        font-size: 15.5px;
+        line-height: 1.65;
+        color: var(--ink-soft);
+        margin: -14px 0 26px;
+    }
+    .lab-lede em { font-style: normal; font-weight: 600; color: var(--ink); }
+
+    /* Radio-style rows (single choice) */
+    .obj-row .toggle-box { border-radius: 50%; }
+    .obj-row .toggle-box.on { background: var(--paper); }
+    .obj-row .toggle-box.on::after {
+        clip-path: none;
+        border-radius: 50%;
+        inset: 3px;
+        background: var(--accent);
+    }
+    .btn-mini {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+    .btn-mini:hover { color: var(--accent); }
+    #lab .canvas-wrap { min-height: 520px; }
+
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="induction" data-screen-label="II.05 Electromagnetic Induction">
+
+<!-- ── Top bar ──────────────────────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">Φ</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 1  HERO
+         ════════════════════════════════════════════════════════════════════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ II.05 · induction</div>
+            <h1><span lang="en">Electromagnetic Induction</span><span lang="cs">Elektromagnetická indukce</span></h1>
+            <p class="lede">
+                <span lang="en">A magnetic flux that changes drives a current with no battery anywhere.
+                What counts is not how much flux there is, but how fast it is changing.</span>
+                <span lang="cs">Magnetický tok, který se mění, žene proud bez jakéhokoli zdroje.
+                Nerozhoduje, kolik toku je, ale jak rychle se mění.</span>
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\varepsilon_{ind} = -N\dfrac{\mathrm{d}\Phi_B}{\mathrm{d}t}"></div>
+            <div class="eq-caption"><span lang="en">Faraday's law — a changing flux Φ_B = ∬B·dS induces an EMF; Lenz: always against the change</span><span lang="cs">Faradayův zákon — měnící se tok Φ_B = ∬B·dS indukuje EMN; Lenz: vždy proti změně</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">So far the fields have been standing still. Let one of them change and a new
+                thing happens: a <em>changing magnetic flux drives a current</em>, with no battery anywhere in
+                the circuit. What matters is not how much flux threads the loop but how fast that amount is
+                changing — a loop sitting in the strongest field in the world, undisturbed, has nothing induced
+                in it at all. The flux is <span data-tex="\Phi_B = B S\cos\theta"></span>, so there are exactly
+                three ways to disturb it: change the field, change the area the loop presents, or turn the loop.
+                And the sign is never a free choice — <em>Lenz's law</em> fixes it, the induced current always
+                flowing the way that opposes whatever change produced it.</span>
+                <span lang="cs">Doteď pole stála. Nechte jedno z nich měnit se a stane se něco nového:
+                <em>měnící se magnetický tok žene proud</em>, aniž by byl v obvodu jakýkoli zdroj. Nezáleží na
+                tom, kolik toku smyčkou prochází, ale jak rychle se to množství mění — smyčka, která leží
+                nerušeně v sebesilnějším poli, nemá indukované vůbec nic. Tok je
+                <span data-tex="\Phi_B = B S\cos\theta"></span>, takže existují právě tři způsoby, jak ho
+                rozhýbat: změnit pole, změnit plochu, kterou smyčka nastavuje, nebo smyčkou otočit. A znaménko
+                není nikdy na výběr — určuje ho <em>Lenzův zákon</em>: indukovaný proud teče vždy tak, aby se
+                stavěl proti změně, která ho vyvolala.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Magnetic flux</span><span lang="cs">Magnetický tok</span></span>
+                        <span class="cf-eq" data-tex="\Phi_B = \iint \vec{B}\cdot\mathrm{d}\vec{S} = \iint B\,\mathrm{d}S\cos\theta"></span>
+                        <span class="cf-eq" data-tex="[\Phi_B] = \mathrm{Wb}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">How much field threads a surface — the count of induction lines through
+                        it. Only the component along the normal counts, hence the
+                        <span data-tex="\cos\theta"></span>. If <span data-tex="B"></span> is the same everywhere
+                        on the loop this is just <span data-tex="BS\cos\theta"></span>; if it is not, the
+                        integral is the first thing to do.</span>
+                        <span lang="cs">Kolik pole prochází plochou — počet indukčních čar skrz ni. Započítá se
+                        jen složka podél normály, odtud <span data-tex="\cos\theta"></span>. Je-li
+                        <span data-tex="B"></span> po celé smyčce stejné, je to prostě
+                        <span data-tex="BS\cos\theta"></span>; není-li, je integrál první věc, kterou je třeba
+                        udělat.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Faraday's law</span><span lang="cs">Faradayův indukční zákon</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon_{ind} = -N\,\dfrac{\mathrm{d}\Phi_B}{\mathrm{d}t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The whole topic in one line: it is the <em>rate of change</em> of the flux
+                        that drives the EMF, not the flux. A coil of <span data-tex="N"></span> turns links the
+                        flux <span data-tex="N"></span> times over, so the EMF is <span data-tex="N"></span> times
+                        larger. (The lecturer writes the same law as
+                        <span data-tex="\mathrm{d}\Phi_B/\mathrm{d}t = -\varepsilon_{ind}"></span>.)</span>
+                        <span lang="cs">Celé téma na jednom řádku: EMN žene <em>rychlost změny</em> toku, ne tok
+                        sám. Cívka o <span data-tex="N"></span> závitech spřahuje tok
+                        <span data-tex="N"></span>krát, takže je EMN <span data-tex="N"></span>krát větší.
+                        (Přednášející píše týž zákon jako
+                        <span data-tex="\mathrm{d}\Phi_B/\mathrm{d}t = -\varepsilon_{ind}"></span>.)</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Three ways to change it</span><span lang="cs">Tři způsoby, jak tok změnit</span></span>
+                        <span class="cf-eq" data-tex="\Phi_B = B(t)\,S(t)\,\cos\theta(t)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Before differentiating anything, decide which of the three is the one
+                        doing the changing: the <em>field</em> ramping up or down, the <em>area</em> in the field
+                        growing or shrinking as the loop moves, or the loop <em>turning</em>. Nearly every
+                        exercise in this chapter is one of these three, and naming it first turns the problem
+                        into a one-line derivative.</span>
+                        <span lang="cs">Než začnete cokoli derivovat, rozhodněte, který ze tří se mění:
+                        <em>pole</em>, které roste nebo klesá, <em>plocha</em> v poli, která se pohybem smyčky
+                        zvětšuje či zmenšuje, nebo <em>natočení</em> smyčky. Skoro každá úloha této kapitoly je
+                        jedna z těch tří možností a pojmenovat ji jako první promění úlohu v jednu
+                        derivaci.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Lenz's law — the minus sign</span><span lang="cs">Lenzův zákon — ono minus</span></span>
+                        <span class="cf-eq" data-tex="\vec{B}_{ind}\ \text{opposes}\ \Delta\Phi_B"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The induced current flows the way whose own field <em>fights the
+                        change</em>: if the flux through the loop is falling, the induced field points the same
+                        way as the original to prop it up; if it is rising, the induced field opposes it. This is
+                        energy conservation wearing a disguise — the opposing force is what you do work against
+                        to keep the magnet moving.</span>
+                        <span lang="cs">Indukovaný proud teče tak, aby jeho vlastní pole <em>bránilo změně</em>:
+                        klesá-li tok smyčkou, míří indukované pole souhlasně s původním a podpírá ho; roste-li,
+                        staví se proti němu. Je to zákon zachování energie v přestrojení — právě proti té
+                        brzdící síle konáte práci, když magnetem pohybujete.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Motional EMF</span><span lang="cs">EMN z pohybu</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon = -B\ell v\,,\qquad I = \dfrac{B\ell v}{R}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A rod of length <span data-tex="\ell"></span> sweeping across a field at
+                        speed <span data-tex="v"></span> sweeps out area at a rate
+                        <span data-tex="\ell v"></span>, so <span data-tex="\Phi = B\ell x"></span> and the
+                        derivative is immediate. Only the side that actually cuts field lines contributes: a loop
+                        entirely inside a uniform field has a constant flux and induces nothing, however fast it
+                        travels.</span>
+                        <span lang="cs">Tyč délky <span data-tex="\ell"></span> projíždějící polem rychlostí
+                        <span data-tex="v"></span> zametá plochu rychlostí <span data-tex="\ell v"></span>, takže
+                        <span data-tex="\Phi = B\ell x"></span> a derivace je okamžitá. Přispívá jen ta strana,
+                        která opravdu protíná indukční čáry: smyčka celá uvnitř homogenního pole má konstantní tok
+                        a neindukuje nic, ať letí jakkoli rychle.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The induced electric field</span><span lang="cs">Indukované elektrické pole</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon_{ind} = \oint_c \vec{E}\cdot\mathrm{d}\vec{s}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Where does the EMF sit when nothing is moving — a stationary loop in a
+                        field that is merely ramping? In the electric field itself. A changing
+                        <span data-tex="\vec{B}"></span> creates an <span data-tex="\vec{E}"></span> whose loop
+                        integral is not zero, unlike the electrostatic one where going round a loop always
+                        returned you to the same potential.</span>
+                        <span lang="cs">Kde sedí EMN, když se nic nepohybuje — u nehybné smyčky v poli, které jen
+                        roste? V samotném elektrickém poli. Měnící se <span data-tex="\vec{B}"></span> vytváří
+                        <span data-tex="\vec{E}"></span>, jehož integrál po smyčce není nulový — na rozdíl od
+                        elektrostatického, kde vás oběh smyčkou vždy vrátil na týž potenciál.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Rotating coil — the AC generator</span><span lang="cs">Rotující cívka — generátor střídavého napětí</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon(t) = \varepsilon_m \sin(2\pi f t)"></span>
+                        <span class="cf-eq" data-tex="\varepsilon_m = 2\pi f\, N\,a b\,B"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Turn the loop steadily and
+                        <span data-tex="\theta = \omega t"></span> makes
+                        <span data-tex="\Phi = BS\cos\omega t"></span>, whose derivative is a sine — mains
+                        electricity, in one differentiation. The peak scales with the frequency as well as the
+                        area and the number of turns, which is why a generator is spun fast.</span>
+                        <span lang="cs">Otáčejte smyčkou rovnoměrně a z <span data-tex="\theta = \omega t"></span>
+                        plyne <span data-tex="\Phi = BS\cos\omega t"></span>, jehož derivace je sinus — síťové
+                        napětí na jednu derivaci. Amplituda roste s frekvencí stejně jako s plochou a počtem
+                        závitů, a proto se generátorem točí rychle.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Self-inductance</span><span lang="cs">Vlastní indukčnost</span></span>
+                        <span class="cf-eq" data-tex="L = \dfrac{N\Phi_B}{I}\,,\qquad [L] = \mathrm{H}"></span>
+                        <span class="cf-eq" data-tex="L_{sol} = \mu_0\, n\, N\, S"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A capacitor is the component built to hold an electric field; a coil is
+                        the one built to hold a magnetic field. Its own current produces a flux proportional to
+                        that current, and <span data-tex="L"></span> is the constant between them — the current
+                        cancels out of the solenoid result, so like capacitance it is pure geometry.</span>
+                        <span lang="cs">Kondenzátor je součástka postavená pro elektrické pole; cívka pro
+                        magnetické. Její vlastní proud vytváří tok úměrný tomuto proudu a
+                        <span data-tex="L"></span> je konstanta mezi nimi — u solenoidu se proud vykrátí, takže
+                        stejně jako kapacita je i indukčnost čirá geometrie.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Mutual inductance</span><span lang="cs">Vzájemná indukčnost</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon_{ind} = M\,\dfrac{\mathrm{d}I}{\mathrm{d}t}"></span>
+                        <span class="cf-eq" data-tex="M = N n \mu_0 \pi r^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">One coil's changing current induces an EMF in another. Note which radius
+                        enters: for a loop around a solenoid it is the <em>solenoid's</em>, because outside the
+                        winding there is no field to thread — making the outer loop bigger changes nothing.</span>
+                        <span lang="cs">Měnící se proud jedné cívky indukuje EMN ve druhé. Všimněte si, který
+                        poloměr do vzorce vstupuje: u smyčky kolem solenoidu je to poloměr
+                        <em>solenoidu</em>, protože vně vinutí není žádné pole, které by procházelo — zvětšení
+                        vnější smyčky nezmění nic.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A coil in a circuit</span><span lang="cs">Cívka v obvodu</span></span>
+                        <span class="cf-eq" data-tex="|\varepsilon_L| = L\,\dfrac{\mathrm{d}I}{\mathrm{d}t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A coil fights any change in <em>its own</em> current, so that current
+                        cannot jump. Straight after a switch is thrown it still carries exactly what it carried
+                        the instant before — zero if it was off, and it will act as a source for a while if it was
+                        on. Long afterwards <span data-tex="\mathrm{d}I/\mathrm{d}t = 0"></span> and it is a plain
+                        piece of wire. Compare the capacitor, which is the other way round in both limits.</span>
+                        <span lang="cs">Cívka se brání každé změně <em>svého vlastního</em> proudu, takže ten
+                        nemůže skočit. Hned po přepnutí spínače jí teče přesně to, co jí teklo okamžik předtím —
+                        nula, byla-li vypnutá, a chvíli se chová jako zdroj, tekl-li jí proud. Dlouho poté je
+                        <span data-tex="\mathrm{d}I/\mathrm{d}t = 0"></span> a je z ní obyčejný kus drátu.
+                        Srovnejte s kondenzátorem, který to má v obou limitách obráceně.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Name what is changing.</strong> Write
+                    <span data-tex="\Phi_B = BS\cos\theta"></span> and decide which of
+                    <span data-tex="B"></span>, <span data-tex="S"></span>,
+                    <span data-tex="\theta"></span> carries the time. Everything else in the problem is then a
+                    constant that comes out of the derivative.</span>
+                    <span lang="cs"><strong>Pojmenujte, co se mění.</strong> Napište
+                    <span data-tex="\Phi_B = BS\cos\theta"></span> a rozhodněte, která z veličin
+                    <span data-tex="B"></span>, <span data-tex="S"></span>,
+                    <span data-tex="\theta"></span> nese čas. Všechno ostatní je pak konstanta, která z derivace
+                    vypadne.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Flux first, only then differentiate.</strong> If
+                    <span data-tex="B"></span> is not uniform over the loop, integrate before touching time — for
+                    a loop beside a long wire,
+                    <span data-tex="\Phi = \int \dfrac{\mu_0 I}{2\pi r}\,a\,\mathrm{d}r"></span> gives a
+                    logarithm. Substitute the motion, <span data-tex="r(t) = r_0 + vt"></span>, only once the
+                    flux is in hand.</span>
+                    <span lang="cs"><strong>Nejdřív tok, teprve pak derivace.</strong> Není-li
+                    <span data-tex="B"></span> po smyčce konstantní, integrujte dřív, než se dotknete času — pro
+                    smyčku vedle dlouhého vodiče dá
+                    <span data-tex="\Phi = \int \dfrac{\mu_0 I}{2\pi r}\,a\,\mathrm{d}r"></span> logaritmus.
+                    Pohyb, <span data-tex="r(t) = r_0 + vt"></span>, dosaďte až tehdy, když tok
+                    máte.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Then Faraday, keeping <em>N</em>.</strong>
+                    <span data-tex="\varepsilon = -N\,\mathrm{d}\Phi_B/\mathrm{d}t"></span>. Most sign errors are
+                    really a forgotten <span data-tex="N"></span> or a forgotten chain rule; take the magnitude
+                    and settle the direction separately with Lenz.</span>
+                    <span lang="cs"><strong>Pak Faraday, a nezapomeňte <em>N</em>.</strong>
+                    <span data-tex="\varepsilon = -N\,\mathrm{d}\Phi_B/\mathrm{d}t"></span>. Většina chyb ve
+                    znaménku je ve skutečnosti zapomenuté <span data-tex="N"></span> nebo zapomenuté derivování
+                    složené funkce; spočtěte velikost a směr vyřešte zvlášť Lenzovým
+                    zákonem.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Direction by Lenz, in one question.</strong> Is the flux through
+                    the loop growing or shrinking? The induced current is the one whose own field pushes back
+                    against that. Shrinking flux → induced field the same way as the original; growing flux →
+                    against it.</span>
+                    <span lang="cs"><strong>Směr Lenzem, na jednu otázku.</strong> Roste, nebo klesá tok smyčkou?
+                    Indukovaný proud je ten, jehož vlastní pole se proti tomu staví. Klesající tok → indukované
+                    pole souhlasně s původním; rostoucí tok → proti němu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Rotation → sine.</strong> With
+                    <span data-tex="\theta = \omega t"></span> the flux is a cosine and the EMF a sine of
+                    amplitude <span data-tex="\varepsilon_m = NSB\omega"></span>. To <em>design</em> a generator,
+                    invert it: <span data-tex="NS = \varepsilon_m/(2\pi f B)"></span>.</span>
+                    <span lang="cs"><strong>Rotace → sinus.</strong> Při <span data-tex="\theta = \omega t"></span>
+                    je tok kosinus a EMN sinus o amplitudě
+                    <span data-tex="\varepsilon_m = NSB\omega"></span>. Máte-li generátor <em>navrhnout</em>,
+                    obraťte to: <span data-tex="NS = \varepsilon_m/(2\pi f B)"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>From EMF to current, heat and resistance.</strong>
+                    <span data-tex="I = \varepsilon/R"></span>, and the loop dissipates
+                    <span data-tex="P = \varepsilon I = \varepsilon^2/R"></span>. If a constant EMF runs for a
+                    time <span data-tex="t"></span>, the heat grows linearly, so the <em>slope</em> of a
+                    <span data-tex="Q(t)"></span> graph is <span data-tex="\varepsilon^2/R"></span> — which is how
+                    an unknown resistance is extracted.</span>
+                    <span lang="cs"><strong>Od EMN k proudu, teplu a odporu.</strong>
+                    <span data-tex="I = \varepsilon/R"></span> a ve smyčce se disipuje
+                    <span data-tex="P = \varepsilon I = \varepsilon^2/R"></span>. Působí-li konstantní EMN po dobu
+                    <span data-tex="t"></span>, roste teplo lineárně, takže <em>směrnice</em> grafu
+                    <span data-tex="Q(t)"></span> je <span data-tex="\varepsilon^2/R"></span> — a právě tak se
+                    neznámý odpor vytáhne.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">07</span>
+                    <span><span lang="en"><strong>One coil driving another.</strong> When the source is a
+                    solenoid's ramping current, the outer loop sees only the field inside the winding: use the
+                    <em>solenoid's</em> radius in <span data-tex="\Phi = B\pi r^2"></span>, then
+                    <span data-tex="\varepsilon = M\,\mathrm{d}I/\mathrm{d}t"></span> with a
+                    <span data-tex="\mathrm{d}I/\mathrm{d}t"></span> read as the slope of the given current
+                    graph.</span>
+                    <span lang="cs"><strong>Jedna cívka budí druhou.</strong> Je-li zdrojem rostoucí proud
+                    solenoidu, vidí vnější smyčka jen pole uvnitř vinutí: do
+                    <span data-tex="\Phi = B\pi r^2"></span> dosaďte poloměr <em>solenoidu</em> a pak
+                    <span data-tex="\varepsilon = M\,\mathrm{d}I/\mathrm{d}t"></span> se sklonem
+                    <span data-tex="\mathrm{d}I/\mathrm{d}t"></span> odečteným z grafu
+                    proudu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">08</span>
+                    <span><span lang="en"><strong>Switching with a coil: two limits, no differential equation.</strong>
+                    <em>Just after</em> the switch, the coil still carries the current it carried the instant
+                    before — treat that branch as a source of exactly that current (an open circuit if it was
+                    zero). <em>Long after</em>,
+                    <span data-tex="\mathrm{d}I/\mathrm{d}t = 0"></span> and the coil is a plain wire; solve the
+                    resistor network as usual.</span>
+                    <span lang="cs"><strong>Spínání s cívkou: dvě limity, žádná diferenciální rovnice.</strong>
+                    <em>Těsně po</em> přepnutí nese cívka pořád proud, který nesla okamžik předtím — berte tu větev
+                    jako zdroj právě takového proudu (a jako přerušení, byl-li nulový). <em>Dlouho poté</em> je
+                    <span data-tex="\mathrm{d}I/\mathrm{d}t = 0"></span> a cívka je obyčejný drát; síť rezistorů
+                    vyřešte jako obvykle.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">09</span>
+                    <span><span lang="en"><strong>Sanity-check the sign against the energy.</strong> If your
+                    induced current came out helping the change rather than fighting it, you have built a machine
+                    that accelerates itself for free. Flip the sign and check that pulling the loop or spinning
+                    the coil is something you have to do <em>work</em> against.</span>
+                    <span lang="cs"><strong>Znaménko ověřte energií.</strong> Vyšel-li vám indukovaný proud tak,
+                    že změně pomáhá místo aby jí bránil, postavili jste stroj, který se zadarmo sám roztáčí.
+                    Otočte znaménko a ověřte, že tažení smyčky nebo roztáčení cívky je něco, na co musíte
+                    vynaložit <em>práci</em>.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 5  SIMULATION LAB
+         ════════════════════════════════════════════════════════════════════ -->
+    <!-- ════ § 5  LAB · WHAT CHANGES THE FLUX ════ -->
+    <section id="lab" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">What changes the flux</span><span lang="cs">Co mění tok</span></h2>
+        </div>
+
+        <p class="lab-lede">
+            <span lang="en">Three switches, one for each factor in
+            <span data-tex="\Phi_B = B S\cos\theta"></span>. Move the loop out of the field and the
+            <em>area</em> in the field changes; turn it and <span data-tex="\theta"></span> changes; hold it
+            still and ramp the magnet instead and <span data-tex="B"></span> changes. The traces below show
+            <span data-tex="\Phi_B"></span> and the EMF it induces: the second is the <em>slope</em> of the
+            first, negated, which is the whole of Faraday's law in one picture.</span>
+            <span lang="cs">Tři přepínače, po jednom na každý činitel ve
+            <span data-tex="\Phi_B = B S\cos\theta"></span>. Vyjeďte smyčkou z pole a mění se <em>plocha</em>
+            v poli; otočte jí a mění se <span data-tex="\theta"></span>; nechte ji stát a místo toho měňte pole
+            a mění se <span data-tex="B"></span>. Křivky dole ukazují <span data-tex="\Phi_B"></span> a EMN,
+            které z něj plyne: druhá je <em>směrnice</em> první se záporným znaménkem, a to je celý Faradayův
+            zákon na jednom obrázku.</span>
+        </p>
+
+        <div class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Loop and field</span><span lang="cs">Smyčka a pole</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);" id="in-status">—</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\varepsilon_{ind} = -N\dfrac{\mathrm{d}\Phi_B}{\mathrm{d}t}"></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">What is changing</span><span lang="cs">Co se mění</span></span>
+                    <button id="in-reset" class="btn-mini" type="button" title="Reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-inmode="area">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">the area <em>S</em> — loop slides out</span><span lang="cs">plocha <em>S</em> — smyčka vyjíždí</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-inmode="angle">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">the angle <em>θ</em> — loop turns <span style="color:var(--ink-faint);">(30-13)</span></span><span lang="cs">úhel <em>θ</em> — smyčka se otáčí <span style="color:var(--ink-faint);">(30-13)</span></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-inmode="field">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">the field <em>B</em> — ramped <span style="color:var(--ink-faint);">(30-28)</span></span><span lang="cs">pole <em>B</em> — roste a klesá <span style="color:var(--ink-faint);">(30-28)</span></span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Field <em>B</em></span><span lang="cs">Pole <em>B</em></span></span>
+                            <span class="sim-control-val" id="in-B-val">1.0 T</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="in-B" min="1" max="30" step="1" value="10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Loop side <em>ℓ</em></span><span lang="cs">Strana smyčky <em>ℓ</em></span></span>
+                            <span class="sim-control-val" id="in-l-val">8 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="in-l" min="3" max="14" step="1" value="8">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name" id="in-rate-name"><span lang="en">Speed <em>v</em></span><span lang="cs">Rychlost <em>v</em></span></span>
+                            <span class="sim-control-val" id="in-rate-val">2.0 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="in-rate" min="2" max="60" step="1" value="20">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Turns <em>N</em></span><span lang="cs">Závitů <em>N</em></span></span>
+                            <span class="sim-control-val" id="in-N-val">1</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="in-N" min="1" max="50" step="1" value="1">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Resistance <em>R</em></span><span lang="cs">Odpor <em>R</em></span></span>
+                            <span class="sim-control-val" id="in-R-val">0.50 Ω</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="in-R" min="1" max="50" step="1" value="5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Phi_B"></span>
+                        <span class="readout-val" id="in-phi">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\mathrm{d}\Phi_B/\mathrm{d}t"></span>
+                        <span class="readout-val" id="in-dphi">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varepsilon_{ind}"></span>
+                        <span class="readout-val" id="in-emf">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I = \varepsilon/R"></span>
+                        <span class="readout-val" id="in-I">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="P = \varepsilon^2/R"></span>
+                        <span class="readout-val" id="in-P">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="in-tgl-traces">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">traces <span data-tex="\Phi_B"></span> and <span data-tex="\varepsilon"></span></span><span lang="cs">křivky <span data-tex="\Phi_B"></span> a <span data-tex="\varepsilon"></span></span></span>
+                    </div>
+                    <div class="toggle-row" id="in-tgl-current">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">induced current</span><span lang="cs">indukovaný proud</span></span>
+                    </div>
+                    <div class="toggle-row" id="in-tgl-lenz">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">Lenz — the opposing force</span><span lang="cs">Lenz — brzdící síla</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch30-ex13.html"><span lang="en">Ch. 30 · <span class="ex-no">Ex. 13</span></span><span lang="cs">Kap. 30 · <span class="ex-no">Úl. 13</span></span></a>
+            <a class="ex-tab" href="../exercises/ch30-ex26.html"><span lang="en">Ch. 30 · <span class="ex-no">Ex. 26</span></span><span lang="cs">Kap. 30 · <span class="ex-no">Úl. 26</span></span></a>
+            <a class="ex-tab" href="../exercises/ch30-ex28.html"><span lang="en">Ch. 30 · <span class="ex-no">Ex. 28</span></span><span lang="cs">Kap. 30 · <span class="ex-no">Úl. 28</span></span></a>
+            <a class="ex-tab" href="../exercises/ch30-ex56.html"><span lang="en">Ch. 30 · <span class="ex-no">Ex. 56</span></span><span lang="cs">Kap. 30 · <span class="ex-no">Úl. 56</span></span></a>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 9  PREV / NEXT NAVIGATION
+         ════════════════════════════════════════════════════════════════════ -->
+    <nav class="topic-nav">
+        <a href="magnetism.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Magnetic Field</span><span lang="cs">Magnetické pole</span></div>
+        </a>
+        <a href="optics.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Optics</span><span lang="cs">Optika</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ II.05 <span lang="en">Electromagnetic Induction</span><span lang="cs">Elektromagnetická indukce</span></span>
+        <span><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ──────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     SIMULATION — moving loop through B-field region
+     ════════════════════════════════════════════════════════════════════════ -->
+<!-- ── Lab · What changes the flux ── -->
+<script>
+(function () {
+    'use strict';
+
+    /* Phi_B = N B S cos(theta), with exactly one of the three made a function
+       of time by the mode switch:
+
+         area   the loop slides in and out of a field region, so the area
+                actually inside it is what varies — the classic motional case,
+                eps = -N B l v while a side is crossing the boundary and zero
+                once the loop is wholly in or wholly out;
+         angle  the loop turns at a steady rate, theta = omega t, so the flux
+                is a cosine and the EMF a sine — the AC generator;
+         field  the loop is still and B ramps linearly up and back down, so
+                dPhi/dt is piecewise constant — the case a solenoid driving an
+                outer loop produces.
+
+       The EMF is differentiated analytically in each case rather than by
+       differencing the drawn positions, so the traces are exact.            */
+
+    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const SERIF = '"Source Serif 4", Georgia, serif';
+
+    const canvas = document.getElementById('sim-canvas');
+    if (!canvas) return;
+    const ctx  = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
+    let W = 0, H = 0, col = readCol();
+
+    function readCol() {
+        const r = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
+        const g = (k, d) => ((b.getPropertyValue(k) || r.getPropertyValue(k)).trim() || d);
+        return {
+            ink:   g('--ink',        '#363026'),
+            acc:   g('--accent',     '#5a8478'),
+            soft:  g('--ink-soft',   '#4d4436'),
+            faint: g('--ink-faint',  '#7A6A52'),
+            paper: g('--paper',      '#FFFDF6'),
+            deep:  g('--paper-deep', '#efead6'),
+        };
+    }
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const t = (en, cs) => (isCS() ? cs : en);
+    const dec = x => (isCS() ? String(x).replace(/\./g, ',') : String(x));
+    function fmt(v, unit, dp) {
+        if (!isFinite(v)) return '—';
+        dp = dp === undefined ? 2 : dp;
+        const a = Math.abs(v);
+        if (a === 0) return dec((0).toFixed(dp)) + ' ' + unit;
+        if (a >= 1)    return dec(v.toFixed(dp)) + ' ' + unit;
+        if (a >= 1e-3) return dec((v * 1e3).toFixed(dp)) + ' m' + unit;
+        if (a >= 1e-6) return dec((v * 1e6).toFixed(dp)) + ' μ' + unit;
+        return dec((v * 1e9).toFixed(dp)) + ' n' + unit;
+    }
+
+    /* ── State ─────────────────────────────────────────────────────────── */
+    const P = { mode: 'area', B: 1.0, l: 0.08, rate: 2.0, N: 1, R: 0.5 };
+    const show = { traces: true, current: true, lenz: true };
+    let tt = 0, trace = [];
+    const SPAN = 4.0;                        /* seconds held in the traces */
+
+    /* ── The physics, one branch per mode ──────────────────────────────── */
+    const XMAX = 0.30;                       /* metres of travel in the area mode */
+    function state(time) {
+        const S = P.l * P.l;
+        if (P.mode === 'area') {
+            /* loop centre swings across the field boundary at x = 0 */
+            const A = XMAX / 2;
+            const om = P.rate / A;           /* so the peak speed is P.rate */
+            const x  = A * Math.sin(om * time);
+            const v  = A * om * Math.cos(om * time);
+            /* fraction of the loop inside the region x < 0 */
+            const left = x - P.l / 2, right = x + P.l / 2;
+            let inside;
+            if (right <= 0) inside = P.l;
+            else if (left >= 0) inside = 0;
+            else inside = -left;
+            const area = inside * P.l;
+            const phi  = P.N * P.B * area;
+            /* only while a side is crossing does the area change */
+            const crossing = (left < 0 && right > 0);
+            const dphi = crossing ? -P.N * P.B * P.l * v : 0;
+            return { phi: phi, dphi: dphi, x: x, v: v, inside: inside, theta: 0, B: P.B };
+        }
+        if (P.mode === 'angle') {
+            const om = P.rate;               /* rad/s */
+            const th = om * time;
+            const phi  = P.N * P.B * S * Math.cos(th);
+            const dphi = -P.N * P.B * S * om * Math.sin(th);
+            return { phi: phi, dphi: dphi, x: 0, v: 0, inside: P.l, theta: th, B: P.B };
+        }
+        if (P.mode === 'field') {
+            /* the loop is still and B ramps linearly up and back down */
+            const period = 4.0;
+            const u = (time % period) / period;
+            const tri = u < 0.5 ? (u * 2) : (2 - u * 2);         /* 0→1→0 */
+            const slope = (u < 0.5 ? 1 : -1) * 2 / period;       /* d(tri)/dt */
+            const B = P.B * tri;
+            return { phi: P.N * B * S, dphi: P.N * P.B * slope * S,
+                     x: 0, v: 0, inside: P.l, theta: 0, B: B };
+        }
+        /* unknown mode: a still loop in a steady field induces nothing */
+        return { phi: P.N * P.B * S, dphi: 0, x: 0, v: 0, inside: P.l, theta: 0, B: P.B };
+    }
+
+    /* ── Drawing helpers ───────────────────────────────────────────────── */
+    function label(txt, x, y, size, colr, align, bg) {
+        ctx.save();
+        ctx.font = size + 'px ' + MONO;
+        ctx.textAlign = align || 'center';
+        ctx.textBaseline = 'middle';
+        if (bg) {
+            const w = ctx.measureText(txt).width;
+            let bx = x - w / 2 - 3;
+            if (align === 'left')  bx = x - 3;
+            if (align === 'right') bx = x - w - 3;
+            ctx.fillStyle = bg; ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
+        }
+        ctx.fillStyle = colr; ctx.fillText(txt, x, y);
+        ctx.restore();
+    }
+    function arrow(x1, y1, x2, y2, head) {
+        head = head || 7;
+        const a = Math.atan2(y2 - y1, x2 - x1);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - head * Math.cos(a - 0.4), y2 - head * Math.sin(a - 0.4));
+        ctx.lineTo(x2 - head * Math.cos(a + 0.4), y2 - head * Math.sin(a + 0.4));
+        ctx.closePath(); ctx.fill();
+    }
+    function fieldDot(x, y, r, into) {
+        if (into) {
+            ctx.beginPath();
+            ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r);
+            ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r);
+            ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, y, r * 1.5, 0, Math.PI * 2); ctx.stroke();
+        } else {
+            ctx.beginPath(); ctx.arc(x, y, r * 1.5, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, y, Math.max(1, r * 0.45), 0, Math.PI * 2); ctx.fill();
+        }
+    }
+
+    /* ── Draw ──────────────────────────────────────────────────────────── */
+    function draw() {
+        col = readCol();
+        ctx.clearRect(0, 0, W, H);
+
+        const st = state(tt);
+        const traceH = show.traces ? Math.min(150, H * 0.40) : 0;
+        const topH = H - traceH;
+        const cy = topH * 0.50;
+        const pxm = Math.min(W * 0.42 / XMAX, topH * 0.30 / 0.16);   /* px per metre */
+
+        /* field region */
+        const bx0 = W * 0.5 - XMAX * pxm * 0.5, bx1 = W * 0.5;
+        const fieldTop = cy - topH * 0.34, fieldBot = cy + topH * 0.34;
+        const strength = Math.abs(st.B) / Math.max(P.B, 1e-9);
+        if (P.mode === 'area') {
+            ctx.save();
+            ctx.fillStyle = col.deep;
+            ctx.fillRect(bx0 - 30, fieldTop, bx1 - bx0 + 30, fieldBot - fieldTop);
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(bx1, fieldTop); ctx.lineTo(bx1, fieldBot); ctx.stroke();
+            ctx.restore();
+        }
+        ctx.save();
+        ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc;
+        ctx.globalAlpha = 0.18 + 0.42 * strength;
+        ctx.lineWidth = 1.1;
+        const step = 30;
+        for (let y = fieldTop + step / 2; y < fieldBot; y += step) {
+            for (let x = (P.mode === 'area' ? bx0 - 30 : W * 0.16) + step / 2;
+                 x < (P.mode === 'area' ? bx1 : W * 0.84); x += step) {
+                fieldDot(x, y, 2.6, true);
+            }
+        }
+        ctx.restore();
+
+        /* the loop */
+        const half = P.l * pxm / 2;
+        const lx = W * 0.5 + st.x * pxm;
+        ctx.save();
+        ctx.translate(P.mode === 'area' ? lx : W * 0.5, cy);
+        const squash = (P.mode === 'angle') ? Math.abs(Math.cos(st.theta)) : 1;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 2.6;
+        ctx.strokeRect(-half * Math.max(squash, 0.04), -half, 2 * half * Math.max(squash, 0.04), 2 * half);
+        /* induced current round the loop */
+        if (show.current && Math.abs(st.dphi) > 1e-12) {
+            const dir = st.dphi > 0 ? 1 : -1;      /* Lenz: opposes the change */
+            ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 2;
+            const w = half * Math.max(squash, 0.04);
+            const mid = [[0, -half, dir, 0], [w, 0, 0, dir], [0, half, -dir, 0], [-w, 0, 0, -dir]];
+            for (const m of mid) {
+                arrow(m[0] - m[2] * 9, m[1] - m[3] * 9, m[0] + m[2] * 9, m[1] + m[3] * 9, 6);
+            }
+        }
+        ctx.restore();
+
+        /* Lenz: the force that resists the motion */
+        if (show.lenz && P.mode === 'area' && Math.abs(st.dphi) > 1e-12) {
+            const fdir = st.v > 0 ? -1 : 1;
+            ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.lineWidth = 2;
+            arrow(lx, cy + half + 18, lx + fdir * 34, cy + half + 18, 7);
+            label('F', lx + fdir * 46, cy + half + 18, 10, col.soft, 'center', col.paper);
+        }
+
+        /* mode banner */
+        const banner = { area:  t('the area in the field is changing', 'mění se plocha v poli'),
+                         angle: t('the loop is turning', 'smyčka se otáčí'),
+                         field: t('the field itself is ramping', 'mění se samo pole') }[P.mode];
+        label(banner, 12, 16, 10, col.faint, 'left', col.paper);
+
+        /* ── Traces ────────────────────────────────────────────────────── */
+        if (!show.traces) return;
+        const gy0 = topH + 8, gh = traceH - 26;
+        const gx0 = 48, gw = W - gx0 - 18;
+        let pMax = 1e-12, eMax = 1e-12;
+        for (const s of trace) {
+            pMax = Math.max(pMax, Math.abs(s.phi));
+            eMax = Math.max(eMax, Math.abs(s.dphi));
+        }
+        ctx.save();
+        ctx.strokeStyle = col.faint; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(gx0, gy0 + gh / 4); ctx.lineTo(gx0 + gw, gy0 + gh / 4);
+        ctx.moveTo(gx0, gy0 + gh * 3 / 4); ctx.lineTo(gx0 + gw, gy0 + gh * 3 / 4);
+        ctx.stroke();
+        ctx.restore();
+        function plot(pick, scale, yMid, yAmp, colour, dashed) {
+            if (trace.length < 2) return;
+            ctx.save();
+            ctx.strokeStyle = colour; ctx.lineWidth = 1.8;
+            if (dashed) ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            for (let i = 0; i < trace.length; i++) {
+                const s = trace[i];
+                const u = (s.t - (tt - SPAN)) / SPAN;
+                if (u < 0 || u > 1) continue;
+                const y = yMid - (pick(s) / scale) * yAmp;
+                if (i === 0) ctx.moveTo(gx0 + u * gw, y); else ctx.lineTo(gx0 + u * gw, y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+        plot(s => s.phi,  pMax, gy0 + gh / 4,     gh / 4 * 0.86, col.ink, false);
+        plot(s => -s.dphi, eMax, gy0 + gh * 3 / 4, gh / 4 * 0.86, col.acc, false);
+        label('Φ',  gx0 - 14, gy0 + gh / 4,     12, col.ink,  'center');
+        label('ε',  gx0 - 14, gy0 + gh * 3 / 4, 12, col.acc,  'center');
+        label(t('ε is the slope of Φ, negated', 'ε je směrnice Φ se záporným znaménkem'),
+              gx0, gy0 + gh + 12, 9.5, col.faint, 'left');
+    }
+
+    /* ── Readout ───────────────────────────────────────────────────────── */
+    const $ = id => document.getElementById(id);
+    const setTxt = (id, s) => { const e = $(id); if (e) e.textContent = s; };
+    function readout() {
+        const st = state(tt);
+        const eps = -st.dphi;
+        setTxt('in-phi',  fmt(st.phi, 'Wb', 2));
+        setTxt('in-dphi', fmt(st.dphi, 'Wb/s', 2));
+        setTxt('in-emf',  fmt(eps, 'V', 2));
+        setTxt('in-I',    fmt(eps / P.R, 'A', 2));
+        setTxt('in-P',    fmt(eps * eps / P.R, 'W', 2));
+        setTxt('in-status', Math.abs(st.dphi) < 1e-12
+            ? t('flux steady — nothing induced', 'tok stálý — nic se neindukuje')
+            : t('flux changing', 'tok se mění'));
+    }
+
+    /* ── Controls ──────────────────────────────────────────────────────── */
+    function radios(attr, cb) {
+        const rows = [].slice.call(document.querySelectorAll('[data-' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            rows.forEach(r => { const b = r.querySelector('.toggle-box');
+                                if (b) b.classList.toggle('on', r === row); });
+            cb(row.getAttribute('data-' + attr));
+        }));
+    }
+    function rateLabel() {
+        const el = $('in-rate-name');
+        if (!el) return;
+        const en = el.querySelector('[lang="en"]'), cs = el.querySelector('[lang="cs"]');
+        const map = { area:  ['Speed <em>v</em>',      'Rychlost <em>v</em>'],
+                      angle: ['Rotation <em>ω</em>',   'Otáčení <em>ω</em>'],
+                      field: ['Ramp rate',             'Rychlost změny'] };
+        if (en) en.innerHTML = map[P.mode][0];
+        if (cs) cs.innerHTML = map[P.mode][1];
+        setTxt('in-rate-val', rateText());
+    }
+    function rateText() {
+        if (P.mode === 'area')  return dec(P.rate.toFixed(1)) + ' m/s';
+        if (P.mode === 'angle') return dec(P.rate.toFixed(1)) + ' rad/s';
+        return dec((P.B / 2).toFixed(2)) + ' T/s';
+    }
+    radios('inmode', v => { P.mode = v; tt = 0; trace = []; rateLabel(); readout(); });
+
+    function toggle(id, cb) {
+        const row = $(id);
+        if (!row) return;
+        row.addEventListener('click', () => {
+            const b = row.querySelector('.toggle-box');
+            if (!b) return;
+            const on = !b.classList.contains('on');
+            b.classList.toggle('on', on);
+            cb(on);
+        });
+    }
+    toggle('in-tgl-traces',  v => { show.traces = v; });
+    toggle('in-tgl-current', v => { show.current = v; });
+    toggle('in-tgl-lenz',    v => { show.lenz = v; });
+
+    function slider(id, valId, fmtv, set) {
+        const inp = $(id);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            set(+inp.value);
+            setTxt(valId, fmtv(+inp.value));
+            trace = [];
+            readout();
+        });
+    }
+    slider('in-B', 'in-B-val', v => dec((v / 10).toFixed(1)) + ' T',  v => P.B = v / 10);
+    slider('in-l', 'in-l-val', v => dec(v.toFixed(0)) + ' cm',        v => P.l = v / 100);
+    slider('in-rate', 'in-rate-val', () => rateText(),                v => P.rate = v / 10);
+    slider('in-N', 'in-N-val', v => dec(v.toFixed(0)),                v => P.N = v);
+    slider('in-R', 'in-R-val', v => dec((v / 10).toFixed(2)) + ' Ω',  v => P.R = v / 10);
+
+    if ($('in-reset')) $('in-reset').addEventListener('click', () => { tt = 0; trace = []; readout(); });
+
+    /* ── Frame ─────────────────────────────────────────────────────────── */
+    let last = 0;
+    function frame(ts) {
+        if (!last) last = ts;
+        const dt = Math.min(64, ts - last) / 1000;
+        last = ts;
+        tt += dt;
+        const st = state(tt);
+        trace.push({ t: tt, phi: st.phi, dphi: st.dphi });
+        while (trace.length && trace[0].t < tt - SPAN) trace.shift();
+        draw();
+        readout();
+        requestAnimationFrame(frame);
+    }
+    function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 320);
+        H = Math.max(r.height, 300);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(wrap);
+    document.addEventListener('langchange', () => { rateLabel(); readout(); });
+    rateLabel();
+    readout();
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

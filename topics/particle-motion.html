@@ -1,0 +1,2021 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Particle motion · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+                                    
+    /* ── Canvas wrap & overlays ─────────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 440px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px; right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px; left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Sliders ────────────────────────────────────────────────────── */
+    .sim-control { padding: 11px 0; border-bottom: 1px dashed var(--ink-faint); }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex; justify-content: space-between;
+        align-items: baseline; margin-bottom: 7px;
+    }
+    .sim-control-name { font-size: 14px; color: var(--ink); }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 64px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none; cursor: pointer; display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Fire button: chunky brass-cannon look ──────────────────────── */
+    .fire-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: stretch;
+        padding-top: 14px;
+        margin-top: 4px;
+        border-top: 1px solid var(--ink-faint);
+    }
+    .btn-fire {
+        font-family: var(--f-mono);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        background: var(--accent);
+        color: var(--paper);
+        border: 1.5px solid var(--ink);
+        padding: 12px 18px;
+        cursor: pointer;
+        transition: transform 90ms ease, box-shadow 90ms ease;
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .btn-fire:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+    .btn-fire:active { transform: translate(2px,2px); box-shadow: 0 0 0 var(--ink); }
+    .btn-fire:disabled {
+        background: var(--paper-deep);
+        color: var(--ink-faint);
+        cursor: not-allowed;
+        box-shadow: 2px 2px 0 var(--ink-faint);
+    }
+    .btn-clear {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        background: var(--paper);
+        color: var(--ink);
+        border: 1.5px solid var(--ink);
+        padding: 0 14px;
+        cursor: pointer;
+    }
+    .btn-clear:hover { background: var(--paper-edge); }
+
+    /* ── Live readout rows ──────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex; justify-content: space-between; align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 80px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer; user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                                        
+                            
+    /* ── Theory layout ──────────────────────────────────────────────── */
+                                            
+    /* Pull-quoted equation inside theory column */
+        
+        
+                        
+                                        
+    /* ── Prev / next ────────────────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                        .topic-nav { grid-template-columns: 1fr; }
+    }
+
+    /* ── Interactive challenge ──────────────────────────────────────── */
+    .challenge-layout {
+        display: grid;
+        grid-template-columns: 296px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+    .challenge-info-col { display: flex; flex-direction: column; gap: 12px; }
+    .challenge-given, .challenge-find, .challenge-method {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+    }
+    .cg-head {
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--ink-faint);
+        background: var(--paper-deep);
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-soft);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .cg-row {
+        display: grid;
+        grid-template-columns: 26px 74px 1fr;
+        align-items: baseline;
+        gap: 0 10px;
+        padding: 8px 14px;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .cg-row:last-child { border-bottom: none; }
+    .cg-label { font-family: var(--f-serif); font-style: italic; font-size: 15px; }
+    .cg-val { font-family: var(--f-mono); font-size: 13px; color: var(--accent); }
+    .cg-desc { font-size: 12px; color: var(--ink-faint); }
+    .ch-method-steps {
+        margin: 0; padding: 12px 14px 12px 30px;
+        font-size: 13px; color: var(--ink-soft); line-height: 1.8;
+        display: flex; flex-direction: column; gap: 4px;
+    }
+    .ch-method-steps li { padding: 2px 0; }
+    .ch-eq {
+        display: inline-block;
+        margin: 4px 0;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+    }
+    .ch-hint-box {
+        margin: 8px 14px 12px;
+        padding: 7px 11px;
+        background: var(--paper-deep);
+        border-left: 3px solid var(--accent);
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--ink-faint);
+        letter-spacing: 0.04em;
+    }
+    .challenge-canvas-wrap {
+        position: relative;
+        min-height: 320px;
+        overflow: hidden;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #challenge-canvas, #confetti-canvas {
+        position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+    }
+    #confetti-canvas { pointer-events: none; }
+    .ch-controls {
+        margin-top: 10px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+    }
+    .ch-angle-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 16px;
+        flex-wrap: wrap;
+    }
+    .ch-angle-label { font-size: 14px; color: var(--ink-soft); }
+    .ch-angle-input-wrap {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+        padding: 0 8px;
+        gap: 2px;
+    }
+    .ch-angle-input {
+        font-family: var(--f-mono);
+        font-size: 20px;
+        color: var(--accent);
+        background: transparent;
+        border: none;
+        outline: none;
+        width: 66px;
+        padding: 7px 4px;
+        text-align: right;
+    }
+    .ch-angle-unit { font-family: var(--f-mono); font-size: 16px; color: var(--ink-soft); }
+    .ch-verdict {
+        padding: 11px 16px;
+        border-top: 1px solid var(--ink-faint);
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        line-height: 1.5;
+    }
+    .ch-verdict.hit { background: var(--paper-deep); color: var(--accent); border-top-color: var(--accent); }
+    .ch-verdict.miss { color: var(--ink-soft); }
+    @media (max-width: 900px) { .challenge-layout { grid-template-columns: 1fr; } }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="kinematics" data-screen-label="I.02 Particle motion">
+
+<!-- ── Top bar ─────────────────────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∫</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#challenge"><span lang="en">Challenge</span><span lang="cs">Výzva</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         § 1  HERO
+         ═══════════════════════════════════════════════════════════════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.02 · particle motion</div>
+            <h1>Particle motion</h1>
+            <p class="lede">
+                Track a particle through space and time. Two coupled coordinates,
+                two independent stories &mdash; and a parabola that emerges as soon as
+                gravity enters the picture.
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\vec{r}(t) = \bigl(x(t),\, y(t)\bigr)"></div>
+            <div class="eq-caption">The position vector — one symbol carrying both <em>where</em> and <em>when</em></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Motion is bookkeeping between three quantities and the clock: position, velocity, acceleration, each the
+ derivative of the one before. Differentiate to go one way, integrate to come back, and the constants of
+ integration are the starting position and starting velocity. That is the whole of kinematics in one
+ sentence — and it works one axis at a time, which is why two-dimensional motion is never harder than two
+ one-dimensional problems sharing a clock. <em>Only the time is common to both axes.</em> That single fact
+ solves projectiles, and it is why a stone thrown sideways and one simply dropped hit the ground
+ together.</span><span lang="cs">Pohyb je účetnictví mezi třemi veličinami a hodinami: poloha, rychlost, zrychlení, každá derivací té
+ předchozí. Derivováním jdete jedním směrem, integrováním zpátky, a integrační konstanty jsou počáteční poloha
+ a počáteční rychlost. To je celá kinematika v jedné větě — a funguje po jedné ose, a proto není pohyb ve dvou
+ rozměrech nikdy těžší než dvě jednorozměrné úlohy sdílející hodiny. <em>Osám je společný jedině čas.</em>
+ Tenhle jediný fakt vyřeší vrhy a je důvod, proč kámen hozený do strany a kámen prostě upuštěný dopadnou
+ zároveň.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The chain of derivatives</span><span lang="cs">Řetěz derivací</span></span>
+                        <span class="cf-eq" data-tex="v_x = \dfrac{\mathrm{d}x}{\mathrm{d}t}\,,\qquad a_x = \dfrac{\mathrm{d}v_x}{\mathrm{d}t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Given <span data-tex="x(t)"></span> as a formula, everything else is differentiation; given
+      <span data-tex="a(t)"></span>, everything else is integration. On a graph the same relation reads as a
+      slope, which is how a question can be answered without any algebra at all.</span><span lang="cs">Máte-li <span data-tex="x(t)"></span> jako vzorec, všechno ostatní je derivování; máte-li
+      <span data-tex="a(t)"></span>, všechno ostatní je integrování. V grafu je týž vztah směrnicí — a tak lze
+      otázku zodpovědět úplně bez algebry.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Average versus instantaneous</span><span lang="cs">Průměrná a okamžitá</span></span>
+                        <span class="cf-eq" data-tex="\bar v = \dfrac{\Delta x}{\Delta t}"></span>
+                        <span class="cf-eq" data-tex="v(t) = \lim_{\Delta t\to 0}\dfrac{\Delta x}{\Delta t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two different questions that look alike. The average over an interval is the straight line joining the
+      endpoints of the <span data-tex="x(t)"></span> graph; the instantaneous value is the tangent at one
+      instant. Read the wording carefully — "during the first three seconds" is an average.</span><span lang="cs">Dvě různé otázky, které vypadají stejně. Průměr přes interval je přímka spojující krajní body grafu
+      <span data-tex="x(t)"></span>; okamžitá hodnota je tečna v jednom okamžiku. Čtěte zadání pozorně —
+      „během prvních tří sekund" je průměr.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Constant acceleration</span><span lang="cs">Rovnoměrně zrychlený pohyb</span></span>
+                        <span class="cf-eq" data-tex="v = v_0 + at"></span>
+                        <span class="cf-eq" data-tex="x = x_0 + v_0 t + \dfrac{1}{2}at^2"></span>
+                        <span class="cf-eq" data-tex="v^2 = v_0^2 + 2a(x-x_0)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The three standard forms, all following from the derivative chain with
+      <span data-tex="a"></span> constant. The third has no <span data-tex="t"></span> in it, which makes it the
+      right one whenever the time is neither given nor wanted.</span><span lang="cs">Tři standardní tvary, všechny plynoucí z řetězu derivací při konstantním
+      <span data-tex="a"></span>. Ve třetím není <span data-tex="t"></span>, a proto je ten pravý vždy, když
+      čas není zadaný ani hledaný.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Free fall</span><span lang="cs">Volný pád</span></span>
+                        <span class="cf-eq" data-tex="a = -g\,,\qquad g = 9{,}81\ \mathrm{m\,s^{-2}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Free fall is constant acceleration with a known value, nothing more. Fix the positive direction once and
+      keep it: if up is positive then <span data-tex="g"></span> enters with a minus sign, and a downward throw
+      has a negative <span data-tex="v_0"></span>.</span><span lang="cs">Volný pád je rovnoměrně zrychlený pohyb se známou hodnotou, nic víc. Zvolte jednou kladný směr a držte
+      se ho: je-li nahoru kladné, vstupuje <span data-tex="g"></span> se záporným znaménkem a hod dolů má
+      záporné <span data-tex="v_0"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two dimensions share only the clock</span><span lang="cs">Osy sdílejí jen hodiny</span></span>
+                        <span class="cf-eq" data-tex="\vec r(t) = \vec r_0 + \vec v_0 t + \dfrac{1}{2}\vec a t^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">One vector equation is really two independent scalar ones, coupled solely through
+      <span data-tex="t"></span>. Solve the axis you know most about first, get the time from it, and feed that
+      time into the other.</span><span lang="cs">Jedna vektorová rovnice jsou ve skutečnosti dvě nezávislé skalární, spojené jedině přes
+      <span data-tex="t"></span>. Vyřešte nejdřív osu, o níž víte nejvíc, získejte z ní čas a ten dosaďte do
+      druhé.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Uniform circular motion</span><span lang="cs">Rovnoměrný pohyb po kružnici</span></span>
+                        <span class="cf-eq" data-tex="a_c = \dfrac{v^2}{r}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Constant speed is not constant velocity: the direction keeps turning, so there is an acceleration, and
+      it points at the centre. It changes only where the motion is heading, never how fast — which is why the
+      speed can be recovered from a projectile launched when the string snaps.</span><span lang="cs">Konstantní velikost rychlosti není konstantní rychlost: směr se stále otáčí, takže zrychlení existuje
+      a míří do středu. Mění jen kam pohyb směřuje, nikdy jak rychle — a proto lze velikost rychlosti zjistit
+      z vrhu, který nastane po přetržení provázku.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Decide: formula, or graph?</strong> A given <span data-tex="x(t)"></span> means differentiate;
+       a given graph means read slopes and areas. Questions often ask for both routes to the same number as a
+       check.</span><span lang="cs"><strong>Rozhodněte: vzorec, nebo graf?</strong> Zadané <span data-tex="x(t)"></span> znamená derivovat;
+       zadaný graf znamená odečítat směrnice a plochy. Úlohy často žádají obě cesty k témuž číslu jako
+       kontrolu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Average or instantaneous?</strong> "Over the first three seconds" is
+       <span data-tex="\Delta x/\Delta t"></span>; "at three seconds" is the derivative evaluated there. They
+       are different numbers and both are usually asked.</span><span lang="cs"><strong>Průměrná, nebo okamžitá?</strong> „Za první tři sekundy" je
+       <span data-tex="\Delta x/\Delta t"></span>; „ve třetí sekundě" je derivace v tom okamžiku. Jsou to
+       různá čísla a obvykle se ptají na obě.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Fix a positive direction and never revisit it.</strong> Write it on the sketch. Most free-fall
+       errors are a sign changed halfway through rather than a formula misremembered.</span><span lang="cs"><strong>Zvolte kladný směr a už ho neměňte.</strong> Napište si ho do náčrtku. Většina chyb ve volném
+       pádu je znaménko změněné v půli cesty, ne špatně zapamatovaný vzorec.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Split two-dimensional motion by axis.</strong> Write the x-row and the y-row separately. The
+       only thing they share is <span data-tex="t"></span> — find it on one axis, use it on the other.</span><span lang="cs"><strong>Rozdělte pohyb ve dvou rozměrech po osách.</strong> Napište zvlášť řádek pro x a pro y. Jediné,
+       co sdílejí, je <span data-tex="t"></span> — najděte ho na jedné ose a použijte na druhé.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>"Highest point" means one component is zero.</strong> At the peak of a trajectory
+       <span data-tex="v_y = 0"></span> while <span data-tex="v_x"></span> carries on unchanged. Turning points
+       in any direction are found the same way.</span><span lang="cs"><strong>„Nejvyšší bod" znamená, že jedna složka je nulová.</strong> Ve vrcholu dráhy je
+       <span data-tex="v_y = 0"></span>, zatímco <span data-tex="v_x"></span> pokračuje beze změny. Body obratu
+       se v libovolném směru hledají stejně.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Circular motion joined to a throw.</strong> When something is released from a circle, the
+       speed it had becomes the launch speed of a projectile. Solve the flight backwards to get that speed, then
+       put it into <span data-tex="a_c = v^2/r"></span>.</span><span lang="cs"><strong>Kruhový pohyb navázaný na vrh.</strong> Uvolní-li se těleso z kružnice, stane se z jeho
+       rychlosti počáteční rychlost vrhu. Vyřešte let pozpátku, získejte tu rychlost a dosaďte ji do
+       <span data-tex="a_c = v^2/r"></span>.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         § 7  SIMULATION LAB — cannon shooting
+         ═══════════════════════════════════════════════════════════════ -->
+    <section id="lab" class="lab">
+
+        <!-- Canvas -->
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Cannon sandbox</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="y = h + v_{0y}\,t - \dfrac{1}{2}g t^2"></div>
+                <div class="sim-hint">adjust θ · v<sub>0</sub> · h · press <strong style="color:var(--ink);">fire</strong></div>
+            </div>
+        </div>
+
+        <!-- Side panels -->
+        <div class="side-stack">
+
+            <!-- Parameters + Fire -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Cannon</span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
+                        title="Reset cannon">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Elevation θ</span>
+                            <span class="sim-control-val" id="p-ang-val">45°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-ang" min="0" max="90" step="1" value="45">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Initial speed |v<sub>0</sub>|</span>
+                            <span class="sim-control-val" id="p-v0-val">22 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-v0" min="5" max="30" step="0.5" value="22">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Initial height h = y<sub>0</sub></span>
+                            <span class="sim-control-val" id="p-h-val">0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-h" min="0" max="20" step="0.5" value="0">
+                    </div>
+
+                    <div class="fire-row">
+                        <button id="btn-fire" class="btn-fire">▲ Fire</button>
+                        <button id="btn-clear" class="btn-clear">clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predicted readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Trajectory</span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">predicted</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section">Initial velocity · components</div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_{0x} = v_0\cos\theta"></span>
+                        <span class="readout-val" id="r-v0x">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_{0y} = v_0\sin\theta"></span>
+                        <span class="readout-val" id="r-v0y">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">Outcome</div>
+                    <div class="readout-row">
+                        <span class="readout-label">Range R</span>
+                        <span class="readout-val" id="r-range">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">Max height h<sub>max</sub></span>
+                        <span class="readout-val" id="r-hmax">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">Time of flight T</span>
+                        <span class="readout-val" id="r-tflight">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display toggles -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Display</span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-ghost">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">predicted trajectory</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-components">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">v<sub>x</sub> / v<sub>y</sub> components</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-apex">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">apex marker</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-grid">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">distance grid</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         § 9  CHALLENGE — Hit the target
+         ═══════════════════════════════════════════════════════════════ -->
+    <section id="challenge" style="margin-top:72px;">
+        <div class="section-head">
+            <h2>Challenge · Hit the Target</h2>
+        </div>
+
+        <p style="font-size:15px;color:var(--ink-soft);line-height:1.7;max-width:62ch;margin:0 0 28px;">
+            A cannon sits at ground level on the left. A flag marks the edge of a cliff downrange.
+            The muzzle speed is fixed — your job is to calculate the exact launch angle
+            that puts the ball on the target. Set up the equations, solve, then fire.
+        </p>
+
+        <div class="challenge-layout">
+
+            <!-- Left column: given values + method -->
+            <div class="challenge-info-col">
+
+                <div class="challenge-given">
+                    <div class="cg-head"><span class="accent-pip"></span>Given</div>
+                    <div class="cg-row">
+                        <span class="cg-label" data-tex="v_0"></span>
+                        <span class="cg-val">20 m/s</span>
+                        <span class="cg-desc">muzzle speed (fixed)</span>
+                    </div>
+                    <div class="cg-row">
+                        <span class="cg-label" data-tex="d"></span>
+                        <span class="cg-val">30 m</span>
+                        <span class="cg-desc">horizontal dist. to cliff</span>
+                    </div>
+                    <div class="cg-row">
+                        <span class="cg-label" data-tex="H"></span>
+                        <span class="cg-val">6 m</span>
+                        <span class="cg-desc">cliff height</span>
+                    </div>
+                    <div class="cg-row">
+                        <span class="cg-label" data-tex="g"></span>
+                        <span class="cg-val">9.81 m/s²</span>
+                        <span class="cg-desc">gravitational acceleration</span>
+                    </div>
+                </div>
+
+                <div class="challenge-given" style="margin-top:4px;">
+                    <div class="cg-head"><span class="accent-pip"></span>Key identity</div>
+                    <div style="padding:12px 14px 14px;">
+                        <p style="font-size:12px;color:var(--ink-faint);line-height:1.6;margin:0 0 10px;">
+                            The trajectory equation contains <span data-tex="\cos^2\theta"></span> in the denominator.
+                            Use this Pythagorean identity to convert it into a <em style="color:var(--ink-soft);">quadratic in <span data-tex="\tan\theta"></span></em>:
+                        </p>
+                        <div style="font-family:var(--f-serif);font-style:italic;font-size:17px;
+                            padding:9px 12px;background:var(--paper-deep);border-left:3px solid var(--accent);text-align:center;">
+                            <span data-tex="\sec^2\theta = 1 + \tan^2\theta"></span>
+                        </div>
+                        <p style="font-size:12px;color:var(--ink-faint);line-height:1.6;margin:10px 0 0;">
+                            Substitute <span data-tex="u = \tan\theta"></span> and solve the resulting quadratic — two solutions, two valid angles.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="ch-hint-box" style="margin-top:4px;">Two valid angles exist — try both!</div>
+
+            </div>
+
+            <!-- Right column: canvas + controls -->
+            <div class="challenge-sim-col">
+                <div class="canvas-panel">
+                    <div class="canvas-head">
+                        <span><span class="accent-pip"></span>Shooting range</span>
+                        <span id="ch-status" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">ready</span>
+                    </div>
+                    <div class="challenge-canvas-wrap">
+                        <canvas id="challenge-canvas"></canvas>
+                        <canvas id="confetti-canvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="ch-controls">
+                    <div class="ch-angle-row">
+                        <span class="ch-angle-label">Launch angle</span>
+                        <div class="ch-angle-input-wrap">
+                            <input type="number" id="ch-angle-input" class="ch-angle-input"
+                                   min="1" max="89" step="0.1" placeholder="45">
+                            <span class="ch-angle-unit">°</span>
+                        </div>
+                        <button id="ch-fire-btn" class="btn-fire">▲ Fire</button>
+                        <button id="ch-retry-btn" class="btn-clear" style="display:none;">↺ Repeat</button>
+                    </div>
+                    <div id="ch-verdict" class="ch-verdict" style="display:none;"></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch02-ex78.html"><span lang="en">Ch. 2 · <span class="ex-no">Ex. 78</span></span><span lang="cs">Kap. 2 · <span class="ex-no">Úl. 78</span></span></a>
+            <a class="ex-tab" href="../exercises/ch02-ex87.html"><span lang="en">Ch. 2 · <span class="ex-no">Ex. 87</span></span><span lang="cs">Kap. 2 · <span class="ex-no">Úl. 87</span></span></a>
+            <a class="ex-tab" href="../exercises/ch04-ex15.html"><span lang="en">Ch. 4 · <span class="ex-no">Ex. 15</span></span><span lang="cs">Kap. 4 · <span class="ex-no">Úl. 15</span></span></a>
+            <a class="ex-tab" href="../exercises/ch04-ex67.html"><span lang="en">Ch. 4 · <span class="ex-no">Ex. 67</span></span><span lang="cs">Kap. 4 · <span class="ex-no">Úl. 67</span></span></a>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         § 10  PREV / NEXT
+         ═══════════════════════════════════════════════════════════════ -->
+    <nav class="topic-nav">
+        <a href="vectors.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir">← Previous · § I.01</div>
+            <div class="topic-nav-title"><span lang="en">Vectors</span><span lang="cs">Vektory</span></div>
+        </a>
+        <a href="force-and-motion.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir">Next · § I.03</div>
+            <div class="topic-nav-title"><span lang="en">Force &amp; motion</span><span lang="cs">Force &amp; motion</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.02 Particle motion</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div>
+
+<!-- ── KaTeX render ─────────────────────────────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Toggle wiring ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    document.querySelectorAll('.toggle-row').forEach(row => {
+        row.querySelector('.toggle-box')?.addEventListener('click', function () {
+            this.classList.toggle('on');
+        });
+    });
+}());
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SIMULATION — Cannon / projectile motion
+     ──────────────────────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── Colours read once at startup ─────────────────────────────── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:     s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:     s.getPropertyValue('--accent').trim()    || '#7a3c1a',
+            soft:    s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint:   s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper:   s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            paperD:  s.getPropertyValue('--paper-deep').trim()|| '#efead6',
+        };
+    }
+    let col = readCol();
+
+    /* ── Physics constants ────────────────────────────────────────── */
+    const G        = 9.81;                  // m/s²
+    const WORLD    = { xmax: 100, ymax: 50 }; // metres visible
+    const CANNON_X = 4;                     // m from left edge
+    const TIME_SCALE = 1.0;                 // 1 = real time
+
+    /* ── Simulation state ─────────────────────────────────────────── */
+    const DEFAULTS = { angle: 45, v0: 22, h: 0 };
+    const state = {
+        ...DEFAULTS,
+        isFiring: false,
+        landed: false,
+        t: 0,                  // seconds since fire
+        pos: { x: CANNON_X, y: 0 },
+        vel: { x: 0, y: 0 },
+        trail: [],             // [{x, y}, ...] in world coords
+        apex: null,            // { x, y, t }
+        landPoint: null,       // { x, t }
+    };
+    const show = { ghost: true, components: true, apex: true, grid: true };
+
+    /* ── Slider wiring ────────────────────────────────────────────── */
+    function bindSlider(inputId, valId, fmt, key) {
+        const inp = document.getElementById(inputId);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(+inp.value);
+            /* Adjusting the cannon while a shot is mid-flight cancels it */
+            if (state.isFiring) { state.isFiring = false; state.landed = false; state.trail = []; state.apex = null; state.landPoint = null; }
+        });
+    }
+    bindSlider('p-ang', 'p-ang-val', v => v.toFixed(0) + '°',           'angle');
+    bindSlider('p-v0',  'p-v0-val',  v => v.toFixed(1) + ' m/s',        'v0');
+    bindSlider('p-h',   'p-h-val',   v => v.toFixed(1) + ' m',          'h');
+
+    /* ── Buttons ──────────────────────────────────────────────────── */
+    document.getElementById('btn-fire')?.addEventListener('click', () => {
+        const th = state.angle * Math.PI / 180;
+        state.isFiring  = true;
+        state.landed    = false;
+        state.t         = 0;
+        state.pos       = { x: CANNON_X, y: state.h };
+        state.vel       = { x: state.v0 * Math.cos(th), y: state.v0 * Math.sin(th) };
+        state.trail     = [{ x: CANNON_X, y: state.h }];
+        state.apex      = null;
+        state.landPoint = null;
+        lastFrame       = null;
+    });
+    document.getElementById('btn-clear')?.addEventListener('click', () => {
+        state.isFiring  = false;
+        state.landed    = false;
+        state.trail     = [];
+        state.apex      = null;
+        state.landPoint = null;
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        Object.assign(state, DEFAULTS, {
+            isFiring: false, landed: false, trail: [], apex: null,
+            landPoint: null, pos: { x: CANNON_X, y: 0 }, vel: { x: 0, y: 0 }, t: 0,
+        });
+        const ang = document.getElementById('p-ang');
+        const av  = document.getElementById('p-ang-val');
+        const v0  = document.getElementById('p-v0');
+        const v0v = document.getElementById('p-v0-val');
+        const hI  = document.getElementById('p-h');
+        const hV  = document.getElementById('p-h-val');
+        if (ang) ang.value = DEFAULTS.angle;
+        if (av)  av.textContent  = DEFAULTS.angle + '°';
+        if (v0)  v0.value = DEFAULTS.v0;
+        if (v0v) v0v.textContent = DEFAULTS.v0.toFixed(1) + ' m/s';
+        if (hI)  hI.value = DEFAULTS.h;
+        if (hV)  hV.textContent  = DEFAULTS.h.toFixed(1) + ' m';
+    });
+
+    /* ── Toggle wiring ─────────────────────────────────────────────── */
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+        });
+    }
+    wireToggle('tgl-ghost',      'ghost');
+    wireToggle('tgl-components', 'components');
+    wireToggle('tgl-apex',       'apex');
+    wireToggle('tgl-grid',       'grid');
+
+    /* ── World ↔ screen mapping ────────────────────────────────────── */
+    const PAD = { l: 50, r: 36, t: 36, b: 56 };
+    function w2s(wx, wy) {
+        const sx = PAD.l + (wx / WORLD.xmax) * (W - PAD.l - PAD.r);
+        const sy = H - PAD.b - (wy / WORLD.ymax) * (H - PAD.t - PAD.b);
+        return { x: sx, y: sy };
+    }
+
+    /* ── Drawing helpers ───────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, colour, lw) {
+        lw = lw || 2;
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.32), hw = hl * 0.45;
+        ctx.strokeStyle = colour; ctx.fillStyle = colour;
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.55, y2 - uy * hl * 0.55);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    /* Axes, ground hatching, ticks, labels */
+    function drawAxes() {
+        const O = w2s(0, 0);
+        const xEnd = w2s(WORLD.xmax, 0);
+        const yEnd = w2s(0, WORLD.ymax);
+
+        // x-axis
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.4;
+        ctx.lineCap = 'butt';
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(O.x, O.y);
+        ctx.lineTo(xEnd.x + 12, O.y);
+        ctx.stroke();
+        // y-axis
+        ctx.beginPath();
+        ctx.moveTo(O.x, O.y);
+        ctx.lineTo(O.x, yEnd.y - 12);
+        ctx.stroke();
+
+        // Arrowheads
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.moveTo(xEnd.x + 18, O.y);
+        ctx.lineTo(xEnd.x + 10, O.y - 4);
+        ctx.lineTo(xEnd.x + 10, O.y + 4);
+        ctx.closePath(); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(O.x, yEnd.y - 18);
+        ctx.lineTo(O.x - 4, yEnd.y - 10);
+        ctx.lineTo(O.x + 4, yEnd.y - 10);
+        ctx.closePath(); ctx.fill();
+
+        // Ground hatching below x-axis
+        ctx.strokeStyle = col.ink;
+        ctx.globalAlpha = 0.45;
+        ctx.lineWidth = 0.9;
+        const step = 10;
+        for (let x = O.x + 4; x <= xEnd.x + 10; x += step) {
+            ctx.beginPath();
+            ctx.moveTo(x, O.y);
+            ctx.lineTo(x - 8, O.y + 8);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+
+        // Axis labels
+        ctx.font = 'italic 16px "Source Serif 4", Georgia, serif';
+        ctx.fillStyle = col.ink;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('x', xEnd.x + 24, O.y);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('y', O.x, yEnd.y - 22);
+
+        // Tick marks + labels
+        if (show.grid) {
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.fillStyle = col.faint;
+            ctx.strokeStyle = col.faint;
+            ctx.lineWidth = 0.9;
+            ctx.setLineDash([2, 3]);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let xm = 10; xm <= WORLD.xmax; xm += 10) {
+                const p = w2s(xm, 0);
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x, w2s(xm, WORLD.ymax).y);
+                ctx.stroke();
+                ctx.fillText(xm + ' m', p.x, p.y + 8);
+            }
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let ym = 10; ym <= WORLD.ymax; ym += 10) {
+                const p = w2s(0, ym);
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(w2s(WORLD.xmax, ym).x, p.y);
+                ctx.stroke();
+                ctx.fillText(ym, p.x - 8, p.y);
+            }
+            ctx.setLineDash([]);
+        }
+    }
+
+    /* Pedestal — drawn BEFORE the cannon so the cannon sits on top */
+    function drawPedestal() {
+        if (state.h <= 0.05) return;
+        const dx = 2.4;                                    // half-width in metres
+        const tl = w2s(CANNON_X - dx, state.h);            // top-left in screen px
+        const br = w2s(CANNON_X + dx, 0);                  // bottom-right
+        const x = tl.x, y = tl.y, w = br.x - tl.x, h = br.y - tl.y;
+
+        // Fill + outline
+        ctx.fillStyle = col.paperD;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.4;
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeRect(x, y, w, h);
+
+        // Diagonal hatching inside (clipped)
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.clip();
+        ctx.strokeStyle = col.ink;
+        ctx.globalAlpha = 0.32;
+        ctx.lineWidth = 0.9;
+        const step = 7;
+        for (let xi = x - h; xi < x + w; xi += step) {
+            ctx.beginPath();
+            ctx.moveTo(xi, y + h);
+            ctx.lineTo(xi + h, y);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // Height bracket on the right side, clear of the y-axis numbers
+        ctx.save();
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1;
+        const bx = x + w + 6;       // bracket vertical line position
+        ctx.beginPath();
+        ctx.moveTo(bx - 4, y);     ctx.lineTo(bx, y);     // top tick
+        ctx.moveTo(bx - 4, y + h); ctx.lineTo(bx, y + h); // ground tick
+        ctx.moveTo(bx,     y);     ctx.lineTo(bx, y + h); // bracket
+        ctx.stroke();
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.fillStyle = col.ink;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('h = ' + state.h.toFixed(1) + ' m', bx + 4, y + h / 2);
+        ctx.restore();
+    }
+
+    /* Cannon: a small carriage + rotating barrel, sitting at world (CANNON_X, h) */
+    function drawCannon() {
+        const O = w2s(CANNON_X, state.h);
+        const th = state.angle * Math.PI / 180;
+        const barrelLen = 30;
+
+        // Wheel + carriage
+        ctx.save();
+        ctx.translate(O.x, O.y);
+
+        // Carriage body
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.moveTo(-14, 0);
+        ctx.lineTo(14, 0);
+        ctx.lineTo(11, -10);
+        ctx.lineTo(-11, -10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Wheel
+        ctx.fillStyle = col.paperD;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(0, -3, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        // wheel spokes
+        ctx.beginPath();
+        ctx.moveTo(-5, -3); ctx.lineTo(5, -3);
+        ctx.moveTo(0, -8);  ctx.lineTo(0,  2);
+        ctx.stroke();
+
+        // Barrel — rotated rectangle
+        ctx.save();
+        ctx.translate(0, -10);
+        ctx.rotate(-th);              // negative because screen y is flipped
+        ctx.fillStyle = col.acc;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.rect(0, -5, barrelLen, 10);
+        ctx.fill();
+        ctx.stroke();
+        // muzzle ring
+        ctx.fillStyle = col.ink;
+        ctx.fillRect(barrelLen - 3, -6, 3, 12);
+        ctx.restore();
+
+        ctx.restore();
+    }
+
+    /* Predicted parabola — derived analytically from current sliders */
+    function drawGhostTrajectory() {
+        if (!show.ghost) return;
+        const th  = state.angle * Math.PI / 180;
+        const v0x = state.v0 * Math.cos(th);
+        const v0y = state.v0 * Math.sin(th);
+        // Flight time accounting for launch height: solve h + v0y t − ½gt² = 0
+        const disc = v0y * v0y + 2 * G * state.h;
+        if (disc <= 0) return;
+        const T = (v0y + Math.sqrt(disc)) / G;
+        if (T <= 0.01) return;
+        const N = 80;
+        ctx.strokeStyle = col.acc;
+        ctx.globalAlpha = 0.45;
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        for (let i = 0; i <= N; i++) {
+            const t = (i / N) * T;
+            const x = CANNON_X + v0x * t;
+            const y = state.h + v0y * t - 0.5 * G * t * t;
+            const p = w2s(x, Math.max(0, y));
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else         ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+    }
+
+    /* Drawn after the projectile has actually flown — the real trail */
+    function drawRealTrail() {
+        if (state.trail.length < 2) return;
+        ctx.strokeStyle = col.acc;
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        for (let i = 0; i < state.trail.length; i++) {
+            const p = w2s(state.trail[i].x, state.trail[i].y);
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else         ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+    }
+
+    function drawApex() {
+        if (!show.apex || !state.apex) return;
+        const a = w2s(state.apex.x, state.apex.y);
+        const ground = w2s(state.apex.x, 0);
+        // dashed drop to ground
+        ctx.strokeStyle = col.soft;
+        ctx.globalAlpha = 0.55;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(ground.x, ground.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+        // apex dot
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        // h_max label
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.ink;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('h_max = ' + state.apex.y.toFixed(1) + ' m', a.x + 8, (a.y + ground.y) / 2);
+    }
+
+    function drawProjectile() {
+        if (!state.isFiring && !state.landed) return;
+        const p = w2s(state.pos.x, state.pos.y);
+
+        // ball
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        // soft highlight
+        const g = ctx.createRadialGradient(p.x - 1.5, p.y - 1.5, 0.5, p.x, p.y, 5.5);
+        g.addColorStop(0, 'rgba(255,255,255,0.45)');
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Velocity vector + components
+        if (show.components && state.isFiring) {
+            const PX = 1.3;        // px per (m/s)
+            const vScreen = w2s(state.pos.x + state.vel.x / 8, state.pos.y + state.vel.y / 8);
+            const dx = (vScreen.x - p.x), dy = (vScreen.y - p.y);
+            // x component
+            arrow(p.x, p.y, p.x + dx, p.y, col.soft, 1.6);
+            // y component
+            arrow(p.x, p.y, p.x, p.y + dy, col.soft, 1.6);
+            // resultant
+            arrow(p.x, p.y, p.x + dx, p.y + dy, col.acc, 2);
+        }
+    }
+
+    function drawLanding() {
+        if (!state.landPoint) return;
+        const p = w2s(state.landPoint.x, 0);
+        // little impact splash
+        ctx.strokeStyle = col.acc;
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([]);
+        for (let i = -2; i <= 2; i++) {
+            ctx.beginPath();
+            ctx.moveTo(p.x + i * 3, p.y);
+            ctx.lineTo(p.x + i * 4, p.y - 6 - Math.abs(i));
+            ctx.stroke();
+        }
+        // range label
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.ink;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('R = ' + (state.landPoint.x - CANNON_X).toFixed(1) + ' m', p.x, p.y + 22);
+    }
+
+    /* ── Readouts ─────────────────────────────────────────────────── */
+    const $ = id => document.getElementById(id);
+    function updateReadout() {
+        const th  = state.angle * Math.PI / 180;
+        const v0x = state.v0 * Math.cos(th);
+        const v0y = state.v0 * Math.sin(th);
+        // Flight time with launch height: solve h + v0y T − ½gT² = 0
+        const disc = v0y * v0y + 2 * G * state.h;
+        const T   = (v0y + Math.sqrt(Math.max(0, disc))) / G;
+        const R   = v0x * T;
+        const hM  = state.h + (v0y * v0y) / (2 * G);
+        if ($('r-v0x'))    $('r-v0x').textContent    = v0x.toFixed(2) + ' m/s';
+        if ($('r-v0y'))    $('r-v0y').textContent    = v0y.toFixed(2) + ' m/s';
+        if ($('r-range'))  $('r-range').textContent  = R.toFixed(2)   + ' m';
+        if ($('r-hmax'))   $('r-hmax').textContent   = hM.toFixed(2)  + ' m';
+        if ($('r-tflight'))$('r-tflight').textContent= T.toFixed(2)   + ' s';
+    }
+
+    /* ── Animation loop ───────────────────────────────────────────── */
+    let lastFrame = null, frames = 0, lastFps = 0;
+    const fpsEl = $('sim-fps');
+
+    function frame(ts) {
+        if (lastFrame === null) lastFrame = ts;
+        const dt = Math.min(0.05, (ts - lastFrame) / 1000) * TIME_SCALE;
+        lastFrame = ts;
+
+        if (state.isFiring) {
+            const th  = state.angle * Math.PI / 180;
+            const v0x = state.v0 * Math.cos(th);
+            const v0y = state.v0 * Math.sin(th);
+
+            // Track apex BEFORE we step into negative y
+            const prevY = state.pos.y;
+
+            state.t += dt;
+            state.pos.x = CANNON_X + v0x * state.t;
+            state.pos.y = state.h + v0y * state.t - 0.5 * G * state.t * state.t;
+            state.vel.x = v0x;
+            state.vel.y = v0y - G * state.t;
+
+            // Record apex (when vy crosses zero — only meaningful if v0y > 0)
+            if (!state.apex && state.vel.y <= 0 && v0y > 0.01 && state.t > 0.02) {
+                const tApex = v0y / G;
+                state.apex = {
+                    x: CANNON_X + v0x * tApex,
+                    y: state.h + (v0y * v0y) / (2 * G),
+                    t: tApex,
+                };
+            }
+
+            // Append to trail
+            state.trail.push({ x: state.pos.x, y: Math.max(0, state.pos.y) });
+
+            // Landing detection — analytical time from h + v0y T − ½gT² = 0
+            if (prevY >= 0 && state.pos.y <= 0 && state.t > 0.02) {
+                const disc  = v0y * v0y + 2 * G * state.h;
+                const tLand = (v0y + Math.sqrt(Math.max(0, disc))) / G;
+                const xLand = CANNON_X + v0x * tLand;
+                state.pos     = { x: xLand, y: 0 };
+                state.vel     = { x: v0x, y: v0y - G * tLand };
+                state.isFiring = false;
+                state.landed   = true;
+                state.landPoint = { x: xLand, t: tLand };
+                // Replace last trail point with exact landing
+                state.trail[state.trail.length - 1] = { x: xLand, y: 0 };
+            }
+
+            // Off-canvas safety
+            if (state.pos.x > WORLD.xmax + 5) {
+                state.isFiring = false;
+            }
+        }
+
+        /* ── Draw ─────────────────────────────────────────────────── */
+        ctx.clearRect(0, 0, W, H);
+        drawAxes();
+        drawGhostTrajectory();
+        drawRealTrail();
+        drawApex();
+        drawLanding();
+        drawPedestal();
+        drawCannon();
+        drawProjectile();
+
+        updateReadout();
+
+        frames++;
+        if (ts - lastFps >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps';
+            frames = 0;
+            lastFps = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     CHALLENGE — Cannon vs cliff target
+     ════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas    = document.getElementById('challenge-canvas');
+    const confCv    = document.getElementById('confetti-canvas');
+    if (!canvas || !confCv) return;
+    const ctx       = canvas.getContext('2d');
+    const confCtx   = confCv.getContext('2d');
+    const wrap      = canvas.parentElement;
+    const dpr       = window.devicePixelRatio || 1;
+
+    let W = 0, SH = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W  = Math.max(r.width,  240);
+        SH = Math.max(r.height, 240);
+        for (const cv of [canvas, confCv]) {
+            cv.width  = Math.round(W  * dpr);
+            cv.height = Math.round(SH * dpr);
+        }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        confCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── Colours ────────────────────────────────────────────────── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:    s.getPropertyValue('--ink').trim()        || '#363026',
+            acc:    s.getPropertyValue('--accent').trim()     || '#7a3c1a',
+            soft:   s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint:  s.getPropertyValue('--ink-faint').trim()  || '#7A6A52',
+            paper:  s.getPropertyValue('--paper').trim()      || '#FFFDF6',
+            paperD: s.getPropertyValue('--paper-deep').trim() || '#efead6',
+        };
+    }
+    const col = readCol();
+
+    /* ── World constants ────────────────────────────────────────── */
+    const G        = 9.81;
+    const WORLD    = { xmax: 52, ymax: 26 };
+    const CANNON_X = 4;
+    const CLIFF_X  = 34;   // left face of cliff (30 m from cannon)
+    const CLIFF_H  = 6;    // m
+    const TARGET_X = CLIFF_X;
+    const TARGET_Y = CLIFF_H;
+    const HIT_TOL  = 1.5;  // ±m tolerance on y at cliff face (accepts ~35–43° and ~61–64°)
+    const V0       = 20;   // m/s — fixed
+    const PAD      = { l: 44, r: 16, t: 22, b: 46 };
+
+    /* ── Coordinate transform ───────────────────────────────────── */
+    function w2s(wx, wy) {
+        return {
+            x: PAD.l + (wx / WORLD.xmax) * (W  - PAD.l - PAD.r),
+            y: SH    - PAD.b - (wy / WORLD.ymax) * (SH - PAD.t - PAD.b),
+        };
+    }
+
+    /* ── Simulation state ───────────────────────────────────────── */
+    const sim = {
+        angle: null, firing: false, t: 0,
+        pos: { x: CANNON_X, y: 0 },
+        trail: [], result: null, checkedCliff: false,
+    };
+
+    /* ── Confetti ───────────────────────────────────────────────── */
+    let sparks = [];
+    const SPARK_COLS = ['#b94d28','#2d6b3a','#1e5080','#7a3c1a','#5a3578','#d4a418','#2d6e6a'];
+    function spawnConfetti() {
+        const tp = w2s(TARGET_X, TARGET_Y);
+        sparks = Array.from({ length: 90 }, () => ({
+            x: tp.x + (Math.random() - 0.5) * 40,
+            y: tp.y - 10,
+            vx: (Math.random() - 0.5) * 220,
+            vy: -(Math.random() * 260 + 80),
+            rot: Math.random() * Math.PI * 2,
+            rotV: (Math.random() - 0.5) * 9,
+            w: 5 + Math.random() * 8, h: 3 + Math.random() * 4,
+            color: SPARK_COLS[Math.floor(Math.random() * SPARK_COLS.length)],
+            life: 1,
+        }));
+    }
+
+    /* ── Arrow helper ───────────────────────────────────────────── */
+    function arrowLine(x1, y1, x2, y2, clr, lw) {
+        const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx, dy);
+        if (len < 3) return;
+        const ux = dx/len, uy = dy/len, hl = Math.min(9, len*0.3), hw = hl*0.45;
+        ctx.strokeStyle = ctx.fillStyle = clr;
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2-ux*hl*0.5, y2-uy*hl*0.5); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2-ux*hl-uy*hw, y2-uy*hl+ux*hw);
+        ctx.lineTo(x2-ux*hl+uy*hw, y2-uy*hl-ux*hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* ── Draw ground + grid ─────────────────────────────────────── */
+    function drawGround() {
+        const O    = w2s(0, 0);
+        const xEnd = w2s(WORLD.xmax, 0);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(PAD.l, O.y); ctx.lineTo(xEnd.x, O.y); ctx.stroke();
+        ctx.strokeStyle = col.ink; ctx.globalAlpha = 0.3; ctx.lineWidth = 0.8;
+        for (let x = PAD.l + 4; x <= xEnd.x; x += 10) {
+            ctx.beginPath(); ctx.moveTo(x, O.y); ctx.lineTo(x-7, O.y+7); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        ctx.font = '10px "JetBrains Mono",monospace';
+        ctx.fillStyle = col.faint; ctx.strokeStyle = col.faint;
+        ctx.lineWidth = 0.7; ctx.setLineDash([2, 3]);
+        for (let ym = 5; ym <= WORLD.ymax - 2; ym += 5) {
+            const p = w2s(0, ym);
+            ctx.beginPath(); ctx.moveTo(PAD.l, p.y); ctx.lineTo(xEnd.x, p.y); ctx.stroke();
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            ctx.fillText(ym+'m', PAD.l-4, p.y);
+        }
+        ctx.setLineDash([]);
+    }
+
+    /* ── Draw cliff ─────────────────────────────────────────────── */
+    function drawCliff() {
+        const O   = w2s(0, 0);
+        const tl  = w2s(CLIFF_X, CLIFF_H);
+        const tr  = w2s(WORLD.xmax, CLIFF_H);
+        const br  = w2s(WORLD.xmax, 0);
+        ctx.fillStyle = col.paperD; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(tl.x, O.y); ctx.lineTo(tl.x, tl.y);
+        ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, O.y);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        // Hatching
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(tl.x, O.y); ctx.lineTo(tl.x, tl.y);
+        ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, O.y);
+        ctx.closePath(); ctx.clip();
+        ctx.strokeStyle = col.ink; ctx.globalAlpha = 0.18; ctx.lineWidth = 0.9;
+        const ch = O.y - tl.y;
+        for (let x = tl.x - ch; x < tr.x; x += 8) {
+            ctx.beginPath(); ctx.moveTo(x, O.y); ctx.lineTo(x+ch, tl.y); ctx.stroke();
+        }
+        ctx.restore();
+        // Height brace
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1; ctx.setLineDash([]);
+        const bx = tl.x - 6;
+        ctx.beginPath();
+        ctx.moveTo(bx+4, tl.y); ctx.lineTo(bx, tl.y);
+        ctx.moveTo(bx+4, O.y);  ctx.lineTo(bx, O.y);
+        ctx.moveTo(bx, tl.y);   ctx.lineTo(bx, O.y);
+        ctx.stroke();
+        ctx.font = 'bold 14px "JetBrains Mono",monospace';
+        ctx.fillStyle = col.ink; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('H = 6 m', bx-3, (tl.y+O.y)/2);
+    }
+
+    /* ── Target flag ────────────────────────────────────────────── */
+    function drawTarget(hit) {
+        const tp = w2s(TARGET_X, TARGET_Y);
+        if (hit) {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+            const r = 11;
+            ctx.beginPath();
+            ctx.moveTo(tp.x-r, tp.y-r); ctx.lineTo(tp.x+r, tp.y+r);
+            ctx.moveTo(tp.x+r, tp.y-r); ctx.lineTo(tp.x-r, tp.y+r);
+            ctx.stroke();
+        }
+        // Pole
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(tp.x, tp.y); ctx.lineTo(tp.x, tp.y-24); ctx.stroke();
+        // Flag
+        ctx.fillStyle = hit ? col.acc : col.acc;
+        ctx.globalAlpha = hit ? 1 : 0.85;
+        ctx.beginPath();
+        ctx.moveTo(tp.x, tp.y-24);
+        ctx.lineTo(tp.x+15, tp.y-18);
+        ctx.lineTo(tp.x, tp.y-12);
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.font = 'bold 13px "JetBrains Mono",monospace';
+        ctx.fillStyle = col.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('TARGET', tp.x+8, tp.y-27);
+    }
+
+    /* ── Cannon ─────────────────────────────────────────────────── */
+    function drawCannon() {
+        const O  = w2s(CANNON_X, 0);
+        const th = ((sim.angle ?? 45) * Math.PI / 180);
+        ctx.save(); ctx.translate(O.x, O.y);
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.moveTo(-13,0); ctx.lineTo(13,0); ctx.lineTo(10,-10); ctx.lineTo(-10,-10); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = col.paperD; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(0,-3,6,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-4,-3); ctx.lineTo(4,-3); ctx.moveTo(0,-7); ctx.lineTo(0,1); ctx.stroke();
+        ctx.save(); ctx.translate(0,-10); ctx.rotate(-th);
+        ctx.fillStyle = col.acc; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.rect(0,-4,28,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = col.ink; ctx.fillRect(25,-5,3,10);
+        ctx.restore(); ctx.restore();
+    }
+
+    /* ── Ghost (predicted) trajectory ──────────────────────────── */
+    function drawGhost() {
+        if (sim.angle === null || sim.firing || sim.result) return;
+        const th  = sim.angle * Math.PI / 180;
+        const v0x = V0 * Math.cos(th), v0y = V0 * Math.sin(th);
+        const T   = (v0y + Math.sqrt(Math.max(0, v0y*v0y))) / G * 2; // rough
+        const tMax = (v0y + Math.sqrt(Math.max(0, v0y*v0y + 2*G*0))) / G;
+        const N = 64;
+        ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.28;
+        ctx.lineWidth = 1.1; ctx.setLineDash([4,4]);
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= N; i++) {
+            const t  = (i / N) * tMax;
+            const wx = CANNON_X + v0x * t;
+            const wy = v0y * t - 0.5 * G * t * t;
+            if (wx > CLIFF_X && wy < CLIFF_H) break; // hits cliff wall
+            if (wy < 0) break;
+            const p = w2s(wx, wy);
+            if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+            else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+
+    /* ── Velocity arrow on live ball ────────────────────────────── */
+    function drawBall() {
+        if (!sim.firing && sim.result !== 'hit') return;
+        const p = w2s(sim.pos.x, sim.pos.y);
+        const th  = sim.angle * Math.PI / 180;
+        const v0x = V0 * Math.cos(th), v0y = V0 * Math.sin(th);
+        const vx  = v0x, vy = v0y - G * sim.t;
+        if (sim.firing) {
+            const sc = 0.5;
+            const ep = w2s(sim.pos.x + vx*sc, sim.pos.y + vy*sc);
+            arrowLine(p.x, p.y, ep.x, ep.y, col.acc, 1.8);
+        }
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI*2); ctx.fill();
+        const g = ctx.createRadialGradient(p.x-1.5,p.y-1.5,0.5,p.x,p.y,5.5);
+        g.addColorStop(0,'rgba(255,255,255,0.4)'); g.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI*2); ctx.fill();
+    }
+
+    /* ── Impact splash ──────────────────────────────────────────── */
+    function drawImpact() {
+        if (!sim.result || sim.result === 'hit') return;
+        const p = w2s(sim.pos.x, sim.pos.y);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.1; ctx.setLineDash([]);
+        for (let i = -2; i <= 2; i++) {
+            ctx.beginPath(); ctx.moveTo(p.x+i*3, p.y); ctx.lineTo(p.x+i*4, p.y-5-Math.abs(i)); ctx.stroke();
+        }
+    }
+
+    /* ── Trail ──────────────────────────────────────────────────── */
+    function drawTrail() {
+        if (sim.trail.length < 2) return;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath();
+        for (let i = 0; i < sim.trail.length; i++) {
+            const p = w2s(sim.trail[i].x, sim.trail[i].y);
+            if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+    }
+
+    /* ── Full scene ─────────────────────────────────────────────── */
+    function drawScene() {
+        ctx.clearRect(0, 0, W, SH);
+        drawGround();
+        drawCliff();
+        drawTrail();
+        drawTarget(sim.result === 'hit');
+        drawImpact();
+        drawCannon();
+        drawBall();
+        // distance label under cannon
+        ctx.font = '10px "JetBrains Mono",monospace';
+        ctx.fillStyle = col.faint; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        const O = w2s(CANNON_X, 0);
+        ctx.fillText('cannon', O.x, O.y+8);
+        // d arrow
+        const cannonS = w2s(CANNON_X, 0), cliffS = w2s(CLIFF_X, 0);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 0.8; ctx.setLineDash([3,3]);
+        ctx.beginPath(); ctx.moveTo(cannonS.x, cannonS.y+28); ctx.lineTo(cliffS.x, cliffS.y+28); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = 'bold 14px "JetBrains Mono",monospace';
+        ctx.fillStyle = col.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('d = 30 m', (cannonS.x+cliffS.x)/2, cannonS.y+30);
+    }
+
+    /* ── Confetti frame ─────────────────────────────────────────── */
+    function tickConfetti(dt) {
+        confCtx.clearRect(0, 0, W, SH);
+        let any = false;
+        for (const p of sparks) {
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            p.vy += 380 * dt; p.rot += p.rotV * dt;
+            p.life -= dt * 0.65;
+            if (p.life <= 0) continue;
+            any = true;
+            confCtx.save();
+            confCtx.globalAlpha = Math.max(0, p.life);
+            confCtx.translate(p.x, p.y); confCtx.rotate(p.rot);
+            confCtx.fillStyle = p.color;
+            confCtx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+            confCtx.restore();
+        }
+        if (!any) { sparks = []; confCtx.clearRect(0,0,W,SH); }
+    }
+
+    /* ── Verdict display ────────────────────────────────────────── */
+    function showVerdict(result) {
+        const v     = document.getElementById('ch-verdict');
+        const retry = document.getElementById('ch-retry-btn');
+        const fire  = document.getElementById('ch-fire-btn');
+        const stat  = document.getElementById('ch-status');
+        v.style.display = 'block';
+        if (result === 'hit') {
+            v.className = 'ch-verdict hit';
+            v.innerHTML = '✓ &nbsp;Hit! Well done — your angle was spot-on.';
+            if (stat) stat.textContent = 'hit!';
+        } else {
+            v.className = 'ch-verdict miss';
+            v.innerHTML = '✗ &nbsp;Missed. Check your working and try a different angle.';
+            if (stat) stat.textContent = 'missed';
+        }
+        if (retry) retry.style.display = 'inline-block';
+        if (fire) fire.disabled = true;
+    }
+
+    /* ── Animation loop ─────────────────────────────────────────── */
+    let lastTs = null;
+    function frame(ts) {
+        if (lastTs === null) lastTs = ts;
+        const dt = Math.min(0.05, (ts - lastTs) / 1000);
+        lastTs = ts;
+
+        if (sim.firing) {
+            const th  = sim.angle * Math.PI / 180;
+            const v0x = V0 * Math.cos(th), v0y = V0 * Math.sin(th);
+            sim.t += dt;
+            sim.pos.x = CANNON_X + v0x * sim.t;
+            sim.pos.y = v0y * sim.t - 0.5 * G * sim.t * sim.t;
+
+            // When ball first crosses the cliff face — evaluate exact y analytically
+            if (!sim.checkedCliff && sim.pos.x >= CLIFF_X) {
+                sim.checkedCliff = true;
+                const tCliff   = (CLIFF_X - CANNON_X) / v0x;
+                const yAtCliff = v0y * tCliff - 0.5 * G * tCliff * tCliff;
+
+                if (yAtCliff < CLIFF_H) {
+                    // Struck the cliff wall — stop here
+                    sim.firing = false;
+                    sim.pos    = { x: CLIFF_X, y: Math.max(0, yAtCliff) };
+                    sim.result = 'miss';
+                    showVerdict('miss');
+                } else if (Math.abs(yAtCliff - TARGET_Y) <= HIT_TOL) {
+                    // Hit the target
+                    sim.firing = false;
+                    sim.pos    = { x: TARGET_X, y: TARGET_Y };
+                    sim.result = 'hit';
+                    spawnConfetti();
+                    showVerdict('hit');
+                }
+                // else: ball cleared the cliff too high — keep flying, land on top
+            }
+
+            // Clip trail y to local ground (cliff top when past cliff, 0 before)
+            const groundLevel = sim.pos.x > CLIFF_X ? CLIFF_H : 0;
+            sim.trail.push({ x: sim.pos.x, y: Math.max(groundLevel, sim.pos.y) });
+
+            // Ball lands on cliff top surface (only after it has actually cleared the cliff)
+            if (sim.checkedCliff && sim.pos.x > CLIFF_X && sim.pos.y < CLIFF_H && !sim.result) {
+                sim.firing = false;
+                sim.pos    = { x: sim.pos.x, y: CLIFF_H };
+                sim.result = 'miss'; showVerdict('miss');
+            }
+
+            // Ball hits ground before cliff (strict < 0 so y=0 spawn doesn't trigger)
+            if (sim.pos.x <= CLIFF_X && sim.pos.y < 0 && !sim.result) {
+                sim.firing = false; sim.pos.y = 0;
+                sim.result = 'miss'; showVerdict('miss');
+            }
+
+            // Off-world
+            if (sim.pos.x > WORLD.xmax + 5 && !sim.result) {
+                sim.firing = false; sim.result = 'miss'; showVerdict('miss');
+            }
+        }
+
+        drawScene();
+        if (sparks.length) tickConfetti(dt);
+
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    /* ── Input wiring ───────────────────────────────────────────── */
+    const angleInp = document.getElementById('ch-angle-input');
+    if (angleInp) {
+        angleInp.addEventListener('input', () => {
+            const v = parseFloat(angleInp.value);
+            if (!isNaN(v) && v > 0 && v < 90) sim.angle = v;
+        });
+    }
+
+    document.getElementById('ch-fire-btn')?.addEventListener('click', () => {
+        const v = parseFloat(angleInp?.value);
+        if (isNaN(v) || v <= 0 || v >= 90) {
+            if (angleInp) { angleInp.style.outline = '2px solid #b94d28'; setTimeout(() => angleInp.style.outline = '', 900); }
+            return;
+        }
+        sim.angle        = v;
+        sim.firing       = true;
+        sim.result       = null;
+        sim.checkedCliff = false;
+        sim.t            = 0;
+        sim.pos          = { x: CANNON_X, y: 0 };
+        sim.trail        = [{ x: CANNON_X, y: 0 }];
+        sparks           = [];
+        lastTs     = null;
+        const verdict = document.getElementById('ch-verdict');
+        if (verdict) verdict.style.display = 'none';
+        const retry = document.getElementById('ch-retry-btn');
+        if (retry) retry.style.display = 'none';
+        const fire = document.getElementById('ch-fire-btn');
+        if (fire) fire.disabled = false;
+        const stat = document.getElementById('ch-status');
+        if (stat) stat.textContent = 'firing…';
+        confCtx.clearRect(0, 0, W, SH);
+    });
+
+    document.getElementById('ch-retry-btn')?.addEventListener('click', () => {
+        sim.firing = false; sim.result = null; sim.checkedCliff = false;
+        sim.trail  = []; sim.pos = { x: CANNON_X, y: 0 };
+        sparks = []; confCtx.clearRect(0, 0, W, SH);
+        const verdict = document.getElementById('ch-verdict');
+        if (verdict) verdict.style.display = 'none';
+        const retry = document.getElementById('ch-retry-btn');
+        if (retry) retry.style.display = 'none';
+        const fire = document.getElementById('ch-fire-btn');
+        if (fire) fire.disabled = false;
+        const stat = document.getElementById('ch-status');
+        if (stat) stat.textContent = 'ready';
+        lastTs = null;
+    });
+
+}());
+</script>
+
+</body>
+</html>

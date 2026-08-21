@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 15.51 · The Rod that Forgot Its Length — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="oscillation" data-screen-label="Ex 15.51 The Rod that Forgot Its Length">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Oscillation</span><span lang="cs">Díl I · Kmity</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 15 · Ex. 51</span><span lang="cs">Kap. 15 · Úl. 51</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 8 · Oscillation — Chapter 15 · Exercise 51</span><span lang="cs">8. téma · Kmity — Kapitola 15 · Úloha 51</span></div>
+        <h1><span lang="en">The Rod that Forgot Its Length</span><span lang="cs">Tyč, která zapomněla svou délku</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>51</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A long uniform rod of length <span data-tex="L"></span> and mass
+                    <span class="given" data-tex="m = 0{,}600\ \mathrm{kg}"></span> rotates in a
+                    horizontal plane about a vertical axis through its centre. A horizontal spring of
+                    stiffness <span class="given" data-tex="k = 1\,850\ \mathrm{N\,m^{-1}}"></span> is
+                    attached to one end of the rod; its other end is fixed to a wall (fig. 15-46, seen
+                    from above). In equilibrium the rod is parallel to the wall.
+                </p>
+                <p lang="cs">
+                    Dlouhá homogenní tyč délky <span data-tex="L"></span> a hmotnosti
+                    <span class="given" data-tex="m = 0{,}600\ \mathrm{kg}"></span> se otáčí ve vodorovné
+                    rovině kolem svislé osy procházející jejím středem. Vodorovná pružina o tuhosti
+                    <span class="given" data-tex="k = 1\,850\ \mathrm{N\,m^{-1}}"></span> je připojena
+                    k jednomu konci tyče; jejím druhým koncem je upevněna ke stěně (obr. 15-46, pohled
+                    shora). V rovnováze je tyč rovnoběžná se stěnou.
+                </p>
+                <p lang="en">
+                    What is the period of the harmonic oscillation that arises when the rod is turned
+                    slightly out of equilibrium and released?
+                </p>
+                <p lang="cs">
+                    Jaká je perioda harmonických kmitů, které vzniknou, když se tyč mírně vychýlí
+                    z rovnováhy a uvolní?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Rotary sandbox</span><span lang="cs">Sandbox: rotace</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">top view · slow motion</span><span lang="cs">pohled shora · zpomaleně</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\omega = \sqrt{3k/m}"></div>
+                <div class="sim-hint"><span lang="en">change L — the period refuses to move</span><span lang="cs">měňte L — perioda se odmítá hnout</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Rod mass m</span><span lang="cs">Hmotnost tyče m</span></span>
+                            <span class="sim-control-val" id="p-m-val">0.600 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="0.2" max="2" step="0.02" value="0.6">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Stiffness k</span><span lang="cs">Tuhost k</span></span>
+                            <span class="sim-control-val" id="p-k-val">1850 N/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-k" min="500" max="4000" step="25" value="1850">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Rod length L (try it!)</span><span lang="cs">Délka tyče L (vyzkoušejte!)</span></span>
+                            <span class="sim-control-val" id="p-l-val">1.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-l" min="0.5" max="2.0" step="0.05" value="1.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Result</span><span lang="cs">Výsledek</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega = \sqrt{3k/m}"></span>
+                        <span class="readout-val" id="r-om">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T = 2\pi/\omega"></span>
+                        <span class="readout-val" id="r-t">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{depends on}\ L?"></span>
+                        <span class="readout-val"><span lang="en">no — L cancels</span><span lang="cs">ne — L se vykrátí</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-eq">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">equilibrium line</span><span lang="cs">rovnovážná čára</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">For a small turn <span data-tex="\theta"></span> the spring end moves
+                    <span data-tex="x = (L/2)\,\theta"></span>, so the spring pulls back with force
+                    <span data-tex="kx"></span> and torque
+                    <span data-tex="\tau = -k\,\dfrac{L}{2}\theta\cdot\dfrac{L}{2} = -\dfrac{kL^2}{4}\,\theta"></span>.</span>
+                    <span lang="cs">Při malém pootočení <span data-tex="\theta"></span> se konec pružiny posune o
+                    <span data-tex="x = (L/2)\,\theta"></span>, takže pružina táhne zpět silou
+                    <span data-tex="kx"></span> a momentem síly
+                    <span data-tex="\tau = -k\,\dfrac{L}{2}\theta\cdot\dfrac{L}{2} = -\dfrac{kL^2}{4}\,\theta"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">With <span data-tex="I = mL^2/12"></span> for the rod about its centre,
+                    <span data-tex="I\ddot\theta = \tau"></span> gives
+                    <span data-tex="\omega^2 = \dfrac{kL^2/4}{mL^2/12} = \dfrac{3k}{m}"></span> —
+                    the length drops out entirely.</span>
+                    <span lang="cs">S momentem setrvačnosti tyče kolem jejího středu
+                    <span data-tex="I = mL^2/12"></span> dává
+                    <span data-tex="I\ddot\theta = \tau"></span> vztah
+                    <span data-tex="\omega^2 = \dfrac{kL^2/4}{mL^2/12} = \dfrac{3k}{m}"></span> —
+                    délka se úplně vykrátí.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Numerically
+                    <span data-tex="\omega = \sqrt{3\cdot 1850/0{,}600} = 96{,}2\ \mathrm{rad\,s^{-1}}"></span>, so
+                    <span data-tex="T = 2\pi/\omega = 0{,}0653\ \mathrm{s}"></span>.</span>
+                    <span lang="cs">Číselně
+                    <span data-tex="\omega = \sqrt{3\cdot 1850/0{,}600} = 96{,}2\ \mathrm{rad\,s^{-1}}"></span>, tedy
+                    <span data-tex="T = 2\pi/\omega = 0{,}0653\ \mathrm{s}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value" data-tex="T \approx 0{,}065\ \mathrm{s}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/oscillation.html"><span lang="en">← Topic: Oscillation</span><span lang="cs">← Téma: Kmity</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 15 · Ex. 51</span><span lang="cs">Kap. 15 · Úl. 51</span></span>
+        <span><span lang="en">Vol. I · Oscillation</span><span lang="cs">Díl I · Kmity</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6e6a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const DEFAULTS = { m: 0.6, k: 1850, l: 1.0 };
+    let state = { ...DEFAULTS };
+    const show = { eq: true };
+
+    const fmtM = v => v.toFixed(3) + ' kg';
+    const fmtK = v => v.toFixed(0) + ' N/m';
+    const fmtL = v => v.toFixed(2) + ' m';
+    const SLIDERS = [['p-m', 'm', fmtM], ['p-k', 'k', fmtK], ['p-l', 'l', fmtL]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-eq')?.addEventListener('click', function () {
+        show.eq = !show.eq;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const om = Math.sqrt(3 * state.k / state.m);
+        const T  = 2 * Math.PI / om;
+
+        /* slow-motion oscillation, small angle */
+        const th = 0.10 * Math.sin(om * 0.028 * ts / 1000);
+
+        /* top view: wall along the top, pivot centre */
+        const wallY = H * 0.16;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(W * 0.14, wallY); ctx.lineTo(W * 0.86, wallY); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = W * 0.14 + 6; x < W * 0.86; x += 12) {
+            ctx.beginPath(); ctx.moveTo(x, wallY); ctx.lineTo(x + 8, wallY - 8); ctx.stroke();
+        }
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('WALL (top view)', W * 0.5, wallY - 12);
+
+        const cx = W * 0.5, cy = H * 0.58;
+        const halfPx = (W * 0.30) * (state.l / 2);   /* rod half-length in px */
+
+        /* equilibrium line */
+        if (show.eq) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+            ctx.beginPath();
+            ctx.moveTo(cx - halfPx - 20, cy); ctx.lineTo(cx + halfPx + 20, cy);
+            ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        /* rod endpoints (rotated by θ) */
+        const ex1 = cx - Math.cos(th) * halfPx, ey1 = cy - Math.sin(th) * halfPx;
+        const ex2 = cx + Math.cos(th) * halfPx, ey2 = cy + Math.sin(th) * halfPx;
+
+        /* spring from the wall to the LEFT rod end */
+        const ax = ex1, ay0 = wallY;
+        const coils = 8, seg = (ey1 - ay0) / coils;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(ax, ay0);
+        for (let i = 0; i < coils; i++) {
+            ctx.lineTo(ax + (i % 2 ? -8 : 8), ay0 + seg * (i + 0.5));
+        }
+        ctx.lineTo(ex1, ey1); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('k', ax - 14, (ay0 + ey1) / 2);
+
+        /* rod */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 8; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(ex1, ey1); ctx.lineTo(ex2, ey2); ctx.stroke();
+        /* pivot */
+        ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill();
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('axis', cx, cy + 12);
+
+        /* L dimension */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx - halfPx, cy + 34); ctx.lineTo(cx + halfPx, cy + 34);
+        ctx.stroke();
+        [cx - halfPx, cx + halfPx].forEach(x => {
+            ctx.beginPath(); ctx.moveTo(x, cy + 30); ctx.lineTo(x, cy + 38); ctx.stroke();
+        });
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('L', cx, cy + 40);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-om')) $('r-om').textContent = om.toFixed(1) + ' rad/s';
+        if ($('r-t'))  $('r-t').textContent  = (T * 1000).toFixed(1) + ' ms';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

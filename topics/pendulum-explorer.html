@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pendulum Explorer · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+</head>
+<body class="pendulum" data-screen-label="06 Pendulum">
+
+<div class="page">
+
+    <!-- Top bar -->
+    <header class="topbar">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Physics Playground</span>
+            <small>Vol. I · Mechanics</small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html">All topics</a>
+            <a href="#lab">Lab</a>
+            <a href="#concepts">Concepts</a>
+            <span class="edition">Edition 0.1 — Draft</span>
+        </nav>
+    </header>
+
+    <!-- Topic hero -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ 05 · pendulum</div>
+            <h1>Pendulum Explorer</h1>
+            <p class="lede">Begin with the small-angle approximation, then push past it. Hang a second pendulum off the first and watch deterministic chaos write its signature in the phase plane.</p>
+            <div style="display:flex; gap:8px; margin-top:24px; flex-wrap:wrap;">
+                <span class="tag">ochre</span>
+                <span class="tag">#b3862a</span>
+                <span class="tag">interactive</span>
+            </div>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big">θ̈ + (<em>g</em>/<em>L</em>) sin θ = 0</div>
+            <div class="eq-caption">The simple pendulum, exact form</div>
+        </div>
+    </section>
+
+    <!-- Lab: canvas + side panels -->
+    <section id="lab" class="lab">
+
+        <!-- Main canvas placeholder -->
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Simulation canvas</span>
+                <span>60 fps · paused</span>
+            </div>
+            <div class="placeholder">
+                <div class="ph-inner">
+                    <strong>// simulation canvas</strong>
+                    Claude Code will mount the renderer here.<br />
+                    Canvas2D for the pendulum. D3.js for the live phase portrait. RK4 integrator for the chaotic regime.
+                </div>
+            </div>
+        </div>
+
+        <!-- Side stack: controls + graph -->
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <span>reset</span>
+                </div>
+                <div class="panel-body">
+        <div class="control" data-pos="50">
+            <span class="name">Length L₁</span>
+            <span class="val">1.00 m</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="35">
+            <span class="name">Length L₂</span>
+            <span class="val">0.80 m</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="65">
+            <span class="name">Initial angle θ₀</span>
+            <span class="val">60°</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="20">
+            <span class="name">Damping</span>
+            <span class="val">0.00</span>
+            <span class="slot"></span>
+        </div>
+        <div class="control" data-pos="50">
+            <span class="name">Gravity (g)</span>
+            <span class="val">9.81 m/s²</span>
+            <span class="slot"></span>
+        </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Phase / energy plot</span>
+                    <span>D3.js</span>
+                </div>
+                <div class="graph-area">
+                    <!-- Placeholder: live graph will be wired here -->
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Concepts -->
+    <section id="concepts">
+        <div class="section-head">
+            <h2>What this teaches</h2>
+            <span class="count">three core ideas</span>
+        </div>
+        <div class="concepts" style="margin-top:0; padding-top:0; border-top:none;">
+        <div class="concept">
+            <h4>Small-angle limit</h4>
+            <p>For θ ≪ 1, sin θ ≈ θ and the period reduces to 2π√(L/g).</p>
+        </div>
+        <div class="concept">
+            <h4>Phase space</h4>
+            <p>Trajectory in (θ, θ̇). Bounded for small energy, unbounded above the separatrix.</p>
+        </div>
+        <div class="concept">
+            <h4>Double pendulum</h4>
+            <p>Two coupled DOF, chaotic. Tiny changes in θ₀ explode over a few swings.</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- Lesson notes placeholder -->
+    <section style="margin-top:64px;">
+        <div class="section-head">
+            <h2>Lesson notes</h2>
+            <span class="count">// to be written</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:32px;">
+            <div>
+                <div class="label">01 · Intuition</div>
+                <p class="note" style="margin-top:8px;">
+                    Plain-language framing of the phenomenon. What should the student
+                    feel before any math? — to be filled in.
+                </p>
+            </div>
+            <div>
+                <div class="label">02 · Derivation</div>
+                <p class="note" style="margin-top:8px;">
+                    Step-by-step build of the governing equation, rendered with KaTeX.
+                    Each step toggleable. — to be filled in.
+                </p>
+            </div>
+            <div>
+                <div class="label">03 · Exercises</div>
+                <p class="note" style="margin-top:8px;">
+                    Three or four guided problems that use the simulation. Answers
+                    revealed after attempt. — to be filled in.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prev / next -->
+    <section style="margin-top:96px; display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+        <a href="collision-lab.html" style="border:none; padding:20px 24px; border:1.5px solid var(--ink); background:var(--paper); display:block;">
+            <div class="label" style="color:var(--ink-faint);">← Previous</div>
+            <div style="font-family:var(--f-serif); font-size:22px; margin-top:6px;">Collision Lab</div>
+        </a>
+        <div></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ 05 Pendulum Explorer</span>
+        <span>Edit: src/topics/pendulum-explorer/</span>
+    </footer>
+
+</div>
+
+<!--
+    ============================================================
+    TODO (Claude Code):
+    - Mount renderer in .canvas-panel .placeholder
+    - Wire .control[data-pos] elements to real <input type="range">
+      and bind to simulation state
+    - Render KaTeX equations live in .eq-big where useful
+    - Plot live data in .graph-area via D3.js
+    ============================================================
+-->
+
+</body>
+</html>

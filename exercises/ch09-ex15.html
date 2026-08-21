@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 9.15 · The Shell that Split — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="systems" data-screen-label="Ex 9.15 The Shell that Split">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Particle Sets</span><span lang="cs">Díl I · Soustavy částic</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 9 · Ex. 15</span><span lang="cs">Kap. 9 · Úl. 15</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 5 · Particle Sets — Chapter 9 · Exercise 15</span><span lang="cs">5. téma · Soustavy částic — Kapitola 9 · Úloha 15</span></div>
+        <h1><span lang="en">The Shell that Split</span><span lang="cs">Granát, který se rozdělil</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>15</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A shell is fired with initial speed
+                    <span class="given" data-tex="v_0 = 20\ \mathrm{m\,s^{-1}}"></span> at an elevation
+                    of <span class="given" data-tex="\theta_0 = 60^\circ"></span>. At the top of its
+                    trajectory it bursts into two fragments of equal mass (fig. 9-45). One fragment,
+                    whose speed immediately after the explosion is zero, falls straight down.
+                </p>
+                <p lang="cs">
+                    Granát je vystřelen počáteční rychlostí
+                    <span class="given" data-tex="v_0 = 20\ \mathrm{m\,s^{-1}}"></span> pod elevačním
+                    úhlem <span class="given" data-tex="\theta_0 = 60^\circ"></span>. Na vrcholu své
+                    trajektorie se rozletí na dva úlomky stejné hmotnosti (obr. 9-45). Jeden úlomek,
+                    jehož rychlost bezprostředně po výbuchu je nulová, padá přímo dolů.
+                </p>
+                <p lang="en">
+                    How far from the gun does the other fragment land, assuming level terrain
+                    and negligible air drag?
+                </p>
+                <p lang="cs">
+                    Jak daleko od děla dopadne druhý úlomek, uvažujeme-li rovný terén a zanedbatelný
+                    odpor vzduchu?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Explosion sandbox</span><span lang="cs">Sandbox: výbuch</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="m\vec v = \tfrac{m}{2}\vec v_1 + \tfrac{m}{2}\vec v_2"></div>
+                <div class="sim-hint"><span lang="en">internal forces cannot move the centre of mass</span><span lang="cs">vnitřní síly nemohou pohnout těžištěm</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Muzzle speed v₀</span><span lang="cs">Ústí hlavně: rychlost v₀</span></span>
+                            <span class="sim-control-val" id="p-v0-val">20.0 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-v0" min="10" max="30" step="0.5" value="20">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Elevation θ₀</span><span lang="cs">Elevační úhel θ₀</span></span>
+                            <span class="sim-control-val" id="p-th-val">60.0°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-th" min="30" max="80" step="0.5" value="60">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">At the burst point</span><span lang="cs">V bodě výbuchu</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="x_{\text{apex}}"></span>
+                        <span class="readout-val" id="r-xapex">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="h_{\max}"></span>
+                        <span class="readout-val" id="r-h">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_2 = 2v_0\cos\theta_0"></span>
+                        <span class="readout-val" id="r-v2">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Landing points</span><span lang="cs">Body dopadu</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="d\ \text{(fragment 2)}"></span>
+                        <span class="readout-val" id="r-d">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="R\ \text{(centre of mass)}"></span>
+                        <span class="readout-val" id="r-R">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-com">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">centre-of-mass ghost</span><span lang="cs">stín těžiště</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-marks">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">landing markers</span><span lang="cs">značky dopadu</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">At the apex the shell moves horizontally with
+                    <span data-tex="v_x = v_0\cos 60^\circ = 10\ \mathrm{m\,s^{-1}}"></span>, having travelled
+                    <span data-tex="x_{\text{apex}} = v_0\cos\theta_0 \cdot v_0\sin\theta_0/g = 17.7\ \mathrm{m}"></span>
+                    at height
+                    <span data-tex="h = (v_0\sin\theta_0)^2/2g = 15.3\ \mathrm{m}"></span>.</span>
+                    <span lang="cs">Na vrcholu se granát pohybuje vodorovně rychlostí
+                    <span data-tex="v_x = v_0\cos 60^\circ = 10\ \mathrm{m\,s^{-1}}"></span>, přičemž urazil
+                    <span data-tex="x_{\text{apex}} = v_0\cos\theta_0 \cdot v_0\sin\theta_0/g = 17{,}7\ \mathrm{m}"></span>
+                    ve výšce
+                    <span data-tex="h = (v_0\sin\theta_0)^2/2g = 15{,}3\ \mathrm{m}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Momentum is conserved through the burst. One half stops, so
+                    <span data-tex="m v_x = \tfrac{m}{2}\cdot 0 + \tfrac{m}{2} v_2"></span> gives
+                    <span data-tex="v_2 = 2v_x = 20\ \mathrm{m\,s^{-1}}"></span>, horizontal.</span>
+                    <span lang="cs">Hybnost se při výbuchu zachovává. Jedna polovina se zastaví, takže
+                    <span data-tex="m v_x = \tfrac{m}{2}\cdot 0 + \tfrac{m}{2} v_2"></span> dává
+                    <span data-tex="v_2 = 2v_x = 20\ \mathrm{m\,s^{-1}}"></span>, vodorovně.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">From the apex the fragment falls for
+                    <span data-tex="t = \sqrt{2h/g} = 1.77\ \mathrm{s}"></span> while drifting
+                    <span data-tex="v_2 t = 35.3\ \mathrm{m}"></span> further, so
+                    <span data-tex="d = 17.7 + 35.3 = 53\ \mathrm{m}"></span>.</span>
+                    <span lang="cs">Od vrcholu úlomek padá po dobu
+                    <span data-tex="t = \sqrt{2h/g} = 1{,}77\ \mathrm{s}"></span>, přičemž urazí dalších
+                    <span data-tex="v_2 t = 35{,}3\ \mathrm{m}"></span>, takže
+                    <span data-tex="d = 17{,}7 + 35{,}3 = 53\ \mathrm{m}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Check via the centre of mass</strong>: internal forces cannot deflect it, so it
+                    lands at the ordinary range <span data-tex="R = v_0^2\sin 2\theta_0/g = 35.3\ \mathrm{m}"></span>.
+                    With one half at <span data-tex="x_{\text{apex}} = R/2"></span>, the other must land at
+                    <span data-tex="2R - R/2 = \tfrac32 R = 53\ \mathrm{m}"></span>. ✓</span>
+                    <span lang="cs"><strong>Kontrola pomocí těžiště</strong>: vnitřní síly ho nemohou vychýlit, takže
+                    dopadá na obvyklý dostřel <span data-tex="R = v_0^2\sin 2\theta_0/g = 35{,}3\ \mathrm{m}"></span>.
+                    Protože jedna polovina je v <span data-tex="x_{\text{apex}} = R/2"></span>, druhá musí
+                    dopadnout v
+                    <span data-tex="2R - R/2 = \tfrac32 R = 53\ \mathrm{m}"></span>. ✓</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value" data-tex="d \approx 53\ \mathrm{m}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/particle-sets.html"><span lang="en">← Topic: Particle Sets</span><span lang="cs">← Téma: Soustavy částic</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 9 · Ex. 15</span><span lang="cs">Kap. 9 · Úl. 15</span></span>
+        <span><span lang="en">Vol. I · Particle Sets</span><span lang="cs">Díl I · Soustavy částic</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a3578',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    const DEFAULTS = { v0: 20, th: 60 };
+    let state = { ...DEFAULTS };
+    const show = { com: true, marks: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtV  = v => v.toFixed(1) + ' m/s';
+    const fmtTh = v => v.toFixed(1) + '°';
+    const SLIDERS = [['p-v0', 'v0', fmtV], ['p-th', 'th', fmtTh]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-com',   'com');
+    wireToggle('tgl-marks', 'marks');
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const th  = state.th * Math.PI / 180;
+        const vx  = state.v0 * Math.cos(th);
+        const vy0 = state.v0 * Math.sin(th);
+        const tApex = vy0 / g;
+        const hMax  = vy0 * vy0 / (2 * g);
+        const xApex = vx * tApex;
+        const tFall = Math.sqrt(2 * hMax / g);
+        const dLand = xApex + 2 * vx * tFall;
+        const R     = 2 * xApex;
+        const tTot  = tApex + tFall;
+
+        /* virtual looping time */
+        const period = tTot + 1.1;
+        const tau = (ts / 1000 * 0.85) % period;
+
+        /* world→screen */
+        const xMaxW = Math.max(dLand * 1.08, 20);
+        const yMaxW = Math.max(hMax * 1.35, 8);
+        const gy = H - 44;
+        const SX = x => 40 + x / xMaxW * (W - 70);
+        const SY = y => gy - y / yMaxW * (gy - 26);
+
+        /* ground */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(20, gy); ctx.lineTo(W - 20, gy); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = 26; x < W - 22; x += 13) {
+            ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x - 8, gy + 9); ctx.stroke();
+        }
+
+        /* cannon */
+        ctx.save();
+        ctx.translate(SX(0), gy - 6);
+        ctx.rotate(-th);
+        ctx.fillStyle = col.ink;
+        ctx.fillRect(0, -4, 30, 8);
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(SX(0), gy - 6, 8, 0, Math.PI * 2);
+        ctx.fillStyle = col.soft; ctx.fill();
+
+        /* full pre-burst trajectory, faint */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
+        ctx.beginPath();
+        for (let i = 0; i <= 40; i++) {
+            const t = i / 40 * tApex;
+            const px = SX(vx * t), py = SY(vy0 * t - 0.5 * g * t * t);
+            i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+
+        /* landing markers */
+        if (show.marks) {
+            [[xApex, 'frag 1'], [dLand, 'frag 2 · d'], ...(show.com ? [[R, 'com · R']] : [])]
+            .forEach(([x, name]) => {
+                ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(SX(x), gy); ctx.lineTo(SX(x), gy - 8); ctx.stroke();
+                ctx.fillStyle = col.soft;
+                ctx.font = '9px "JetBrains Mono", monospace';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                ctx.fillText(name, SX(x), gy + 12);
+                ctx.fillText(x.toFixed(1) + ' m', SX(x), gy + 23);
+            });
+        }
+
+        function shellDot(x, y, r, color) {
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = color; ctx.fill();
+            ctx.lineWidth = 1.4; ctx.strokeStyle = col.paper; ctx.stroke();
+        }
+
+        if (tau <= tApex) {
+            /* intact shell rising */
+            const x = vx * tau, y = vy0 * tau - 0.5 * g * tau * tau;
+            shellDot(SX(x), SY(y), 6, col.acc);
+        } else {
+            const t2 = Math.min(tau - tApex, tFall);
+            const yF = hMax - 0.5 * g * t2 * t2;
+            /* burst flash just after apex */
+            if (tau - tApex < 0.22) {
+                ctx.strokeStyle = col.acc; ctx.lineWidth = 1.6;
+                for (let k = 0; k < 8; k++) {
+                    const a = k / 8 * Math.PI * 2;
+                    ctx.beginPath();
+                    ctx.moveTo(SX(xApex) + Math.cos(a) * 8,  SY(hMax) + Math.sin(a) * 8);
+                    ctx.lineTo(SX(xApex) + Math.cos(a) * 17, SY(hMax) + Math.sin(a) * 17);
+                    ctx.stroke();
+                }
+            }
+            /* fragment 1: straight down */
+            shellDot(SX(xApex), SY(Math.max(yF, 0)), 4.5, col.soft);
+            /* fragment 2: doubled horizontal velocity */
+            shellDot(SX(xApex + 2 * vx * t2), SY(Math.max(yF, 0)), 4.5, col.acc);
+            /* centre of mass ghost on the original parabola */
+            if (show.com) {
+                const tc = Math.min(tau, 2 * tApex);
+                const xc = vx * tc, yc = Math.max(vy0 * tc - 0.5 * g * tc * tc, 0);
+                ctx.beginPath(); ctx.arc(SX(xc), SY(yc), 5.5, 0, Math.PI * 2);
+                ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4;
+                ctx.setLineDash([2, 3]); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = col.soft;
+                ctx.font = '9px "JetBrains Mono", monospace';
+                ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+                ctx.fillText('com', SX(xc) + 8, SY(yc) - 4);
+            }
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-xapex')) $('r-xapex').textContent = xApex.toFixed(1) + ' m';
+        if ($('r-h'))     $('r-h').textContent     = hMax.toFixed(1) + ' m';
+        if ($('r-v2'))    $('r-v2').textContent    = (2 * vx).toFixed(1) + ' m/s';
+        if ($('r-d'))     $('r-d').textContent     = dLand.toFixed(1) + ' m';
+        if ($('r-R'))     $('r-R').textContent     = R.toFixed(1) + ' m';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

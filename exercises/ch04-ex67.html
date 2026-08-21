@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 4.67 · The Snapped String — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="kinematics" data-screen-label="Ex 4.67 The Snapped String">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Particle Motion</span><span lang="cs">Díl I · Pohyb částice</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 4 · Ex. 67</span><span lang="cs">Kap. 4 · Úl. 67</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 2 · Particle Motion — Chapter 4 · Exercise 67</span><span lang="cs">2. téma · Pohyb částice — Kapitola 4 · Úloha 67</span></div>
+        <h1><span lang="en">The Snapped String</span><span lang="cs">Přetržený provázek</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•••</span>67</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A boy whirls a stone on a string
+                    <span class="given" data-tex="r = 1{,}5\ \mathrm{m}"></span> long. The stone circles
+                    uniformly in a horizontal plane
+                    <span class="given" data-tex="h = 2{,}0\ \mathrm{m}"></span> above the ground.
+                    Suddenly the string snaps and the stone lands
+                    <span class="given" data-tex="d = 10\ \mathrm{m}"></span> away from the boy.
+                </p>
+                <p lang="cs">
+                    Chlapec roztáčí kámen na provázku
+                    dlouhém <span class="given" data-tex="r = 1{,}5\ \mathrm{m}"></span>. Kámen krouží
+                    rovnoměrně ve vodorovné rovině
+                    <span class="given" data-tex="h = 2{,}0\ \mathrm{m}"></span> nad zemí.
+                    Provázek se náhle přetrhne a kámen dopadne
+                    <span class="given" data-tex="d = 10\ \mathrm{m}"></span> od chlapce.
+                </p>
+                <p lang="en">
+                    What was the stone's centripetal acceleration during the circular motion?
+                </p>
+                <p lang="cs">
+                    Jaké bylo dostředivé zrychlení kamene během kruhového pohybu?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Break-away sandbox</span><span lang="cs">Sandbox: přetržení</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">top + side view</span><span lang="cs">pohled shora + z boku</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="a_c = v^2/r"></div>
+                <div class="sim-hint"><span lang="en">the landing distance betrays the speed</span><span lang="cs">vzdálenost dopadu prozradí rychlost</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">String length r</span><span lang="cs">Délka provázku r</span></span>
+                            <span class="sim-control-val" id="p-r-val">1.5 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="0.5" max="3" step="0.05" value="1.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Height h</span><span lang="cs">Výška h</span></span>
+                            <span class="sim-control-val" id="p-h-val">2.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-h" min="0.5" max="4" step="0.1" value="2.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Landing distance d</span><span lang="cs">Vzdálenost dopadu d</span></span>
+                            <span class="sim-control-val" id="p-d-val">10.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="3" max="20" step="0.25" value="10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Working backwards</span><span lang="cs">Zpětný výpočet</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="t = \sqrt{2h/g}"></span>
+                        <span class="readout-val" id="r-t">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v = d/t"></span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Result</span><span lang="cs">Výsledek</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="a_c = v^2/r"></span>
+                        <span class="readout-val" id="r-ac">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="a_c/g"></span>
+                        <span class="readout-val" id="r-acg">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-trail">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">flight trail</span><span lang="cs">stopa letu</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">After the snap the stone is a projectile launched horizontally from height
+                    <span data-tex="h"></span>. Its flight time is fixed by the vertical drop alone:
+                    <span data-tex="t = \sqrt{2h/g} = \sqrt{4{,}0/9{,}8} = 0{,}64\ \mathrm{s}"></span>.</span>
+                    <span lang="cs">Po přetržení je kámen šikmým vrhem vystřeleným vodorovně z výšky
+                    <span data-tex="h"></span>. Doba letu je určena pouze svislým pádem:
+                    <span data-tex="t = \sqrt{2h/g} = \sqrt{4{,}0/9{,}8} = 0{,}64\ \mathrm{s}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">In that time it travels <span data-tex="d = 10\ \mathrm{m}"></span> horizontally, so
+                    its speed on the circle was
+                    <span data-tex="v = d/t = 10/0{,}64 = 15{,}7\ \mathrm{m\,s^{-1}}"></span>.
+                    (Strictly it lands <span data-tex="\sqrt{d^2-r^2}"></span> from the release point,
+                    but with <span data-tex="d \gg r"></span> the correction is under 1 %.)</span>
+                    <span lang="cs">Za tuto dobu urazí vodorovně <span data-tex="d = 10\ \mathrm{m}"></span>, takže
+                    jeho rychlost na kružnici byla
+                    <span data-tex="v = d/t = 10/0{,}64 = 15{,}7\ \mathrm{m\,s^{-1}}"></span>.
+                    (Přesně vzato dopadne <span data-tex="\sqrt{d^2-r^2}"></span> od místa uvolnění,
+                    ale při <span data-tex="d \gg r"></span> je oprava menší než 1 %.)</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">The centripetal acceleration during the rotation was therefore
+                    <span data-tex="a_c = v^2/r = (15{,}7)^2/1{,}5 = 1{,}6\cdot 10^{2}\ \mathrm{m\,s^{-2}}"></span>
+                    — about <span data-tex="17g"></span>. No wonder the string snapped.</span>
+                    <span lang="cs">Dostředivé zrychlení během otáčení tedy bylo
+                    <span data-tex="a_c = v^2/r = (15{,}7)^2/1{,}5 = 1{,}6\cdot 10^{2}\ \mathrm{m\,s^{-2}}"></span>
+                    — přibližně <span data-tex="17g"></span>. Není divu, že se provázek přetrhl.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value" data-tex="a_c \approx 1{,}6\cdot 10^{2}\ \mathrm{m\,s^{-2}}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/particle-motion.html"><span lang="en">← Topic: Particle Motion</span><span lang="cs">← Téma: Pohyb částice</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 4 · Ex. 67</span><span lang="cs">Kap. 4 · Úl. 67</span></span>
+        <span><span lang="en">Vol. I · Particle Motion</span><span lang="cs">Díl I · Pohyb částice</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a3c1a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    const DEFAULTS = { r: 1.5, h: 2.0, d: 10 };
+    let state = { ...DEFAULTS };
+    const show = { trail: true };
+
+    const fmtM1 = v => v.toFixed(1) + ' m';
+    const fmtM2 = v => v.toFixed(2) + ' m';
+    const SLIDERS = [['p-r', 'r', fmtM2], ['p-h', 'h', fmtM1], ['p-d', 'd', fmtM1]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-trail')?.addEventListener('click', function () {
+        show.trail = !show.trail;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const tFall = Math.sqrt(2 * state.h / g);
+        const v     = state.d / tFall;
+        const ac    = v * v / state.r;
+
+        /* loop: spin 2.2 s, then fly tFall (slowed 2×), pause */
+        const SPIN = 2.2, FLY = tFall * 2, PAUSE = 0.8;
+        const tau = (ts / 1000) % (SPIN + FLY + PAUSE);
+        const flying = tau > SPIN;
+        const tF = Math.min((tau - SPIN) / 2, tFall);   /* real flight seconds */
+
+        const midX = W * 0.44;
+
+        /* ── left pane: TOP VIEW ── */
+        const tvx = W * 0.22, tvy = H * 0.46;
+        const rPx = Math.min(W * 0.13, H * 0.2) * (0.5 + state.r / 3);
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('TOP VIEW', tvx, H * 0.10);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+        ctx.beginPath(); ctx.arc(tvx, tvy, rPx, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+        /* boy at centre */
+        ctx.beginPath(); ctx.arc(tvx, tvy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        const ang = (flying ? SPIN : tau) / SPIN * 4 * Math.PI;
+        const sx = tvx + Math.cos(ang) * rPx, sy = tvy + Math.sin(ang) * rPx;
+        if (!flying) {
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(tvx, tvy); ctx.lineTo(sx, sy); ctx.stroke();
+            ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+        } else {
+            /* stone departs along the tangent */
+            const tx = -Math.sin(ang), ty = Math.cos(ang);
+            const dist = (tF / tFall) * rPx * 3.4;
+            if (show.trail) {
+                ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+                ctx.beginPath(); ctx.moveTo(sx, sy);
+                ctx.lineTo(sx + tx * dist, sy + ty * dist); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            ctx.beginPath();
+            ctx.arc(sx + tx * dist, sy + ty * dist, 6, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+            /* frayed string stub */
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(tvx, tvy);
+            ctx.lineTo(tvx + Math.cos(ang) * rPx * 0.4, tvy + Math.sin(ang) * rPx * 0.4);
+            ctx.stroke();
+        }
+
+        /* divider */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(midX, 18); ctx.lineTo(midX, H - 18); ctx.stroke();
+
+        /* ── right pane: SIDE VIEW ── */
+        const gy = H * 0.78;
+        const sx0 = midX + 36, sx1 = W - 30;
+        const pxPerMx = (sx1 - sx0) / (state.d * 1.12);
+        const pxPerMy = (gy - H * 0.22) / (state.h * 1.3);
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('SIDE VIEW', (sx0 + sx1) / 2, H * 0.10);
+        /* ground */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(midX + 16, gy); ctx.lineTo(W - 20, gy); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = midX + 22; x < W - 22; x += 13) {
+            ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x - 8, gy + 9); ctx.stroke();
+        }
+        /* boy figure */
+        const bx = sx0, byTop = gy - state.h * pxPerMy;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(bx, byTop + 6, 5, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(bx, byTop + 11); ctx.lineTo(bx, gy - 12); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bx, gy - 12); ctx.lineTo(bx - 6, gy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bx, gy - 12); ctx.lineTo(bx + 6, gy); ctx.stroke();
+        /* height dimension */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(bx - 22, byTop); ctx.lineTo(bx - 22, gy); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('h', bx - 26, (byTop + gy) / 2);
+
+        /* projectile in side view */
+        if (flying) {
+            const px = bx + v * tF * pxPerMx;
+            const py = byTop + 0.5 * g * tF * tF * pxPerMy;
+            if (show.trail) {
+                ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+                ctx.beginPath();
+                for (let i = 0; i <= 30; i++) {
+                    const tt = i / 30 * tF;
+                    const qx = bx + v * tt * pxPerMx;
+                    const qy = byTop + 0.5 * g * tt * tt * pxPerMy;
+                    i ? ctx.lineTo(qx, qy) : ctx.moveTo(qx, qy);
+                }
+                ctx.stroke(); ctx.setLineDash([]);
+            }
+            ctx.beginPath(); ctx.arc(px, Math.min(py, gy - 5), 6, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+        } else {
+            ctx.beginPath(); ctx.arc(bx + 10, byTop, 6, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+        }
+        /* landing marker */
+        const lx = bx + state.d * pxPerMx;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(lx, gy); ctx.lineTo(lx, gy - 9); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('d = ' + state.d.toFixed(1) + ' m', lx, gy + 12);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-t'))   $('r-t').textContent   = tFall.toFixed(2) + ' s';
+        if ($('r-v'))   $('r-v').textContent   = v.toFixed(1) + ' m/s';
+        if ($('r-ac'))  $('r-ac').textContent  = ac.toFixed(0) + ' m/s²';
+        if ($('r-acg')) $('r-acg').textContent = (ac / g).toFixed(1) + ' g';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

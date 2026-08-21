@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 22.10 · Four Charges, Zero Field — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-1" data-screen-label="Ex 22.10 Zero Field">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 22 · Ex. 10</span><span lang="cs">Kap. 22 · Úl. 10</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 1 · Electrostatics I — Chapter 22 · Exercise 10</span><span lang="cs">1. téma · Elektrostatika I — Kapitola 22 · Úloha 10</span></div>
+        <h1><span lang="en">Four Charges, Zero Field</span><span lang="cs">Čtyři náboje, nulové pole</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>10</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Four particles carry charges
+                    <span class="given" data-tex="Q_1 = Q_2 = +5e"></span>,
+                    <span class="given" data-tex="Q_3 = +3e"></span> and
+                    <span class="given" data-tex="Q_4 = -12e"></span>. They surround point
+                    <span data-tex="P"></span> as in the figure: 1 and 2 diametrically opposite at
+                    distance <span data-tex="d"></span>, 3 at distance <span data-tex="d"></span>
+                    on the perpendicular ray, and 4 on the same ray at distance
+                    <span data-tex="2d"></span>.
+                </p>
+                <p lang="cs">
+                    Čtyři částice nesou náboje
+                    <span class="given" data-tex="Q_1 = Q_2 = +5e"></span>,
+                    <span class="given" data-tex="Q_3 = +3e"></span> a
+                    <span class="given" data-tex="Q_4 = -12e"></span>. Obklopují bod
+                    <span data-tex="P"></span> jako na obrázku: 1 a 2 diametrálně naproti sobě ve
+                    vzdálenosti <span data-tex="d"></span>, 3 ve vzdálenosti <span data-tex="d"></span>
+                    na kolmém paprsku a 4 na témže paprsku ve vzdálenosti
+                    <span data-tex="2d"></span>.
+                </p>
+                <p lang="en">
+                    What is the magnitude of the electric field these particles produce at
+                    <span data-tex="P"></span>, for
+                    <span class="given" data-tex="d = 5.0\ \mathrm{\mu m}"></span>?
+                </p>
+                <p lang="cs">
+                    Jaká je velikost intenzity elektrického pole buzeného těmito částicemi
+                    v bodě <span data-tex="P"></span>, pokud
+                    <span class="given" data-tex="d = 5{,}0\ \mathrm{\mu m}"></span>?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Field contributions at P</span><span lang="cs">Příspěvky pole v bodě P</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="E = k\,\dfrac{|Q|}{r^2}"></div>
+                <div class="sim-hint"><span lang="en">switch charges on and off · watch the pairs cancel</span><span lang="cs">zapínejte a vypínejte náboje · sledujte, jak se dvojice ruší</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Distance d</span><span lang="cs">Vzdálenost d</span></span>
+                            <span class="sim-control-val" id="p-d-val">5.0 µm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="2" max="10" step="0.1" value="5.0">
+                    </div>
+                    <div class="toggle-row" id="tgl-q1">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">Q₁ = +5e</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-q2">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">Q₂ = +5e</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-q3">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">Q₃ = +3e</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-q4">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">Q₄ = −12e</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Magnitudes at P</span><span lang="cs">Velikosti v bodě P</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_1,\ E_2"></span>
+                        <span class="readout-val" id="r-e12">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_3"></span>
+                        <span class="readout-val" id="r-e3">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_4"></span>
+                        <span class="readout-val" id="r-e4">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Resultant</span><span lang="cs">Výslednice</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\vec{E}_{\mathrm{net}}|"></span>
+                        <span class="readout-val" id="r-enet">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Pair 1 &amp; 2.</strong> Equal charges <span data-tex="+5e"></span> sit at
+                    the same distance <span data-tex="d"></span> on opposite sides of
+                    <span data-tex="P"></span>. Their fields at <span data-tex="P"></span> are equal
+                    in magnitude and point in opposite directions — they <strong>cancel exactly</strong>.</span>
+                    <span lang="cs"><strong>Dvojice 1 a 2.</strong> Stejné náboje <span data-tex="+5e"></span> sedí
+                    ve stejné vzdálenosti <span data-tex="d"></span> na opačných stranách bodu
+                    <span data-tex="P"></span>. Jejich pole v <span data-tex="P"></span> jsou stejně
+                    velká a míří opačnými směry — <strong>přesně se vyruší</strong>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Pair 3 &amp; 4.</strong> Both lie on one ray from <span data-tex="P"></span>.
+                    Charge 3 (<span data-tex="+3e"></span>, distance <span data-tex="d"></span>) pushes
+                    the field away from itself:
+                    <span data-tex="E_3 = \dfrac{3ke}{d^2}"></span> pointing away from 3.
+                    Charge 4 (<span data-tex="-12e"></span>, distance <span data-tex="2d"></span>) pulls
+                    toward itself:
+                    <span data-tex="E_4 = \dfrac{12ke}{(2d)^2} = \dfrac{3ke}{d^2}"></span> pointing toward 4
+                    — the same line, the opposite direction, the <em>same magnitude</em>.</span>
+                    <span lang="cs"><strong>Dvojice 3 a 4.</strong> Obě leží na jednom paprsku z <span data-tex="P"></span>.
+                    Náboj 3 (<span data-tex="+3e"></span>, vzdálenost <span data-tex="d"></span>) tlačí
+                    pole od sebe:
+                    <span data-tex="E_3 = \dfrac{3ke}{d^2}"></span> směrem od 3.
+                    Náboj 4 (<span data-tex="-12e"></span>, vzdálenost <span data-tex="2d"></span>) táhne
+                    k sobě:
+                    <span data-tex="E_4 = \dfrac{12ke}{(2d)^2} = \dfrac{3ke}{d^2}"></span> směrem k 4
+                    — stejná přímka, opačný směr, <em>stejná velikost</em>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Every contribution cancels pairwise, independent of the value of
+                    <span data-tex="d"></span>:
+                    <span data-tex="\vec{E}_{\mathrm{net}} = \vec{0}"></span>.</span>
+                    <span lang="cs">Všechny příspěvky se vyruší po dvojicích, nezávisle na hodnotě
+                    <span data-tex="d"></span>:
+                    <span data-tex="\vec{E}_{\mathrm{net}} = \vec{0}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value" data-tex="E = 0"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-1.html"><span lang="en">← Topic: Electrostatics I</span><span lang="cs">← Téma: Elektrostatika I</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 22 · Ex. 10</span><span lang="cs">Kap. 22 · Úl. 10</span></span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#3D2E8A',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const K = 8.99e9, E_CH = 1.602e-19;
+    const DEFAULTS = { d: 5.0 };
+    let state = { ...DEFAULTS };
+    const on = { q1: true, q2: true, q3: true, q4: true };
+
+    const inp = document.getElementById('p-d');
+    const lbl = document.getElementById('p-d-val');
+    inp.addEventListener('input', () => {
+        state.d = +inp.value;
+        lbl.textContent = state.d.toFixed(1) + ' µm';
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        inp.value = state.d;
+        lbl.textContent = state.d.toFixed(1) + ' µm';
+        ['q1', 'q2', 'q3', 'q4'].forEach(k => {
+            on[k] = true;
+            document.querySelector('#tgl-' + k + ' .toggle-box')?.classList.add('on');
+        });
+    });
+    ['q1', 'q2', 'q3', 'q4'].forEach(k => {
+        document.getElementById('tgl-' + k)?.addEventListener('click', function () {
+            on[k] = !on[k];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    });
+
+    /* unit vectors from P: charge 1 up-left, 2 down-right, 3 & 4 up-right */
+    const U1 = { x: -Math.SQRT1_2, y: -Math.SQRT1_2 };
+    const U3 = { x:  Math.SQRT1_2, y: -Math.SQRT1_2 };
+
+    function fields() {
+        const dm = state.d * 1e-6;
+        const e12 = K * 5 * E_CH / (dm * dm);
+        const e3  = K * 3 * E_CH / (dm * dm);
+        const e4  = K * 12 * E_CH / (4 * dm * dm);
+        /* E of a positive charge points AWAY from it (from charge through P),
+           E of a negative charge points TOWARD it                              */
+        const v = { x: 0, y: 0 };
+        const parts = [];
+        if (on.q1) { const e = { x: -U1.x * e12, y: -U1.y * e12 }; v.x += e.x; v.y += e.y; parts.push(['E₁', e]); }
+        if (on.q2) { const e = { x:  U1.x * e12, y:  U1.y * e12 }; v.x += e.x; v.y += e.y; parts.push(['E₂', e]); }
+        if (on.q3) { const e = { x: -U3.x * e3,  y: -U3.y * e3  }; v.x += e.x; v.y += e.y; parts.push(['E₃', e]); }
+        if (on.q4) { const e = { x:  U3.x * e4,  y:  U3.y * e4  }; v.x += e.x; v.y += e.y; parts.push(['E₄', e]); }
+        return { e12, e3, e4, v, parts };
+    }
+
+    function arrow(x1, y1, x2, y2, color, lw, dashed) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        if (dashed) ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function charge(x, y, positive, label, dxL, dyL, faded) {
+        ctx.globalAlpha = faded ? 0.25 : 1;
+        ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI * 2);
+        if (positive) { ctx.fillStyle = col.acc; ctx.fill(); }
+        else {
+            ctx.fillStyle = col.paper; ctx.fill();
+            ctx.lineWidth = 1.5; ctx.strokeStyle = col.ink; ctx.stroke();
+        }
+        ctx.strokeStyle = positive ? col.paper : col.ink;
+        ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x - 4.5, y); ctx.lineTo(x + 4.5, y); ctx.stroke();
+        if (positive) {
+            ctx.beginPath(); ctx.moveTo(x, y - 4.5); ctx.lineTo(x, y + 4.5); ctx.stroke();
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(label, x + dxL, y + dyL);
+        ctx.globalAlpha = 1;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const f = fields();
+
+        const px = W * 0.46, py = H * 0.56;
+        const R = Math.min(W, H) * (0.16 + 0.016 * state.d);   /* px for distance d */
+
+        const P1 = { x: px + U1.x * R,     y: py + U1.y * R };
+        const P2 = { x: px - U1.x * R,     y: py - U1.y * R };
+        const P3 = { x: px + U3.x * R,     y: py + U3.y * R };
+        const P4 = { x: px + U3.x * 2 * R, y: py + U3.y * 2 * R };
+
+        /* distance rays */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+        [[P1, P2], [{ x: px, y: py }, P4]].forEach(seg => {
+            ctx.beginPath(); ctx.moveTo(seg[0].x, seg[0].y); ctx.lineTo(seg[1].x, seg[1].y); ctx.stroke();
+        });
+        ctx.setLineDash([]);
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('d', (px + P3.x) / 2 - 10, (py + P3.y) / 2);
+        ctx.fillText('d', (P3.x + P4.x) / 2 - 10, (P3.y + P4.y) / 2);
+        ctx.fillText('d', (px + P1.x) / 2 - 10, (py + P1.y) / 2);
+        ctx.fillText('d', (px + P2.x) / 2 - 10, (py + P2.y) / 2);
+
+        /* contribution arrows at P */
+        const maxMag = Math.max(f.e12, f.e3, f.e4);
+        const sc = Math.min(W, H) * 0.22 / maxMag;
+        f.parts.forEach(([name, e]) => {
+            arrow(px, py, px + e.x * sc, py + e.y * sc, col.soft, 1.6, true);
+            ctx.fillStyle = col.soft;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText(name, px + e.x * sc * 1.08 + 3, py + e.y * sc * 1.08 + 3);
+        });
+
+        /* net field */
+        const netMag = Math.hypot(f.v.x, f.v.y);
+        if (netMag * sc > 3) {
+            arrow(px, py, px + f.v.x * sc, py + f.v.y * sc, col.acc, 2.6, false);
+        } else {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(px, py, 16, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('E = 0', px + 24, py + 18);
+        }
+
+        /* point P + charges */
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        ctx.fillText('P', px - 8, py + 4);
+
+        charge(P1.x, P1.y, true,  'Q₁ +5e', -6, -22, !on.q1);
+        charge(P2.x, P2.y, true,  'Q₂ +5e',  6,  24, !on.q2);
+        charge(P3.x, P3.y, true,  'Q₃ +3e',  34, -12, !on.q3);
+        charge(P4.x, P4.y, false, 'Q₄ −12e', 38, -12, !on.q4);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const fmtE = v => v.toFixed(0) + ' N/C';
+        $('r-e12').textContent = fmtE(f.e12);
+        $('r-e3').textContent  = fmtE(f.e3);
+        $('r-e4').textContent  = fmtE(f.e4);
+        const cs = document.documentElement.getAttribute('data-lang') === 'cs';
+        $('r-enet').textContent = netMag < 1e-9
+            ? (cs ? '0 N/C  (přesně)' : '0 N/C  (exact)')
+            : fmtE(netMag);
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

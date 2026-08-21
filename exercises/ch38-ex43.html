@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 38.43 · The Electron's Wavelength — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="quantum" data-screen-label="Ex 38.43 Electron Wavelength">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Modern Physics</span><span lang="cs">Díl II · Moderní fyzika</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 38 · Ex. 43</span><span lang="cs">Kap. 38 · Úl. 43</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 7 · Modern Physics — Chapter 38 · Exercise 43</span><span lang="cs">7. téma · Moderní fyzika — Kapitola 38 · Úloha 43</span></div>
+        <h1><span lang="en">The Electron's Wavelength</span><span lang="cs">Vlnová délka elektronu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>43</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    In an old television picture tube, electrons were accelerated
+                    through a potential difference of
+                    <span class="given" data-tex="U = 25.0\ \mathrm{kV}"></span>.
+                </p>
+                <p lang="cs">
+                    Ve staré obrazovce televizoru byly elektrony urychlovány
+                    napětím
+                    <span class="given" data-tex="U = 25{,}0\ \mathrm{kV}"></span>.
+                </p>
+                <p lang="en">
+                    What is the de Broglie wavelength of these electrons?
+                    (Relativistic effects can be neglected.)
+                </p>
+                <p lang="cs">
+                    Jaká je de Broglieho vlnová délka těchto elektronů?
+                    (Relativistické efekty lze zanedbat.)
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Wavelength sandbox</span><span lang="cs">Sandbox: vlnová délka</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\lambda = \dfrac{h}{\sqrt{2m_e\,eU}}"></div>
+                <div class="sim-hint"><span lang="en">raise U · the matter wave tightens</span><span lang="cs">zvyšte U · vlna hmoty se stahuje</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Accelerating voltage U</span><span lang="cs">Urychlovací napětí U</span></span>
+                            <span class="sim-control-val" id="p-u-val">25.0 kV</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-u" min="0.1" max="100" step="0.1" value="25.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Accelerated electron</span><span lang="cs">Urychlený elektron</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E = eU"></span>
+                        <span class="readout-val" id="r-e">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="p = \sqrt{2m_e eU}"></span>
+                        <span class="readout-val" id="r-p">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Matter wave</span><span lang="cs">Vlna hmoty</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\lambda = h/p"></span>
+                        <span class="readout-val" id="r-lam">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\lambda / d_{\mathrm{atom}}"></span>
+                        <span class="readout-val" id="r-ratio">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-refs">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">reference scales</span><span lang="cs">referenční škály</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-wave">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">matter wave</span><span lang="cs">vlna hmoty</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The tube's voltage gives each electron kinetic energy
+                    <span data-tex="E = eU = 1.602\cdot 10^{-19} \cdot 2.50\cdot 10^{4} = 4.01\cdot 10^{-15}\ \mathrm{J}"></span>
+                    (25.0 keV — well below
+                    <span data-tex="m_e c^2 = 511\ \mathrm{keV}"></span>,
+                    so non-relativistic is fine).</span>
+                    <span lang="cs">Napětí v obrazovce dodá každému elektronu kinetickou energii
+                    <span data-tex="E = eU = 1{,}602\cdot 10^{-19} \cdot 2{,}50\cdot 10^{4} = 4{,}01\cdot 10^{-15}\ \mathrm{J}"></span>
+                    (25,0 keV — hluboko pod
+                    <span data-tex="m_e c^2 = 511\ \mathrm{keV}"></span>,
+                    takže nerelativistický přístup stačí).</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Momentum from <span data-tex="E = p^2/2m_e"></span>:
+                    <span data-tex="p = \sqrt{2m_e eU} = \sqrt{2 \cdot 9.109\cdot 10^{-31} \cdot 4.01\cdot 10^{-15}} = 8.54\cdot 10^{-23}\ \mathrm{kg\,m/s}"></span>.</span>
+                    <span lang="cs">Hybnost ze vztahu <span data-tex="E = p^2/2m_e"></span>:
+                    <span data-tex="p = \sqrt{2m_e eU} = \sqrt{2 \cdot 9{,}109\cdot 10^{-31} \cdot 4{,}01\cdot 10^{-15}} = 8{,}54\cdot 10^{-23}\ \mathrm{kg\,m/s}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">De Broglie:
+                    <span data-tex="\lambda = h/p = 6.626\cdot 10^{-34} / 8.54\cdot 10^{-23} = 7.76\cdot 10^{-12}\ \mathrm{m}"></span>.</span>
+                    <span lang="cs">De Broglieho vztah:
+                    <span data-tex="\lambda = h/p = 6{,}626\cdot 10^{-34} / 8{,}54\cdot 10^{-23} = 7{,}76\cdot 10^{-12}\ \mathrm{m}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\lambda \approx 7.76\ \mathrm{pm}"></span><span lang="cs" data-tex="\lambda \approx 7{,}76\ \mathrm{pm}"></span></span>
+                <span class="ans-value"><span lang="en">— about 13× smaller than an atom</span><span lang="cs">— zhruba 13× menší než atom</span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/quantum.html"><span lang="en">← Topic: Quantum &amp; Atoms</span><span lang="cs">← Téma: Kvantová fyzika a atomy</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 38 · Ex. 43</span><span lang="cs">Kap. 38 · Úl. 43</span></span>
+        <span><span lang="en">Vol. II · Modern Physics</span><span lang="cs">Díl II · Moderní fyzika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2a1f50',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const HP = 6.626e-34;   /* Planck, J s          */
+    const ME = 9.109e-31;   /* electron mass, kg    */
+    const QE = 1.602e-19;   /* elementary charge, C */
+
+    const DEFAULTS = { U: 25.0 };   /* kV */
+    let state = { ...DEFAULTS };
+    const show = { refs: true, wave: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtU = v => v.toFixed(1) + ' kV';
+    bindSlider('p-u', 'U', fmtU);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-u', 'U', fmtU]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-refs', 'refs');
+    wireToggle('tgl-wave', 'wave');
+
+    /* ── Physics ────────────────────────────────────────────────── */
+    function lamPmOf(UkV) {
+        const p = Math.sqrt(2 * ME * QE * UkV * 1e3);
+        return HP / p * 1e12;   /* picometres */
+    }
+    function physics() {
+        const p = Math.sqrt(2 * ME * QE * state.U * 1e3);
+        return { p, lamPm: HP / p * 1e12 };
+    }
+
+    /* scientific notation with unicode superscripts */
+    const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                  '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+    function sci(v, d) {
+        if (!isFinite(v) || v === 0) return '0';
+        let exp = Math.floor(Math.log10(Math.abs(v)));
+        let man = v / Math.pow(10, exp);
+        if (+man.toFixed(d) >= 10) { man /= 10; exp += 1; }
+        const es = String(exp).split('').map(c => SUP[c]).join('');
+        return man.toFixed(d) + '·10' + es;
+    }
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function line(x1, y1, x2, y2) {
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+
+    /* ── Left third: electron gun + matter wave ─────────────────── */
+    function drawGun(ts, ph) {
+        const gx0 = W * 0.05, gx1 = W * 0.15;
+        const gy  = H * 0.40;
+        const plateH = Math.min(120, H * 0.30);
+        const pTop = gy - plateH / 2, pBot = gy + plateH / 2;
+
+        /* dashed field lines between the plates */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        [-0.32, -0.14, 0.14, 0.32].forEach(f => {
+            const y = gy + f * plateH;
+            line(gx0 + 5, y, gx1 - 5, y);
+        });
+        ctx.setLineDash([]);
+
+        /* cathode plate (solid) + anode plate (with a gap) */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 3; ctx.lineCap = 'butt';
+        line(gx0, pTop, gx0, pBot);
+        line(gx1, pTop, gx1, gy - 10);
+        line(gx1, gy + 10, gx1, pBot);
+
+        /* polarity + plate labels */
+        ctx.fillStyle = col.soft;
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('−', gx0, pTop - 5);
+        ctx.fillText('+', gx1, pTop - 5);
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textBaseline = 'top';
+        ctx.fillText('CATHODE', gx0, pBot + 9);
+        ctx.fillText('ANODE',   gx1, pBot + 9);
+        ctx.fillText('U = ' + state.U.toFixed(1) + ' kV', (gx0 + gx1) / 2, pBot + 23);
+
+        /* matter wave beyond the anode — period maps λ 3–120 pm → 8–80 px */
+        const wx0 = gx1 + 8, wx1 = W * 0.335;
+        const lamC = Math.min(Math.max(ph.lamPm, 3), 120);
+        const Ppx  = 8 + (lamC - 3) / 117 * 72;
+        const amp  = 9;
+        const drift = reduced ? 0 : ts * 0.026;   /* wave travels right */
+        const waveY = x => gy + amp * Math.sin(2 * Math.PI * (x - wx0 - drift) / Ppx);
+
+        if (show.wave) {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.8; ctx.lineJoin = 'round';
+            ctx.beginPath();
+            for (let x = wx0; x <= wx1; x += 1.5) {
+                if (x === wx0) ctx.moveTo(x, waveY(x)); else ctx.lineTo(x, waveY(x));
+            }
+            ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('λ = ' + ph.lamPm.toFixed(1) + ' pm', (wx0 + wx1) / 2, gy + amp + 10);
+        }
+
+        /* the electron itself */
+        const LOOP = 2400;
+        const frac = reduced ? 0.45 : (ts % LOOP) / LOOP;
+        const ex = gx0 + 6 + frac * (wx1 - gx0 - 6);
+        const ey = (show.wave && ex > wx0) ? waveY(ex) : gy;
+        ctx.beginPath(); ctx.arc(ex, ey, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('e⁻', gx0 - 7, gy);
+    }
+
+    /* ── Right two-thirds: log-log λ(U) chart ───────────────────── */
+    function drawPlot(ph) {
+        const px0 = W * 0.42, px1 = W - 26;
+        const py0 = 28,       py1 = H - 58;
+        const LX0 = -1, LX1 = 2;      /* log10 U, kV  */
+        const LY0 = 0.4, LY1 = 2.4;   /* log10 λ, pm  */
+        const X = lu => px0 + (lu - LX0) / (LX1 - LX0) * (px1 - px0);
+        const Y = ll => py1 - (ll - LY0) / (LY1 - LY0) * (py1 - py0);
+
+        /* vertical decade gridlines */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 0.7; ctx.globalAlpha = 0.5;
+        for (let d = 0; d <= 2; d++) line(X(d), py0, X(d), py1);
+        ctx.globalAlpha = 1;
+
+        /* axes */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.3;
+        line(px0, py0, px0, py1);
+        line(px0, py1, px1, py1);
+
+        /* decade labels */
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        [['0.1', -1], ['1', 0], ['10', 1], ['100', 2]].forEach(([txt, d]) => {
+            ctx.fillText(txt, X(d), py1 + 7);
+        });
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('10',  px0 - 6, Y(1));
+        ctx.fillText('100', px0 - 6, Y(2));
+
+        /* axis titles */
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('U (kV)', (px0 + px1) / 2, py1 + 22);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('λ (pm)', px0 + 4, py0 - 6);
+
+        /* reference scales */
+        if (show.refs) {
+            ctx.setLineDash([5, 4]);
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            line(px0, Y(2), px1, Y(2));
+            line(px0, Y(1), px1, Y(1));
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.faint;
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText('ATOM Ø ≈ 100 PM', px1 - 4, Y(2) - 4);
+            ctx.fillText('X-RAY ≈ 10 PM',   px1 - 4, Y(1) - 4);
+        }
+
+        /* λ(U) curve — a straight line of slope −1/2 in log-log */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 120; i++) {
+            const lu = LX0 + (LX1 - LX0) * i / 120;
+            const ll = Math.log10(lamPmOf(Math.pow(10, lu)));
+            const x = X(lu), y = Y(ll);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        /* marker at the current U */
+        const lu = Math.log10(state.U);
+        const ll = Math.log10(ph.lamPm);
+        const mx = X(lu), my = Y(ll);
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        line(mx, py1, mx, my);
+        line(px0, my, mx, my);
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(mx, my, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.strokeStyle = col.paper; ctx.lineWidth = 1.5; ctx.stroke();
+
+        ctx.fillStyle = col.acc;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textBaseline = 'bottom';
+        if (mx > px1 - 70) { ctx.textAlign = 'right'; ctx.fillText(state.U.toFixed(1) + ' kV', mx - 6, py1 - 6); }
+        else               { ctx.textAlign = 'left';  ctx.fillText(state.U.toFixed(1) + ' kV', mx + 6, py1 - 6); }
+        ctx.textAlign = 'left';
+        ctx.fillText(ph.lamPm.toFixed(2) + ' pm', px0 + 5, my - 5);
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const ph = physics();
+        drawGun(ts, ph);
+        drawPlot(ph);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-e'))     $('r-e').textContent     = state.U.toFixed(1) + ' keV';
+        if ($('r-p'))     $('r-p').textContent     = sci(ph.p, 2) + ' kg·m/s';
+        if ($('r-lam'))   $('r-lam').textContent   = ph.lamPm.toFixed(2) + ' pm';
+        if ($('r-ratio')) $('r-ratio').textContent = (ph.lamPm / 100).toFixed(3);
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

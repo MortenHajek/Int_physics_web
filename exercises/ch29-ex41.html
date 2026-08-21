@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 29.41 · The Wire and the Loop — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="magnetism" data-screen-label="Ex 29.41 Wire and Loop">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 29 · Ex. 41</span><span lang="cs">Kap. 29 · Úl. 41</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Magnetic Field — Chapter 29 · Exercise 41</span><span lang="cs">4. téma · Magnetické pole — Kapitola 29 · Úloha 41</span></div>
+        <h1><span lang="en">The Wire and the Loop</span><span lang="cs">Vodič a smyčka</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•••</span>41</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A long straight wire carries current
+                    <span class="given" data-tex="I_1 = 30.0\ \mathrm{A}"></span>.
+                    Below it lies a rectangular loop carrying
+                    <span class="given" data-tex="I_2 = 20.0\ \mathrm{A}"></span>:
+                    its long sides, length
+                    <span class="given" data-tex="L = 30.0\ \mathrm{cm}"></span>,
+                    run parallel to the wire; the near side is
+                    <span class="given" data-tex="a = 1.00\ \mathrm{cm}"></span>
+                    from the wire and the loop is
+                    <span class="given" data-tex="b = 8.00\ \mathrm{cm}"></span>
+                    deep. The near-side current runs in the same direction as
+                    <span data-tex="I_1"></span>.
+                </p>
+                <p lang="cs">
+                    Dlouhým přímým vodičem prochází proud
+                    <span class="given" data-tex="I_1 = 30{,}0\ \mathrm{A}"></span>.
+                    Pod ním leží obdélníková smyčka, kterou prochází
+                    <span class="given" data-tex="I_2 = 20{,}0\ \mathrm{A}"></span>:
+                    její delší strany, délky
+                    <span class="given" data-tex="L = 30{,}0\ \mathrm{cm}"></span>,
+                    jsou rovnoběžné s vodičem; bližší strana je od vodiče vzdálena
+                    <span class="given" data-tex="a = 1{,}00\ \mathrm{cm}"></span>
+                    a smyčka je hluboká
+                    <span class="given" data-tex="b = 8{,}00\ \mathrm{cm}"></span>.
+                    Proud na bližší straně teče ve stejném směru jako
+                    <span data-tex="I_1"></span>.
+                </p>
+                <p lang="en">
+                    Compute the net magnetic force on the loop.
+                </p>
+                <p lang="cs">
+                    Určete výslednou magnetickou sílu působící na smyčku.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Wire–loop force diagram</span><span lang="cs">Diagram sil vodič–smyčka</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F = \dfrac{\mu_0 I_1 I_2 L}{2\pi r}"></div>
+                <div class="sim-hint"><span lang="en">shrink a · the near side wins the tug-of-war</span><span lang="cs">zmenšete a · bližší strana vyhrává přetahovanou</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Distance a</span><span lang="cs">Vzdálenost a</span></span>
+                            <span class="sim-control-val" id="p-a-val">1.00 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-a" min="0.5" max="5.0" step="0.05" value="1.00">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Wire current I₁</span><span lang="cs">Proud vodičem I₁</span></span>
+                            <span class="sim-control-val" id="p-i1-val">30.0 A</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-i1" min="5" max="50" step="0.5" value="30.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Loop current I₂</span><span lang="cs">Proud smyčkou I₂</span></span>
+                            <span class="sim-control-val" id="p-i2-val">20.0 A</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-i2" min="5" max="50" step="0.5" value="20.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Wire field</span><span lang="cs">Pole vodiče</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="B_{\mathrm{near}}"></span>
+                        <span class="readout-val" id="r-bnear">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Forces on the loop</span><span lang="cs">Síly na smyčku</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F_{\mathrm{near}}"></span>
+                        <span class="readout-val" id="r-fnear">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F_{\mathrm{far}}"></span>
+                        <span class="readout-val" id="r-ffar">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F_{\mathrm{net}}"></span>
+                        <span class="readout-val" id="r-fnet">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-sides">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">per-side forces</span><span lang="cs">síly na jednotlivé strany</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-net">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">net force</span><span lang="cs">výsledná síla</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The field of the wire at distance <span data-tex="r"></span> is
+                    <span data-tex="B = \mu_0 I_1 / (2\pi r)"></span>;
+                    it acts on each loop side with
+                    <span data-tex="F = I_2 L B"></span>.</span>
+                    <span lang="cs">Pole vodiče ve vzdálenosti <span data-tex="r"></span> je
+                    <span data-tex="B = \mu_0 I_1 / (2\pi r)"></span>;
+                    na každou stranu smyčky pak působí
+                    <span data-tex="F = I_2 L B"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Near side</strong> — currents parallel → attraction:
+                    <span data-tex="F = \mu_0 I_1 I_2 L/(2\pi a) = 2\cdot 10^{-7} \cdot 30 \cdot 20 \cdot 0.300/0.0100 = 3.60\cdot 10^{-3}\ \mathrm{N}"></span>,
+                    toward the wire.</span>
+                    <span lang="cs"><strong>Bližší strana</strong> — souhlasné proudy → přitahování:
+                    <span data-tex="F = \mu_0 I_1 I_2 L/(2\pi a) = 2\cdot 10^{-7} \cdot 30 \cdot 20 \cdot 0{,}300/0{,}0100 = 3{,}60\cdot 10^{-3}\ \mathrm{N}"></span>,
+                    směrem k vodiči.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Far side</strong> — currents antiparallel → repulsion:
+                    <span data-tex="F = \mu_0 I_1 I_2 L/(2\pi (a+b)) = 2\cdot 10^{-7} \cdot 30 \cdot 20 \cdot 0.300/0.0900 = 4.00\cdot 10^{-4}\ \mathrm{N}"></span>,
+                    away.</span>
+                    <span lang="cs"><strong>Vzdálenější strana</strong> — opačné proudy → odpuzování:
+                    <span data-tex="F = \mu_0 I_1 I_2 L/(2\pi (a+b)) = 2\cdot 10^{-7} \cdot 30 \cdot 20 \cdot 0{,}300/0{,}0900 = 4{,}00\cdot 10^{-4}\ \mathrm{N}"></span>,
+                    směrem od vodiče.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en">The two short sides sit in mirror-symmetric fields: their forces
+                    are equal and opposite — they cancel.</span>
+                    <span lang="cs">Obě krátké strany leží v zrcadlově symetrickém poli: jejich síly
+                    jsou stejně velké a opačné — vzájemně se ruší.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">05</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Net:</strong>
+                    <span data-tex="F = 3.60\cdot 10^{-3} - 0.40\cdot 10^{-3} = 3.20\cdot 10^{-3}\ \mathrm{N}"></span>,
+                    pointed at the wire.</span>
+                    <span lang="cs"><strong>Výslednice:</strong>
+                    <span data-tex="F = 3{,}60\cdot 10^{-3} - 0{,}40\cdot 10^{-3} = 3{,}20\cdot 10^{-3}\ \mathrm{N}"></span>,
+                    směřuje k vodiči.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value">
+                    <span lang="en"><span data-tex="F \approx 3.2\ \mathrm{mN}"></span>, directed toward the wire</span>
+                    <span lang="cs"><span data-tex="F \approx 3{,}2\ \mathrm{mN}"></span>, směrem k vodiči</span>
+                </span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/magnetism.html"><span lang="en">← Topic: Magnetic Field</span><span lang="cs">← Téma: Magnetické pole</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 29 · Ex. 41</span><span lang="cs">Kap. 29 · Úl. 41</span></span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a6878',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* a in cm, I1 and I2 in A — the printed exercise values */
+    const DEFAULTS = { a: 1.00, I1: 30.0, I2: 20.0 };
+    const L_SIDE  = 0.300;   /* long-side length L, metres (fixed) */
+    const B_DEPTH = 8.00;    /* loop depth b, cm (fixed) */
+    const K2      = 2e-7;    /* mu0 / 2 pi */
+
+    let state  = { ...DEFAULTS };
+    const show = { sides: true, net: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtA = v => v.toFixed(2) + ' cm';
+    const fmtI = v => v.toFixed(1) + ' A';
+    bindSlider('p-a',  'a',  fmtA);
+    bindSlider('p-i1', 'I1', fmtI);
+    bindSlider('p-i2', 'I2', fmtI);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-a', 'a', fmtA], ['p-i1', 'I1', fmtI], ['p-i2', 'I2', fmtI]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-sides', 'sides');
+    wireToggle('tgl-net',   'net');
+
+    /* ── Physics ────────────────────────────────────────────────── */
+    function forces() {
+        const am = state.a / 100;
+        const bm = B_DEPTH / 100;
+        const Bnear = K2 * state.I1 / am;
+        const Fnear = K2 * state.I1 * state.I2 * L_SIDE / am;
+        const Ffar  = K2 * state.I1 * state.I2 * L_SIDE / (am + bm);
+        return { Bnear, Fnear, Ffar, Fnet: Fnear - Ffar };
+    }
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function seg(x1, y1, x2, y2, color, lw, dash) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
+        ctx.lineCap = 'round';
+        if (dash) ctx.setLineDash(dash);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.25), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* double-headed dimension guide (vertical) */
+    function dimV(x, y1, y2, color) {
+        const ym = (y1 + y2) / 2;
+        arrow(x, ym, x, y1, color, 1.2);
+        arrow(x, ym, x, y2, color, 1.2);
+    }
+
+    /* italic serif F with a mono subscript */
+    function fLabel(x, y, sub, color) {
+        ctx.fillStyle = color;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.fillText('F', x, y);
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillText(sub, x + 9, y + 4);
+    }
+
+    /* italic serif I with a mono subscript */
+    function iLabel(x, y, sub, color) {
+        ctx.fillStyle = color;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.fillText('I', x, y);
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillText(sub, x + 6, y + 4);
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const f = forces();
+
+        /* geometry: vertical scale fits a(max) + b = 13 cm */
+        const pxPerCm = (H * 0.62) / 13.0;
+        const yWire = H * 0.22;
+        const yTop  = yWire + state.a * pxPerCm;
+        const yBot  = yTop + B_DEPTH * pxPerCm;
+        const yMid  = (yTop + yBot) / 2;
+        const loopW = Math.min(W * 0.52, 360);
+        const cx    = W * 0.54;
+        const xL    = cx - loopW / 2;
+        const xR    = cx + loopW / 2;
+        const hh    = yBot - yTop;
+
+        /* the long straight wire, current to the right */
+        seg(0, yWire, W, yWire, col.ink, 3.5);
+        arrow(W * 0.78, yWire, W * 0.78 + 36, yWire, col.ink, 3);
+        iLabel(W * 0.78 + 8, yWire - 9, '1', col.ink);
+
+        /* dimension guides: a (wire to near side), b (loop depth, inside) */
+        const xA = xL - 26;
+        dimV(xA, yWire + 2, yTop - 1, col.faint);
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('a = ' + state.a.toFixed(2) + ' cm', xA - 8, (yWire + yTop) / 2);
+
+        const xB = xL + 30;
+        dimV(xB, yTop + 3, yBot - 3, col.faint);
+        ctx.textAlign = 'left';
+        ctx.fillText('b = 8.00 cm', xB + 8, yMid);
+
+        /* the loop */
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 2.2;
+        ctx.strokeRect(xL, yTop, loopW, hh);
+
+        /* current sense chevrons: top with the wire, bottom against it */
+        const chev = 14;
+        const xC = cx + loopW * 0.30;
+        arrow(xC - chev, yTop, xC + chev, yTop, col.ink, 2.2);
+        arrow(xC + chev, yBot, xC - chev, yBot, col.ink, 2.2);
+        arrow(xR, yTop + hh * 0.22 - chev, xR, yTop + hh * 0.22 + chev, col.ink, 2.2);
+        arrow(xL, yTop + hh * 0.78 + chev, xL, yTop + hh * 0.78 - chev, col.ink, 2.2);
+        iLabel(xC - 4, yBot - 8, '2', col.ink);
+
+        /* fixed long-side length L */
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('L = 30 cm', cx, yBot + 16);
+
+        /* adaptive force scale: longest arrow ~ 80 px */
+        const sc = 80 / Math.max(f.Fnear, f.Ffar, f.Fnet, 1e-12);
+        const xF = cx - loopW * 0.22;
+
+        if (show.sides) {
+            /* near side pulled up toward the wire (attraction) */
+            arrow(xF, yTop, xF, yTop - f.Fnear * sc, col.acc, 2.4);
+            fLabel(xF - 40, yTop - f.Fnear * sc * 0.5, 'near', col.acc);
+            /* far side pushed down away from the wire (repulsion) */
+            arrow(xF, yBot, xF, yBot + f.Ffar * sc, col.soft, 2);
+            fLabel(xF - 40, yBot + f.Ffar * sc + 14, 'far', col.soft);
+            /* short sides: equal-and-opposite pair — they cancel */
+            arrow(xL, yMid, xL - 26, yMid, col.faint, 1.5);
+            arrow(xR, yMid, xR + 26, yMid, col.faint, 1.5);
+            ctx.fillStyle = col.faint;
+            ctx.font = '8.5px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('cancel', xL - 13, yMid + 8);
+            ctx.fillText('cancel', xR + 13, yMid + 8);
+        }
+
+        if (show.net) {
+            ctx.beginPath();
+            ctx.arc(cx, yMid, 3, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+            arrow(cx, yMid, cx, yMid - f.Fnet * sc, col.acc, 3);
+            fLabel(cx + 11, yMid - f.Fnet * sc * 0.5, 'net', col.acc);
+        }
+
+        /* readouts */
+        const fmt3 = v => (v >= 1 ? v.toFixed(2) : v.toFixed(3));
+        const $ = id => document.getElementById(id);
+        if ($('r-bnear')) $('r-bnear').textContent = fmt3(f.Bnear * 1e3) + ' mT';
+        if ($('r-fnear')) $('r-fnear').textContent = fmt3(f.Fnear * 1e3) + ' mN';
+        if ($('r-ffar'))  $('r-ffar').textContent  = fmt3(f.Ffar * 1e3) + ' mN';
+        if ($('r-fnet'))  $('r-fnet').textContent  = fmt3(f.Fnet * 1e3) + ' mN · toward wire';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

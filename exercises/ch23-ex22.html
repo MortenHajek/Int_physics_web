@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 23.22 · Gauss and the Charged Tube — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-1" data-screen-label="Ex 23.22 Gauss Tube">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 23 · Ex. 22</span><span lang="cs">Kap. 23 · Úl. 22</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 1 · Electrostatics I — Chapter 23 · Exercise 22</span><span lang="cs">1. téma · Elektrostatika I — Kapitola 23 · Úloha 22</span></div>
+        <h1><span lang="en">Gauss and the Charged Tube</span><span lang="cs">Gauss a nabitá trubka</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>22</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A long, thin-walled metal tube of radius
+                    <span class="given" data-tex="R = 3.00\ \mathrm{cm}"></span>
+                    carries charge on its surface with linear density
+                    <span class="given" data-tex="\tau = 2.00\cdot 10^{-8}\ \mathrm{C\,m^{-1}}"></span>.
+                </p>
+                <p lang="cs">
+                    Dlouhá tenkostěnná kovová trubka o poloměru
+                    <span class="given" data-tex="R = 3{,}00\ \mathrm{cm}"></span>
+                    nese na povrchu náboj s délkovou hustotou
+                    <span class="given" data-tex="\tau = 2{,}00\cdot 10^{-8}\ \mathrm{C\,m^{-1}}"></span>.
+                </p>
+                <p lang="en">
+                    Find the magnitude of the electric field
+                    <span data-tex="E"></span> at radial distance
+                    (a) <span data-tex="r = R/2"></span> and
+                    (b) <span data-tex="r = 2R"></span> from the tube's axis.
+                    (c) Sketch the graph of <span data-tex="E(r)"></span> from
+                    <span data-tex="r = 0"></span> to <span data-tex="r = 2R"></span>.
+                </p>
+                <p lang="cs">
+                    Určete velikost elektrické intenzity
+                    <span data-tex="E"></span> ve vzdálenosti
+                    (a) <span data-tex="r = R/2"></span> a
+                    (b) <span data-tex="r = 2R"></span> od osy trubky.
+                    (c) Nakreslete graf <span data-tex="E(r)"></span> v intervalu od
+                    <span data-tex="r = 0"></span> do <span data-tex="r = 2R"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Gauss sandbox</span><span lang="cs">Sandbox: Gauss</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\oint \vec{E}\cdot d\vec{S} = q_{\text{enc}}/\varepsilon_0"></div>
+                <div class="sim-hint"><span lang="en">slide r through the wall · watch E jump</span><span lang="cs">protáhněte r stěnou · sledujte skok E</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Gaussian radius r</span><span lang="cs">Poloměr Gaussovy plochy r</span></span>
+                            <span class="sim-control-val" id="p-r-val">1.50 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="0.1" max="9.0" step="0.05" value="1.50">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Tube radius R</span><span lang="cs">Poloměr trubky R</span></span>
+                            <span class="sim-control-val" id="p-tube-val">3.00 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-tube" min="1.0" max="5.0" step="0.05" value="3.00">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge density τ</span><span lang="cs">Hustota náboje τ</span></span>
+                            <span class="sim-control-val" id="p-tau-val">2.00 ×10⁻⁸ C/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-tau" min="0.5" max="5.0" step="0.05" value="2.00">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Gaussian surface</span><span lang="cs">Gaussova plocha</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="q_{\text{enc}}/L"></span>
+                        <span class="readout-val" id="r-qenc">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Electric field</span><span lang="cs">Elektrické pole</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E(r)"></span>
+                        <span class="readout-val" id="r-e">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E(R^{+}) = 2k\tau/R"></span>
+                        <span class="readout-val" id="r-esurf">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-gauss">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">Gaussian cylinder</span><span lang="cs">Gaussův válec</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-jump">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">surface jump marker</span><span lang="cs">značka skoku na povrchu</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Choose a coaxial cylindrical Gaussian surface of radius
+                    <span data-tex="r"></span> and length <span data-tex="L"></span>. By symmetry
+                    <span data-tex="\vec{E}"></span> is radial and uniform on the curved wall, so
+                    <span data-tex="\Phi = E\cdot 2\pi r L = q_{\text{enc}}/\varepsilon_0"></span>.</span>
+                    <span lang="cs">Zvolíme souosou válcovou Gaussovu plochu o poloměru
+                    <span data-tex="r"></span> a délce <span data-tex="L"></span>. Ze symetrie je
+                    <span data-tex="\vec{E}"></span> radiální a na plášti všude stejně velké, takže
+                    <span data-tex="\Phi = E\cdot 2\pi r L = q_{\text{enc}}/\varepsilon_0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Inside</strong> (<span data-tex="r &lt; R"></span>): the tube's charge lies
+                    entirely outside the surface, <span data-tex="q_{\text{enc}} = 0"></span>, so
+                    <span data-tex="E = 0"></span> everywhere inside — including
+                    <span data-tex="r = R/2"></span>.</span>
+                    <span lang="cs"><strong>Uvnitř</strong> (<span data-tex="r &lt; R"></span>): náboj trubky leží
+                    celý vně plochy, <span data-tex="q_{\text{enc}} = 0"></span>, takže
+                    <span data-tex="E = 0"></span> všude uvnitř — včetně
+                    <span data-tex="r = R/2"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Outside</strong> (<span data-tex="r &gt; R"></span>):
+                    <span data-tex="q_{\text{enc}} = \tau L"></span>, giving
+                    <span data-tex="E = \dfrac{\tau}{2\pi\varepsilon_0 r} = \dfrac{2k\tau}{r}"></span>
+                    — as if all the charge sat on the axis.</span>
+                    <span lang="cs"><strong>Vně</strong> (<span data-tex="r &gt; R"></span>):
+                    <span data-tex="q_{\text{enc}} = \tau L"></span>, tedy
+                    <span data-tex="E = \dfrac{\tau}{2\pi\varepsilon_0 r} = \dfrac{2k\tau}{r}"></span>
+                    — jako by všechen náboj seděl na ose.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en">At <span data-tex="r = 2R = 6.00\ \mathrm{cm}"></span>:
+                    <span data-tex="E = 2\cdot 8.99\cdot 10^{9}\cdot 2.00\cdot 10^{-8}/0.0600 = 5.99\cdot 10^{3}\ \mathrm{N/C}"></span>.</span>
+                    <span lang="cs">Při <span data-tex="r = 2R = 6{,}00\ \mathrm{cm}"></span>:
+                    <span data-tex="E = 2\cdot 8{,}99\cdot 10^{9}\cdot 2{,}00\cdot 10^{-8}/0{,}0600 = 5{,}99\cdot 10^{3}\ \mathrm{N/C}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">05</span>
+                <div class="sol-step-text">
+                    <span lang="en">The graph: flat zero to <span data-tex="r = R"></span>, discontinuous jump to
+                    <span data-tex="2k\tau/R \approx 12.0\ \mathrm{kN/C}"></span> at the surface,
+                    then a <span data-tex="1/r"></span> tail — exactly what the sandbox plot draws.</span>
+                    <span lang="cs">Graf: nulové plató do <span data-tex="r = R"></span>, nespojitý skok na
+                    <span data-tex="2k\tau/R \approx 12{,}0\ \mathrm{kN/C}"></span> na povrchu
+                    a pak chvost <span data-tex="1/r"></span> — přesně to, co kreslí graf v sandboxu.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="E = 0"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E \approx 5.99\ \mathrm{kN/C}"></span><span lang="cs" data-tex="E \approx 5{,}99\ \mathrm{kN/C}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en">zero plateau → jump to ≈ 12.0 kN/C at r = R → 1/r tail — see the live graph</span><span lang="cs">nulové plató → skok na ≈ 12,0 kN/C při r = R → chvost 1/r — viz živý graf</span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-1.html"><span lang="en">← Topic: Electrostatics I</span><span lang="cs">← Téma: Elektrostatika I</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 23 · Ex. 22</span><span lang="cs">Kap. 23 · Úl. 22</span></span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#3D2E8A',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const K = 8.99e9;
+    /* r, R in cm; tau in units of 1e-8 C/m — the exercise's printed values */
+    const DEFAULTS = { r: 1.50, R: 3.00, tau: 2.00 };
+    let state = { ...DEFAULTS };
+    const show = { gauss: true, jump: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtCm  = v => v.toFixed(2) + ' cm';
+    const fmtTau = v => v.toFixed(2) + ' ×10⁻⁸ C/m';
+    bindSlider('p-r',    'r',   fmtCm);
+    bindSlider('p-tube', 'R',   fmtCm);
+    bindSlider('p-tau',  'tau', fmtTau);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-r', 'r', fmtCm], ['p-tube', 'R', fmtCm], ['p-tau', 'tau', fmtTau]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-gauss', 'gauss');
+    wireToggle('tgl-jump',  'jump');
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.25), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const rC = state.r, RC = state.R;
+        const tau = state.tau * 1e-8;                 /* C/m */
+        const Ejump = 2 * K * tau / (RC / 100);       /* N/C, field just outside */
+
+        /* ---- left: tube cross-section ---- */
+        const cx = W * 0.26, cy = H * 0.54;
+        const avail = Math.max(40, Math.min(W * 0.25 - 26, H / 2 - 52));
+        const s = avail / 9.0;                        /* px per cm, r slider max 9 */
+        const Rpx = RC * s, rpx = rC * s;
+
+        const csLang = document.documentElement.getAttribute('data-lang') === 'cs';
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(csLang ? 'ŘEZ TRUBKOU' : 'TUBE CROSS-SECTION', 24, 26);
+
+        /* metal wall */
+        ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, Math.PI * 2);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2.5; ctx.stroke();
+
+        /* + glyphs on the charged surface */
+        const nP = 16;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+        for (let i = 0; i < nP; i++) {
+            const th = i / nP * Math.PI * 2 - Math.PI / 2;
+            const gx = cx + Math.cos(th) * (Rpx + 10);
+            const gy = cy + Math.sin(th) * (Rpx + 10);
+            ctx.beginPath(); ctx.moveTo(gx - 3, gy); ctx.lineTo(gx + 3, gy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(gx, gy - 3); ctx.lineTo(gx, gy + 3); ctx.stroke();
+        }
+
+        /* axis marker — field point of view: out of the page */
+        ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, 1.3, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+
+        /* R reference radius */
+        const thR = -Math.PI * 0.75;
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(thR) * Rpx, cy + Math.sin(thR) * Rpx); ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('R', cx + Math.cos(thR) * Rpx * 0.6 - 8, cy + Math.sin(thR) * Rpx * 0.6 - 4);
+
+        /* dashed Gaussian circle + r arrow */
+        if (show.gauss) {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.6;
+            ctx.setLineDash([6, 5]);
+            ctx.beginPath(); ctx.arc(cx, cy, rpx, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            const thr = -Math.PI * 0.18;
+            arrow(cx, cy, cx + Math.cos(thr) * rpx, cy + Math.sin(thr) * rpx, col.acc, 1.8);
+            ctx.fillStyle = col.acc;
+            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+            ctx.fillText('r', cx + Math.cos(thr) * rpx * 0.6, cy + Math.sin(thr) * rpx * 0.6 - 8);
+        }
+
+        /* ---- right: E(r) field profile ---- */
+        const px0 = Math.round(W * 0.55), px1 = W - 28;
+        const py0 = 46, py1 = H - 62;
+        const RMAX = 10;                              /* cm, plot domain = 2 × R slider max */
+        const yTop = Ejump * 1.14;
+        const X = rr => px0 + rr / RMAX * (px1 - px0);
+        const Y = E  => py1 - (E / yTop) * (py1 - py0);
+
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(csLang ? 'PRŮBĚH POLE E(r)' : 'FIELD PROFILE E(r)', px0, py0 - 14);
+
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px0, py0 - 4); ctx.lineTo(px0, py1); ctx.lineTo(px1, py1);
+        ctx.stroke();
+
+        /* ticks at R and 2R */
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        [[RC, 'R'], [2 * RC, '2R']].forEach(pair => {
+            const tx = X(pair[0]);
+            if (tx <= px1 + 0.5) {
+                ctx.beginPath(); ctx.moveTo(tx, py1); ctx.lineTo(tx, py1 + 4); ctx.stroke();
+                ctx.fillText(pair[1], tx, py1 + 7);
+            }
+        });
+        ctx.textAlign = 'right';
+        ctx.fillText('r (cm)', px1, py1 + 19);
+
+        /* level of the jump, annotated */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(px0, Y(Ejump)); ctx.lineTo(X(RC), Y(Ejump)); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('2kτ/R = ' + (Ejump / 1000).toFixed(1) + ' kN/C', px0 + 4, Y(Ejump) - 6);
+
+        /* inside: E = 0 plateau */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(RC), Y(0)); ctx.stroke();
+
+        /* the discontinuity at the surface */
+        if (show.jump) {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.6;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(X(RC), Y(0)); ctx.lineTo(X(RC), Y(Ejump)); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        /* outside: E = 2kτ/r */
+        const N = 90;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        for (let i = 0; i <= N; i++) {
+            const rr = RC + (RMAX - RC) * i / N;
+            const E = 2 * K * tau / (rr / 100);
+            const y = Y(E);
+            if (i === 0) ctx.moveTo(X(rr), y); else ctx.lineTo(X(rr), y);
+        }
+        ctx.stroke();
+
+        /* marker at the current r */
+        const inside = rC < RC;
+        const Ehere = inside ? 0 : 2 * K * tau / (rC / 100);
+        const mx = X(rC), my = Y(Ehere);
+        if (!inside) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(mx, py1); ctx.lineTo(mx, my); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        ctx.beginPath(); ctx.arc(mx, my, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.strokeStyle = col.paper; ctx.lineWidth = 1.5; ctx.stroke();
+
+        /* ---- readouts ---- */
+        const $ = id => document.getElementById(id);
+        if ($('r-qenc'))  $('r-qenc').textContent  = inside ? '0' : state.tau.toFixed(2) + ' ×10⁻⁸ C/m';
+        if ($('r-e'))     $('r-e').textContent     = inside ? '0 kN/C' : (Ehere / 1000).toFixed(2) + ' kN/C';
+        if ($('r-esurf')) $('r-esurf').textContent = (Ejump / 1000).toFixed(1) + ' kN/C';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 7.65 · The Sideways Crate — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="energy" data-screen-label="Ex 7.65 The Sideways Crate">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 7 · Ex. 65</span><span lang="cs">Kap. 7 · Úl. 65</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Work &amp; Energy — Chapter 7 · Exercise 65</span><span lang="cs">4. téma · Práce a energie — Kapitola 7 · Úloha 65</span></div>
+        <h1><span lang="en">The Sideways Crate</span><span lang="cs">Bedna posunutá do strany</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>65</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A crate of mass <span class="given" data-tex="m = 230\ \mathrm{kg}"></span> hangs from
+                    a rope of length <span class="given" data-tex="L = 12.0\ \mathrm{m}"></span>. We push
+                    it with a horizontal force <span data-tex="\vec F"></span> of varying magnitude and
+                    move it <span class="given" data-tex="d = 4.00\ \mathrm{m}"></span> sideways
+                    (fig. 7-46). The crate is at rest both before and after the displacement.
+                </p>
+                <p lang="cs">
+                    Bedna o hmotnosti <span class="given" data-tex="m = 230\ \mathrm{kg}"></span> visí na
+                    laně délky <span class="given" data-tex="L = 12{,}0\ \mathrm{m}"></span>. Tlačíme ji
+                    vodorovnou silou <span data-tex="\vec F"></span> o proměnné velikosti a posuneme ji o
+                    <span class="given" data-tex="d = 4{,}00\ \mathrm{m}"></span> do strany (obr. 7-46).
+                    Bedna je v klidu jak před, tak po posunutí.
+                </p>
+                <p lang="en">
+                    (a) How large is <span data-tex="\vec F"></span> at the crate's final position?
+                    (b) What total work is done on the crate? What work is done by (c) gravity and
+                    (d) the rope's tension? (e) Use these results to find the work done by
+                    <span data-tex="\vec F"></span>. (f) Why isn't that work simply the product of the
+                    horizontal displacement and the answer to (a)?
+                </p>
+                <p lang="cs">
+                    (a) Jak velká je <span data-tex="\vec F"></span> v konečné poloze bedny?
+                    (b) Jaká celková práce je na bedně vykonána? Jaká práce je vykonána (c) tíhovou
+                    silou a (d) napětím lana? (e) Použijte tyto výsledky k nalezení práce vykonané
+                    silou <span data-tex="\vec F"></span>. (f) Proč tato práce není prostě součinem
+                    vodorovného posunutí a odpovědi z (a)?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Rope sandbox</span><span lang="cs">Sandbox: lano</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F = mg\tan\theta"></div>
+                <div class="sim-hint"><span lang="en">the push grows as the rope tilts</span><span lang="cs">tlak roste s náklonem lana</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Sideways displacement d</span><span lang="cs">Posunutí do strany d</span></span>
+                            <span class="sim-control-val" id="p-x-val">4.00 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-x" min="0" max="7" step="0.05" value="4.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Rope length L</span><span lang="cs">Délka lana L</span></span>
+                            <span class="sim-control-val" id="p-l-val">12.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-l" min="8" max="16" step="0.5" value="12">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Crate mass m</span><span lang="cs">Hmotnost bedny m</span></span>
+                            <span class="sim-control-val" id="p-m-val">230 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="100" max="400" step="5" value="230">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">At the final position</span><span lang="cs">V konečné poloze</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\theta"></span>
+                        <span class="readout-val" id="r-th">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F = mg\tan\theta"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Delta h = L(1-\cos\theta)"></span>
+                        <span class="readout-val" id="r-dh">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Works (rest → rest)</span><span lang="cs">Práce (klid → klid)</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_{\text{total}},\ W_T"></span>
+                        <span class="readout-val">0, 0</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_g"></span>
+                        <span class="readout-val" id="r-wg">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_F = -W_g"></span>
+                        <span class="readout-val" id="r-wf">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-ghost">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">starting position</span><span lang="cs">počáteční poloha</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-forces">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">force arrows</span><span lang="cs">silové šipky</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> At the final position the rope makes
+                    <span data-tex="\sin\theta = 4/12"></span>, i.e.
+                    <span data-tex="\theta = 19.5^\circ"></span>, with the vertical. Quasi-static
+                    equilibrium of the three forces gives
+                    <span data-tex="F = mg\tan\theta = 230\cdot 9.8\cdot 0.354 = 0.80\ \mathrm{kN}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> V konečné poloze svírá lano se svislicí úhel, pro
+                    který <span data-tex="\sin\theta = 4/12"></span>, tedy
+                    <span data-tex="\theta = 19{,}5^\circ"></span>. Kvazistatická rovnováha tří sil dává
+                    <span data-tex="F = mg\tan\theta = 230\cdot 9{,}8\cdot 0{,}354 = 0{,}80\ \mathrm{kN}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The crate starts and ends at rest, so
+                    <span data-tex="W_{\text{total}} = \Delta E_k = 0"></span>.
+                    <strong>(d)</strong> The tension is always perpendicular to the circular path:
+                    <span data-tex="W_T = 0"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Bedna je na začátku i na konci v klidu, takže
+                    <span data-tex="W_{\text{total}} = \Delta E_k = 0"></span>.
+                    <strong>(d)</strong> Napětí je vždy kolmé na kruhovou trajektorii:
+                    <span data-tex="W_T = 0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> The crate rises
+                    <span data-tex="\Delta h = L(1-\cos\theta) = 12\,(1-0.943) = 0.69\ \mathrm{m}"></span>,
+                    so <span data-tex="W_g = -mg\,\Delta h = -1.5\ \mathrm{kJ}"></span>.</span>
+                    <span lang="cs"><strong>(c)</strong> Bedna vystoupá o
+                    <span data-tex="\Delta h = L(1-\cos\theta) = 12\,(1-0{,}943) = 0{,}69\ \mathrm{m}"></span>,
+                    takže <span data-tex="W_g = -mg\,\Delta h = -1{,}5\ \mathrm{kJ}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(e)</strong> From
+                    <span data-tex="W_F + W_g + W_T = 0"></span>:
+                    <span data-tex="W_F = +1.5\ \mathrm{kJ}"></span>.
+                    <strong>(f)</strong> Because <span data-tex="\vec F"></span> is not constant — it
+                    grows from zero as the rope tilts — and the crate's path is an arc, not a straight
+                    horizontal line. The simple product <span data-tex="F\!\cdot\! d = 3.2\ \mathrm{kJ}"></span>
+                    would overcount the work more than twofold.</span>
+                    <span lang="cs"><strong>(e)</strong> Ze vztahu
+                    <span data-tex="W_F + W_g + W_T = 0"></span>:
+                    <span data-tex="W_F = +1{,}5\ \mathrm{kJ}"></span>.
+                    <strong>(f)</strong> Protože <span data-tex="\vec F"></span> není konstantní — roste
+                    od nuly, jak se lano naklání — a trajektorie bedny je oblouk, nikoli přímá
+                    vodorovná linie. Jednoduchý součin
+                    <span data-tex="F\!\cdot\! d = 3{,}2\ \mathrm{kJ}"></span>
+                    by práci nadhodnotil více než dvojnásobně.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="F \approx 797\ \mathrm{N} \approx 0.80\ \mathrm{kN}"></span><span lang="cs" data-tex="F \approx 797\ \mathrm{N} \approx 0{,}80\ \mathrm{kN}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b, d)</span><span lang="cs">Výsledek (b, d)</span></span>
+                <span class="ans-value" data-tex="W_{\text{total}} = 0;\quad W_T = 0"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c, e)</span><span lang="cs">Výsledek (c, e)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="W_g \approx -1.5\ \mathrm{kJ};\quad W_F \approx +1.5\ \mathrm{kJ}"></span><span lang="cs" data-tex="W_g \approx -1{,}5\ \mathrm{kJ};\quad W_F \approx +1{,}5\ \mathrm{kJ}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 7 · Ex. 65</span><span lang="cs">Kap. 7 · Úl. 65</span></span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    const DEFAULTS = { x: 4.0, l: 12.0, m: 230 };
+    let state = { ...DEFAULTS };
+    const show = { ghost: true, forces: true };
+
+    const fmtX = v => v.toFixed(2) + ' m';
+    const fmtL = v => v.toFixed(1) + ' m';
+    const fmtM = v => v.toFixed(0) + ' kg';
+    const SLIDERS = [['p-x', 'x', fmtX], ['p-l', 'l', fmtL], ['p-m', 'm', fmtM]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-ghost',  'ghost');
+    wireToggle('tgl-forces', 'forces');
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function crate(cx, cy, ghost) {
+        const s = 46;
+        ctx.globalAlpha = ghost ? 0.3 : 1;
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(cx - s / 2, cy, s, s);
+        ctx.strokeRect(cx - s / 2, cy, s, s);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx - s / 2, cy); ctx.lineTo(cx + s / 2, cy + s);
+        ctx.moveTo(cx + s / 2, cy); ctx.lineTo(cx - s / 2, cy + s);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const th = Math.asin(Math.min(state.x / state.l, 0.99));
+        const F  = state.m * g * Math.tan(th);
+        const dh = state.l * (1 - Math.cos(th));
+        const Wg = -state.m * g * dh;
+
+        /* ceiling anchor */
+        const ax = W * 0.38, ay = 30;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(ax - 80, ay); ctx.lineTo(ax + 140, ay); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = ax - 74; x < ax + 136; x += 12) {
+            ctx.beginPath(); ctx.moveTo(x, ay); ctx.lineTo(x + 8, ay - 8); ctx.stroke();
+        }
+
+        const Lpx = H * 0.66;
+        const hangX = ax, hangY = ay + Lpx;
+        const nowX = ax + Math.sin(th) * Lpx, nowY = ay + Math.cos(th) * Lpx;
+
+        /* swing arc */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+        ctx.beginPath();
+        ctx.arc(ax, ay, Lpx, Math.PI / 2 - 0.65, Math.PI / 2 + 0.06);
+        ctx.stroke(); ctx.setLineDash([]);
+
+        /* ghost start */
+        if (show.ghost) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(hangX, hangY); ctx.stroke();
+            crate(hangX, hangY, true);
+            /* rise Δh dimension */
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(nowX + 40, hangY); ctx.lineTo(nowX + 40, nowY); ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('Δh', nowX + 46, (hangY + nowY) / 2);
+        }
+
+        /* rope + angle */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(nowX, nowY); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax, ay + 110); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(ax, ay, 62, Math.PI / 2 - th, Math.PI / 2); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('θ', ax + Math.sin(th / 2) * 72 - 2, ay + Math.cos(th / 2) * 72);
+
+        /* crate now */
+        crate(nowX, nowY, false);
+
+        /* forces */
+        if (show.forces) {
+            arrow(nowX + 23, nowY + 23, nowX + 23 + Math.max(F * 0.06, 8), nowY + 23, col.acc, 2.4);
+            ctx.fillStyle = col.acc;
+            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('F', nowX + 29 + Math.max(F * 0.06, 8), nowY + 20);
+            arrow(nowX, nowY + 46, nowX, nowY + 46 + state.m * g * 0.03, col.soft, 1.7);
+            ctx.fillStyle = col.soft;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText('mg', nowX + 6, nowY + 48 + state.m * g * 0.03);
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-th')) $('r-th').textContent = (th * 180 / Math.PI).toFixed(1) + '°';
+        if ($('r-f'))  $('r-f').textContent  = F.toFixed(0) + ' N';
+        if ($('r-dh')) $('r-dh').textContent = dh.toFixed(2) + ' m';
+        if ($('r-wg')) $('r-wg').textContent = (Wg / 1000).toFixed(2) + ' kJ';
+        if ($('r-wf')) $('r-wf').textContent = (-Wg / 1000).toFixed(2) + ' kJ';
+    }
+
+    function frame() { draw(); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

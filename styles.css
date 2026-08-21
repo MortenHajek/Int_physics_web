@@ -1,0 +1,1041 @@
+/* ============================================================
+   Physics Playground — Shared Stylesheet
+   Aesthetic: retro-scientific. Cream/paper, graph-grid, ink
+   lines, occasional hand-drawn wobble. Each topic gets a
+   distinct accent on the shared neutral base.
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..800;1,8..60,300..800&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+    /* Paper — aged vellum / scientific notebook */
+    --paper:        #FFFFEC;   /* warm white — gently aged */
+    --paper-vol:    #ffffec;   /* buttery cream — vol buttons, interactive surfaces */
+    --paper-deep:   #efead6;   /* old parchment — card viewports, panel headers */
+    --paper-edge:   #F8F3E5;   /* faintest warm tone — hover / edge states */
+    --paper-cool:   #FFFFEC;   /* faint cool-blue cream — Vol II distinguishing tint */
+
+    /* Ink — warm sepia hierarchy (darkest → lightest) */
+    --ink:          #363026;   /* near-black, warm undertone */
+    --ink-soft:     #4d4436;   /* medium warm brown */
+    --ink-faint:    #7A6A52;   /* light warm tan — labels, dividers, link underlines */
+    --ink-grid:     rgba(78, 72, 58, 0.080);
+    --ink-grid-bold:rgba(77, 70, 56, 0.095);
+
+    /* Topic accents — vintage scientific pigment palette */
+    --c-mechanics:  #cb562f;   /* Vermilion-terracotta — forces, friction */
+    --c-springs:    #2d6e6a;   /* Prussian Teal — oscillation */
+    --c-orbital:    #2a4a8a;   /* Ultramarine — cosmos */
+    --c-collision:  #b1311c;   /* Venetian Red — impact */
+    --c-pendulum:   #b3862a;   /* Yellow Ochre — gravity arc */
+    --c-electric:   #2e398a;   /* Indigo Violet — legacy alias for Vol II hero button */
+
+    /* Vol. II topic accents — electromagnetism, optics, quantum */
+    --c-electrostatics-1: #3D2E8A;   /* Indigo Violet — point charges, Coulomb */
+    --c-electrostatics-2: #7a2868;   /* Fuchsia Plum — fields, capacitance, Gauss */
+    --c-circuits:         #a25a28;   /* Antique Copper — wires, current, resistors */
+    --c-magnetism:        #5a6878;   /* Pewter — iron, B-field, dipoles */
+    --c-induction:        #5a8478;   /* Verdigris — oxidized coils, Faraday */
+    --c-optics:           #d4a418;   /* Saffron — refraction, prisms, lenses */
+    --c-quantum:          #2a1f50;   /* Midnight Indigo — atom, photon, uncertainty */
+
+    /* Vol. I topic accents */
+    --c-vectors:    #1e5080;   /* Prussian Blue — direction, geometry */
+    --c-kinematics: #7a3c1a;   /* Burnt Sienna — motion paths */
+    --c-energy:     #2d6b3a;   /* Viridian — conservation */
+    --c-systems:    #5a3578;   /* Dioxazine Violet — many-body */
+    --c-rotation:   #8a2840;   /* Carmine — angular momentum */
+    --c-gravity:    #163868;   /* Deep Prussian Navy — orbits (clearly darker than vectors) */
+    --c-waves:      #1a6678;   /* Cerulean — propagation */
+    --c-thermo:     #b05a18;   /* Raw Sienna — heat, entropy */
+
+    /* Type */
+    --f-serif:  "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    --f-sans:   "Geist", ui-sans-serif, system-ui, sans-serif;
+    --f-mono:   "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+    /* Rhythm */
+    --grid-unit: 24px;     /* graph paper square */
+    --radius:    2px;      /* sharp — like notebook corners */
+    --page-max:  1240px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    color: var(--ink);
+    font-family: var(--f-sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.55;
+    background: var(--paper);
+    /* Graph paper: two-layer grid, fine + bold every 5 squares */
+    background-image:
+        linear-gradient(var(--ink-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px),
+        linear-gradient(var(--ink-grid-bold) 1px, transparent 1px),
+        linear-gradient(90deg, var(--ink-grid-bold) 1px, transparent 1px);
+    background-size:
+        var(--grid-unit) var(--grid-unit),
+        var(--grid-unit) var(--grid-unit),
+        calc(var(--grid-unit) * 5) calc(var(--grid-unit) * 5),
+        calc(var(--grid-unit) * 5) calc(var(--grid-unit) * 5);
+    background-position: -1px -1px;
+    background-attachment: scroll;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* Subtle paper warmth — slight vignette */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at 50% 0%, transparent 40%, rgba(120,90,40,0.06) 100%),
+        radial-gradient(ellipse at 50% 100%, transparent 50%, rgba(120,90,40,0.05) 100%);
+    z-index: 0;
+}
+
+/* ---------- Typography ---------- */
+
+h1, h2, h3, h4 {
+    font-family: var(--f-serif);
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+}
+
+h1 { font-size: clamp(48px, 6vw, 84px); line-height: 1.02; letter-spacing: -0.025em; }
+h2 { font-size: 36px; line-height: 1.1; }
+h3 { font-size: 22px; line-height: 1.2; }
+h4 { font-size: 16px; line-height: 1.3; font-weight: 600; }
+
+p { margin: 0 0 1em 0; max-width: 60ch; text-wrap: pretty; }
+
+.eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+}
+
+.label {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+}
+
+.mono { font-family: var(--f-mono); }
+.serif { font-family: var(--f-serif); }
+
+a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink-faint);
+    transition: border-color 120ms;
+}
+a:hover { border-bottom-color: var(--ink); }
+
+/* ---------- Layout primitives ---------- */
+
+.page {
+    position: relative;
+    z-index: 1;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 48px 48px 80px;
+}
+
+.row { display: flex; gap: 32px; align-items: flex-start; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: var(--paper);
+    border-bottom: 1.5px solid var(--ink-faint);
+}
+.topbar::after {
+    /* The classic textbook double-rule */
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -4px;
+    height: 1px;
+    background: var(--ink);
+}
+.topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 16px 48px 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 28px;
+    font-weight: 500;
+}
+a.brand {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: none;   /* cancel the global a underline rule */
+}
+.brand .glyph {
+    font-style: normal;
+    font-family: var(--f-serif);
+    font-size: 36px;
+    line-height: 1;
+    transform: translateY(2px);
+    margin-right: 4px;     /* breathing room after wide glyphs (Φ, ψ, ∑…) */
+}
+.brand small {
+    font-family: var(--f-mono);
+    font-style: normal;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-left: 1px solid var(--ink-faint);
+    padding-left: 12px;
+    margin-left: 4px;
+}
+
+.nav { display: flex; gap: 28px; align-items: center; }
+.nav a {
+    border: none;
+    font-size: 17px;
+    color: var(--ink-soft);
+}
+.nav a:hover { color: var(--ink); }
+.nav .edition {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    padding: 4px 10px;
+    border: 1px solid var(--ink-faint);
+    border-radius: 100px;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 64px;
+    align-items: center;
+    margin-bottom: 88px;
+    min-height: 280px;
+}
+
+.hero-text h1 em {
+    font-style: italic;
+    font-family: var(--f-serif);
+}
+.hero-text .lede {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 46ch;
+    margin-top: 24px;
+}
+
+.hero-eq {
+    /* Big iconic equation as visual element */
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 32px 0;
+    border-left: 1px solid var(--ink);
+    padding-left: 40px;
+    position: relative;
+}
+.hero-eq .eq-big {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 96px;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+}
+.hero-eq .eq-big sub, .hero-eq .eq-big sup {
+    font-size: 0.45em;
+    font-style: normal;
+    font-family: var(--f-mono);
+}
+.hero-eq .eq-caption {
+    margin-top: 16px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+.hero-eq .pin {
+    position: absolute;
+    top: 0;
+    left: -6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ink);
+}
+
+/* ---------- Hero navigation buttons ---------- */
+
+.hero-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.vol-btn {
+    display: flex;
+    flex-direction: column;
+    padding: 22px 28px 20px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper-vol);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1.5px solid var(--ink);
+    position: relative;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+    /*cursor: crosshair;*/
+    min-height: 90px;
+    justify-content: center;
+}
+.vol-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+    border-bottom-color: var(--ink);
+}
+.vol-btn.vol-1 { border-top: 3px solid var(--c-mechanics); }
+.vol-btn.vol-2 { border-top: 3px solid var(--c-electric); }
+
+.vol-btn .vol-label {
+    font-family: var(--f-serif);
+    font-size: 30px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1;
+    display: block;
+}
+.vol-btn .vol-sub {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+    display: block;
+    margin-top: 7px;
+}
+.vol-btn .vol-arrow {
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--f-serif);
+    font-size: 22px;
+    color: var(--ink-faint);
+    transition: transform 160ms ease, color 160ms ease;
+}
+.vol-btn:hover .vol-arrow {
+    transform: translateY(-50%) translateX(5px);
+    color: var(--ink);
+}
+
+/* ---------- Section heading ---------- */
+
+.section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 12px;
+    border-bottom: 5px solid var(--ink-faint);
+}
+.section-head .count {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.14em;
+}
+
+/* ============================================================
+   Topic cards — the "color palette windows"
+   ============================================================ */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+}
+.cards.featured > .card:first-child {
+    grid-column: 1 / -1;
+}
+
+.card {
+    --accent: var(--ink);
+    position: relative;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: 360px;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    color: var(--ink);
+}
+.card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+}
+.card a.card-link {
+    position: absolute;
+    inset: 0;
+    border: none;
+    z-index: 5;
+}
+
+/* Accent tabs at top of each card */
+.card .accent-tab {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 40px;
+    width: 40px;
+    background: var(--accent);
+    border-radius: 0 0 4px 0;
+    z-index: 10;
+}
+.card .accent-meta {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    z-index: 2;
+}
+.card .accent-meta .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+/* Card viewport — the mini-sim area */
+.card .viewport {
+    position: relative;
+    background:
+        linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        var(--paper-deep);
+    border-bottom: 1px dashed var(--ink-faint);
+    overflow: hidden;
+    min-height: 220px;
+}
+
+.card .meta {
+    padding: 18px 22px 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 4px 16px;
+    align-items: end;
+}
+.card .meta .topic-num {
+    grid-column: 1;
+    grid-row: 1;
+    font-family: var(--f-mono);
+    font-size: 17px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+}
+.card .meta .topic-name {
+    grid-column: 1;
+    grid-row: 2;
+    font-family: var(--f-serif);
+    font-size: 26px;
+    line-height: 1.1;
+}
+.card .meta .arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    font-family: var(--f-serif);
+    font-size: 28px;
+    color: var(--accent);
+    transition: transform 180ms ease;
+}
+.card:hover .meta .arrow { transform: translateX(6px); }
+
+/* Equation chip in viewport corner */
+.card .eq-chip {
+    position: absolute;
+    bottom: 14px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.15;
+    color: var(--ink);
+    background: var(--paper);
+    padding: 6px 12px;
+    border: 1px solid var(--ink);
+    z-index: 2;
+}
+/* KaTeX is a flex item here, so a fraction sizes the chip instead of
+   spilling past its border (same fix as .canvas-formula-badge). */
+.card .eq-chip .katex { line-height: normal; }
+.card .eq-chip sub, .card .eq-chip sup {
+    font-family: var(--f-mono);
+    font-size: 0.5em;
+    font-style: normal;
+}
+
+/* Accent badge — small swatch labelled, in corner */
+.card .swatch-strip {
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    z-index: 2;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+}
+.card .swatch-strip .swatches { display: flex; gap: 0; }
+.card .swatch-strip .sw {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--ink);
+    margin-left: -1px;
+}
+
+/* Accent meta label + swatch strip — hidden visually, retained in HTML */
+.card .accent-meta  { display: none; }
+.card .swatch-strip { display: none; }
+
+/* Per-topic accent assignment */
+.card.mechanics  { --accent: var(--c-mechanics); }
+.card.springs    { --accent: var(--c-springs); }
+.card.orbital    { --accent: var(--c-orbital); }
+.card.collision  { --accent: var(--c-collision); }
+.card.pendulum   { --accent: var(--c-pendulum); }
+.card.electric   { --accent: var(--c-electric); }
+.card.vectors    { --accent: var(--c-vectors); }
+.card.kinematics { --accent: var(--c-kinematics); }
+.card.dynamics   { --accent: var(--c-mechanics); }
+.card.energy     { --accent: var(--c-energy); }
+.card.systems    { --accent: var(--c-systems); }
+.card.rotation   { --accent: var(--c-rotation); }
+.card.gravity    { --accent: var(--c-gravity); }
+.card.oscillation{ --accent: var(--c-springs); }
+.card.waves      { --accent: var(--c-waves); }
+.card.thermo     { --accent: var(--c-thermo); }
+/* Vol. II */
+.card.electrostatics-1 { --accent: var(--c-electrostatics-1); }
+.card.electrostatics-2 { --accent: var(--c-electrostatics-2); }
+.card.circuits         { --accent: var(--c-circuits); }
+.card.magnetism        { --accent: var(--c-magnetism); }
+.card.induction        { --accent: var(--c-induction); }
+.card.optics           { --accent: var(--c-optics); }
+.card.quantum          { --accent: var(--c-quantum); }
+
+/* ============================================================
+   Mini-sim sketches inside cards
+   ============================================================ */
+
+/* --- 1 · Vectors card --- */
+
+.vec-sim {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+/* Generic centering */
+.sim {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sim svg { width: 100%; height: 100%; display: block; }
+
+/* --- Springs --- live: oscillating mass --- */
+@keyframes spring-bob {
+    0%, 100% { transform: translateY(-26px); }
+    50%      { transform: translateY(26px); }
+}
+@keyframes spring-stretch {
+    0%, 100% { transform: scaleY(0.78); }
+    50%      { transform: scaleY(1.22); }
+}
+
+/* --- Pendulum --- live: swing --- */
+@keyframes pend-swing {
+    0%, 100% { transform: rotate(28deg); }
+    50%      { transform: rotate(-28deg); }
+}
+
+/* --- Orbital --- live: orbit --- */
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+
+/* --- Collision --- subtle motion --- */
+@keyframes col-drift {
+    0%   { transform: translateX(-30px); }
+    50%  { transform: translateX(30px); }
+    100% { transform: translateX(-30px); }
+}
+
+/* Hatching pattern for "blocks" */
+.hatch { stroke: var(--accent); stroke-width: 1.25; fill: none; }
+
+/* ============================================================
+   Footer
+   ============================================================ */
+
+footer.foot {
+    margin-top: 96px;
+    padding-top: 48px;
+    border-top: 1px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--f-mono);
+    font-size: 20px;
+    color: var(--ink-faint);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   Topic page primitives — used by /topics/*.html
+   ============================================================ */
+
+.crumb {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin-bottom: 24px;
+}
+.crumb a { border: none; color: var(--ink-faint); }
+.crumb a:hover { color: var(--ink); }
+.crumb .sep { margin: 0 8px; color: var(--ink-faint); }
+.crumb .here { color: var(--ink); }
+
+.topic-hero {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 56px;
+    align-items: end;
+    padding-bottom: 40px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--ink-faint);
+}
+.topic-hero .num {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent, var(--ink));
+    margin-bottom: 16px;
+}
+.topic-hero h1 { font-size: clamp(56px, 7vw, 96px); }
+.topic-hero .lede {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-top: 20px;
+    max-width: 48ch;
+}
+
+.topic-hero .eq-wrap {
+    border-left: 1px solid var(--accent, var(--ink));
+    padding-left: 32px;
+}
+.topic-hero .eq-big {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: clamp(24px, 3.2vw, 44px);
+    line-height: 1.1;
+    color: var(--ink);
+    white-space: nowrap;
+}
+.topic-hero .eq-big sub, .topic-hero .eq-big sup {
+    font-family: var(--f-mono);
+    font-style: normal;
+    font-size: 0.42em;
+}
+.topic-hero .eq-caption {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent, var(--ink-faint));
+    margin-top: 20px;
+}
+
+/* Lab — main canvas + side panels */
+
+.lab {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 28px;
+    margin-bottom: 40px;
+}
+
+.canvas-panel,
+.side-panel {
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    border-radius: var(--radius);
+    position: relative;
+}
+
+.canvas-panel {
+    min-height: 520px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.canvas-panel .canvas-head,
+.side-panel .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ink);
+    background: var(--paper-deep);
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+.canvas-panel .canvas-head .accent-pip,
+.side-panel .panel-head .accent-pip {
+    display: inline-block;
+    width: 10px; height: 10px;
+    background: var(--accent, var(--ink));
+    margin-right: 8px;
+    vertical-align: -1px;
+}
+.canvas-panel .placeholder {
+    flex: 1;
+    position: relative;
+    background:
+        linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        var(--paper-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-faint);
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+}
+.canvas-panel .placeholder .ph-inner {
+    text-align: center;
+    border: 1.5px dashed var(--ink-faint);
+    padding: 32px 40px;
+    background: rgba(255,255,255,0.25);
+}
+.canvas-panel .placeholder .ph-inner strong {
+    display: block;
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Side stack */
+.side-stack { display: flex; flex-direction: column; gap: 28px; }
+
+.side-panel { padding: 0; }
+.side-panel .panel-body { padding: 18px 18px 22px; }
+
+.control {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 16px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--ink-faint);
+}
+.control:last-child { border-bottom: none; }
+.control .name {
+    font-family: var(--f-sans);
+    font-size: 14px;
+    color: var(--ink);
+}
+.control .val {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    color: var(--accent, var(--ink));
+}
+.control .slot {
+    grid-column: 1 / -1;
+    height: 8px;
+    background: var(--paper-deep);
+    border: 1px solid var(--ink-faint);
+    border-radius: 100px;
+    position: relative;
+    margin-top: 6px;
+}
+.control .slot::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent, var(--ink));
+    border: 1.5px solid var(--ink);
+}
+.control[data-pos="20"] .slot::after { left: 20%; }
+.control[data-pos="35"] .slot::after { left: 35%; }
+.control[data-pos="50"] .slot::after { left: 50%; }
+.control[data-pos="65"] .slot::after { left: 65%; }
+.control[data-pos="80"] .slot::after { left: 80%; }
+
+.graph-area {
+    height: 180px;
+    background:
+        linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        var(--paper-deep);
+    border-top: 1px solid var(--ink);
+    position: relative;
+}
+
+.concepts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink-faint);
+}
+.concept {
+    border-top: 2px solid var(--accent, var(--ink));
+    padding-top: 12px;
+}
+.concept h4 { font-family: var(--f-serif); font-weight: 500; font-size: 18px; margin-bottom: 6px; }
+.concept p { font-size: 14px; color: var(--ink-soft); margin: 0; }
+
+/* ============================================================
+   Topic accents at page level
+   ============================================================ */
+body.mechanics  { --accent: var(--c-mechanics); }
+body.dynamics   { --accent: var(--c-mechanics); }
+body.springs    { --accent: var(--c-springs); }
+body.orbital    { --accent: var(--c-orbital); }
+body.collision  { --accent: var(--c-collision); }
+body.pendulum   { --accent: var(--c-pendulum); }
+body.electric   { --accent: var(--c-electric); }
+body.vectors    { --accent: var(--c-vectors); }
+body.kinematics { --accent: var(--c-kinematics); }
+body.energy     { --accent: var(--c-energy); }
+body.systems    { --accent: var(--c-systems); }
+body.rotation   { --accent: var(--c-rotation); }
+body.gravity    { --accent: var(--c-gravity); }
+body.oscillation{ --accent: var(--c-springs); }
+body.waves      { --accent: var(--c-waves); }
+body.thermo     { --accent: var(--c-thermo); }
+/* Vol. II */
+body.electrostatics-1 { --accent: var(--c-electrostatics-1); }
+body.electrostatics-2 { --accent: var(--c-electrostatics-2); }
+body.circuits         { --accent: var(--c-circuits); }
+body.magnetism        { --accent: var(--c-magnetism); }
+body.induction        { --accent: var(--c-induction); }
+body.optics           { --accent: var(--c-optics); }
+body.quantum          { --accent: var(--c-quantum); }
+
+/* Faintly cool-blue viewport (simulation area) on every Vol II card —
+   distinguishes electromagnetism from Vol I (Mechanics). Card body and
+   meta strip keep the warm-paper background of Vol I. */
+#vol2 .card .viewport {
+    background:
+        linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0/16px 16px,
+        var(--paper-cool);
+}
+
+/* ============================================================
+   Small utility marks — annotations, pins, callouts
+   (drawn in CSS, no images)
+   ============================================================ */
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px 4px 6px;
+    border: 1px solid var(--ink);
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--paper);
+    color: var(--ink);
+}
+.tag::before {
+    content: "";
+    width: 8px; height: 8px;
+    background: var(--accent, var(--ink));
+    border-radius: 50%;
+}
+/* Tag label boxes are metadata only — hide them on topic subpages */
+.topic-hero .tag,
+.topic-hero div:has(> .tag) { display: none; }
+
+/* Annotation note — slight wobble for hand-drawn feel */
+.note {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-soft);
+    position: relative;
+    padding-left: 14px;
+}
+.note::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 2px;
+    background: var(--accent, var(--ink-faint));
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+    .hero, .topic-hero, .lab { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: 1fr; }
+    .concepts { grid-template-columns: 1fr; }
+    .topbar-inner { padding: 12px 20px 14px; }
+    .page { padding: 32px 20px 60px; }
+    .hero-eq { border-left: none; border-top: 1px solid var(--ink); padding-left: 0; padding-top: 32px; }
+    .hero-eq .eq-big { font-size: 72px; }
+}
+
+/* ============================================================
+   i18n — CS/EN (lang.js + .lang-switch)
+   Bilingual content is duplicated in sibling elements marked
+   lang="en" / lang="cs"; only the active language is shown.
+   `body [lang]` deliberately never matches <html lang>.
+   ============================================================ */
+
+html[data-lang="cs"] body [lang="en"] { display: none !important; }
+html:not([data-lang="cs"]) body [lang="cs"] { display: none !important; }
+
+.lang-switch {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    padding: 0;
+}
+.lang-switch [data-lang-btn] {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    padding: 6px 10px 5px;
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+}
+.lang-switch [data-lang-btn] + [data-lang-btn] {
+    border-left: 1px solid var(--ink-faint);
+}
+.lang-switch [data-lang-btn]:hover { color: var(--ink); }
+.lang-switch [data-lang-btn].on {
+    background: var(--ink);
+    color: var(--paper);
+    cursor: default;
+}
+
+/* ============================================================
+   Entrance animation — hero-rise (approved pattern)
+   Fade-up + blur dissolve on page-load heroes. fill-mode MUST
+   stay `backwards`: hover states on this site lift via
+   transform, and a forwards fill would permanently override
+   them. index.html and exercises/vol2.html keep local copies
+   for their own hero blocks; these rules cover subpage heroes.
+   ============================================================ */
+
+@keyframes hero-rise {
+    from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+.topic-hero > div:first-child {
+    animation: hero-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms backwards;
+}
+.topic-hero .eq-wrap {
+    animation: hero-rise 800ms cubic-bezier(0.16, 1, 0.3, 1) 300ms backwards;
+}
+.ex-hero {
+    animation: hero-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+    .topic-hero > div:first-child,
+    .topic-hero .eq-wrap,
+    .ex-hero { animation: none; }
+}
+
+/* ============================================================
+   Native smooth scrolling (Lenis removed 2026-08-18)
+   Wheel scrolling is fully native — it runs on the compositor
+   thread, immune to main-thread jank from the canvas RAF loops.
+   scroll-behavior animates only anchor jumps (#concept, #lab…);
+   scroll-padding keeps those targets clear of the sticky topbar.
+   ============================================================ */
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 84px;
+}
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}

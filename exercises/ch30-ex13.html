@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 30.13 · The AC Generator — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="induction" data-screen-label="Ex 30.13 AC Generator">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electromagnetic Induction</span><span lang="cs">Díl II · Elektromagnetická indukce</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 30 · Ex. 13</span><span lang="cs">Kap. 30 · Úl. 13</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 5 · Electromagnetic Induction — Chapter 30 · Exercise 13</span><span lang="cs">5. téma · Elektromagnetická indukce — Kapitola 30 · Úloha 13</span></div>
+        <h1><span lang="en">The AC Generator</span><span lang="cs">Generátor střídavého proudu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>13</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A flat rectangular coil of <span data-tex="N"></span> turns with side lengths
+                    <span data-tex="a"></span> and <span data-tex="b"></span> rotates at frequency
+                    <span data-tex="f"></span> in a uniform magnetic field
+                    <span data-tex="B"></span> — the standard AC generator.
+                    (a) Show that the induced emf is
+                    <span class="given" data-tex="\varepsilon(t) = 2\pi f\,N\,a\,b\,B\,\sin(2\pi f t)"></span>.
+                </p>
+                <p lang="cs">
+                    Plochá obdélníková cívka o <span data-tex="N"></span> závitech se stranami
+                    <span data-tex="a"></span> a <span data-tex="b"></span> se otáčí frekvencí
+                    <span data-tex="f"></span> v homogenním magnetickém poli
+                    <span data-tex="B"></span> — standardní generátor střídavého proudu.
+                    (a) Ukažte, že indukované EMN je
+                    <span class="given" data-tex="\varepsilon(t) = 2\pi f\,N\,a\,b\,B\,\sin(2\pi f t)"></span>.
+                </p>
+                <p lang="en">
+                    (b) Design the generator: what value of <span data-tex="N\,a\,b"></span>
+                    makes it deliver a peak emf of
+                    <span class="given" data-tex="\varepsilon_m = 150\ \mathrm{V}"></span>
+                    when rotating at
+                    <span class="given" data-tex="f = 60.0\ \mathrm{rev/s}"></span>
+                    in a field
+                    <span class="given" data-tex="B = 0.500\ \mathrm{T}"></span>?
+                </p>
+                <p lang="cs">
+                    (b) Navrhněte generátor: jaká hodnota <span data-tex="N\,a\,b"></span>
+                    dodá špičkové EMN
+                    <span class="given" data-tex="\varepsilon_m = 150\ \mathrm{V}"></span>
+                    při otáčení frekvencí
+                    <span class="given" data-tex="f = 60{,}0\ \mathrm{ot./s}"></span>
+                    v poli
+                    <span class="given" data-tex="B = 0{,}500\ \mathrm{T}"></span>?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Generator sandbox</span><span lang="cs">Sandbox: generátor</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\varepsilon = -\,\dfrac{d\Phi}{dt}"></div>
+                <div class="sim-hint"><span lang="en">raise N·ab until the peaks touch the target</span><span lang="cs">zvyšujte N·ab, dokud se vrcholy nedotknou cíle</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Coil product N·ab</span><span lang="cs">Součin cívky N·ab</span></span>
+                            <span class="sim-control-val" id="p-nab-val">0.400 m²</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-nab" min="0.10" max="2.00" step="0.002" value="0.400">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Rotation f</span><span lang="cs">Otáčky f</span></span>
+                            <span class="sim-control-val" id="p-f-val">60 Hz</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-f" min="10" max="100" step="1" value="60">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Field B</span><span lang="cs">Pole B</span></span>
+                            <span class="sim-control-val" id="p-b-val">0.500 T</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-b" min="0.10" max="1.00" step="0.005" value="0.500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Generator output</span><span lang="cs">Výstup generátoru</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Phi_m = N\,ab\,B"></span>
+                        <span class="readout-val" id="r-phim">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varepsilon_m = 2\pi f\,N\,ab\,B"></span>
+                        <span class="readout-val" id="r-em">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">match</span><span lang="cs">shoda</span></span>
+                        <span class="readout-val" id="r-match">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-target">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">target lines</span><span lang="cs">cílové čáry</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-rot">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">rotation</span><span lang="cs">rotace</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Flux through the coil when it has turned through the angle
+                    <span data-tex="2\pi f t"></span>:
+                    <span data-tex="\Phi(t) = N\,a\,b\,B\cos(2\pi f t)"></span>.</span>
+                    <span lang="cs">Tok cívkou, když se otočila o úhel
+                    <span data-tex="2\pi f t"></span>:
+                    <span data-tex="\Phi(t) = N\,a\,b\,B\cos(2\pi f t)"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Faraday:
+                    <span data-tex="\varepsilon = -\dfrac{d\Phi}{dt} = 2\pi f\,N\,a\,b\,B\,\sin(2\pi f t)"></span>
+                    — a sine with peak
+                    <span data-tex="\varepsilon_m = 2\pi f\,N\,a\,b\,B"></span>. → part (a)</span>
+                    <span lang="cs">Faradayův zákon:
+                    <span data-tex="\varepsilon = -\dfrac{d\Phi}{dt} = 2\pi f\,N\,a\,b\,B\,\sin(2\pi f t)"></span>
+                    — sinusoida s vrcholem
+                    <span data-tex="\varepsilon_m = 2\pi f\,N\,a\,b\,B"></span>. → část (a)</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Solve for the design product:
+                    <span data-tex="N\,a\,b = \dfrac{\varepsilon_m}{2\pi f B} = \dfrac{150}{2\pi\,(60.0)(0.500)} = 0.796\ \mathrm{m^2}"></span>.</span>
+                    <span lang="cs">Vyřešíme pro návrhový součin:
+                    <span data-tex="N\,a\,b = \dfrac{\varepsilon_m}{2\pi f B} = \dfrac{150}{2\pi\,(60{,}0)(0{,}500)} = 0{,}796\ \mathrm{m^2}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="N\,ab \approx 0.796\ \mathrm{m^2}"></span><span lang="cs" data-tex="N\,ab \approx 0{,}796\ \mathrm{m^2}"></span></span>
+                <span class="ans-value"><span lang="en">— e.g. 100 turns of 80 cm² each.</span><span lang="cs">— např. 100 závitů po 80 cm².</span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/induction.html"><span lang="en">← Topic: Electromagnetic Induction</span><span lang="cs">← Téma: Elektromagnetická indukce</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 30 · Ex. 13</span><span lang="cs">Kap. 30 · Úl. 13</span></span>
+        <span><span lang="en">Vol. II · Electromagnetic Induction</span><span lang="cs">Díl II · Elektromagnetická indukce</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a8478',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+    const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const TARGET   = 150;   /* V — design goal */
+    const DISP_HZ  = 0.4;   /* display rotation rate, slowed for watchability */
+
+    /* nab in m², f in Hz, B in T */
+    const DEFAULTS = { nab: 0.400, f: 60, B: 0.500 };
+    let state = { ...DEFAULTS };
+    const show = { target: true, rot: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtNab = v => v.toFixed(3) + ' m²';
+    const fmtF   = v => v.toFixed(0) + ' Hz';
+    const fmtB   = v => v.toFixed(3) + ' T';
+    bindSlider('p-nab', 'nab', fmtNab);
+    bindSlider('p-f',   'f',   fmtF);
+    bindSlider('p-b',   'B',   fmtB);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-nab', 'nab', fmtNab], ['p-f', 'f', fmtF], ['p-b', 'B', fmtB]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-target', 'target');
+    wireToggle('tgl-rot',    'rot');
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(9, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* "target εm = 150 V" — mono with a hand-set subscript m */
+    function targetLabel(xRight, y, color) {
+        ctx.fillStyle = color;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        const t1 = 'target ε', t3 = ' = 150 V';
+        ctx.font = '9px "JetBrains Mono", monospace';
+        const w1 = ctx.measureText(t1).width;
+        const w3 = ctx.measureText(t3).width;
+        ctx.font = '7px "JetBrains Mono", monospace';
+        const w2 = ctx.measureText('m').width;
+        let x = xRight - (w1 + w2 + w3);
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillText(t1, x, y); x += w1;
+        ctx.font = '7px "JetBrains Mono", monospace';
+        ctx.fillText('m', x, y + 2); x += w2;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillText(t3, x, y);
+    }
+
+    /* ── Animation state ────────────────────────────────────────── */
+    let phase = 0;      /* wave phase = coil rotation angle (display) */
+    let last  = null;
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        const em      = 2 * Math.PI * state.f * state.nab * state.B;
+        const matched = Math.abs(em - TARGET) < 2;
+
+        /* ══ Left third — end-on view of the rotating coil ═══════ */
+        const cx = W * 0.17, cy = H * 0.44;
+        const R  = Math.min(W * 0.11, H * 0.26);
+
+        /* uniform B field: faint horizontal arrows through the region */
+        [cy - R * 0.75, cy, cy + R * 0.75].forEach(y => {
+            arrow(cx - R - 16, y, cx + R + 16, y, col.faint, 1.1);
+        });
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('B', cx + R + 22, cy - R * 0.75);
+
+        /* dashed sweep circle — the rotation path */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+
+        /* coil seen edge-on: a bar through the pivot.
+           ang = phase + 90° so that phase 0 ⇒ coil ⊥ B ⇒ max flux, zero emf —
+           coherent with the sine hitting zero at the chart's right edge.   */
+        const ang = REDUCED ? Math.PI / 2 : phase + Math.PI / 2;
+        const ex1 = cx + R * Math.cos(ang), ey1 = cy - R * Math.sin(ang);
+        const ex2 = cx - R * Math.cos(ang), ey2 = cy + R * Math.sin(ang);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 3; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(ex1, ey1); ctx.lineTo(ex2, ey2); ctx.stroke();
+
+        /* wire bundles at the two long sides */
+        [[ex1, ey1], [ex2, ey2]].forEach(([x, y]) => {
+            ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+            ctx.lineWidth = 1.25; ctx.strokeStyle = col.ink; ctx.stroke();
+        });
+
+        /* pivot / axle */
+        ctx.beginPath(); ctx.arc(cx, cy, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill();
+        ctx.lineWidth = 1.25; ctx.strokeStyle = col.ink; ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, 1.1, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+
+        if (!REDUCED) {
+            ctx.fillStyle = col.faint;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+            ctx.fillText('slowed for display', cx, cy + R + 26);
+        }
+
+        /* ══ Right two-thirds — scrolling emf strip chart ═════════ */
+        const chartL = W * 0.37, chartR = W - 22;
+        const chartT = 24,       chartB = H - 44;
+        const y0     = (chartT + chartB) / 2;
+        const yScale = (chartB - chartT) / 2 / 200;   /* ±200 V full scale */
+        const chartW = chartR - chartL;
+
+        /* axis + ticks */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(chartL, chartT); ctx.lineTo(chartL, chartB); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(chartL, y0); ctx.lineTo(chartR, y0); ctx.stroke();
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        [200, 100, 0, -100, -200].forEach(v => {
+            const y = y0 - v * yScale;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(chartL - 4, y); ctx.lineTo(chartL, y); ctx.stroke();
+            const t = v === 200 ? '+200 V' : (v > 0 ? '+' + v : '' + v);
+            ctx.fillText(t, chartL - 7, y);
+        });
+
+        /* target rails — flip to accent the moment the peaks kiss them */
+        if (show.target) {
+            const tc = matched ? col.acc : col.soft;
+            const yP = y0 - TARGET * yScale, yM = y0 + TARGET * yScale;
+            ctx.strokeStyle = tc; ctx.lineWidth = 1.2;
+            ctx.setLineDash([6, 4]);
+            ctx.beginPath(); ctx.moveTo(chartL, yP); ctx.lineTo(chartR, yP); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(chartL, yM); ctx.lineTo(chartR, yM); ctx.stroke();
+            ctx.setLineDash([]);
+            targetLabel(chartR - 2, yP - 6, tc);
+        }
+
+        /* the emf trace */
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(chartL, chartT, chartW, chartB - chartT);
+        ctx.clip();
+        const cyc = state.f / 20;   /* cycles across the window scale with f */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let x = chartL; x <= chartR; x += 2) {
+            const arg = REDUCED
+                ? 2 * Math.PI * (x - chartL) / chartW              /* one static period */
+                : phase + 2 * Math.PI * cyc * (x - chartR) / chartW;
+            const y = y0 - em * Math.sin(arg) * yScale;
+            if (x === chartL) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        if (!REDUCED) {
+            /* pen dot: the coil's instantaneous emf, writing at the right edge */
+            ctx.beginPath();
+            ctx.arc(chartR, y0 - em * Math.sin(phase) * yScale, 3, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+        }
+        ctx.restore();
+
+        /* chart caption */
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(REDUCED ? 'one period, static' : 'ε(t) — scrolling', chartL + 6, chartB + 16);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-phim')) $('r-phim').textContent = (state.nab * state.B).toFixed(3) + ' Wb';
+        if ($('r-em'))   $('r-em').textContent   = em.toFixed(1) + ' V';
+        if ($('r-match')) {
+            const csLang = document.documentElement.getAttribute('data-lang') === 'cs';
+            $('r-match').textContent = matched ? (csLang ? '✓ shoda' : '✓ matched') : '—';
+        }
+    }
+
+    function frame(ts) {
+        const dt = last === null ? 0 : Math.min((ts - last) / 1000, 0.05);
+        last = ts;
+        if (show.rot && !REDUCED) phase += 2 * Math.PI * DISP_HZ * dt;
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oscillation · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: crosshair;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+                            
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                        
+            
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                .topic-nav { grid-template-columns: 1fr; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="oscillation" data-screen-label="I.08 Oscillation">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">ω₀</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ── Hero ──────────────────────────────────────────────────────── -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.08 · oscillation</div>
+            <h1>Oscillation</h1>
+            <p class="lede">
+                Pull a spring-mass from equilibrium and release. The restoring force
+                drives sinusoidal motion — a perpetual exchange between kinetic and
+                potential energy, altered by damping in real systems.
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="x = A\cos(\omega_0 t + \varphi)"></div>
+            <div class="eq-caption">Position in simple harmonic motion</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Whenever a system is nudged from equilibrium and pushed back in proportion to how far it has strayed, the
+ result is always the same motion: a sine in time. That is the content of <em>simple harmonic motion</em>, and
+ the reason it turns up everywhere from a spring to a twisted wire to a swinging rod is that near any minimum
+ almost every restoring influence is proportional to the displacement. The pay-off is that you never solve the
+ differential equation twice — you identify the restoring constant, divide by the inertia, and the angular
+ frequency drops out. Notice what is <em>not</em> in that answer: the amplitude. How far you pull it back
+ changes the speed and the force, never the period.</span><span lang="cs">Kdykoli soustavu vychýlíme z rovnováhy a ona se vrací silou úměrnou tomu, jak daleko se dostala, vyjde
+ vždy týž pohyb: sinus v čase. To je obsah <em>harmonického kmitání</em> a důvod, proč se objevuje všude od
+ pružiny přes zkroucený drát po kývající se tyč, je ten, že blízko každého minima je skoro každý vratný vliv
+ úměrný výchylce. Odměnou je, že diferenciální rovnici nikdy neřešíte dvakrát — určíte vratnou konstantu,
+ vydělíte setrvačností a úhlová frekvence vypadne sama. Všimněte si, co v té odpovědi <em>není</em>: amplituda.
+ Jak daleko soustavu vychýlíte, změní rychlost i sílu, nikdy periodu.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The signature of harmonic motion</span><span lang="cs">Poznávací znamení kmitů</span></span>
+                        <span class="cf-eq" data-tex="F = -k x"></span>
+                        <span class="cf-eq" data-tex="x(t) = A\cos(\omega t + \varphi_0)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A restoring influence proportional to the displacement, and the solution is always a sinusoid. Spotting
+      that proportionality in a new situation is the whole diagnostic — once seen, every formula below applies
+      unchanged.</span><span lang="cs">Vratné působení úměrné výchylce — a řešením je vždy sinusovka. Rozpoznat tuhle úměrnost v nové situaci
+      je celá diagnóza; jakmile ji uvidíte, platí všechny vzorce níže beze změny.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Frequency from restoring force and inertia</span><span lang="cs">Frekvence z vratné síly a setrvačnosti</span></span>
+                        <span class="cf-eq" data-tex="\omega = \sqrt{\dfrac{k}{m}}\,,\qquad T = 2\pi\sqrt{\dfrac{m}{k}}"></span>
+                        <span class="cf-eq" data-tex="\omega = \sqrt{\dfrac{\kappa}{I}}\ \text{(torzní)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Always the same shape: the square root of "how hard it pushes back" divided by "how hard it is to move".
+      For a twisting system the pair becomes the torsion constant and the rotational inertia — which is how a
+      torsion pendulum measures an unknown <span data-tex="I"></span>.</span><span lang="cs">Vždy týž tvar: odmocnina z „jak silně to tlačí zpět" děleno „jak těžko se to rozpohybuje". U kroutivé
+      soustavy je tou dvojicí torzní konstanta a moment setrvačnosti — a právě tak torzní kyvadlo změří neznámé
+      <span data-tex="I"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Velocity and acceleration</span><span lang="cs">Rychlost a zrychlení</span></span>
+                        <span class="cf-eq" data-tex="v_{max} = \omega A\,,\qquad a_{max} = \omega^2 A"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Differentiating the sinusoid twice returns it with factors of
+      <span data-tex="\omega"></span>. Speed peaks at the centre where the force is zero; acceleration peaks at
+      the turning points where the speed is zero — the two maxima never coincide.</span><span lang="cs">Dvojí derivací sinusovky dostanete tutéž sinusovku s činiteli
+      <span data-tex="\omega"></span>. Rychlost má maximum ve středu, kde je síla nulová; zrychlení v bodech
+      obratu, kde je nulová rychlost — obě maxima nikdy nenastanou zároveň.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy in an oscillator</span><span lang="cs">Energie oscilátoru</span></span>
+                        <span class="cf-eq" data-tex="E = \dfrac{1}{2}kA^2 = \dfrac{1}{2}mv_{max}^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The total is fixed by the amplitude alone and sloshes between kinetic and potential twice per cycle. Two
+      states, one equation — which is how an amplitude is found from a speed, or a speed from an
+      amplitude.</span><span lang="cs">Celková energie je dána jen amplitudou a přelévá se mezi kinetickou a potenciální dvakrát za periodu.
+      Dva stavy, jedna rovnice — a tak se z rychlosti určí amplituda, nebo z amplitudy rychlost.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Pendulums</span><span lang="cs">Kyvadla</span></span>
+                        <span class="cf-eq" data-tex="T = 2\pi\sqrt{\dfrac{\ell}{g}}\ \text{(matematické)}"></span>
+                        <span class="cf-eq" data-tex="T = 2\pi\sqrt{\dfrac{I}{mgd}}\ \text{(fyzické)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A pendulum is harmonic only for small angles, where
+      <span data-tex="\sin\theta \approx \theta"></span> restores the proportionality. The physical pendulum
+      needs the rotational inertia about the pivot and the distance to the centre of mass.</span><span lang="cs">Kyvadlo je harmonické jen pro malé úhly, kde
+      <span data-tex="\sin\theta \approx \theta"></span> obnoví úměrnost. Fyzické kyvadlo potřebuje moment
+      setrvačnosti k závěsu a vzdálenost k těžišti.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Friction as the limit</span><span lang="cs">Tření jako mez</span></span>
+                        <span class="cf-eq" data-tex="f_s \le \mu_s m g \;\Rightarrow\; a_{max} \le \mu_s g"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">When one body rides on another, friction is the only thing accelerating the passenger. Since the
+      oscillation demands <span data-tex="a_{max} = \omega^2 A"></span>, requiring that not to exceed what
+      friction can supply sets the largest amplitude that keeps the two moving together.</span><span lang="cs">Když jedno těleso veze druhé, je tření jediné, co pasažéra urychluje. Protože kmitání vyžaduje
+      <span data-tex="a_{max} = \omega^2 A"></span>, dá podmínka, aby to nepřesáhlo možnosti tření, největší
+      amplitudu, při níž se obě tělesa pohybují společně.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Find the restoring constant and the inertia.</strong> Every problem here reduces to identifying
+       one of each and putting them into
+       <span data-tex="\omega = \sqrt{k/m}"></span> — or its rotational twin. Read a torsion constant off a
+       torque-versus-angle graph as its slope.</span><span lang="cs"><strong>Najděte vratnou konstantu a setrvačnost.</strong> Každá úloha se tu zredukuje na určení jedné
+       a druhé a jejich dosazení do <span data-tex="\omega = \sqrt{k/m}"></span> — nebo rotačního dvojníka.
+       Torzní konstantu odečtěte z grafu moment–úhel jako směrnici.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Collision first, oscillation second.</strong> A projectile embedding itself is a momentum
+       problem that <em>sets up</em> the oscillation. Never use energy conservation across the impact — it is
+       inelastic and energy is lost.</span><span lang="cs"><strong>Nejdřív srážka, pak kmitání.</strong> Zaryté střelivo je úloha na hybnost, která kmitání
+       teprve <em>rozjede</em>. Přes náraz nikdy nepoužívejte zachování energie — je nepružný a energie se
+       ztrácí.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Then energy for the amplitude.</strong> Once the speed at the equilibrium point is known,
+       <span data-tex="\dfrac{1}{2}mv^2 = \dfrac{1}{2}kA^2"></span> gives the amplitude in one line. Remember to
+       use the <em>combined</em> mass after the embedding.</span><span lang="cs"><strong>Pak energie na amplitudu.</strong> Jakmile znáte rychlost v rovnovážné poloze, dá
+       <span data-tex="\dfrac{1}{2}mv^2 = \dfrac{1}{2}kA^2"></span> amplitudu na jeden řádek. Nezapomeňte použít
+       <em>spojenou</em> hmotnost po zarytí.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>"Does not slip" is an acceleration condition.</strong> Set
+       <span data-tex="\omega^2 A_{max} = \mu_s g"></span> and solve for the amplitude. The mass of the
+       passenger cancels, which is worth noticing.</span><span lang="cs"><strong>„Neprokluzuje" je podmínka na zrychlení.</strong> Položte
+       <span data-tex="\omega^2 A_{max} = \mu_s g"></span> a řešte amplitudu. Hmotnost pasažéra se vykrátí, což
+       stojí za povšimnutí.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Do not confuse the two angular quantities.</strong> In a torsion or rotational oscillator
+       <span data-tex="\omega"></span> is the constant angular <em>frequency</em> of the oscillation, while
+       <span data-tex="\dot\theta"></span> is the disc's changing angular <em>speed</em>. The maximum of the
+       second is <span data-tex="\omega\theta_{max}"></span>.</span><span lang="cs"><strong>Nepleťte si dvě úhlové veličiny.</strong> U torzního nebo rotačního oscilátoru je
+       <span data-tex="\omega"></span> konstantní úhlová <em>frekvence</em> kmitání, zatímco
+       <span data-tex="\dot\theta"></span> je proměnná úhlová <em>rychlost</em> kotouče. Maximum té druhé je
+       <span data-tex="\omega\theta_{max}"></span>.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         § 5  SIMULATION LAB
+         ═══════════════════════════════════════════════════════════════ -->
+    <section id="lab" class="lab" style="margin-top:72px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Spring-mass sandbox</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F = -kx"></div>
+                <div class="sim-hint">adjust k, m, damping · watch amplitude decay</div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <!-- Parameters -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
+                        title="Reset to defaults">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Spring constant <em>k</em></span>
+                            <span class="sim-control-val" id="p-k-val">100 N/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-k" min="10" max="500" step="10" value="100">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Mass <em>m</em></span>
+                            <span class="sim-control-val" id="p-m-val">0.5 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="0.1" max="5" step="0.1" value="0.5">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Damping <em>b</em></span>
+                            <span class="sim-control-val" id="p-b-val">1.0 N·s/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-b" min="0" max="20" step="0.5" value="1">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Amplitude <em>A</em></span>
+                            <span class="sim-control-val" id="p-amp-val">0.15 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-amp" min="0.05" max="0.5" step="0.05" value="0.15">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Readout</span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section">Frequency</div>
+                    <div class="readout-row">
+                        <span class="readout-label">ω₀</span>
+                        <span class="readout-val" id="r-omega0">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">ω<sub>d</sub></span>
+                        <span class="readout-val" id="r-omegad">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">T<sub>d</sub></span>
+                        <span class="readout-val" id="r-td">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">State</div>
+                    <div class="readout-row">
+                        <span class="readout-label">x</span>
+                        <span class="readout-val" id="r-x">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">v</span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">E</span>
+                        <span class="readout-val" id="r-e">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch15-ex24.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 24</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 24</span></span></a>
+            <a class="ex-tab" href="../exercises/ch15-ex35.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 35</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 35</span></span></a>
+            <a class="ex-tab" href="../exercises/ch15-ex51.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 51</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 51</span></span></a>
+            <a class="ex-tab" href="../exercises/ch15-ex101.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 101</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 101</span></span></a>
+        </div>
+    </section>
+
+    <!-- ── Prev / Next ───────────────────────────────────────────────── -->
+    <nav class="topic-nav">
+        <a href="gravity.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Gravity</span><span lang="cs">Gravitace</span></div>
+        </a>
+        <a href="waves.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Waves</span><span lang="cs">Vlnění</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.08 Oscillation</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX render ──────────────────────────────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SPRING-MASS SIMULATION — symplectic Euler, 10 substeps/frame
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    /* ── Canvas setup ──────────────────────────────────────────────── */
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  300);
+        H = Math.max(r.height, 300);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── Colour tokens ─────────────────────────────────────────────── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--accent').trim()    || '#2d6e6a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    let col = readCol();
+
+    /* ── Physics parameters & state ───────────────────────────────── */
+    const DEFAULTS = { k: 100, m: 0.5, b: 1.0, A: 0.15 };
+    let cfg = { ...DEFAULTS };
+
+    const SUBSTEPS = 10;
+    const DT = 1 / 600;   // per substep (= 1/60 / 10)
+
+    let x = 0, v = 0;     // physical units (m, m/s)
+    const WAVEFORM_LEN = 300;
+    let wave = [];         // ring buffer of x values (m)
+
+    function initSim() {
+        x = cfg.A;
+        v = 0;
+        wave = [];
+    }
+    initSim();
+
+    /* ── Symplectic Euler integrator ───────────────────────────────── */
+    function step() {
+        const a = (-cfg.k * x - cfg.b * v) / cfg.m;
+        v += a * DT;
+        x += v * DT;
+    }
+
+    /* ── Spring coil drawing ───────────────────────────────────────── */
+    function drawSpring(x1, y1, x2, y2, coils, r) {
+        const len = Math.hypot(x2 - x1, y2 - y1);
+        if (len < 2) return;
+        const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+        const px = -uy, py = ux;  // perpendicular
+        const segLen = len / (coils * 2 + 2);
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x1 + ux * segLen, y1 + uy * segLen);
+
+        for (let i = 0; i < coils * 2; i++) {
+            const side = (i % 2 === 0) ? +r : -r;
+            const cx_ = x1 + ux * segLen * (i + 1.5) + px * side;
+            const cy_ = y1 + uy * segLen * (i + 1.5) + py * side;
+            ctx.lineTo(cx_, cy_);
+        }
+
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([]);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+    }
+
+    /* ── Hatching helper ───────────────────────────────────────────── */
+    function hatchRect(rx, ry, rw, rh) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+        ctx.strokeStyle = col.faint + '90';
+        ctx.lineWidth = 0.8;
+        ctx.setLineDash([]);
+        const step = 7;
+        for (let i = rx - rh; i < rx + rw + rh; i += step) {
+            ctx.beginPath();
+            ctx.moveTo(i, ry);
+            ctx.lineTo(i + rh, ry + rh);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        /* Layout constants */
+        const PHYS_SCALE = Math.min(W, H) * 0.9;  // px per meter of full range
+        const EQ_X = W * 0.50;                     // equilibrium position of mass centre
+        const MASS_Y = H * 0.55;                   // vertical centre of mass
+        const WALL_X = 32;                         // right edge of wall
+        const MASS_W = 40, MASS_H = 40;
+        const MASS_X = EQ_X + x * PHYS_SCALE;      // actual mass centre (px)
+
+        /* Waveform area (upper 35% of canvas) */
+        const WAVE_TOP = 12;
+        const WAVE_H   = H * 0.32;
+        const WAVE_MID = WAVE_TOP + WAVE_H * 0.5;
+        const WAVE_SCALE = WAVE_H * 0.45 / Math.max(cfg.A, 0.05);
+
+        /* --- Waveform plot --- */
+        if (wave.length > 1) {
+            const dx = (W - 40) / WAVEFORM_LEN;
+            ctx.beginPath();
+            ctx.strokeStyle = col.acc;
+            ctx.lineWidth = 1.4;
+            ctx.setLineDash([]);
+            for (let i = 0; i < wave.length; i++) {
+                const wx = 20 + i * dx;
+                const wy = WAVE_MID - wave[i] * WAVE_SCALE;
+                if (i === 0) ctx.moveTo(wx, wy);
+                else ctx.lineTo(wx, wy);
+            }
+            ctx.stroke();
+            /* Zero line */
+            ctx.strokeStyle = col.faint + '80';
+            ctx.lineWidth = 0.8;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(20, WAVE_MID);
+            ctx.lineTo(W - 20, WAVE_MID);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            /* Label */
+            ctx.fillStyle = col.faint;
+            ctx.font = '10px "JetBrains Mono",monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('x(t)', 20, WAVE_TOP + 2);
+        }
+
+        /* Divider between waveform and spring scene */
+        ctx.strokeStyle = col.faint + '40';
+        ctx.lineWidth = 0.8;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(0, WAVE_TOP + WAVE_H + 8);
+        ctx.lineTo(W, WAVE_TOP + WAVE_H + 8);
+        ctx.stroke();
+
+        /* --- Wall --- */
+        const wallW = 14;
+        ctx.fillStyle = col.paper;
+        ctx.fillRect(0, MASS_Y - 60, wallW, 120);
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(0, MASS_Y - 60, wallW, 120);
+        hatchRect(-14, MASS_Y - 60, 14, 120);
+
+        /* --- Equilibrium dashed line --- */
+        ctx.strokeStyle = col.accent + '60';
+        ctx.lineWidth = 0.9;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(EQ_X, MASS_Y - 40);
+        ctx.lineTo(EQ_X, MASS_Y + 40);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono",monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('eq', EQ_X, MASS_Y + 26);
+
+        /* --- Spring --- */
+        drawSpring(WALL_X, MASS_Y, MASS_X - MASS_W / 2, MASS_Y, 10, 9);
+
+        /* --- Mass block --- */
+        const mx = MASS_X - MASS_W / 2, my = MASS_Y - MASS_H / 2;
+        ctx.fillStyle = col.acc;
+        ctx.fillRect(mx, my, MASS_W, MASS_H);
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(mx, my, MASS_W, MASS_H);
+        /* 'm' label on mass */
+        ctx.fillStyle = col.paper;
+        ctx.font = 'italic bold 16px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('m', MASS_X, MASS_Y);
+
+        /* Ground line */
+        const GROUND_Y = MASS_Y + MASS_H / 2 + 2;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND_Y);
+        ctx.lineTo(W, GROUND_Y);
+        ctx.stroke();
+        hatchRect(0, GROUND_Y, W, 10);
+
+        /* x displacement arrow */
+        if (Math.abs(x) > 0.005) {
+            const arrowY = MASS_Y - MASS_H / 2 - 14;
+            const x0 = EQ_X, x1 = MASS_X;
+            ctx.strokeStyle = col.soft;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(x0, arrowY);
+            ctx.lineTo(x1, arrowY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            /* Arrowhead */
+            const dir = x > 0 ? 1 : -1;
+            ctx.fillStyle = col.soft;
+            ctx.beginPath();
+            ctx.moveTo(x1, arrowY);
+            ctx.lineTo(x1 - dir*8, arrowY - 4);
+            ctx.lineTo(x1 - dir*8, arrowY + 4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = col.soft;
+            ctx.font = '11px "JetBrains Mono",monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('x = ' + x.toFixed(3) + ' m', (x0 + x1) / 2, arrowY - 3);
+        }
+
+        /* --- Readout update --- */
+        const omega0 = Math.sqrt(cfg.k / cfg.m);
+        const gamma  = cfg.b / (2 * cfg.m);
+        const arg    = omega0 * omega0 - gamma * gamma;
+        const omegad = arg > 0 ? Math.sqrt(arg) : 0;
+        const Td     = omegad > 0 ? 2 * Math.PI / omegad : Infinity;
+        const E      = 0.5 * cfg.k * x * x + 0.5 * cfg.m * v * v;
+
+        const $ = id => document.getElementById(id);
+        if ($('r-omega0')) $('r-omega0').textContent = omega0.toFixed(2) + ' rad/s';
+        if ($('r-omegad')) $('r-omegad').textContent = omegad > 0 ? omegad.toFixed(2) + ' rad/s' : 'overdamped';
+        if ($('r-td'))     $('r-td').textContent     = isFinite(Td) ? Td.toFixed(3) + ' s' : '—';
+        if ($('r-x'))      $('r-x').textContent      = x.toFixed(4) + ' m';
+        if ($('r-v'))      $('r-v').textContent      = v.toFixed(3) + ' m/s';
+        if ($('r-e'))      $('r-e').textContent      = E.toFixed(4) + ' J';
+    }
+
+    /* ── Slider wiring ─────────────────────────────────────────────── */
+    function bindSlider(inputId, valId, fmt, key, needsReinit) {
+        const inp = document.getElementById(inputId);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            cfg[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(+inp.value);
+            if (needsReinit) initSim();
+        });
+    }
+    bindSlider('p-k',   'p-k-val',   v => v + ' N/m',    'k', false);
+    bindSlider('p-m',   'p-m-val',   v => v.toFixed(1) + ' kg', 'm', false);
+    bindSlider('p-b',   'p-b-val',   v => v.toFixed(1) + ' N·s/m', 'b', false);
+    bindSlider('p-amp', 'p-amp-val', v => v.toFixed(2) + ' m', 'A', true);
+
+    /* ── Reset button ──────────────────────────────────────────────── */
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        cfg = { ...DEFAULTS };
+        [
+            ['p-k',   'p-k-val',   v => v + ' N/m'],
+            ['p-m',   'p-m-val',   v => (+v).toFixed(1) + ' kg'],
+            ['p-b',   'p-b-val',   v => (+v).toFixed(1) + ' N·s/m'],
+            ['p-amp', 'p-amp-val', v => (+v).toFixed(2) + ' m'],
+        ].forEach(([id, valId, fmt]) => {
+            const keyMap = { 'p-k': 'k', 'p-m': 'm', 'p-b': 'b', 'p-amp': 'A' };
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(valId);
+            if (inp) inp.value = cfg[keyMap[id]];
+            if (lbl) lbl.textContent = fmt(cfg[keyMap[id]]);
+        });
+        initSim();
+    });
+
+    /* ── RAF loop ──────────────────────────────────────────────────── */
+    let lastT = 0, frames = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        /* Integrate */
+        for (let i = 0; i < SUBSTEPS; i++) {
+            step();
+        }
+        wave.push(x);
+        if (wave.length > WAVEFORM_LEN) wave.shift();
+
+        draw();
+
+        frames++;
+        if (ts - lastT >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
+            frames = 0; lastT = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

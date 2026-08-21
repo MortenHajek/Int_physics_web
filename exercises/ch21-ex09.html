@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 21.9 · A Square of Charges — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-1" data-screen-label="Ex 21.9 Square of Charges">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 21 · Ex. 9</span><span lang="cs">Kap. 21 · Úl. 9</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 1 · Electrostatics I — Chapter 21 · Exercise 9</span><span lang="cs">1. téma · Elektrostatika I — Kapitola 21 · Úloha 9</span></div>
+        <h1><span lang="en">A Square of Charges</span><span lang="cs">Čtverec nábojů</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>9</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Four point charges sit at the corners of a square of side
+                    <span class="given" data-tex="a = 5.0\ \mathrm{cm}"></span>.
+                    The top corners carry
+                    <span class="given" data-tex="Q_1 = -Q_2 = 1.00\cdot 10^{-7}\ \mathrm{C}"></span>,
+                    the bottom corners
+                    <span class="given" data-tex="Q_3 = -Q_4 = 2.00\cdot 10^{-7}\ \mathrm{C}"></span>.
+                </p>
+                <p lang="cs">
+                    Čtyři bodové náboje sedí ve vrcholech čtverce o straně
+                    <span class="given" data-tex="a = 5{,}0\ \mathrm{cm}"></span>.
+                    Horní vrcholy nesou
+                    <span class="given" data-tex="Q_1 = -Q_2 = 1{,}00\cdot 10^{-7}\ \mathrm{C}"></span>,
+                    dolní vrcholy
+                    <span class="given" data-tex="Q_3 = -Q_4 = 2{,}00\cdot 10^{-7}\ \mathrm{C}"></span>.
+                </p>
+                <p lang="en">
+                    Determine (a) the <em>x</em>-component and (b) the <em>y</em>-component
+                    of the resultant electrostatic force acting on the charge in the
+                    lower-left corner, <span data-tex="Q_3"></span>.
+                </p>
+                <p lang="cs">
+                    Určete (a) <em>x</em>-ovou a (b) <em>y</em>-ovou složku výsledné
+                    elektrostatické síly, která působí na náboj v levém dolním rohu
+                    čtverce, <span data-tex="Q_3"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Force sandbox</span><span lang="cs">Sandbox: síly</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F = k\,\dfrac{|Q_i Q_j|}{r^2}"></div>
+                <div class="sim-hint"><span lang="en">adjust the sliders · forces update live</span><span lang="cs">posouvejte parametry · síly se počítají živě</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge Q₁ = −Q₂</span><span lang="cs">Náboj Q₁ = −Q₂</span></span>
+                            <span class="sim-control-val" id="p-q1-val">1.00 ×10⁻⁷ C</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q1" min="0.2" max="3" step="0.05" value="1.00">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge Q₃ = −Q₄</span><span lang="cs">Náboj Q₃ = −Q₄</span></span>
+                            <span class="sim-control-val" id="p-q3-val">2.00 ×10⁻⁷ C</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q3" min="0.2" max="4" step="0.05" value="2.00">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Square side a</span><span lang="cs">Strana čtverce a</span></span>
+                            <span class="sim-control-val" id="p-a-val">5.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-a" min="2" max="10" step="0.1" value="5.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Contributions on Q₃</span><span lang="cs">Příspěvky na Q₃</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\vec{F}_{31}|"></span>
+                        <span class="readout-val" id="r-f31">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\vec{F}_{32}|"></span>
+                        <span class="readout-val" id="r-f32">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\vec{F}_{34}|"></span>
+                        <span class="readout-val" id="r-f34">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Resultant</span><span lang="cs">Výslednice</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F_x"></span>
+                        <span class="readout-val" id="r-fx">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F_y"></span>
+                        <span class="readout-val" id="r-fy">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\vec{F}|"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\theta"></span>
+                        <span class="readout-val" id="r-th">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-contrib">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">contribution forces</span><span lang="cs">dílčí síly</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-net">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">resultant force</span><span lang="cs">výsledná síla</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Three charges act on <span data-tex="Q_3"></span>; the resultant is the vector sum
+                    of three Coulomb forces, each of magnitude
+                    <span data-tex="F = k\,|Q_i Q_j|/r^2"></span> with
+                    <span data-tex="k = 8.99\cdot 10^{9}\ \mathrm{N\,m^2\,C^{-2}}"></span>.</span>
+                    <span lang="cs">Na <span data-tex="Q_3"></span> působí tři náboje; výslednice je vektorový součet
+                    tří Coulombových sil, každá o velikosti
+                    <span data-tex="F = k\,|Q_i Q_j|/r^2"></span> s
+                    <span data-tex="k = 8{,}99\cdot 10^{9}\ \mathrm{N\,m^2\,C^{-2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>From Q₁</strong> (directly above, like signs — repulsion, distance <span data-tex="a"></span>):
+                    <span data-tex="F_{31} = k\,Q_1 Q_3 / a^2 = 7.19\cdot 10^{-2}\ \mathrm{N}"></span>,
+                    pointing straight down: <span data-tex="(0,\ {-0.0719})\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>Od Q₁</strong> (přímo nad ním, souhlasná znaménka — odpuzování, vzdálenost <span data-tex="a"></span>):
+                    <span data-tex="F_{31} = k\,Q_1 Q_3 / a^2 = 7{,}19\cdot 10^{-2}\ \mathrm{N}"></span>,
+                    míří přímo dolů: <span data-tex="(0,\ {-0{,}0719})\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>From Q₂</strong> (opposite corner, unlike signs — attraction, distance <span data-tex="\sqrt{2}\,a"></span>):
+                    <span data-tex="F_{32} = k\,Q_1 Q_3 / (2a^2) = 3.60\cdot 10^{-2}\ \mathrm{N}"></span>
+                    along the diagonal, components
+                    <span data-tex="({+0.0254},\ {+0.0254})\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>Od Q₂</strong> (protější roh, opačná znaménka — přitahování, vzdálenost <span data-tex="\sqrt{2}\,a"></span>):
+                    <span data-tex="F_{32} = k\,Q_1 Q_3 / (2a^2) = 3{,}60\cdot 10^{-2}\ \mathrm{N}"></span>
+                    podél úhlopříčky, složky
+                    <span data-tex="({+0{,}0254},\ {+0{,}0254})\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>From Q₄</strong> (to the right, unlike signs — attraction, distance <span data-tex="a"></span>):
+                    <span data-tex="F_{34} = k\,Q_3|Q_4| / a^2 = 1.44\cdot 10^{-1}\ \mathrm{N}"></span>
+                    along <span data-tex="+x"></span>.</span>
+                    <span lang="cs"><strong>Od Q₄</strong> (vpravo, opačná znaménka — přitahování, vzdálenost <span data-tex="a"></span>):
+                    <span data-tex="F_{34} = k\,Q_3|Q_4| / a^2 = 1{,}44\cdot 10^{-1}\ \mathrm{N}"></span>
+                    podél <span data-tex="+x"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">05</span>
+                <div class="sol-step-text">
+                    <span lang="en">Sum the components:
+                    <span data-tex="F_x = 0.0254 + 0.1438 = 0.169\ \mathrm{N}"></span>,&nbsp;
+                    <span data-tex="F_y = -0.0719 + 0.0254 = -0.0465\ \mathrm{N}"></span>.</span>
+                    <span lang="cs">Sečtěte složky:
+                    <span data-tex="F_x = 0{,}0254 + 0{,}1438 = 0{,}169\ \mathrm{N}"></span>,&nbsp;
+                    <span data-tex="F_y = -0{,}0719 + 0{,}0254 = -0{,}0465\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="F_x \approx +0.17\ \mathrm{N}"></span><span lang="cs" data-tex="F_x \approx +0{,}17\ \mathrm{N}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="F_y \approx -0.046\ \mathrm{N}"></span><span lang="cs" data-tex="F_y \approx -0{,}046\ \mathrm{N}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-1.html"><span lang="en">← Topic: Electrostatics I</span><span lang="cs">← Téma: Elektrostatika I</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 21 · Ex. 9</span><span lang="cs">Kap. 21 · Úl. 9</span></span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#3D2E8A',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const K = 8.99e9;
+    /* q1, q3 in units of 1e-7 C; a in cm */
+    const DEFAULTS = { q1: 1.00, q3: 2.00, a: 5.0 };
+    let state = { ...DEFAULTS };
+    const show = { contrib: true, net: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtQ = v => v.toFixed(2) + ' ×10⁻⁷ C';
+    const fmtA = v => v.toFixed(1) + ' cm';
+    bindSlider('p-q1', 'q1', fmtQ);
+    bindSlider('p-q3', 'q3', fmtQ);
+    bindSlider('p-a',  'a',  fmtA);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-q1', 'q1', fmtQ], ['p-q3', 'q3', fmtQ], ['p-a', 'a', fmtA]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-contrib', 'contrib');
+    wireToggle('tgl-net',     'net');
+
+    /* ── Physics — forces on Q3 (bottom-left) ───────────────────── */
+    function forces() {
+        const q1 = state.q1 * 1e-7, q3 = state.q3 * 1e-7;
+        const a  = state.a / 100;
+        const f31 = K * q1 * q3 / (a * a);            /* repulsion, -y   */
+        const f32 = K * q1 * q3 / (2 * a * a);        /* attraction, diag */
+        const f34 = K * q3 * q3 / (a * a);            /* attraction, +x  */
+        const s2  = Math.SQRT1_2;
+        const v31 = { x: 0,          y: -f31       };
+        const v32 = { x: f32 * s2,   y: f32 * s2   };
+        const v34 = { x: f34,        y: 0          };
+        const net = { x: v31.x + v32.x + v34.x, y: v31.y + v32.y + v34.y };
+        return { f31, f32, f34, v31, v32, v34, net };
+    }
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.25), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function fLabel(x, y, sub, color) {
+        ctx.fillStyle = color;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.fillText('F', x, y);
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillText(sub, x + 9, y + 4);
+    }
+
+    function charge(x, y, positive, label, labelDx, labelDy) {
+        ctx.beginPath(); ctx.arc(x, y, 13, 0, Math.PI * 2);
+        if (positive) { ctx.fillStyle = col.acc; ctx.fill(); }
+        else {
+            ctx.fillStyle = col.paper; ctx.fill();
+            ctx.lineWidth = 1.5; ctx.strokeStyle = col.ink; ctx.stroke();
+        }
+        ctx.strokeStyle = positive ? col.paper : col.ink;
+        ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.stroke();
+        if (positive) {
+            ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); ctx.stroke();
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(label, x + labelDx, y + labelDy);
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const f = forces();
+
+        const minWH = Math.min(W, H);
+        const side  = minWH * (0.22 + 0.028 * state.a);
+        const cx = W * 0.46, cy = H * 0.42;
+        const x0 = cx - side / 2, x1 = cx + side / 2;
+        const y0 = cy - side / 2, y1 = cy + side / 2;
+        /* corners: 1 top-left, 2 top-right, 3 bottom-left, 4 bottom-right */
+
+        /* square outline */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
+        ctx.strokeRect(x0, y0, side, side);
+        ctx.setLineDash([]);
+
+        /* dimension label on top edge */
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('a = ' + state.a.toFixed(1) + ' cm', cx, y0 - 8);
+
+        /* force arrows from Q3 at (x0, y1); px scale adapts to biggest force */
+        const maxMag = Math.max(f.f31, f.f32, f.f34, Math.hypot(f.net.x, f.net.y), 1e-12);
+        const sc = 90 / maxMag;
+        /* canvas y grows downward: flip sign of physics y */
+        if (show.contrib) {
+            const c = col.soft;
+            ctx.setLineDash([5, 4]);
+            arrow(x0, y1, x0 + f.v31.x * sc, y1 - f.v31.y * sc, c, 1.6);
+            arrow(x0, y1, x0 + f.v32.x * sc, y1 - f.v32.y * sc, c, 1.6);
+            arrow(x0, y1, x0 + f.v34.x * sc, y1 - f.v34.y * sc, c, 1.6);
+            ctx.setLineDash([]);
+            fLabel(x0 + f.v31.x * sc + 8,  y1 - f.v31.y * sc + 14, '31', c);
+            fLabel(x0 + f.v32.x * sc + 8,  y1 - f.v32.y * sc - 6,  '32', c);
+            fLabel(x0 + f.v34.x * sc + 10, y1 - f.v34.y * sc - 8,  '34', c);
+        }
+        if (show.net) {
+            arrow(x0, y1, x0 + f.net.x * sc, y1 - f.net.y * sc, col.acc, 2.6);
+            fLabel(x0 + f.net.x * sc + 12, y1 - f.net.y * sc + 18, '', col.acc);
+        }
+
+        /* charges drawn on top of arrows */
+        charge(x0, y0, true,  'Q1', -24, -14);
+        charge(x1, y0, false, 'Q2',  24, -14);
+        charge(x0, y1, true,  'Q3', -24,  14);
+        charge(x1, y1, false, 'Q4',  24,  14);
+
+        /* readouts */
+        const fmtF = v => Math.abs(v) >= 0.01
+            ? v.toFixed(3) + ' N'
+            : (v * 1e3).toFixed(2) + ' mN';
+        const $ = id => document.getElementById(id);
+        const mag = Math.hypot(f.net.x, f.net.y);
+        const th  = Math.atan2(f.net.y, f.net.x) * 180 / Math.PI;
+        if ($('r-f31')) $('r-f31').textContent = fmtF(f.f31);
+        if ($('r-f32')) $('r-f32').textContent = fmtF(f.f32);
+        if ($('r-f34')) $('r-f34').textContent = fmtF(f.f34);
+        if ($('r-fx'))  $('r-fx').textContent  = fmtF(f.net.x);
+        if ($('r-fy'))  $('r-fy').textContent  = fmtF(f.net.y);
+        if ($('r-f'))   $('r-f').textContent   = fmtF(mag);
+        if ($('r-th'))  $('r-th').textContent  = th.toFixed(1) + '°';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

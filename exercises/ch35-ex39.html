@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 35.39 · Killing a Reflection — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="optics" data-screen-label="Ex 35.39 Antireflection">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Optics</span><span lang="cs">Díl II · Optika</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 35 · Ex. 39</span><span lang="cs">Kap. 35 · Úl. 39</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 6 · Optics — Chapter 35 · Exercise 39</span><span lang="cs">6. téma · Optika — Kapitola 35 · Úloha 39</span></div>
+        <h1><span lang="en">Killing a Reflection</span><span lang="cs">Zrušení odrazu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>39</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    We want to coat glass
+                    (<span class="given" data-tex="n = 1{,}50"></span>) with a layer of a material
+                    whose refractive index is
+                    <span class="given" data-tex="n = 1{,}25"></span>, so that reflected light of
+                    wavelength <span class="given" data-tex="600\ \mathrm{nm}"></span> (in air) is
+                    eliminated by interference.
+                </p>
+                <p lang="cs">
+                    Chceme pokrýt sklo
+                    (<span class="given" data-tex="n = 1{,}50"></span>) vrstvou materiálu
+                    s indexem lomu
+                    <span class="given" data-tex="n = 1{,}25"></span> tak, aby se odražené světlo o
+                    vlnové délce <span class="given" data-tex="600\ \mathrm{nm}"></span> (ve vzduchu)
+                    interferencí zcela vyrušilo.
+                </p>
+                <p lang="en">
+                    What is the smallest layer thickness that achieves this?
+                </p>
+                <p lang="cs">
+                    Jaká je nejmenší tloušťka vrstvy, která toho dosáhne?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Thin-film interference</span><span lang="cs">Interference na tenké vrstvě</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="2nL = \left(m+\tfrac{1}{2}\right)\lambda\ \Rightarrow\ L_{\min} = \dfrac{\lambda}{4n}"></div>
+                <div class="sim-hint"><span lang="en">thin the coating until the two reflections cancel</span><span lang="cs">ztenčujte vrstvu, dokud se oba odrazy nevyruší</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Layer thickness L</span><span lang="cs">Tloušťka vrstvy L</span></span>
+                            <span class="sim-control-val" id="p-l-val">250 nm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-l" min="20" max="450" step="1" value="250">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Wavelength λ (air)</span><span lang="cs">Vlnová délka λ (vzduch)</span></span>
+                            <span class="sim-control-val" id="p-lam-val">600 nm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-lam" min="400" max="700" step="5" value="600">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="2nL"></span>
+                        <span class="readout-val" id="r-path">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Delta\phi"></span>
+                        <span class="readout-val" id="r-dphi">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{reflected intensity}"></span>
+                        <span class="readout-val" id="r-int">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · full cancellation</span><span lang="cs">Cíl · úplné vyrušení</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">match</span><span lang="cs">shoda</span></span>
+                        <span class="readout-val" id="r-match">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Both reflections — air→coating (1.00 → 1.25) and coating→glass (1.25 → 1.50) —
+                    happen at a boundary with a <em>higher</em> index, so <strong>both</strong> pick
+                    up the same <span data-tex="\pi"></span> phase shift. The shifts cancel, and only
+                    the round-trip path through the layer matters.</span>
+                    <span lang="cs">Oba odrazy — vzduch→vrstva (1,00 → 1,25) a vrstva→sklo (1,25 → 1,50) —
+                    se dějí na rozhraní s <em>vyšším</em> indexem lomu, takže <strong>oba</strong> získají
+                    stejný fázový posun o <span data-tex="\pi"></span>. Posuny se vzájemně vyruší a záleží
+                    jen na dráze, kterou paprsek urazí tam a zpět vrstvou.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Destructive interference then requires a half-wave path difference:
+                    <span data-tex="2nL = \left(m+\tfrac{1}{2}\right)\lambda"></span>. The thinnest
+                    layer is <span data-tex="m = 0"></span>:
+                    <span data-tex="L_{\min} = \dfrac{\lambda}{4n}"></span>.</span>
+                    <span lang="cs">Destruktivní interference pak vyžaduje dráhový rozdíl rovný polovině
+                    vlnové délky:
+                    <span data-tex="2nL = \left(m+\tfrac{1}{2}\right)\lambda"></span>. Nejtenčí
+                    vrstva odpovídá <span data-tex="m = 0"></span>:
+                    <span data-tex="L_{\min} = \dfrac{\lambda}{4n}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">
+                    <span data-tex="L_{\min} = \dfrac{600}{4\cdot 1.25} = 120\ \mathrm{nm}"></span>.
+                    (The next solutions, 360 nm, 600 nm, …, also kill the reflection — the sandbox
+                    shows every dip.)</span>
+                    <span lang="cs">
+                    <span data-tex="L_{\min} = \dfrac{600}{4\cdot 1{,}25} = 120\ \mathrm{nm}"></span>.
+                    (Další řešení, 360 nm, 600 nm, …, také ruší odraz — sandbox ukazuje každý pokles.)</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="L_{\min} = 120\ \mathrm{nm}"></span><span lang="cs" data-tex="L_{\min} = 120\ \mathrm{nm}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/optics.html"><span lang="en">← Topic: Optics</span><span lang="cs">← Téma: Optika</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 35 · Ex. 39</span><span lang="cs">Kap. 35 · Úl. 39</span></span>
+        <span><span lang="en">Vol. II · Optics</span><span lang="cs">Díl II · Optika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#d4a418',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const N_FILM = 1.25;
+    const DEFAULTS = { l: 250, lam: 600 };   /* nm — L deliberately off-target */
+    let state = { ...DEFAULTS };
+
+    const SLIDERS = [
+        ['p-l',   'l',   v => v.toFixed(0) + ' nm'],
+        ['p-lam', 'lam', v => v.toFixed(0) + ' nm'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+
+    /* relative reflected intensity: both rays phase-shifted by π, equal amplitude
+       assumed → I ∝ cos²(φ/2) with φ = 2π·2nL/λ                                  */
+    function intensity(lNm, lamNm) {
+        const phi = 2 * Math.PI * 2 * N_FILM * lNm / lamNm;
+        return Math.pow(Math.cos(phi / 2), 2);
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const I = intensity(state.l, state.lam);
+        const matched = I < 0.004;
+
+        /* ── left: film cross-section with two reflected rays ────── */
+        const fx = W * 0.07, fw = W * 0.36;
+        const airB = H * 0.34;
+        const filmH = Math.max(10, state.l * 0.28);
+        const glassT = airB + filmH;
+
+        /* media */
+        ctx.fillStyle = 'rgba(212,164,24,0.28)';
+        ctx.fillRect(fx, airB, fw, filmH);
+        ctx.fillStyle = 'rgba(90,104,120,0.16)';
+        ctx.fillRect(fx, glassT, fw, H - glassT - 16);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.strokeRect(fx, airB, fw, filmH);
+
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('air n=1.00', fx + 6, airB - 6);
+        ctx.textBaseline = 'middle';
+        ctx.fillText('coating n=1.25 · L=' + state.l + ' nm', fx + 6, airB + filmH / 2);
+        ctx.textBaseline = 'top';
+        ctx.fillText('glass n=1.50', fx + 6, glassT + 8);
+
+        /* incoming ray + two reflections */
+        const hitX = fx + fw * 0.55;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(hitX - 70, airB - 90); ctx.lineTo(hitX, airB); ctx.stroke();
+        /* r1: reflection at top surface */
+        ctx.strokeStyle = col.acc;
+        ctx.beginPath(); ctx.moveTo(hitX, airB); ctx.lineTo(hitX + 70, airB - 90); ctx.stroke();
+        /* transmitted + r2 */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(hitX, airB); ctx.lineTo(hitX + filmH * 0.35, glassT); ctx.stroke();
+        ctx.strokeStyle = col.acc;
+        ctx.beginPath(); ctx.moveTo(hitX + filmH * 0.35, glassT);
+        ctx.lineTo(hitX + filmH * 0.7, airB); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(hitX + filmH * 0.7, airB);
+        ctx.lineTo(hitX + filmH * 0.7 + 70, airB - 90); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('r₁', hitX + 40, airB - 52);
+        ctx.fillText('r₂', hitX + filmH * 0.7 + 46, airB - 48);
+
+        /* combined reflected glow */
+        const glowA = 0.08 + 0.6 * I;
+        ctx.fillStyle = 'rgba(212,164,24,' + glowA.toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.arc((hitX + hitX + filmH * 0.7) / 2 + 35, airB - 104, 14 + 12 * I, 0, Math.PI * 2);
+        ctx.fill();
+
+        /* ── right: I(L) curve with dips ─────────────────────────── */
+        const mL = W * 0.52, mR = 26, mT = 36, mB = 50;
+        const pw = W - mL - mR, ph = H - mT - mB;
+        const LMAX = 450;
+        const xPix = l => mL + (l / LMAX) * pw;
+        const yPix = i => mT + ph - i * ph;
+
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        [100, 200, 300, 400].forEach(l => {
+            ctx.beginPath(); ctx.moveTo(xPix(l), mT); ctx.lineTo(xPix(l), mT + ph); ctx.stroke();
+        });
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, pw, ph);
+
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        [0, 100, 200, 300, 400].forEach(l => ctx.fillText(l.toFixed(0), xPix(l), mT + ph + 6));
+        ctx.fillText('L (nm)', mL + pw / 2, mT + ph + 22);
+        ctx.save();
+        ctx.translate(mL - 14, mT + ph / 2); ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('reflected I', 0, 0);
+        ctx.restore();
+
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 300; i++) {
+            const l = LMAX * i / 300;
+            const px = xPix(l), py = yPix(intensity(l, state.lam));
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        /* dip markers */
+        const lMin = state.lam / (4 * N_FILM);
+        for (let m = 0; m < 4; m++) {
+            const l = lMin * (2 * m + 1);
+            if (l > LMAX) break;
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(xPix(l), mT); ctx.lineTo(xPix(l), mT + ph); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.soft;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText(l.toFixed(0), xPix(l), mT - 3);
+        }
+
+        /* probe dot */
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(xPix(state.l), yPix(I), 4.5, 0, Math.PI * 2); ctx.fill();
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const path = 2 * N_FILM * state.l;
+        $('r-path').textContent = path.toFixed(0) + ' nm = ' +
+            (path / state.lam).toFixed(2) + ' λ';
+        $('r-dphi').textContent = (2 * path / state.lam).toFixed(2) + ' π';
+        $('r-int').textContent  = (I * 100).toFixed(1) + ' %';
+        $('r-match').textContent = matched
+            ? '✓ dark · L = ' + state.l + ' nm (min 120 nm)'
+            : '—';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

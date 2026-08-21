@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 30.26 · A Loop Escaping a Wire — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="induction" data-screen-label="Ex 30.26 Escaping Loop">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electromagnetic Induction</span><span lang="cs">Díl II · Elektromagnetická indukce</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 30 · Ex. 26</span><span lang="cs">Kap. 30 · Úl. 26</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 5 · Electromagnetic Induction — Chapter 30 · Exercise 26</span><span lang="cs">5. téma · Elektromagnetická indukce — Kapitola 30 · Úloha 26</span></div>
+        <h1><span lang="en">A Loop Escaping a Wire</span><span lang="cs">Smyčka unikající od vodiče</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•••</span>26</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A rectangular conducting loop — length
+                    <span class="given" data-tex="a = 2.2\ \mathrm{cm}"></span>, width
+                    <span class="given" data-tex="b = 0.80\ \mathrm{cm}"></span>, resistance
+                    <span class="given" data-tex="R = 0.40\ \mathrm{m\Omega}"></span> — lies near
+                    an infinitely long wire carrying
+                    <span class="given" data-tex="I = 4.7\ \mathrm{A}"></span>, with its long side
+                    parallel to the wire. The distance <span data-tex="r"></span> between the loop's
+                    axis and the wire grows at
+                    <span class="given" data-tex="v = 3.2\ \mathrm{mm\,s^{-1}}"></span>.
+                </p>
+                <p lang="cs">
+                    Obdélníková vodivá smyčka — délka
+                    <span class="given" data-tex="a = 2{,}2\ \mathrm{cm}"></span>, šířka
+                    <span class="given" data-tex="b = 0{,}80\ \mathrm{cm}"></span>, odpor
+                    <span class="given" data-tex="R = 0{,}40\ \mathrm{m\Omega}"></span> — leží poblíž
+                    nekonečně dlouhého vodiče, kterým prochází proud
+                    <span class="given" data-tex="I = 4{,}7\ \mathrm{A}"></span>, přičemž její delší
+                    strana je rovnoběžná s vodičem. Vzdálenost <span data-tex="r"></span> mezi osou
+                    smyčky a vodičem roste rychlostí
+                    <span class="given" data-tex="v = 3{,}2\ \mathrm{mm\,s^{-1}}"></span>.
+                </p>
+                <p lang="en">
+                    At the moment when <span class="given" data-tex="r = 1.5\,b"></span>, find
+                    (a) the magnetic flux through the loop and (b) the induced current in it.
+                </p>
+                <p lang="cs">
+                    V okamžiku, kdy <span class="given" data-tex="r = 1{,}5\,b"></span>, určete
+                    (a) magnetický tok smyčkou a (b) indukovaný proud v ní.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Receding loop</span><span lang="cs">Vzdalující se smyčka</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\Phi = \dfrac{\mu_0 I a}{2\pi}\ln\dfrac{r+b/2}{r-b/2}"></div>
+                <div class="sim-hint"><span lang="en">drag the loop away · the flux drains, the current fights back</span><span lang="cs">odtáhněte smyčku · tok slábne, proud se brání</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Distance r / b</span><span lang="cs">Vzdálenost r / b</span></span>
+                            <span class="sim-control-val" id="p-r-val">1.50</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="0.75" max="6" step="0.01" value="1.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Speed v</span><span lang="cs">Rychlost v</span></span>
+                            <span class="sim-control-val" id="p-v-val">3.2 mm/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-v" min="0.5" max="10" step="0.1" value="3.2">
+                    </div>
+                    <div class="toggle-row" id="tgl-drift">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">auto-drift at v</span><span lang="cs">automatický posun rychlostí v</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Phi"></span>
+                        <span class="readout-val" id="r-phi">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varepsilon = -\mathrm{d}\Phi/\mathrm{d}t"></span>
+                        <span class="readout-val" id="r-emf">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="i = |\varepsilon|/R"></span>
+                        <span class="readout-val" id="r-i">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> The wire's field
+                    <span data-tex="B = \mu_0 I/2\pi x"></span> varies across the loop. Integrating
+                    over strips from <span data-tex="r-b/2"></span> to <span data-tex="r+b/2"></span>:
+                    <span data-tex="\Phi = \dfrac{\mu_0 I a}{2\pi}\ln\dfrac{r+b/2}{r-b/2}"></span>.
+                    At <span data-tex="r = 1.5\,b"></span> the edges sit at
+                    <span data-tex="b"></span> and <span data-tex="2b"></span>, so the log is
+                    <span data-tex="\ln 2"></span>:
+                    <span data-tex="\Phi = 2\cdot 10^{-7}\cdot 4.7\cdot 0.022\cdot 0.693 = 1.4\cdot 10^{-8}\ \mathrm{Wb}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Pole vodiče
+                    <span data-tex="B = \mu_0 I/2\pi x"></span> se napříč smyčkou mění. Integrací
+                    přes proužky od <span data-tex="r-b/2"></span> do <span data-tex="r+b/2"></span>:
+                    <span data-tex="\Phi = \dfrac{\mu_0 I a}{2\pi}\ln\dfrac{r+b/2}{r-b/2}"></span>.
+                    Při <span data-tex="r = 1{,}5\,b"></span> leží okraje v
+                    <span data-tex="b"></span> a <span data-tex="2b"></span>, takže logaritmus je
+                    <span data-tex="\ln 2"></span>:
+                    <span data-tex="\Phi = 2\cdot 10^{-7}\cdot 4{,}7\cdot 0{,}022\cdot 0{,}693 = 1{,}4\cdot 10^{-8}\ \mathrm{Wb}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> Differentiate with
+                    <span data-tex="\dot{r} = v"></span>:
+                    <span data-tex="\varepsilon = -\dfrac{\mu_0 I a\,v}{2\pi}\left(\dfrac{1}{r+b/2}-\dfrac{1}{r-b/2}\right)"></span>.
+                    At <span data-tex="r = 1.5\,b = 1.2\ \mathrm{cm}"></span>:
+                    <span data-tex="\tfrac{1}{0.016}-\tfrac{1}{0.008} = -62.5\ \mathrm{m^{-1}}"></span>,
+                    giving <span data-tex="|\varepsilon| = 4.1\cdot 10^{-9}\ \mathrm{V}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Zderivujeme podle
+                    <span data-tex="\dot{r} = v"></span>:
+                    <span data-tex="\varepsilon = -\dfrac{\mu_0 I a\,v}{2\pi}\left(\dfrac{1}{r+b/2}-\dfrac{1}{r-b/2}\right)"></span>.
+                    Při <span data-tex="r = 1{,}5\,b = 1{,}2\ \mathrm{cm}"></span>:
+                    <span data-tex="\tfrac{1}{0{,}016}-\tfrac{1}{0{,}008} = -62{,}5\ \mathrm{m^{-1}}"></span>,
+                    což dává <span data-tex="|\varepsilon| = 4{,}1\cdot 10^{-9}\ \mathrm{V}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">The induced current:
+                    <span data-tex="i = \dfrac{|\varepsilon|}{R} = \dfrac{4.1\cdot 10^{-9}}{0.40\cdot 10^{-3}} = 1.0\cdot 10^{-5}\ \mathrm{A}"></span>.
+                    By Lenz's law it circulates so as to keep the escaping flux — the same sense as
+                    the wire's current on the loop's near side.</span>
+                    <span lang="cs">Indukovaný proud:
+                    <span data-tex="i = \dfrac{|\varepsilon|}{R} = \dfrac{4{,}1\cdot 10^{-9}}{0{,}40\cdot 10^{-3}} = 1{,}0\cdot 10^{-5}\ \mathrm{A}"></span>.
+                    Podle Lenzova zákona teče tak, aby udržel unikající tok — ve stejném smyslu jako
+                    proud vodiče na bližší straně smyčky.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\Phi \approx 1.4\cdot 10^{-8}\ \mathrm{Wb}"></span><span lang="cs" data-tex="\Phi \approx 1{,}4\cdot 10^{-8}\ \mathrm{Wb}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="i \approx 1.0\cdot 10^{-5}\ \mathrm{A}"></span><span lang="cs" data-tex="i \approx 1{,}0\cdot 10^{-5}\ \mathrm{A}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/induction.html"><span lang="en">← Topic: Electromagnetic Induction</span><span lang="cs">← Téma: Elektromagnetická indukce</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 30 · Ex. 26</span><span lang="cs">Kap. 30 · Úl. 26</span></span>
+        <span><span lang="en">Vol. II · Electromagnetic Induction</span><span lang="cs">Díl II · Elektromagnetická indukce</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a8478',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const MU0 = 4 * Math.PI * 1e-7;
+    const A_M = 0.022, B_M = 0.008, R_OHM = 0.40e-3, I_W = 4.7;
+    const DEFAULTS = { r: 1.50, v: 3.2 };
+    let state = { ...DEFAULTS };
+    let drift = false;
+    let lastTs = 0;
+
+    const SLIDERS = [
+        ['p-r', 'r', v => v.toFixed(2)],
+        ['p-v', 'v', v => v.toFixed(1) + ' mm/s'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+        drift = false;
+        document.querySelector('#tgl-drift .toggle-box')?.classList.remove('on');
+    });
+    document.getElementById('tgl-drift')?.addEventListener('click', function () {
+        drift = !drift;
+        this.querySelector('.toggle-box')?.classList.toggle('on', drift);
+    });
+
+    function physics() {
+        const r = state.r * B_M;                     /* m */
+        const near = r - B_M / 2, far = r + B_M / 2;
+        const phi = MU0 * I_W * A_M / (2 * Math.PI) * Math.log(far / near);
+        const dPhidr = MU0 * I_W * A_M / (2 * Math.PI) * (1 / far - 1 / near);
+        const emf = -dPhidr * (state.v * 1e-3);
+        return { phi, emf: Math.abs(emf), i: Math.abs(emf) / R_OHM };
+    }
+
+    function draw(ts) {
+        const dt = Math.min(0.05, (ts - lastTs) / 1000); lastTs = ts;
+        if (drift) {
+            /* visual drift 40× real speed so it is visible */
+            state.r = Math.min(6, state.r + state.v * 1e-3 * 40 / B_M * dt);
+            document.getElementById('p-r').value = state.r;
+            document.getElementById('p-r-val').textContent = state.r.toFixed(2);
+            if (state.r >= 6) {
+                drift = false;
+                document.querySelector('#tgl-drift .toggle-box')?.classList.remove('on');
+            }
+        }
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        const wy = H * 0.84;
+        const scale = (H * 0.7) / (6 * B_M * 100);        /* px per cm */
+
+        /* field: into-page ✕ marks with density ∝ 1/distance */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let row = 0; row < 6; row++) {
+            const yy = wy - 24 - row * (H * 0.115);
+            const dCm = (wy - yy) / scale;
+            const n = Math.max(2, Math.round(16 / (1 + dCm * 1.4)));
+            for (let k = 0; k < n; k++) {
+                const x = W * (k + 0.5) / n;
+                const s = 3.2;
+                ctx.beginPath(); ctx.moveTo(x - s, yy - s); ctx.lineTo(x + s, yy + s); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x + s, yy - s); ctx.lineTo(x - s, yy + s); ctx.stroke();
+            }
+        }
+
+        /* long wire */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 3; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(16, wy); ctx.lineTo(W - 16, wy); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('I = 4.7 A ←', 22, wy + 8);
+
+        /* loop */
+        const rPx = state.r * B_M * 100 * scale;
+        const loopW = A_M * 100 * scale, loopH = B_M * 100 * scale;
+        const lx = W * 0.5 - loopW / 2;
+        const ly = wy - rPx - loopH / 2;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 3;
+        ctx.strokeRect(lx, ly, loopW, loopH);
+
+        /* induced-current sense arrows (Lenz: keep flux → same sense as wire current on near side) */
+        ctx.fillStyle = col.acc;
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('←', lx + loopW / 2, ly + loopH + 9);
+        ctx.fillText('→', lx + loopW / 2, ly - 9);
+
+        /* v arrow */
+        ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(lx - 26, ly + loopH / 2 + 12);
+        ctx.lineTo(lx - 26, ly + loopH / 2 - 16); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(lx - 26, ly + loopH / 2 - 22);
+        ctx.lineTo(lx - 31, ly + loopH / 2 - 12);
+        ctx.lineTo(lx - 21, ly + loopH / 2 - 12);
+        ctx.closePath(); ctx.fill();
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('v', lx - 36, ly + loopH / 2);
+
+        /* r dimension */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(lx + loopW + 30, wy); ctx.lineTo(lx + loopW + 30, ly + loopH / 2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'left';
+        ctx.fillText('r = ' + (state.r).toFixed(2) + ' b', lx + loopW + 38, (wy + ly + loopH / 2) / 2);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-phi').textContent = (f.phi * 1e8).toFixed(2) + ' ×10⁻⁸ Wb';
+        $('r-emf').textContent = (f.emf * 1e9).toFixed(2) + ' nV';
+        $('r-i').textContent   = (f.i * 1e6).toFixed(1) + ' µA';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

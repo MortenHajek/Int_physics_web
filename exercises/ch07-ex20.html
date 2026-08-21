@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 7.20 · A Book up the Ramp — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="energy" data-screen-label="Ex 7.20 A Book up the Ramp">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 7 · Ex. 20</span><span lang="cs">Kap. 7 · Úl. 20</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Work &amp; Energy — Chapter 7 · Exercise 20</span><span lang="cs">4. téma · Práce a energie — Kapitola 7 · Úloha 20</span></div>
+        <h1><span lang="en">A Book up the Ramp</span><span lang="cs">Kniha na rampě</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>20</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    In fig. 7-32 a horizontal force <span data-tex="\vec F_a"></span> of magnitude
+                    <span class="given" data-tex="F_a = 20.0\ \mathrm{N}"></span> acts on a psychology
+                    textbook of mass <span class="given" data-tex="m = 3.00\ \mathrm{kg}"></span>.
+                    The book slides <span class="given" data-tex="d = 0.500\ \mathrm{m}"></span>
+                    up a perfectly smooth ramp inclined at
+                    <span class="given" data-tex="\theta = 30.0^\circ"></span> above the horizontal.
+                </p>
+                <p lang="cs">
+                    Na obr. 7-32 působí vodorovná síla <span data-tex="\vec F_a"></span> o velikosti
+                    <span class="given" data-tex="F_a = 20{,}0\ \mathrm{N}"></span> na učebnici psychologie
+                    o hmotnosti <span class="given" data-tex="m = 3{,}00\ \mathrm{kg}"></span>.
+                    Kniha klouže o <span class="given" data-tex="d = 0{,}500\ \mathrm{m}"></span>
+                    nahoru po dokonale hladké rampě skloněné o
+                    <span class="given" data-tex="\theta = 30{,}0^\circ"></span> od vodorovného směru.
+                </p>
+                <p lang="en">
+                    (a) What total work is done on the book during the displacement by the forces
+                    acting on it (the applied force <span data-tex="\vec F_a"></span>, the gravitational
+                    force and the normal force)? (b) How fast is the book moving at the end of the
+                    displacement, given that its initial kinetic energy was zero?
+                </p>
+                <p lang="cs">
+                    (a) Jakou celkovou práci vykonají na knize během posunutí síly, které na ni působí
+                    (aplikovaná síla <span data-tex="\vec F_a"></span>, tíhová síla a normálová síla)?
+                    (b) Jak rychle se kniha pohybuje na konci posunutí, je-li její počáteční kinetická
+                    energie nulová?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Work sandbox</span><span lang="cs">Sandbox: práce</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="W = \vec F \cdot \vec d"></div>
+                <div class="sim-hint"><span lang="en">each force works at its own angle to d</span><span lang="cs">každá síla koná práci pod svým vlastním úhlem k d</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Applied force Fₐ</span><span lang="cs">Aplikovaná síla Fₐ</span></span>
+                            <span class="sim-control-val" id="p-f-val">20.0 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-f" min="0" max="40" step="0.5" value="20.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m</span><span lang="cs">Hmotnost m</span></span>
+                            <span class="sim-control-val" id="p-m-val">3.00 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="1" max="6" step="0.1" value="3.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Displacement d</span><span lang="cs">Posunutí d</span></span>
+                            <span class="sim-control-val" id="p-d-val">0.500 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="0.1" max="1.0" step="0.025" value="0.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Ramp angle θ</span><span lang="cs">Úhel rampy θ</span></span>
+                            <span class="sim-control-val" id="p-th-val">30.0°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-th" min="10" max="50" step="0.5" value="30.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Work by each force</span><span lang="cs">Práce každé síly</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_{F} = F_a d\cos\theta"></span>
+                        <span class="readout-val" id="r-wf">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_{g} = -mgd\sin\theta"></span>
+                        <span class="readout-val" id="r-wg">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_{N}"></span>
+                        <span class="readout-val" id="r-wn">0 J</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Result</span><span lang="cs">Výsledek</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_{\text{net}}"></span>
+                        <span class="readout-val" id="r-wtot">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v = \sqrt{2W_{\text{net}}/m}"></span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-forces">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">force arrows</span><span lang="cs">silové šipky</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-dim">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">displacement d</span><span lang="cs">posunutí d</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The displacement points up the ramp. The horizontal applied force makes the angle
+                    <span data-tex="\theta"></span> with it:
+                    <span data-tex="W_F = F_a d\cos\theta = 20.0\cdot 0.500\cdot\cos 30^\circ = 8.66\ \mathrm{J}"></span>.</span>
+                    <span lang="cs">Posunutí míří nahoru po rampě. Vodorovná aplikovaná síla s ním svírá úhel
+                    <span data-tex="\theta"></span>:
+                    <span data-tex="W_F = F_a d\cos\theta = 20{,}0\cdot 0{,}500\cdot\cos 30^\circ = 8{,}66\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Gravity is vertical while the book climbs
+                    <span data-tex="d\sin\theta"></span>:
+                    <span data-tex="W_g = -mgd\sin\theta = -3.00\cdot 9.8\cdot 0.500\cdot 0.5 = -7.35\ \mathrm{J}"></span>.
+                    The normal force is perpendicular to the motion, so
+                    <span data-tex="W_N = 0"></span>.</span>
+                    <span lang="cs">Tíha je svislá, zatímco kniha stoupá o
+                    <span data-tex="d\sin\theta"></span>:
+                    <span data-tex="W_g = -mgd\sin\theta = -3{,}00\cdot 9{,}8\cdot 0{,}500\cdot 0{,}5 = -7{,}35\ \mathrm{J}"></span>.
+                    Normálová síla je kolmá na pohyb, takže
+                    <span data-tex="W_N = 0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> The total:
+                    <span data-tex="W_{\text{net}} = 8.66 - 7.35 + 0 = 1.31\ \mathrm{J}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Celková práce:
+                    <span data-tex="W_{\text{net}} = 8{,}66 - 7{,}35 + 0 = 1{,}31\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> By the work–kinetic-energy theorem
+                    <span data-tex="W_{\text{net}} = \tfrac12 mv^2"></span>, so
+                    <span data-tex="v = \sqrt{2\cdot 1.31/3.00} = 0.93\ \mathrm{m\,s^{-1}}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Podle věty o práci a kinetické energii
+                    <span data-tex="W_{\text{net}} = \tfrac12 mv^2"></span>, tedy
+                    <span data-tex="v = \sqrt{2\cdot 1{,}31/3{,}00} = 0{,}93\ \mathrm{m\,s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="W_{\text{net}} \approx 1.31\ \mathrm{J}"></span><span lang="cs" data-tex="W_{\text{net}} \approx 1{,}31\ \mathrm{J}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="v \approx 0.93\ \mathrm{m\,s^{-1}}"></span><span lang="cs" data-tex="v \approx 0{,}93\ \mathrm{m\,s^{-1}}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 7 · Ex. 20</span><span lang="cs">Kap. 7 · Úl. 20</span></span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    const DEFAULTS = { F: 20.0, m: 3.0, d: 0.5, th: 30.0 };
+    let state = { ...DEFAULTS };
+    const show = { forces: true, dim: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtF  = v => v.toFixed(1) + ' N';
+    const fmtM  = v => v.toFixed(2) + ' kg';
+    const fmtD  = v => v.toFixed(3) + ' m';
+    const fmtTh = v => v.toFixed(1) + '°';
+    const SLIDERS = [['p-f', 'F', fmtF], ['p-m', 'm', fmtM],
+                     ['p-d', 'd', fmtD], ['p-th', 'th', fmtTh]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-forces', 'forces');
+    wireToggle('tgl-dim',    'dim');
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const th = state.th * Math.PI / 180;
+
+        /* ramp: foot lower-left */
+        const fx = W * 0.12, fy = H * 0.88;
+        const runLen = Math.min(W * 0.78, (H * 0.72) / Math.sin(th));
+        const tx = fx + runLen * Math.cos(th);
+        const ty = fy - runLen * Math.sin(th);
+
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let i = 1; i < Math.floor(runLen / 14); i++) {
+            const sx = fx + i * 14 * Math.cos(th);
+            const sy = fy - i * 14 * Math.sin(th);
+            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - 9, sy + 8); ctx.stroke();
+        }
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx + 100, fy); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(fx, fy, 46, -th, 0); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('θ', fx + 54, fy - Math.sin(th / 2) * 40);
+
+        /* start & end points along ramp; d mapped to px */
+        const pxPerM = runLen * 0.55;        /* 1 m of ramp ≈ 55% of its length */
+        const s0 = runLen * 0.18;
+        const s1 = s0 + state.d * pxPerM;
+        const P = s => [fx + s * Math.cos(th), fy - s * Math.sin(th)];
+        const [x0, y0] = P(s0), [x1, y1] = P(s1);
+
+        /* ghost book at start */
+        function book(cx, cy, ghost) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(-th);
+            const bw = 62, bh = 40;
+            ctx.globalAlpha = ghost ? 0.35 : 1;
+            ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+            ctx.fillRect(-bw / 2, -bh, bw, bh);
+            ctx.strokeRect(-bw / 2, -bh, bw, bh);
+            /* spine lines */
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-bw / 2 + 8, -bh); ctx.lineTo(-bw / 2 + 8, 0); ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = '8px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('PSYCH', 5, -bh / 2 - 5);
+            ctx.fillText('OLOGY', 5, -bh / 2 + 6);
+            ctx.globalAlpha = 1;
+            ctx.restore();
+        }
+        book(x0, y0, true);
+        book(x1, y1, false);
+
+        /* displacement dimension line */
+        if (show.dim) {
+            const off = 34;
+            const ox = Math.sin(th) * off, oy = Math.cos(th) * off;
+            arrow(x0 - ox, y0 - oy, x1 - ox, y1 - oy, col.soft, 1.4);
+            ctx.fillStyle = col.soft;
+            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('d', (x0 + x1) / 2 - ox * 1.5, (y0 + y1) / 2 - oy * 1.5);
+        }
+
+        /* forces on the book at its final position */
+        if (show.forces) {
+            const c0x = x1 - Math.sin(th) * 20, c0y = y1 - Math.cos(th) * 20;
+            /* applied horizontal */
+            arrow(c0x, c0y, c0x + state.F * 3.2, c0y, col.acc, 2.6);
+            ctx.fillStyle = col.acc;
+            ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('Fa', c0x + state.F * 3.2 + 6, c0y - 2);
+            /* gravity */
+            arrow(c0x, c0y, c0x, c0y + state.m * g * 2.4, col.soft, 1.8);
+            ctx.fillStyle = col.soft;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText('mg', c0x + 6, c0y + state.m * g * 2.4 + 2);
+            /* normal — perpendicular to the motion, does no work */
+            const nMag = state.m * g * Math.cos(th);
+            arrow(c0x, c0y,
+                  c0x - Math.sin(th) * nMag * 2.0, c0y - Math.cos(th) * nMag * 2.0,
+                  col.soft, 1.8);
+            ctx.fillText('N', c0x - Math.sin(th) * nMag * 2.0 - 14,
+                              c0y - Math.cos(th) * nMag * 2.0 - 4);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const WF = state.F * state.d * Math.cos(th);
+        const Wg = -state.m * g * state.d * Math.sin(th);
+        const Wnet = WF + Wg;
+        if ($('r-wf'))   $('r-wf').textContent   = WF.toFixed(2) + ' J';
+        if ($('r-wg'))   $('r-wg').textContent   = Wg.toFixed(2) + ' J';
+        if ($('r-wtot')) $('r-wtot').textContent = Wnet.toFixed(2) + ' J';
+        if ($('r-v'))    $('r-v').textContent    = Wnet > 0
+            ? Math.sqrt(2 * Wnet / state.m).toFixed(2) + ' m/s'
+            : '— (net W ≤ 0)';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1923 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Electrostatics 1 · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-cool);
+    }
+    #sim-canvas,
+    #efield-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: crosshair;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        max-width: 40%;
+        text-align: right;
+        line-height: 1.6;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ─────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                                        
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                                    
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+        border-bottom-color: var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Add-charge button (Parameters panel) ───────────────────────── */
+    .sim-btn {
+        display: block;
+        width: 100%;
+        margin-top: 14px;
+        padding: 9px 12px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        font-family: var(--f-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        color: var(--ink);
+        transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .sim-btn:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 2px 2px 0 var(--ink);
+    }
+    #btn-third .when-remove { display: none; }
+    #btn-third.active .when-add { display: none; }
+    #btn-third.active .when-remove { display: inline; }
+
+    /* ── Note under the add-charge button ───────────────────────────── */
+    .sim-note {
+        margin: 10px 0 0;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--ink-soft);
+    }
+
+    /* ── Flow schematic above the E-field sandbox ───────────────────── */
+    .flow-panel {
+        margin-top: 72px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+    }
+    .flow-head {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1.5px solid var(--ink-faint);
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-soft);
+    }
+    .flow-body { padding: 26px 28px 22px; }
+    .flow-grid {
+        display: grid;
+        grid-template-columns: 1.18fr auto 1fr auto 0.82fr;
+        gap: 18px;
+        align-items: stretch;
+    }
+    .flow-step {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        padding: 16px 18px 18px;
+        display: grid;
+        gap: 13px;
+        align-content: start;
+        justify-items: center;
+        text-align: center;
+    }
+    .fs-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .fs-name {
+        font-size: 13px;
+        color: var(--ink-soft);
+        line-height: 1.45;
+        min-height: 38px;
+    }
+    .fs-eq {
+        font-family: var(--f-serif);
+        font-size: 19px;
+        color: var(--ink);
+    }
+    .fs-sub {
+        font-family: var(--f-serif);
+        font-size: 15px;
+        color: var(--ink-faint);
+    }
+    .flow-arrow {
+        align-self: center;
+        font-size: 30px;
+        color: var(--accent);
+        line-height: 1;
+        user-select: none;
+    }
+    .flow-arrow::before { content: "⟶"; }
+    .flow-vars {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px dashed var(--ink-faint);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 44px;
+    }
+    .fv-row {
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 12px;
+        align-items: baseline;
+    }
+    .fv-sym {
+        font-family: var(--f-serif);
+        font-size: 15px;
+        color: var(--ink);
+        white-space: nowrap;
+    }
+    .fv-txt {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        line-height: 1.5;
+    }
+    #lab2 .canvas-wrap { min-height: 540px; }
+
+    /* ── Object menu (radio rows, E-field sandbox) ──────────────────── */
+    .obj-row .toggle-box { border-radius: 50%; }
+    .obj-row .toggle-box.on { background: var(--paper); }
+    .obj-row .toggle-box.on::after {
+        clip-path: none;
+        border-radius: 50%;
+        inset: 3px;
+        background: var(--accent);
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                        .topic-nav { grid-template-columns: 1fr; }
+                                        .core-formula { grid-template-columns: 1fr; gap: 8px; }
+                                        .flow-grid { grid-template-columns: 1fr; }
+                                        .flow-arrow { justify-self: center; }
+                                        .flow-arrow::before { content: "↓"; }
+                                        .flow-vars { grid-template-columns: 1fr; }
+                                        .fs-name { min-height: 0; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="electrostatics-1" data-screen-label="II.01 Electrostatics 1">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">q</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ════ § 1  HERO ════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ II.01 · electrostatics-1</div>
+            <h1><span lang="en">Electrostatics&nbsp;1</span><span lang="cs">Elektrostatika&nbsp;1</span></h1>
+            <p class="lede">
+                <span lang="en">Two invisible charges — one positive, one negative — exert a force across empty space.
+                At the same time, a charge creates an electric field <span data-tex="\vec{E}"></span> in the space around it.</span>
+                <span lang="cs">Dva neviditelné náboje — jeden kladný, druhý záporný — na sebe působí silou napříč
+                prázdným prostorem. Náboj zároveň tvoří v prostoru elektrické pole <span data-tex="\vec{E}"></span>.</span>
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="|\vec{F}| = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q_1 Q_2}{r^2}"></div>
+            <div class="eq-caption"><span lang="en">Coulomb's law</span><span lang="cs">Coulombův zákon</span> — k = 1/4πε₀ = 8,99·10⁹ N·m²/C²</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Charged particles exert forces on each other — like charges repel, opposite
+                charges attract, and the <em>electrostatic force</em> between them is given by Coulomb's law.
+                The explanation is the <em>electric field</em>: every charge creates a field around itself,
+                described by the <em>electric intensity</em> <span data-tex="\vec{E}"></span> — the force
+                acting on a unit positive test charge. A particle sitting in the field of other charges
+                therefore feels a force given by that field and by its own charge; field lines visualise
+                the field — they run tangent to <span data-tex="\vec{E}"></span> and their density mirrors
+                its magnitude.</span>
+                <span lang="cs">Nabité částice na sebe působí <em>elektrostatickou silou</em> — souhlasné náboje
+                se odpuzují, opačné se přitahují a sílu mezi nimi udává Coulombův zákon. Vysvětlením je
+                <em>elektrické pole</em>: každý náboj kolem sebe vytváří pole, které popisujeme
+                <em>elektrickou intenzitou</em> <span data-tex="\vec{E}"></span> — silou působící na
+                jednotkový kladný testovací náboj. Na částici v poli ostatních nábojů tedy působí síla
+                daná tímto polem a jejím vlastním nábojem; pole znázorňují siločáry — jsou tečné
+                k <span data-tex="\vec{E}"></span> a jejich hustota odpovídá velikosti pole.</span>
+            </div>
+            <div class="core-formulas">
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Coulomb's law — force</span><span lang="cs">Coulombův zákon — síla</span></span>
+                        <span class="cf-eq" data-tex="|\vec{F}| = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q_1 Q_2}{r^2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The electrostatic force between two point charges: proportional to the
+                        product of the charges, falling with the square of their separation. Like signs repel,
+                        opposite signs attract; k = 1/4πε₀ = 8.99·10⁹ N·m²/C².</span>
+                        <span lang="cs">Elektrostatická síla mezi dvěma bodovými náboji: úměrná součinu nábojů,
+                        klesá s druhou mocninou vzdálenosti. Souhlasná znaménka se odpuzují, opačná se
+                        přitahují; k = 1/4πε₀ = 8,99·10⁹ N·m²/C².</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Electric intensity — field</span><span lang="cs">Elektrická intenzita — pole</span></span>
+                        <span class="cf-eq" data-tex="|\vec{E}| = \dfrac{|\vec{F}|}{Q_0} = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q}{r^2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The field is described by the intensity <span data-tex="\vec{E}"></span> —
+                        the force acting on a unit positive test charge Q₀ ([E] = N/C = V/m). The second equality
+                        is the field of a point charge Q: radial, pointing away from a positive charge and toward
+                        a negative one.</span>
+                        <span lang="cs">Pole popisuje intenzita <span data-tex="\vec{E}"></span> — síla působící
+                        na jednotkový kladný testovací náboj Q₀ ([E] = N/C = V/m). Druhá rovnost je pole bodového
+                        náboje Q: radiální, míří od kladného náboje a k zápornému.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Force in a field</span><span lang="cs">Síla v poli</span></span>
+                        <span class="cf-eq" data-tex="\vec{F} = Q\vec{E}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Once the field is known, the force on any charge placed in it follows
+                        directly: a positive charge is pushed along <span data-tex="\vec{E}"></span>, a negative
+                        one against it. This is the bridge between the field and mechanics.</span>
+                        <span lang="cs">Známe-li pole, síla na libovolný náboj do něj umístěný plyne přímo:
+                        kladný náboj je tlačen po směru <span data-tex="\vec{E}"></span>, záporný proti němu.
+                        Tohle je most mezi polem a mechanikou.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Superposition</span><span lang="cs">Superpozice</span></span>
+                        <span class="cf-eq" data-tex="\vec{E}_{cel} = \textstyle\sum\vec{E}_i = \int d\vec{E}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Fields add as vectors: the total field of several charges is the sum of
+                        the individual contributions, and for a continuously charged body the sum becomes an
+                        integral.</span>
+                        <span lang="cs">Pole se sčítají jako vektory: celkové pole několika nábojů je součtem
+                        jednotlivých příspěvků a u spojitě nabitého tělesa přechází součet v integrál.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Charge element</span><span lang="cs">Element náboje</span></span>
+                        <span class="cf-eq" data-tex="dQ = \varrho_e\,dV = \sigma_e\,dS = \tau_e\,dx"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A continuous body is sliced into infinitesimal charge elements according
+                        to its dimension: volume density ϱₑ (C/m³), surface density σₑ (C/m²), or linear density
+                        τₑ (C/m).</span>
+                        <span lang="cs">Spojité těleso krájíme na nekonečně malé elementy náboje podle jeho
+                        rozměru: objemová hustota ϱₑ (C/m³), plošná σₑ (C/m²), nebo délková τₑ (C/m).</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Gauss's law</span><span lang="cs">Gaussova věta</span></span>
+                        <span class="cf-eq" data-tex="\oiint_{\mathcal{S}} \vec{E}\cdot d\vec{S} = \dfrac{Q_c}{\varepsilon_0}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The surface integral of <span data-tex="\vec{E}"></span> over any closed
+                        (Gaussian) surface <span data-tex="\mathcal{S}"></span> is set solely by the charge
+                        enclosed inside it. For symmetric bodies (sphere, cylinder, plane) it gives the field
+                        with no integration at all.</span>
+                        <span lang="cs">Plošný integrál intenzity <span data-tex="\vec{E}"></span> přes
+                        libovolnou uzavřenou (Gaussovu) plochu <span data-tex="\mathcal{S}"></span> je určen
+                        výhradně nábojem uzavřeným uvnitř. U symetrických těles (koule, válec, rovina) z ní
+                        pole plyne úplně bez integrování.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Sketch first.</strong> Mark every charge with its sign and draw the force/field
+                    arrow it contributes at the point of interest — directions come from the sketch,
+                    not from signs plugged into formulas.</span>
+                    <span lang="cs"><strong>Nejdřív náčrtek.</strong> Vyznačte každý náboj se znaménkem a nakreslete šipku
+                    síly/pole, kterou přispívá v místě zájmu — směry plynou z náčrtku,
+                    ne ze znamének dosazených do vzorců.</span></span>
+                </div>
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Magnitudes without signs.</strong> For each contribution
+                    <span data-tex="|\vec{E}_i| = \dfrac{1}{4\pi\varepsilon_0}\,|Q_i|/r_i^2"></span>
+                    (or the force directly, <span data-tex="|\vec{F}_i| = \dfrac{1}{4\pi\varepsilon_0}\,|Q_iQ|/r_i^2"></span>).</span>
+                    <span lang="cs"><strong>Velikosti bez znamének.</strong> Pro každý příspěvek
+                    <span data-tex="|\vec{E}_i| = \dfrac{1}{4\pi\varepsilon_0}\,|Q_i|/r_i^2"></span>
+                    (nebo rovnou síla, <span data-tex="|\vec{F}_i| = \dfrac{1}{4\pi\varepsilon_0}\,|Q_iQ|/r_i^2"></span>).</span></span>
+                </div>
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Choose the axes smartly</strong> — axes laid along the charges often reduce the
+                    problem to one component — and decompose every arrow
+                    (<span data-tex="E\cos\theta,\ E\sin\theta"></span>).</span>
+                    <span lang="cs"><strong>Zvolte chytře osy</strong> — osy položené podél nábojů často zredukují
+                    úlohu na jedinou složku — a rozložte každou šipku
+                    (<span data-tex="E\cos\theta,\ E\sin\theta"></span>).</span></span>
+                </div>
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Add the components.</strong> Sum X and Y separately, then
+                    <span data-tex="|\vec{E}| = \sqrt{E_x^2+E_y^2}"></span>. The force on a charge placed
+                    in the field is <span data-tex="\vec{F} = Q\vec{E}"></span> — from there it is mechanics.</span>
+                    <span lang="cs"><strong>Sečtěte složky.</strong> Sečtěte zvlášť X a Y, pak
+                    <span data-tex="|\vec{E}| = \sqrt{E_x^2+E_y^2}"></span>. Síla na náboj umístěný
+                    v poli je <span data-tex="\vec{F} = Q\vec{E}"></span> — a dál už je to mechanika.</span></span>
+                </div>
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Continuous charge → integrate.</strong> Take an element
+                    <span data-tex="dQ = \tau_e\,dx"></span> (or <span data-tex="\sigma_e\,dS"></span>,
+                    <span data-tex="\varrho_e\,dV"></span>), write <span data-tex="dE"></span>, integrate over the body.
+                    Check the limit: far away, every body's field becomes a point charge's.</span>
+                    <span lang="cs"><strong>Spojitý náboj → integrujte.</strong> Vezměte element
+                    <span data-tex="dQ = \tau_e\,dx"></span> (nebo <span data-tex="\sigma_e\,dS"></span>,
+                    <span data-tex="\varrho_e\,dV"></span>), napište <span data-tex="dE"></span>, integrujte přes těleso.
+                    Zkontrolujte limitu: zdaleka vypadá pole každého tělesa jako pole bodového náboje.</span></span>
+                </div>
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Symmetry? Use Gauss.</strong> Pick a closed surface on which
+                    <span data-tex="E"></span> is constant — the flux integral collapses to
+                    <span data-tex="E\,S = Q_c/\varepsilon_0"></span>, no integration needed
+                    (sphere, cylinder, plane).</span>
+                    <span lang="cs"><strong>Symetrie? Gaussova věta.</strong> Zvolte uzavřenou plochu, na níž je
+                    <span data-tex="E"></span> konstantní — integrál toku se smrskne na
+                    <span data-tex="E\,S = Q_c/\varepsilon_0"></span>, žádné integrování
+                    (koule, válec, rovina).</span></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 5  SIMULATION LAB ════ -->
+    <section id="lab" class="lab" style="margin-top:72px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Electric field sandbox</span><span lang="cs">Sandbox: elektrické pole</span></span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="|\vec{F}| = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q_1 Q_2}{r^2}"></div>
+                <div class="sim-hint"><span lang="en">change signs to see attraction/repulsion · the third charge can be dragged</span><span lang="cs">změňte znaménka pro přitahování/odpuzování · třetí náboj lze táhnout myší</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <!-- Parameters -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
+                        title="Reset to defaults">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge <em>Q</em>₁</span><span lang="cs">Náboj <em>Q</em>₁</span></span>
+                            <span class="sim-control-val" id="p-q1-val">+2.0 μC</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q1" min="-5" max="5" step="0.5" value="2">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge <em>Q</em>₂</span><span lang="cs">Náboj <em>Q</em>₂</span></span>
+                            <span class="sim-control-val" id="p-q2-val">−2.0 μC</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q2" min="-5" max="5" step="0.5" value="-2">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Separation <em>r</em></span><span lang="cs">Vzdálenost <em>r</em></span></span>
+                            <span class="sim-control-val" id="p-r-val">8.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="2" max="15" step="0.5" value="8">
+                    </div>
+
+                    <div class="sim-control" id="ctl-q3" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge <em>Q</em>₃</span><span lang="cs">Náboj <em>Q</em>₃</span></span>
+                            <span class="sim-control-val" id="p-q3-val">+2.0 μC</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q3" min="-5" max="5" step="0.5" value="2">
+                    </div>
+
+                    <button class="sim-btn" id="btn-third" type="button">
+                        <span class="when-add"><span lang="en">+ add third charge</span><span lang="cs">+ přidat třetí náboj</span></span>
+                        <span class="when-remove"><span lang="en">− remove third charge</span><span lang="cs">− odebrat třetí náboj</span></span>
+                    </button>
+                    <p class="sim-note">
+                        <span lang="en">The added charge can be <strong>dragged with the mouse</strong> anywhere on the canvas.</span>
+                        <span lang="cs">Přidaný náboj lze <strong>táhnout myší</strong> kamkoli po plátně.</span>
+                    </p>
+
+                </div>
+            </div>
+
+            <!-- Readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Charges</span><span lang="cs">Náboje</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"><em>Q</em>₁</span>
+                        <span class="readout-val" id="r-q1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><em>Q</em>₂</span>
+                        <span class="readout-val" id="r-q2">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Force &amp; Field</span><span lang="cs">Síla a pole</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en"><em>F</em> (Coulomb)</span><span lang="cs"><em>F</em> (Coulombova)</span></span>
+                        <span class="readout-val" id="r-F">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en"><em>E</em> at midpoint</span><span lang="cs"><em>E</em> uprostřed</span></span>
+                        <span class="readout-val" id="r-E">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display toggles -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-field">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">field arrows</span><span lang="cs">šipky pole</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-force">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">force vectors</span><span lang="cs">vektory sil</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-labels">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">charge labels</span><span lang="cs">popisky nábojů</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ════ § 6  E-FIELD OF CHARGED OBJECTS ════ -->
+    <div class="flow-panel">
+        <div class="flow-head">
+            <span class="accent-pip"></span>
+            <span><span lang="en">Computing the field of a continuous body</span><span lang="cs">Výpočet pole spojitého tělesa</span></span>
+        </div>
+        <div class="flow-body">
+            <div class="flow-grid">
+                <div class="flow-step">
+                    <div class="fs-num">01</div>
+                    <div class="fs-name"><span lang="en">Slice the body into charge elements</span><span lang="cs">Rozřež těleso na elementy náboje</span></div>
+                    <div class="fs-eq" style="font-size:17px;" data-tex="dQ = \overset{\mathrm{3D}}{\varrho_e\,dV} = \overset{\mathrm{2D}}{\sigma_e\,dS} = \overset{\mathrm{1D}}{\tau_e\,dx}"></div>
+                    <div class="fs-sub" data-tex="Q = \int dQ"></div>
+                </div>
+                <div class="flow-arrow" aria-hidden="true"></div>
+                <div class="flow-step">
+                    <div class="fs-num">02</div>
+                    <div class="fs-name"><span lang="en">Each element is a tiny point charge</span><span lang="cs">Každý element je malinký bodový náboj</span></div>
+                    <div class="fs-eq" data-tex="dE = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{dQ}{r^2}"></div>
+                </div>
+                <div class="flow-arrow" aria-hidden="true"></div>
+                <div class="flow-step">
+                    <div class="fs-num">03</div>
+                    <div class="fs-name"><span lang="en">Sum every contribution — superposition</span><span lang="cs">Sečti všechny příspěvky — superpozice</span></div>
+                    <div class="fs-eq" data-tex="\vec{E} = \int d\vec{E}"></div>
+                    <div class="fs-sub" data-tex="\rightarrow\ \vec{F} = Q\vec{E}"></div>
+                </div>
+            </div>
+            <div class="flow-vars">
+                <div class="fv-row">
+                    <span class="fv-sym" data-tex="dQ,\ d\vec{E}"></span>
+                    <span class="fv-txt"><span lang="en">charge of one element and its field contribution at the point P</span><span lang="cs">náboj jednoho elementu a jeho příspěvek k poli v bodě P</span></span>
+                </div>
+                <div class="fv-row">
+                    <span class="fv-sym" data-tex="\varrho_e,\ \sigma_e,\ \tau_e"></span>
+                    <span class="fv-txt"><span lang="en">volume · surface · linear charge density (C/m³ · C/m² · C/m)</span><span lang="cs">objemová · plošná · délková hustota náboje (C/m³ · C/m² · C/m)</span></span>
+                </div>
+                <div class="fv-row">
+                    <span class="fv-sym" data-tex="r"></span>
+                    <span class="fv-txt"><span lang="en">distance from the element to the point P</span><span lang="cs">vzdálenost elementu od bodu P</span></span>
+                </div>
+                <div class="fv-row">
+                    <span class="fv-sym" data-tex="\varepsilon_0"></span>
+                    <span class="fv-txt"><span lang="en">vacuum permittivity, 8.85·10⁻¹² F/m</span><span lang="cs">permitivita vakua, 8,85·10⁻¹² F/m</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section id="lab2" class="lab" style="margin-top:24px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Sandbox: field of charged objects</span><span lang="cs">Sandbox: pole nabitých těles</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="efield-canvas"></canvas>
+                <div class="canvas-formula-badge" id="e2-badge" data-tex="E = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q}{r^2}"></div>
+                <div class="sim-hint"><span lang="en">choose an object in the menu · slide the distance</span><span lang="cs">vyberte těleso v menu · posouvejte vzdálenost</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <!-- Object menu -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Object</span><span lang="cs">Objekt</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Point source</span><span lang="cs">Bodový zdroj</span></div>
+                    <div class="toggle-row obj-row" data-obj="point">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">point charge</span><span lang="cs">bodový náboj</span></span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">1D · 2D</div>
+                    <div class="toggle-row obj-row" data-obj="line">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">infinite rod (τₑ)</span><span lang="cs">nekonečná tyč (τₑ)</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-obj="ring">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">charged ring</span><span lang="cs">nabité mezikruží</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-obj="disk">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">charged disk</span><span lang="cs">nabitý disk</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-obj="plane">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">infinite plate (σₑ)</span><span lang="cs">nekonečná deska (σₑ)</span></span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">3D</div>
+                    <div class="toggle-row obj-row" data-obj="sphere">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">solid sphere</span><span lang="cs">plná koule</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-obj="shell">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">spherical shell</span><span lang="cs">kulová slupka</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameters -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="e2-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
+                        title="Reset to defaults">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name" id="e2-q-name"><span lang="en">Charge <em>Q</em></span><span lang="cs">Náboj <em>Q</em></span></span>
+                            <span class="sim-control-val" id="e2-q-val">+2.0 μC</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="e2-q" min="-5" max="5" step="0.5" value="2">
+                    </div>
+
+                    <div class="sim-control" id="e2-R-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Radius <em>R</em></span><span lang="cs">Poloměr <em>R</em></span></span>
+                            <span class="sim-control-val" id="e2-R-val">5.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="e2-R" min="2" max="10" step="0.5" value="5">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name" id="e2-d-name"><span lang="en">Distance <em>r</em></span><span lang="cs">Vzdálenost <em>r</em></span></span>
+                            <span class="sim-control-val" id="e2-d-val">8.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="e2-d" min="1" max="20" step="0.5" value="8">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">|<em>E</em>| at P</span><span lang="cs">|<em>E</em>| v bodě P</span></span>
+                        <span class="readout-val" id="e2-E">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">region</span><span lang="cs">oblast</span></span>
+                        <span class="readout-val" id="e2-reg">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch21-ex09.html"><span lang="en">Ch. 21 · <span class="ex-no">Ex. 9</span></span><span lang="cs">Kap. 21 · <span class="ex-no">Úl. 9</span></span></a>
+            <a class="ex-tab" href="../exercises/ch21-ex14.html"><span lang="en">Ch. 21 · <span class="ex-no">Ex. 14</span></span><span lang="cs">Kap. 21 · <span class="ex-no">Úl. 14</span></span></a>
+            <a class="ex-tab" href="../exercises/ch21-ex20.html"><span lang="en">Ch. 21 · <span class="ex-no">Ex. 20</span></span><span lang="cs">Kap. 21 · <span class="ex-no">Úl. 20</span></span></a>
+            <a class="ex-tab" href="../exercises/ch22-ex10.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 10</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 10</span></span></a>
+            <a class="ex-tab" href="../exercises/ch22-ex25.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 25</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 25</span></span></a>
+            <a class="ex-tab" href="../exercises/ch22-ex27.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 27</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 27</span></span></a>
+            <a class="ex-tab" href="../exercises/ch22-ex56.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 56</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 56</span></span></a>
+            <a class="ex-tab" href="../exercises/ch22-ex60.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 60</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 60</span></span></a>
+            <a class="ex-tab" href="../exercises/ch23-ex03.html"><span lang="en">Ch. 23 · <span class="ex-no">Ex. 3</span></span><span lang="cs">Kap. 23 · <span class="ex-no">Úl. 3</span></span></a>
+            <a class="ex-tab" href="../exercises/ch23-ex22.html"><span lang="en">Ch. 23 · <span class="ex-no">Ex. 22</span></span><span lang="cs">Kap. 23 · <span class="ex-no">Úl. 22</span></span></a>
+            <a class="ex-tab" href="../exercises/ch23-ex52.html"><span lang="en">Ch. 23 · <span class="ex-no">Ex. 52</span></span><span lang="cs">Kap. 23 · <span class="ex-no">Úl. 52</span></span></a>
+            <a class="ex-tab" href="../exercises/ch23-ex55.html"><span lang="en">Ch. 23 · <span class="ex-no">Ex. 55</span></span><span lang="cs">Kap. 23 · <span class="ex-no">Úl. 55</span></span></a>
+        </div>
+    </section>
+
+    <!-- ════ § 8  PREV / NEXT ════ -->
+    <nav class="topic-nav">
+        <a href="thermodynamics.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous · § I.10</span><span lang="cs">← Předchozí · § I.10</span></div>
+            <div class="topic-nav-title"><span lang="en">Thermodynamics</span><span lang="cs">Termodynamika</span></div>
+        </a>
+        <a href="electrostatics-2.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Electrostatics 2</span><span lang="cs">Elektrostatika 2</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ II.01 <span lang="en">Electrostatics 1</span><span lang="cs">Elektrostatika 1</span></span>
+        <span><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX ── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* CSS colour tokens */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            accent: s.getPropertyValue('--accent').trim()    || '#3D2E8A',
+            ink:    s.getPropertyValue('--ink').trim()       || '#363026',
+            soft:   s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint:  s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper:  s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    let col = readCol();
+
+    /* Physics constants */
+    const k_e = 8.99e9;
+
+    /* State */
+    const DEFAULTS = { q1: 2, q2: -2, r_cm: 8, q3: 2 };
+    let state = { ...DEFAULTS };
+    let thirdOn = false;
+    let third = { fx: 0.5, fy: 0.28 };   /* third-charge position, fraction of canvas */
+
+    /* Display flags */
+    const show = { field: true, labels: true, force: true };
+
+    /* Slider wiring */
+    function fmtQ(v) {
+        const sign = v >= 0 ? '+' : '−';
+        return sign + Math.abs(v).toFixed(1) + ' μC';
+    }
+
+    const sliders = [
+        { id:'p-q1', valId:'p-q1-val', key:'q1',   fmt: fmtQ },
+        { id:'p-q2', valId:'p-q2-val', key:'q2',   fmt: fmtQ },
+        { id:'p-q3', valId:'p-q3-val', key:'q3',   fmt: fmtQ },
+        { id:'p-r',  valId:'p-r-val',  key:'r_cm', fmt: v => v.toFixed(1) + ' cm' },
+    ];
+    sliders.forEach(({ id, valId, key, fmt }) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(+inp.value);
+            updateReadout();
+        });
+    });
+
+    /* Reset */
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        sliders.forEach(({ id, valId, key, fmt }) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(valId);
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+        setThird(false);
+    });
+
+    /* Third charge — add/remove + drag */
+    const btnThird = document.getElementById('btn-third');
+    const ctlQ3    = document.getElementById('ctl-q3');
+    function setThird(on) {
+        thirdOn = on;
+        third = { fx: 0.5, fy: 0.28 };
+        if (ctlQ3) ctlQ3.style.display = on ? '' : 'none';
+        btnThird?.classList.toggle('active', on);
+        updateReadout();
+    }
+    btnThird?.addEventListener('click', () => setThird(!thirdOn));
+
+    let dragging = false;
+    canvas.addEventListener('pointerdown', e => {
+        if (!thirdOn) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+        if (Math.hypot(mx - third.fx * W, my - third.fy * H) < 26) {
+            dragging = true;
+            canvas.setPointerCapture(e.pointerId);
+            e.preventDefault();
+        }
+    });
+    canvas.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const rect = canvas.getBoundingClientRect();
+        third.fx = Math.min(0.96, Math.max(0.04, (e.clientX - rect.left) / W));
+        third.fy = Math.min(0.92, Math.max(0.06, (e.clientY - rect.top) / H));
+        updateReadout();
+    });
+    ['pointerup', 'pointercancel'].forEach(ev =>
+        canvas.addEventListener(ev, () => { dragging = false; }));
+
+    /* Toggle display */
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-field',  'field');
+    wireToggle('tgl-force',  'force');
+    wireToggle('tgl-labels', 'labels');
+
+    /* Readout */
+    function fmtSI(v, unit) {
+        const a = Math.abs(v);
+        if (a >= 1e6)  return (v/1e6).toFixed(2)  + ' M' + unit;
+        if (a >= 1e3)  return (v/1e3).toFixed(2)  + ' k' + unit;
+        if (a >= 1)    return v.toFixed(3) + ' '  + unit;
+        if (a >= 1e-3) return (v*1e3).toFixed(2)  + ' m' + unit;
+        return (v*1e6).toFixed(2) + ' μ' + unit;
+    }
+    /* Geometry: the r slider maps 15 cm to 0.6·W px → the canvas is 25 cm wide */
+    function chargesPx() {
+        const cx = W / 2, cy = H / 2;
+        const r_px = (state.r_cm / 15) * W * 0.6;
+        const arr = [
+            { q: state.q1, x: cx - r_px / 2, y: cy },
+            { q: state.q2, x: cx + r_px / 2, y: cy },
+        ];
+        if (thirdOn) arr.push({ q: state.q3, x: third.fx * W, y: third.fy * H });
+        return arr;
+    }
+    function mPerPx() { return 0.25 / W; }
+
+    /* Net Coulomb force on each charge, SI */
+    function forcesSI(ch) {
+        const s = mPerPx();
+        return ch.map((a, i) => {
+            let Fx = 0, Fy = 0;
+            ch.forEach((b, j) => {
+                if (i === j) return;
+                const dx = (a.x - b.x) * s, dy = (a.y - b.y) * s;
+                const d2 = dx * dx + dy * dy;
+                if (d2 < 1e-8) return;
+                const d = Math.sqrt(d2);
+                const F = k_e * (a.q * 1e-6) * (b.q * 1e-6) / d2;  /* >0 = repulsion */
+                Fx += F * dx / d;
+                Fy += F * dy / d;
+            });
+            return { Fx, Fy, F: Math.hypot(Fx, Fy) };
+        });
+    }
+
+    /* |E| at the midpoint between q1 and q2 — superposition of all charges, SI */
+    function eMidSI(ch) {
+        const s = mPerPx();
+        const cx = W / 2, cy = H / 2;
+        let Ex = 0, Ey = 0;
+        ch.forEach(c => {
+            const dx = (cx - c.x) * s, dy = (cy - c.y) * s;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < 1e-8) return;
+            const d = Math.sqrt(d2);
+            const E = k_e * (c.q * 1e-6) / d2;
+            Ex += E * dx / d;
+            Ey += E * dy / d;
+        });
+        return Math.hypot(Ex, Ey);
+    }
+
+    function updateReadout() {
+        const q1_C = state.q1 * 1e-6;
+        const q2_C = state.q2 * 1e-6;
+        const r_m  = state.r_cm * 0.01;
+        const F    = k_e * Math.abs(q1_C) * Math.abs(q2_C) / (r_m * r_m);
+        const E_mid = eMidSI(chargesPx());
+
+        const $ = id => document.getElementById(id);
+        if ($('r-q1')) $('r-q1').textContent = fmtQ(state.q1);
+        if ($('r-q2')) $('r-q2').textContent = fmtQ(state.q2);
+        if ($('r-F'))  $('r-F').textContent  = fmtSI(F, 'N');
+        if ($('r-E'))  $('r-E').textContent  = fmtSI(E_mid, 'N/C');
+    }
+    updateReadout();
+
+    /* ── Drawing ── */
+
+    /* Arrow helper */
+    function drawArrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(9, len * 0.4), hw = hl * 0.45;
+        ctx.save();
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.5, y2 - uy * hl * 0.5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+    }
+
+    /* Charge circle */
+    function drawCharge(cx, cy, q, label) {
+        const R = 18;
+        const fillColor = q > 0 ? '#c43030' : q < 0 ? '#2255bb' : col.soft;
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        /* Soft highlight */
+        const grad = ctx.createRadialGradient(cx - R*0.3, cy - R*0.3, R*0.05, cx, cy, R);
+        grad.addColorStop(0, 'rgba(255,255,255,0.35)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        if (show.labels) {
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px "Geist", system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, cx, cy);
+        }
+    }
+
+    /* Field grid — superposition of all active charges */
+    function drawField(ch) {
+        if (!show.field) return;
+        const GRID_N = 7;
+        const margin = 60;
+        const gW = W - margin * 2;
+        const gH = H - margin * 2;
+
+        for (let gy = 0; gy < GRID_N; gy++) {
+            for (let gx = 0; gx < GRID_N; gx++) {
+                const px = margin + (gx / (GRID_N - 1)) * gW;
+                const py = margin + (gy / (GRID_N - 1)) * gH;
+
+                /* Skip if too close to a charge */
+                if (ch.some(c => Math.hypot(px - c.x, py - c.y) < 30)) continue;
+
+                /* E direction via superposition (pixel-space magnitudes) */
+                let Ex = 0, Ey = 0;
+                ch.forEach(c => {
+                    const dx = px - c.x, dy = py - c.y;
+                    const r2 = dx * dx + dy * dy;
+                    const r  = Math.sqrt(r2);
+                    Ex += (c.q * 1e-6) / r2 * (dx / r);
+                    Ey += (c.q * 1e-6) / r2 * (dy / r);
+                });
+                const Emag = Math.hypot(Ex, Ey);
+                if (Emag < 1e-30) continue;
+
+                /* Logarithmic length scaling (2.5× the original card lengths) */
+                const MAX_LEN = 50;
+                const logScale = Math.min(MAX_LEN, 15 * (1 + Math.log(1 + Emag * 1e6)));
+                const ux = Ex / Emag * logScale;
+                const uy = Ey / Emag * logScale;
+
+                drawArrow(px - ux * 0.5, py - uy * 0.5,
+                          px + ux * 0.5, py + uy * 0.5,
+                          col.accent, 1.2);
+            }
+        }
+    }
+
+    /* Net Coulomb force vector at each charge */
+    function drawForces(ch) {
+        if (!show.force) return;
+        const forces = forcesSI(ch);
+        ch.forEach((c, i) => {
+            const f = forces[i];
+            if (f.F < 1e-4) return;
+            const len = Math.max(14, Math.min(80, 30 + 16 * Math.log10(f.F / 5)));
+            const ux = f.Fx / f.F, uy = f.Fy / f.F;
+            const x0 = c.x + ux * 24, y0 = c.y + uy * 24;
+            drawArrow(x0, y0, x0 + ux * len, y0 + uy * len, col.ink, 2.2);
+            if (show.labels) {
+                ctx.save();
+                ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+                ctx.fillStyle = col.ink;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const sub = ['₁', '₂', '₃'][i] || '';
+                ctx.fillText('F' + sub, x0 + ux * (len + 13), y0 + uy * (len + 13));
+                ctx.restore();
+            }
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        const ch = chargesPx();
+        const [c1, c2] = ch;
+
+        drawField(ch);
+
+        /* Force indicator line between the two base charges */
+        const sameSign = (state.q1 * state.q2) >= 0;
+        const lineColor = state.q1 === 0 || state.q2 === 0 ? col.faint : (sameSign ? '#c43030aa' : '#2255bbaa');
+        ctx.save();
+        ctx.strokeStyle = lineColor;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(c1.x + 18, c1.y);
+        ctx.lineTo(c2.x - 18, c2.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        drawForces(ch);
+
+        /* Charges on top */
+        ch.forEach(c => {
+            const sign = c.q > 0 ? '+' : c.q < 0 ? '−' : '0';
+            drawCharge(c.x, c.y, c.q, sign);
+        });
+
+        /* Separation label */
+        ctx.save();
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('r = ' + state.r_cm.toFixed(1) + ' cm', W / 2, H / 2 + 28);
+        ctx.restore();
+    }
+
+    /* RAF loop */
+    let lastT = 0, frames = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        draw();
+        frames++;
+        if (ts - lastT >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
+            frames = 0; lastT = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+<!-- ── E-field of charged objects ── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('efield-canvas');
+    if (!canvas) return;
+    const ctx  = canvas.getContext('2d');
+    const dpr  = window.devicePixelRatio || 1;
+    const wrap = canvas.parentElement;
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            accent: s.getPropertyValue('--accent').trim()    || '#3D2E8A',
+            ink:    s.getPropertyValue('--ink').trim()       || '#363026',
+            soft:   s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint:  s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper:  s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    let col = readCol();
+    window.addEventListener('resize', () => { col = readCol(); });
+
+    const k_e  = 8.99e9;
+    const EPS0 = 8.85e-12;
+    const POS  = '#c43030', NEG = '#2255bb';
+
+    /* Per-object slider configs and badge formulas */
+    const CFG = {
+        point: {
+            q: { min: -5, max: 5, step: 0.5, def: 2, unit: ' μC',
+                 name: { en: 'Charge <em>Q</em>', cs: 'Náboj <em>Q</em>' } },
+            R: null,
+            d: { min: 1, max: 20, step: 0.5, def: 8, sym: 'r' },
+            tex: () => 'E = \\dfrac{1}{4\\pi\\varepsilon_0}\\,\\dfrac{Q}{r^2}',
+        },
+        line: {
+            q: { min: -50, max: 50, step: 5, def: 20, unit: ' nC/m',
+                 name: { en: 'Density <em>τ</em>ₑ', cs: 'Hustota <em>τ</em>ₑ' } },
+            R: null,
+            d: { min: 1, max: 20, step: 0.5, def: 6, sym: 'r' },
+            tex: () => 'E = \\dfrac{\\tau_e}{2\\pi\\varepsilon_0\\,r}',
+        },
+        ring: {
+            q: { min: -50, max: 50, step: 5, def: 20, unit: ' nC',
+                 name: { en: 'Charge <em>Q</em>', cs: 'Náboj <em>Q</em>' } },
+            R: { min: 2, max: 10, step: 0.5, def: 5 },
+            d: { min: 0, max: 20, step: 0.5, def: 6, sym: 'z' },
+            tex: () => 'E_z = \\dfrac{1}{4\\pi\\varepsilon_0}\\,\\dfrac{z\\,Q}{(z^2+R^2)^{3/2}}',
+        },
+        disk: {
+            q: { min: -50, max: 50, step: 5, def: 20, unit: ' nC',
+                 name: { en: 'Charge <em>Q</em>', cs: 'Náboj <em>Q</em>' } },
+            R: { min: 2, max: 10, step: 0.5, def: 5 },
+            d: { min: 0, max: 20, step: 0.5, def: 4, sym: 'z' },
+            tex: () => 'E_z = \\dfrac{\\sigma_e}{2\\varepsilon_0}\\left(1 - \\dfrac{z}{\\sqrt{R^2+z^2}}\\right)',
+        },
+        plane: {
+            q: { min: -500, max: 500, step: 25, def: 200, unit: ' nC/m²',
+                 name: { en: 'Density <em>σ</em>ₑ', cs: 'Hustota <em>σ</em>ₑ' } },
+            R: null,
+            d: { min: 1, max: 20, step: 0.5, def: 6, sym: 'z' },
+            tex: () => 'E = \\dfrac{\\sigma_e}{2\\varepsilon_0}',
+        },
+        sphere: {
+            q: { min: -5, max: 5, step: 0.5, def: 2, unit: ' μC',
+                 name: { en: 'Charge <em>Q</em>', cs: 'Náboj <em>Q</em>' } },
+            R: { min: 2, max: 8, step: 0.5, def: 4 },
+            d: { min: 0, max: 20, step: 0.5, def: 10, sym: 'r' },
+            tex: p => p.d < p.R
+                ? 'E = \\dfrac{1}{4\\pi\\varepsilon_0}\\,\\dfrac{Q\\,r}{R^3}\\quad (r<R)'
+                : 'E = \\dfrac{1}{4\\pi\\varepsilon_0}\\,\\dfrac{Q}{r^2}\\quad (r\\ge R)',
+        },
+        shell: {
+            q: { min: -5, max: 5, step: 0.5, def: 2, unit: ' μC',
+                 name: { en: 'Charge <em>Q</em>', cs: 'Náboj <em>Q</em>' } },
+            R: { min: 2, max: 8, step: 0.5, def: 4 },
+            d: { min: 0, max: 20, step: 0.5, def: 10, sym: 'r' },
+            tex: p => p.d < p.R
+                ? 'E = 0\\quad (r<R)'
+                : 'E = \\dfrac{1}{4\\pi\\varepsilon_0}\\,\\dfrac{Q}{r^2}\\quad (r\\ge R)',
+        },
+    };
+
+    let obj = 'point';
+    let p = { q: 2, R: 0, d: 8 };
+
+    /* E in N/C; d and R in cm, q in the object's slider unit */
+    function E_of(o, dcm, q, Rcm) {
+        const d = Math.max(dcm, 0) * 0.01;
+        const R = (Rcm || 0) * 0.01;
+        switch (o) {
+            case 'point': { const r = Math.max(d, 0.004); return k_e * q * 1e-6 / (r * r); }
+            case 'line':  { const r = Math.max(d, 0.004); return 2 * k_e * q * 1e-9 / r; }
+            case 'ring':  { const s = Math.pow(d * d + R * R, 1.5); return s > 0 ? k_e * q * 1e-9 * d / s : 0; }
+            case 'disk':  {
+                const sig = q * 1e-9 / (Math.PI * R * R);
+                return sig / (2 * EPS0) * (1 - d / Math.sqrt(R * R + d * d));
+            }
+            case 'plane': return q * 1e-9 / (2 * EPS0);
+            case 'sphere': {
+                const Q = q * 1e-6;
+                if (d < R) return k_e * Q * d / (R * R * R);
+                const r = Math.max(d, 0.004); return k_e * Q / (r * r);
+            }
+            case 'shell': {
+                if (d < R) return 0;
+                const Q = q * 1e-6; const r = Math.max(d, 0.004); return k_e * Q / (r * r);
+            }
+        }
+        return 0;
+    }
+
+    function fmtSI(v, unit) {
+        const a = Math.abs(v);
+        if (a >= 1e6)  return (v/1e6).toFixed(2)  + ' M' + unit;
+        if (a >= 1e3)  return (v/1e3).toFixed(2)  + ' k' + unit;
+        if (a >= 1)    return v.toFixed(3) + ' '  + unit;
+        if (a >= 1e-3) return (v*1e3).toFixed(2)  + ' m' + unit;
+        return (v*1e6).toFixed(2) + ' μ' + unit;
+    }
+
+    const $ = id => document.getElementById(id);
+
+    function applyCfg(inp, c, val) {
+        if (!inp) return;
+        inp.min = c.min; inp.max = c.max; inp.step = c.step; inp.value = val;
+    }
+
+    function setObject(o) {
+        obj = o;
+        const c = CFG[o];
+        p = { q: c.q.def, R: c.R ? c.R.def : 0, d: c.d.def };
+        document.querySelectorAll('.obj-row').forEach(row => {
+            row.querySelector('.toggle-box')?.classList.toggle('on', row.dataset.obj === o);
+        });
+        const qn = $('e2-q-name');
+        if (qn) qn.innerHTML =
+            '<span lang="en">' + c.q.name.en + '</span><span lang="cs">' + c.q.name.cs + '</span>';
+        applyCfg($('e2-q'), c.q, p.q);
+        const rc = $('e2-R-ctl');
+        if (rc) rc.style.display = c.R ? '' : 'none';
+        if (c.R) applyCfg($('e2-R'), c.R, p.R);
+        const dn = $('e2-d-name');
+        if (dn) dn.innerHTML =
+            '<span lang="en">Distance <em>' + c.d.sym + '</em></span><span lang="cs">Vzdálenost <em>' + c.d.sym + '</em></span>';
+        applyCfg($('e2-d'), c.d, p.d);
+        update();
+    }
+
+    document.querySelectorAll('.obj-row').forEach(row => {
+        row.addEventListener('click', () => setObject(row.dataset.obj));
+    });
+
+    [['e2-q', 'q'], ['e2-R', 'R'], ['e2-d', 'd']].forEach(([id, key]) => {
+        $(id)?.addEventListener('input', () => { p[key] = +$(id).value; update(); });
+    });
+    $('e2-reset')?.addEventListener('click', () => setObject(obj));
+
+    function renderBadge() {
+        const el = $('e2-badge');
+        if (!el) return;
+        const tex = CFG[obj].tex(p);
+        if (window.katex) katex.render(tex, el, { throwOnError: false, displayMode: false });
+        else el.textContent = '';
+    }
+
+    function isCS() { return document.documentElement.getAttribute('data-lang') === 'cs'; }
+
+    function update() {
+        const c = CFG[obj];
+        const E = E_of(obj, p.d, p.q, p.R);
+        if ($('e2-q-val')) {
+            const sign = p.q >= 0 ? '+' : '−';
+            $('e2-q-val').textContent = sign + Math.abs(p.q).toFixed(c.q.step < 1 ? 1 : 0) + c.q.unit;
+        }
+        if ($('e2-R-val')) $('e2-R-val').textContent = p.R.toFixed(1) + ' cm';
+        if ($('e2-d-val')) $('e2-d-val').textContent = p.d.toFixed(1) + ' cm';
+        if ($('e2-E')) $('e2-E').textContent = fmtSI(Math.abs(E), 'N/C');
+        if ($('e2-reg')) {
+            let t = '—';
+            if (obj === 'sphere' || obj === 'shell')
+                t = p.d < p.R ? (isCS() ? 'uvnitř' : 'inside') : (isCS() ? 'vně' : 'outside');
+            $('e2-reg').textContent = t;
+        }
+        renderBadge();
+    }
+
+    document.addEventListener('langchange', update);
+    document.addEventListener('DOMContentLoaded', update);
+
+    /* ── Drawing ── */
+    function drawArrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(9, len * 0.4), hw = hl * 0.45;
+        ctx.save();
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.5, y2 - uy * hl * 0.5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+    }
+
+    function hexA(hex, a) {
+        const h = hex.replace('#', '');
+        const f = h.length === 3 ? h.split('').map(x => x + x).join('') : h;
+        const n = parseInt(f, 16);
+        return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+    }
+
+    /* Arrow length from |E| — log scale across the objects' typical ranges */
+    function lenFromE(E) {
+        const a = Math.abs(E);
+        if (a < 1) return 0;
+        return Math.max(5, Math.min(44, 10 + 9 * Math.log10(a / 1e3)));
+    }
+
+    /* Soft radial highlight — makes round bodies read as 3D */
+    function shine(x, y, R, a) {
+        const h = ctx.createRadialGradient(
+            x - R * 0.38, y - R * 0.42, R * 0.05,
+            x - R * 0.2,  y - R * 0.25, R * 0.95);
+        h.addColorStop(0, 'rgba(255,255,255,' + a + ')');
+        h.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = h;
+        ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill();
+    }
+
+    function drawBall(x, y, R) {
+        ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2);
+        ctx.fillStyle = p.q > 0 ? POS : p.q < 0 ? NEG : col.soft;
+        ctx.fill();
+        shine(x, y, R, 0.4);
+        ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 13px "Geist", system-ui, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(p.q > 0 ? '+' : p.q < 0 ? '−' : '0', x, y);
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const c = CFG[obj];
+        const chCol = p.q >= 0 ? POS : NEG;
+
+        /* Layout */
+        const skH = H * 0.58;
+        const ox  = W * 0.30;
+        const oy  = skH * 0.55;
+        const pxPerCm = (W - 50 - ox) / (c.d.max + 1);
+        const Rpx = (p.R || 0) * pxPerCm;
+        const dpx = p.d * pxPerCm;
+        const sgn = p.q >= 0 ? 1 : -1;
+        const aLen = lenFromE(E_of(obj, p.d, p.q, p.R));
+
+        /* ── sketch (clipped to the upper area) ── */
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, W, skH + 8);
+        ctx.clip();
+
+        if (obj === 'point' || obj === 'sphere' || obj === 'shell') {
+            /* dashed Gaussian sphere at radius d */
+            if (dpx > 4) {
+                ctx.strokeStyle = col.faint;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.arc(ox, oy, dpx, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            /* radial arrows on the Gaussian circle */
+            if (aLen > 0 && dpx > 4) {
+                for (let i = 0; i < 8; i++) {
+                    const a = i * Math.PI / 4;
+                    drawArrow(ox + Math.cos(a) * dpx, oy + Math.sin(a) * dpx,
+                              ox + Math.cos(a) * (dpx + sgn * aLen),
+                              oy + Math.sin(a) * (dpx + sgn * aLen),
+                              col.accent, 1.4);
+                }
+            }
+            if (obj === 'sphere') {
+                const g = ctx.createRadialGradient(
+                    ox - Rpx * 0.35, oy - Rpx * 0.4, Rpx * 0.1, ox, oy, Rpx);
+                g.addColorStop(0, hexA(chCol, 0.42));
+                g.addColorStop(1, hexA(chCol, 0.12));
+                ctx.beginPath(); ctx.arc(ox, oy, Rpx, 0, Math.PI * 2);
+                ctx.fillStyle = g; ctx.fill();
+                ctx.strokeStyle = chCol; ctx.lineWidth = 2; ctx.stroke();
+                shine(ox, oy, Rpx, 0.45);
+            } else if (obj === 'shell') {
+                /* limb-darkened hollow ball: transparent centre, tinted rim */
+                const g = ctx.createRadialGradient(
+                    ox, oy, Math.max(1, Rpx * 0.55), ox, oy, Rpx);
+                g.addColorStop(0, 'rgba(0,0,0,0)');
+                g.addColorStop(1, hexA(chCol, 0.30));
+                ctx.beginPath(); ctx.arc(ox, oy, Rpx, 0, Math.PI * 2);
+                ctx.fillStyle = g; ctx.fill();
+                ctx.strokeStyle = chCol; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(ox, oy, Rpx, 0, Math.PI * 2); ctx.stroke();
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.arc(ox, oy, Math.max(2, Rpx - 4), 0, Math.PI * 2); ctx.stroke();
+                shine(ox, oy, Rpx, 0.35);
+            } else {
+                drawBall(ox, oy, 12);
+            }
+        } else if (obj === 'line') {
+            /* the rod edge-on: a vertical line through ox */
+            ctx.strokeStyle = col.ink;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(ox, 6);
+            ctx.lineTo(ox, skH);
+            ctx.stroke();
+            ctx.font = 'bold 12px "Geist", system-ui, sans-serif';
+            ctx.fillStyle = chCol;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            for (let y = 18; y < skH - 6; y += 28) {
+                ctx.fillText(sgn > 0 ? '+' : '−', ox - 12, y);
+            }
+            if (aLen > 0) {
+                [skH * 0.18, skH * 0.42, skH * 0.66, skH * 0.88].forEach(y => {
+                    drawArrow(ox + dpx, y, ox + dpx + sgn * aLen, y, col.accent, 1.4);
+                    drawArrow(ox - dpx, y, ox - dpx - sgn * aLen, y, col.accent, 1.4);
+                });
+            }
+        } else if (obj === 'plane') {
+            /* infinite plate in perspective: a slanted parallelogram sheet */
+            const sx = 34, sy = 18;
+            const yT = 24, yB = skH - 10;
+            ctx.beginPath();
+            ctx.moveTo(ox - sx / 2, yT + sy);       /* front top */
+            ctx.lineTo(ox + sx / 2, yT);            /* back top  */
+            ctx.lineTo(ox + sx / 2, yB - sy);       /* back bottom */
+            ctx.lineTo(ox - sx / 2, yB);            /* front bottom */
+            ctx.closePath();
+            ctx.fillStyle = hexA(chCol, 0.13);
+            ctx.fill();
+            ctx.strokeStyle = chCol;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            /* charge marks on the sheet face, two slanted columns */
+            ctx.font = 'bold 12px "Geist", system-ui, sans-serif';
+            ctx.fillStyle = chCol;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            for (let y = yT + sy + 18; y < yB - 12; y += 30) {
+                ctx.fillText(sgn > 0 ? '+' : '−', ox - 8, y);
+                ctx.fillText(sgn > 0 ? '+' : '−', ox + 8, y - 9);
+            }
+            if (aLen > 0) {
+                [skH * 0.22, skH * 0.46, skH * 0.70, skH * 0.88].forEach(y => {
+                    drawArrow(ox + sx / 2 + dpx, y, ox + sx / 2 + dpx + sgn * aLen, y, col.accent, 1.4);
+                    drawArrow(ox - sx / 2 - dpx, y, ox - sx / 2 - dpx - sgn * aLen, y, col.accent, 1.4);
+                });
+            }
+        } else {
+            /* ring / disk — side view, axis z horizontal */
+            ctx.strokeStyle = col.faint;
+            ctx.setLineDash([2, 4]);
+            ctx.beginPath();
+            ctx.moveTo(20, oy); ctx.lineTo(W - 20, oy);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            const rx = Math.max(6, Rpx * 0.22);
+            ctx.beginPath();
+            ctx.ellipse(ox, oy, rx, Math.max(6, Rpx), 0, 0, Math.PI * 2);
+            if (obj === 'disk') { ctx.fillStyle = hexA(chCol, 0.14); ctx.fill(); }
+            ctx.strokeStyle = chCol;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+            /* axis arrows at samples, both sides (field points away from/toward the body) */
+            for (let i = 1; i <= 4; i++) {
+                const zc = c.d.max * i / 4.4;
+                const s = lenFromE(E_of(obj, zc, p.q, p.R));
+                if (s <= 0) continue;
+                const xr = ox + zc * pxPerCm, xl = ox - zc * pxPerCm;
+                drawArrow(xr, oy, xr + sgn * s, oy, col.accent, 1.4);
+                drawArrow(xl, oy, xl - sgn * s, oy, col.accent, 1.4);
+            }
+        }
+
+        /* probe P + its field arrow (plane: measured from the sheet's back edge) */
+        const pxP = ox + dpx + (obj === 'plane' ? 17 : 0);
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(pxP, oy, 3.2, 0, Math.PI * 2); ctx.fill();
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.soft;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('P', pxP + 6, oy - 6);
+        if (aLen > 0) drawArrow(pxP, oy, pxP + sgn * aLen, oy, col.ink, 2);
+
+        ctx.restore();
+
+        /* ── graph |E| vs distance (bottom strip left clear for the badge) ── */
+        const gx0 = 56, gx1 = W - 24;
+        const gy0 = skH + 26, gy1 = H - 78;
+        const csMode = document.documentElement.getAttribute('data-lang') === 'cs';
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.soft;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText(csMode ? 'VELIKOST ELEKTRICKÉ INTENZITY V BODĚ P' : 'MAGNITUDE OF ELECTRIC INTENSITY',
+                     (gx0 + gx1) / 2, gy0 - 8);
+        ctx.strokeStyle = col.faint;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(gx0, gy0); ctx.lineTo(gx0, gy1); ctx.lineTo(gx1, gy1);
+        ctx.stroke();
+
+        const dmin = (obj === 'point' || obj === 'line') ? 0.8 : c.d.min;
+        const NPTS = 120;
+        let Emax = 0;
+        const vals = [];
+        for (let i = 0; i <= NPTS; i++) {
+            const dd = dmin + (c.d.max - dmin) * i / NPTS;
+            const v = Math.abs(E_of(obj, dd, p.q, p.R));
+            vals.push([dd, v]);
+            if (v > Emax) Emax = v;
+        }
+        if (Emax <= 0) Emax = 1;
+        const X = dd => gx0 + (dd - dmin) / (c.d.max - dmin) * (gx1 - gx0);
+        const Y = v  => gy1 - (v / Emax) * (gy1 - gy0 - 6);
+
+        if (c.R) {
+            ctx.strokeStyle = col.faint;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(X(p.R), gy0); ctx.lineTo(X(p.R), gy1); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.fillStyle = col.faint;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText('R', X(p.R) + 6, gy0 + 4);
+        }
+
+        ctx.strokeStyle = col.accent;
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        vals.forEach(([dd, v], i) => {
+            if (i === 0) ctx.moveTo(X(dd), Y(v)); else ctx.lineTo(X(dd), Y(v));
+        });
+        ctx.stroke();
+
+        const Ep = Math.abs(E_of(obj, p.d, p.q, p.R));
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.arc(X(Math.max(p.d, dmin)), Y(Math.min(Ep, Emax)), 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('|E|', gx0 + 4, gy0);
+        ctx.textAlign = 'center';
+        ctx.fillText(c.d.sym + ' (cm)', (gx0 + gx1) / 2, gy1 + 4);
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    setObject('point');
+}());
+</script>
+
+</body>
+</html>

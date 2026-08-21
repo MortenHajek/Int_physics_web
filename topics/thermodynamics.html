@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thermodynamics · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 60px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Process selector ────────────────────────────────────────────── */
+    .process-selector {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .process-selector-label {
+        font-size: 14px;
+        color: var(--ink);
+        margin-bottom: 8px;
+    }
+    .process-selector select {
+        width: 100%;
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--ink);
+        background: var(--paper);
+        border: 1.5px solid var(--ink-faint);
+        padding: 6px 10px;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237A6A52'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 28px;
+    }
+    .process-selector select:focus {
+        border-color: var(--accent);
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+                            
+                            
+                                                        
+                        
+                                        
+            
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                .topic-nav { grid-template-columns: 1fr; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="thermo" data-screen-label="I.10 Thermodynamics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">ΔU</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ── Hero ── -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.10 · thermodynamics</div>
+            <h1>Thermodynamics</h1>
+            <p class="lede">
+                Heat, work, and internal energy are linked by the first law. Trace the path
+                of a gas on a PV diagram and see how different processes — isothermal, isobaric,
+                isochoric, adiabatic — exchange work and heat with their surroundings.
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\Delta U = Q - W"></div>
+            <div class="eq-caption">First law — energy conservation for thermodynamic systems</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Heat and work are the same currency — energy in transit — and the first law is just the statement that a
+ gas's internal energy keeps whatever the two of them bring in. What makes the subject subtle is that neither
+ heat nor work is a property of the gas: they depend on the <em>route</em> taken between two states, while the
+ internal energy depends only on the endpoints. Draw the process on a pressure–volume diagram and this becomes
+ visible — the work is the area underneath, so different paths joining the same two points enclose different
+ areas and cost different amounts. Run a closed loop and the leftover area is what an engine delivers.</span><span lang="cs">Teplo a práce jsou táž měna — energie na cestě — a první termodynamický zákon jen říká, že vnitřní energie
+ plynu si nechá vše, co ty dvě přinesou. Zrádné je na tom to, že ani teplo, ani práce nejsou vlastností plynu:
+ závisí na <em>cestě</em> mezi dvěma stavy, kdežto vnitřní energie jen na jejích koncích. Nakreslete děj do
+ pV diagramu a je to vidět — práce je plocha pod křivkou, takže různé cesty spojující tytéž dva body uzavírají
+ různé plochy a stojí různě. Proběhněte uzavřenou smyčku a zbylá plocha je to, co stroj odvede.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Ideal gas law</span><span lang="cs">Stavová rovnice ideálního plynu</span></span>
+                        <span class="cf-eq" data-tex="pV = nRT"></span>
+                        <span class="cf-eq" data-tex="R = 8{,}31\ \mathrm{J\,mol^{-1}K^{-1}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Ties the three state variables together, so any two of them fix the third. Given a point on a
+      <span data-tex="pV"></span> diagram and one temperature, the number of moles follows — and after that
+      every other temperature on the diagram is one ratio away.</span><span lang="cs">Svazuje tři stavové veličiny, takže libovolné dvě určují třetí. Máte-li bod v
+      <span data-tex="pV"></span> diagramu a jednu teplotu, plyne z toho látkové množství — a pak je každá
+      další teplota v diagramu vzdálená jeden poměr.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Work is the area</span><span lang="cs">Práce je plocha</span></span>
+                        <span class="cf-eq" data-tex="W = \int_{V_1}^{V_2} p\,\mathrm{d}V"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The single most useful fact in the topic. On a <span data-tex="pV"></span> diagram, read the area under
+      the path — a rectangle for constant pressure, a triangle plus a rectangle for a straight line, nothing at
+      all for a vertical line. Expansion does positive work, compression negative.</span><span lang="cs">Nejužitečnější fakt celého tématu. V <span data-tex="pV"></span> diagramu odečtěte plochu pod cestou —
+      obdélník při stálém tlaku, trojúhelník plus obdélník u přímky, vůbec nic u svislé čáry. Rozpínání koná
+      kladnou práci, stlačování zápornou.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">First law</span><span lang="cs">První termodynamický zákon</span></span>
+                        <span class="cf-eq" data-tex="\Delta U = Q - W"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Energy in as heat, minus energy out as work, equals the change in internal energy. Sign conventions
+      matter more than the algebra: <span data-tex="Q > 0"></span> is heat <em>added</em> to the gas and
+      <span data-tex="W > 0"></span> is work <em>done by</em> it.</span><span lang="cs">Energie dodaná teplem minus energie odvedená prací se rovná změně vnitřní energie. Na znaménkových
+      konvencích záleží víc než na algebře: <span data-tex="Q > 0"></span> je teplo <em>dodané</em> plynu
+      a <span data-tex="W > 0"></span> práce <em>vykonaná</em> plynem.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Internal energy is a state function</span><span lang="cs">Vnitřní energie je stavová veličina</span></span>
+                        <span class="cf-eq" data-tex="U = \dfrac{f}{2}nRT\,,\qquad \Delta U_{cyklus} = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">It depends only on the temperature, so returning a gas to the state it started in returns its internal
+      energy exactly — whatever happened in between. Round a closed cycle
+      <span data-tex="\Delta U = 0"></span>, and therefore
+      <span data-tex="Q = W"></span>: the net heat in equals the net work out.</span><span lang="cs">Závisí jen na teplotě, takže vrátíte-li plyn do výchozího stavu, vrátí se i jeho vnitřní energie přesně
+      — ať se mezitím dělo cokoli. Po uzavřeném cyklu je
+      <span data-tex="\Delta U = 0"></span>, a tedy
+      <span data-tex="Q = W"></span>: čisté dodané teplo se rovná čisté vykonané práci.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The named processes</span><span lang="cs">Pojmenované děje</span></span>
+                        <span class="cf-eq" data-tex="\text{izobarický } W = p\Delta V\,;\quad \text{izochorický } W = 0"></span>
+                        <span class="cf-eq" data-tex="\text{izotermický } W = nRT\ln\dfrac{V_2}{V_1}\,;\quad \text{adiabatický } Q = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Four special cases, each killing one term. Isothermal keeps
+      <span data-tex="\Delta U = 0"></span> so all the heat becomes work; adiabatic keeps
+      <span data-tex="Q = 0"></span> so all the work comes out of the internal energy and the gas cools as it
+      expands.</span><span lang="cs">Čtyři speciální případy, každý zabíjí jeden člen. Izotermický drží
+      <span data-tex="\Delta U = 0"></span>, takže se všechno teplo změní v práci; adiabatický drží
+      <span data-tex="Q = 0"></span>, takže veškerá práce jde z vnitřní energie a plyn se rozpínáním
+      ochlazuje.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Adiabats and the degrees of freedom</span><span lang="cs">Adiabaty a stupně volnosti</span></span>
+                        <span class="cf-eq" data-tex="pV^{\gamma} = \text{konst.}"></span>
+                        <span class="cf-eq" data-tex="\gamma = \dfrac{5}{3}\ \text{(jednoatomový)},\ \dfrac{7}{5}\ \text{(dvouatomový)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The exponent counts how many ways a molecule can store energy, so measuring
+      <span data-tex="\gamma"></span> from a pair of adiabatic legs tells you what the gas is made of — a
+      question about atoms answered with a pressure gauge.</span><span lang="cs">Exponent počítá, kolika způsoby umí molekula ukládat energii, takže změření
+      <span data-tex="\gamma"></span> z dvojice adiabat prozradí, z čeho je plyn — otázka o atomech zodpovězená
+      tlakoměrem.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Efficiency</span><span lang="cs">Účinnost</span></span>
+                        <span class="cf-eq" data-tex="\eta = \dfrac{W}{Q_{dod}} = 1 - \dfrac{Q_{odv}}{Q_{dod}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">What fraction of the heat paid for comes back as work. Only the heat actually <em>supplied</em> goes in
+      the denominator, never the net — a distinction that quietly decides most efficiency answers.</span><span lang="cs">Jaký zlomek zaplaceného tepla se vrátí jako práce. Do jmenovatele patří jen teplo skutečně
+      <em>dodané</em>, nikdy čisté — rozdíl, který tiše rozhoduje o většině odpovědí na účinnost.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Draw the process on a <span data-tex="pV"></span> diagram.</strong> Even when one is given,
+       redraw it and label every corner with its pressure and volume. Almost every question is then read off the
+       picture.</span><span lang="cs"><strong>Nakreslete děj do <span data-tex="pV"></span> diagramu.</strong> I když je zadaný, překreslete
+       si ho a ke každému rohu napište tlak a objem. Skoro každá otázka se pak z obrázku
+       odečte.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Work: take the area under the path.</strong> Split it into rectangles and triangles. A vertical
+       leg does no work at all; the same two endpoints joined differently give different answers, which is the
+       point of the exercise.</span><span lang="cs"><strong>Práce: vezměte plochu pod cestou.</strong> Rozdělte ji na obdélníky a trojúhelníky. Svislý úsek
+       nekoná žádnou práci; tytéž dva krajní body spojené jinak dají jiné výsledky — a o to v té úloze
+       jde.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Temperatures from <span data-tex="pV = nRT"></span>, in ratios.</strong> Get
+       <span data-tex="n"></span> once from the state you know completely, then every other temperature is
+       <span data-tex="T_2 = T_1 (p_2V_2)/(p_1V_1)"></span> — no need to re-substitute the
+       constants.</span><span lang="cs"><strong>Teploty ze <span data-tex="pV = nRT"></span>, v poměrech.</strong> Určete jednou
+       <span data-tex="n"></span> ze stavu, který znáte celý, a pak je každá další teplota
+       <span data-tex="T_2 = T_1 (p_2V_2)/(p_1V_1)"></span> — konstanty není třeba dosazovat
+       znovu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>A closed cycle hands you an equation for free.</strong>
+       <span data-tex="\Delta U = 0"></span> round the loop, so the total heat added equals the total work done
+       — which is the enclosed area. That is usually the shortest route to the heat.</span><span lang="cs"><strong>Uzavřený cyklus vám dá rovnici zadarmo.</strong> Po smyčce je
+       <span data-tex="\Delta U = 0"></span>, takže se celkové dodané teplo rovná celkové vykonané práci — a to
+       je uzavřená plocha. Obvykle je to nejkratší cesta k teplu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Identify the gas from <span data-tex="\gamma"></span>.</strong> Two adiabatic legs give
+       <span data-tex="p_1V_1^{\gamma} = p_2V_2^{\gamma}"></span>; take logarithms and solve for the exponent,
+       then match it to monatomic, diatomic or polyatomic.</span><span lang="cs"><strong>Určete plyn z <span data-tex="\gamma"></span>.</strong> Dvě adiabaty dají
+       <span data-tex="p_1V_1^{\gamma} = p_2V_2^{\gamma}"></span>; zlogaritmujte, vyřešte exponent a přiřaďte
+       ho k jedno-, dvou- nebo víceatomovému plynu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Efficiency: heat supplied in the denominator.</strong> Add up only the legs on which
+       <span data-tex="Q > 0"></span>. Work out the net work as the enclosed area, and divide.</span><span lang="cs"><strong>Účinnost: do jmenovatele dodané teplo.</strong> Sečtěte jen ty úseky, na nichž je
+       <span data-tex="Q > 0"></span>. Čistou práci určete jako uzavřenou plochu a vydělte.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Simulation Lab ── -->
+    <section id="lab" class="lab" style="margin-top:72px;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>PV diagram sandbox</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\Delta U = Q - W"></div>
+                <div class="sim-hint">select process · adjust initial state and final volume</div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+            <!-- Parameters -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="process-selector">
+                        <div class="process-selector-label">Process type</div>
+                        <select id="p-process">
+                            <option value="isothermal">Isothermal  (T = const)</option>
+                            <option value="isobaric">Isobaric  (P = const)</option>
+                            <option value="isochoric">Isochoric  (V = const)</option>
+                            <option value="adiabatic">Adiabatic  (PVᵞ = const)</option>
+                        </select>
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Initial P₀ (kPa)</span>
+                            <span class="sim-control-val" id="p-P0-val">200 kPa</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-P0" min="50" max="300" step="5" value="200">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Initial V₀ (L)</span>
+                            <span class="sim-control-val" id="p-V0-val">10 L</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-V0" min="5" max="20" step="0.5" value="10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Final V (L)</span>
+                            <span class="sim-control-val" id="p-Vf-val">20 L</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-Vf" min="5" max="40" step="0.5" value="20">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">γ (heat capacity ratio)</span>
+                            <span class="sim-control-val" id="p-gamma-val">1.4</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-gamma" min="1.1" max="1.7" step="0.1" value="1.4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Readout</span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label">Process</span>
+                        <span class="readout-val" id="r-process">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">W (work done)</span>
+                        <span class="readout-val" id="r-W">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">ΔU</span>
+                        <span class="readout-val" id="r-dU">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">T<sub>f</sub>/T<sub>i</sub></span>
+                        <span class="readout-val" id="r-Tratio">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch18-ex45.html"><span lang="en">Ch. 18 · <span class="ex-no">Ex. 45</span></span><span lang="cs">Kap. 18 · <span class="ex-no">Úl. 45</span></span></a>
+            <a class="ex-tab" href="../exercises/ch19-ex15.html"><span lang="en">Ch. 19 · <span class="ex-no">Ex. 15</span></span><span lang="cs">Kap. 19 · <span class="ex-no">Úl. 15</span></span></a>
+            <a class="ex-tab" href="../exercises/ch20-ex32.html"><span lang="en">Ch. 20 · <span class="ex-no">Ex. 32</span></span><span lang="cs">Kap. 20 · <span class="ex-no">Úl. 32</span></span></a>
+        </div>
+    </section>
+
+    <!-- ── Prev / Next ── -->
+    <nav class="topic-nav">
+        <a href="waves.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Waves</span><span lang="cs">Vlnění</span></div>
+        </a>
+        <a href="electrostatics-1.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir">Next · § II.01</div>
+            <div class="topic-nav-title"><span lang="en">Electrostatics 1</span><span lang="cs">Elektrostatika 1</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.10 Thermodynamics</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX render ── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── SIMULATION — PV Diagram ── -->
+<script>
+(function () {
+    'use strict';
+
+    /* ── Canvas + context ── */
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── CSS colour tokens ── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--accent').trim()    || '#b05a18',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFFEC',
+        };
+    }
+    let col = readCol();
+
+    /* ── State ── */
+    const DEFAULTS = { P0: 200, V0: 10, Vf: 20, gamma: 1.4, process: 'isothermal' };
+    let state = { ...DEFAULTS };
+
+    /* ── Animation: draw progress 0→1 ── */
+    let animProgress = 0;
+    let animTarget   = 1;
+    let animStart    = null;
+    const ANIM_MS    = 1400;
+
+    function triggerAnim() {
+        animProgress = 0;
+        animStart    = null;
+    }
+
+    /* ── Slider wiring ── */
+    function bindSlider(id, valId, fmt, key, transform) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        const update = () => {
+            const raw = +inp.value;
+            state[key] = transform ? transform(raw) : raw;
+            if (lbl) lbl.textContent = fmt(raw);
+            triggerAnim();
+        };
+        inp.addEventListener('input', update);
+        update(); // init
+    }
+
+    bindSlider('p-P0',    'p-P0-val',    v => v + ' kPa', 'P0',    null);
+    bindSlider('p-V0',    'p-V0-val',    v => v + ' L',   'V0',    null);
+    bindSlider('p-Vf',    'p-Vf-val',    v => v + ' L',   'Vf',    null);
+    bindSlider('p-gamma', 'p-gamma-val', v => parseFloat(v).toFixed(1), 'gamma', null);
+
+    const procSel = document.getElementById('p-process');
+    if (procSel) {
+        procSel.addEventListener('change', () => {
+            state.process = procSel.value;
+            triggerAnim();
+        });
+    }
+
+    /* ── Reset ── */
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-P0', 200], ['p-V0', 10], ['p-Vf', 20], ['p-gamma', 1.4]].forEach(([id, val]) => {
+            const inp = document.getElementById(id);
+            if (inp) inp.value = val;
+            inp?.dispatchEvent(new Event('input'));
+        });
+        if (procSel) { procSel.value = 'isothermal'; state.process = 'isothermal'; }
+        triggerAnim();
+    });
+
+    /* ── Physics helpers ── */
+    const R = 8.314; // J/(mol·K)
+
+    // Pressure as function of V (in L), for given process starting at (V0, P0)
+    function P_of_V(V_L) {
+        const { P0, V0, Vf, gamma, process } = state;
+        switch (process) {
+            case 'isothermal': return P0 * V0 / V_L;
+            case 'isobaric':   return P0;
+            case 'isochoric':  return null; // vertical line handled separately
+            case 'adiabatic':  return P0 * Math.pow(V0 / V_L, gamma);
+            default:           return P0;
+        }
+    }
+
+    // Final P for isochoric: use adiabatic-like ratio (P ∝ T at const V)
+    // We pick Pf/P0 = Vf/V0 as a simple demonstration
+    function isochoricPf() {
+        return state.P0 * (state.Vf / state.V0);
+    }
+
+    // Work done (J), volumes in L → convert to m³ (*0.001)
+    function computeWork() {
+        const { P0, V0, Vf, gamma, process } = state;
+        const V0m = V0 * 1e-3, Vfm = Vf * 1e-3, P0Pa = P0 * 1e3;
+        switch (process) {
+            case 'isothermal':
+                return P0Pa * V0m * Math.log(Vfm / V0m);
+            case 'isobaric':
+                return P0Pa * (Vfm - V0m);
+            case 'isochoric':
+                return 0;
+            case 'adiabatic': {
+                const PfPa = P0Pa * Math.pow(V0m / Vfm, gamma);
+                return (P0Pa * V0m - PfPa * Vfm) / (gamma - 1);
+            }
+            default: return 0;
+        }
+    }
+
+    // Temperature ratio Tf/Ti
+    function computeTratio() {
+        const { P0, V0, Vf, gamma, process } = state;
+        switch (process) {
+            case 'isothermal': return 1.0;
+            case 'isobaric':   return Vf / V0;
+            case 'isochoric':  return isochoricPf() / P0;
+            case 'adiabatic':  return Math.pow(V0 / Vf, gamma - 1);
+            default:           return 1.0;
+        }
+    }
+
+    // ΔU estimate: for monatomic ideal gas ΔU = (3/2)nRΔT ≈ (3/2) · (PiVi)(Tf/Ti - 1)
+    // We don't know n, so use PV directly: ΔU = (3/2)(Pf·Vf - Pi·Vi) [in Pa·m³ = J]
+    function computeDeltaU() {
+        const { P0, V0, Vf, gamma, process } = state;
+        const P0Pa = P0 * 1e3, V0m = V0 * 1e-3;
+        const Vfm  = Vf * 1e-3;
+        let PfPa;
+        switch (process) {
+            case 'isothermal': PfPa = P0Pa * V0m / Vfm; break;
+            case 'isobaric':   PfPa = P0Pa; break;
+            case 'isochoric':  PfPa = P0Pa * (Vf / V0); Vfm === V0m; break;
+            case 'adiabatic':  PfPa = P0Pa * Math.pow(V0m / Vfm, gamma); break;
+            default:           PfPa = P0Pa;
+        }
+        // For isochoric Vf_m stays V0m (no volume change)
+        const VfActual = (process === 'isochoric') ? V0m : Vfm;
+        return (3 / 2) * (PfPa * VfActual - P0Pa * V0m);
+    }
+
+    /* ── Drawing ── */
+    function draw(ts) {
+        // Animate progress
+        if (animStart === null) animStart = ts;
+        const elapsed = ts - animStart;
+        animProgress  = Math.min(elapsed / ANIM_MS, 1);
+
+        ctx.clearRect(0, 0, W, H);
+
+        const { P0, V0, Vf, gamma, process } = state;
+
+        // ── Axis layout ──
+        const PAD_L  = 64, PAD_B = 48, PAD_R = 24, PAD_T = 24;
+        const plotW  = W - PAD_L - PAD_R;
+        const plotH  = H - PAD_T - PAD_B;
+        const ox     = PAD_L;         // origin x in canvas
+        const oy     = H - PAD_B;     // origin y in canvas (bottom)
+
+        // Data ranges — include both endpoints generously
+        const Pf_isoch  = isochoricPf();
+        const allPs     = [P0 * 1.4, process === 'isochoric' ? Pf_isoch * 1.4 : P0 * 1.4,
+                           process === 'adiabatic' ? P0 * Math.pow(V0 / Vf, gamma) * 1.4 : P0 * 0.3];
+        const maxP      = Math.max(P0 * 1.45, allPs.reduce((a,b)=>Math.max(a,b), 0));
+        const minP      = 0;
+        const minV      = 0;
+        const maxV      = Math.max(Vf * 1.35, V0 * 1.35);
+
+        function vToX(v) { return ox + (v - minV) / (maxV - minV) * plotW; }
+        function pToY(p) { return oy - (p - minP) / (maxP - minP) * plotH; }
+
+        // ── Grid lines ──
+        ctx.strokeStyle = col.faint + '30';
+        ctx.lineWidth   = 0.8;
+        ctx.setLineDash([3, 4]);
+        const NV = 5, NP = 5;
+        for (let i = 0; i <= NV; i++) {
+            const v = minV + i * (maxV - minV) / NV;
+            const x = vToX(v);
+            ctx.beginPath(); ctx.moveTo(x, PAD_T); ctx.lineTo(x, oy); ctx.stroke();
+        }
+        for (let i = 0; i <= NP; i++) {
+            const p = minP + i * (maxP - minP) / NP;
+            const y = pToY(p);
+            ctx.beginPath(); ctx.moveTo(ox, y); ctx.lineTo(ox + plotW, y); ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        // ── Axes ──
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth   = 1.8;
+        ctx.lineCap     = 'round';
+        ctx.beginPath();
+        ctx.moveTo(ox, PAD_T); ctx.lineTo(ox, oy); ctx.lineTo(ox + plotW, oy);
+        ctx.stroke();
+
+        // Axis labels
+        ctx.fillStyle = col.soft;
+        ctx.font      = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('V (L)', ox + plotW / 2, oy + 28);
+
+        ctx.save();
+        ctx.translate(16, PAD_T + plotH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textBaseline = 'middle';
+        ctx.fillText('P (kPa)', 0, 0);
+        ctx.restore();
+
+        // Axis tick labels
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        for (let i = 0; i <= NV; i++) {
+            const v = minV + i * (maxV - minV) / NV;
+            if (v > 0.1) ctx.fillText(v.toFixed(1), vToX(v), oy + 6);
+        }
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        for (let i = 1; i <= NP; i++) {
+            const p = minP + i * (maxP - minP) / NP;
+            ctx.fillText(p.toFixed(0), ox - 6, pToY(p));
+        }
+
+        // ── Shaded area under curve (work) — drawn to animProgress ──
+        const CURVE_STEPS = 120;
+        let Vi_draw, Vf_draw;
+
+        if (process === 'isochoric') {
+            // Vertical line: V = V0, P from P0 to Pf_isoch
+            Vi_draw = V0; Vf_draw = V0;
+        } else {
+            Vi_draw = V0;
+            Vf_draw = V0 + (Vf - V0) * animProgress;
+        }
+
+        // Filled area
+        if (process !== 'isochoric') {
+            ctx.beginPath();
+            ctx.moveTo(vToX(Vi_draw), oy);
+            for (let i = 0; i <= CURVE_STEPS; i++) {
+                const v = Vi_draw + i * (Vf_draw - Vi_draw) / CURVE_STEPS;
+                const p = P_of_V(v);
+                if (p === null) break;
+                if (i === 0) ctx.lineTo(vToX(v), pToY(p));
+                else ctx.lineTo(vToX(v), pToY(p));
+            }
+            ctx.lineTo(vToX(Vf_draw), oy);
+            ctx.closePath();
+            ctx.fillStyle = col.acc + '25';
+            ctx.fill();
+        }
+
+        // Process curve
+        ctx.beginPath();
+        ctx.strokeStyle = col.acc;
+        ctx.lineWidth   = 2.8;
+        ctx.lineCap     = 'round';
+        ctx.setLineDash([]);
+
+        if (process === 'isochoric') {
+            // Draw vertical line from P0 to interpolated P
+            const Pinterp = P0 + (Pf_isoch - P0) * animProgress;
+            ctx.moveTo(vToX(V0), pToY(P0));
+            ctx.lineTo(vToX(V0), pToY(Pinterp));
+        } else {
+            for (let i = 0; i <= CURVE_STEPS; i++) {
+                const v = Vi_draw + i * (Vf_draw - Vi_draw) / CURVE_STEPS;
+                const p = P_of_V(v);
+                if (p === null) continue;
+                const xp = vToX(v), yp = pToY(p);
+                if (i === 0) ctx.moveTo(xp, yp);
+                else ctx.lineTo(xp, yp);
+            }
+        }
+        ctx.stroke();
+
+        // Start point marker
+        ctx.beginPath();
+        ctx.arc(vToX(V0), pToY(P0), 6, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink;
+        ctx.fill();
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('i', vToX(V0) + 9, pToY(P0) - 2);
+
+        // End point marker (only when animation near done)
+        if (animProgress > 0.94) {
+            let endV, endP;
+            if (process === 'isochoric') {
+                endV = V0; endP = Pf_isoch;
+            } else {
+                endV = Vf;
+                endP = P_of_V(Vf);
+            }
+            if (endP !== null) {
+                ctx.beginPath();
+                ctx.arc(vToX(endV), pToY(endP), 6, 0, Math.PI * 2);
+                ctx.fillStyle = col.acc;
+                ctx.fill();
+                ctx.fillStyle = col.acc;
+                ctx.font = '11px "JetBrains Mono", monospace';
+                ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+                ctx.fillText('f', vToX(endV) + 9, pToY(endP) - 2);
+            }
+        }
+
+        // Process label in upper right of plot
+        const processLabels = {
+            isothermal: 'Isothermal',
+            isobaric:   'Isobaric',
+            isochoric:  'Isochoric',
+            adiabatic:  'Adiabatic',
+        };
+        ctx.fillStyle = col.acc;
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+        ctx.fillText(processLabels[process] || process, ox + plotW - 4, PAD_T + 4);
+
+        // ── Readout ──
+        const W_J    = computeWork();
+        const dU_J   = computeDeltaU();
+        const Tratio = computeTratio();
+        const $ = id => document.getElementById(id);
+
+        if ($('r-process')) $('r-process').textContent = processLabels[process] || process;
+        if ($('r-W'))       $('r-W').textContent       = W_J.toFixed(0) + ' J';
+        if ($('r-dU'))      $('r-dU').textContent      = dU_J.toFixed(0) + ' J';
+        if ($('r-Tratio'))  $('r-Tratio').textContent  = Tratio.toFixed(3);
+    }
+
+    /* ── RAF loop ── */
+    let lastT = 0, frames = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        draw(ts);
+        frames++;
+        if (ts - lastT >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
+            frames = 0; lastT = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

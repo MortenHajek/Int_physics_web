@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 6.59 · Ball on Two Strings — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="dynamics" data-screen-label="Ex 6.59 Ball on Two Strings">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 6 · Ex. 59</span><span lang="cs">Kap. 6 · Úl. 59</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 3 · Force &amp; Motion — Chapter 6 · Exercise 59</span><span lang="cs">3. téma · Síla a pohyb — Kapitola 6 · Úloha 59</span></div>
+        <h1><span lang="en">Ball on Two Strings</span><span lang="cs">Míč na dvou provázcích</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•••</span>59</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A ball of mass <span class="given" data-tex="m = 1.34\ \mathrm{kg}"></span> is tied
+                    to a vertical rotating rod by two massless strings of length
+                    <span class="given" data-tex="L = 1.70\ \mathrm{m}"></span> (fig. 6-46). The strings
+                    are attached to the rod a distance <span data-tex="L"></span> apart and are both taut,
+                    forming two sides of an equilateral triangle. The tension in the upper string is
+                    <span class="given" data-tex="35\ \mathrm{N}"></span>.
+                </p>
+                <p lang="cs">
+                    Míč o hmotnosti <span class="given" data-tex="m = 1{,}34\ \mathrm{kg}"></span> je
+                    přivázán ke svislé rotující tyči dvěma nehmotnými provázky délky
+                    <span class="given" data-tex="L = 1{,}70\ \mathrm{m}"></span> (obr. 6-46). Provázky
+                    jsou k tyči připevněny ve vzdálenosti <span data-tex="L"></span> od sebe a oba jsou
+                    napnuté, takže tvoří dvě strany rovnostranného trojúhelníku. Napětí v horním provázku je
+                    <span class="given" data-tex="35\ \mathrm{N}"></span>.
+                </p>
+                <p lang="en">
+                    (a) What is the tension in the lower string? Determine (b) the magnitude of the net
+                    force on the ball and (c) the ball's speed. (d) What direction does the net force have?
+                </p>
+                <p lang="cs">
+                    (a) Jaké je napětí v dolním provázku? Určete (b) velikost výsledné síly působící na
+                    míč a (c) rychlost míče. (d) Jaký směr má výsledná síla?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">String sandbox</span><span lang="cs">Sandbox: provázky</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">side view + top view</span><span lang="cs">boční + horní pohled</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F = \dfrac{mv^2}{r}"></div>
+                <div class="sim-hint"><span lang="en">the triangle is equilateral — every angle is 30° to the strings</span><span lang="cs">trojúhelník je rovnostranný — každý úhel k provázkům je 30°</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Upper tension T₁</span><span lang="cs">Horní napětí T₁</span></span>
+                            <span class="sim-control-val" id="p-t1-val">35.0 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-t1" min="20" max="60" step="0.5" value="35">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Ball mass m</span><span lang="cs">Hmotnost míče m</span></span>
+                            <span class="sim-control-val" id="p-m-val">1.34 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="0.5" max="3" step="0.02" value="1.34">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">String length L</span><span lang="cs">Délka provázku L</span></span>
+                            <span class="sim-control-val" id="p-l-val">1.70 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-l" min="1.0" max="2.5" step="0.05" value="1.70">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Geometry</span><span lang="cs">Geometrie</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="r = L\sqrt{3}/2"></span>
+                        <span class="readout-val" id="r-r">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Results</span><span lang="cs">Výsledky</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T_2 = T_1 - 2mg"></span>
+                        <span class="readout-val" id="r-t2">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F = (T_1+T_2)\cos 30^\circ"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v = \sqrt{Fr/m}"></span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-forces">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">force arrows</span><span lang="cs">silové šipky</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The equilateral geometry puts the ball a distance
+                    <span data-tex="r = L\sqrt{3}/2 = 1.47\ \mathrm{m}"></span> from the rod, with each
+                    string at <span data-tex="30^\circ"></span> to the horizontal.</span>
+                    <span lang="cs">Rovnostranná geometrie umísťuje míč do vzdálenosti
+                    <span data-tex="r = L\sqrt{3}/2 = 1{,}47\ \mathrm{m}"></span> od tyče, přičemž každý
+                    provázek svírá s vodorovným směrem úhel <span data-tex="30^\circ"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> Vertically the ball does not accelerate:
+                    <span data-tex="T_1\sin 30^\circ - T_2\sin 30^\circ - mg = 0"></span>, i.e.
+                    <span data-tex="T_2 = T_1 - 2mg = 35 - 2\cdot 1.34\cdot 9.8 = 8.74\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Svisle se míč nezrychluje:
+                    <span data-tex="T_1\sin 30^\circ - T_2\sin 30^\circ - mg = 0"></span>, tedy
+                    <span data-tex="T_2 = T_1 - 2mg = 35 - 2\cdot 1{,}34\cdot 9{,}8 = 8{,}74\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> Horizontally both tensions pull toward the rod:
+                    <span data-tex="F = (T_1 + T_2)\cos 30^\circ = 43.7\cdot 0.866 = 37.9\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Vodorovně obě napětí táhnou směrem k tyči:
+                    <span data-tex="F = (T_1 + T_2)\cos 30^\circ = 43{,}7\cdot 0{,}866 = 37{,}9\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> This is the centripetal force:
+                    <span data-tex="v = \sqrt{Fr/m} = \sqrt{37.9\cdot 1.47/1.34} = 6.45\ \mathrm{m\,s^{-1}}"></span>.
+                    <strong>(d)</strong> The net force is horizontal, pointing from the ball toward the
+                    rod — centripetal, as circular motion demands.</span>
+                    <span lang="cs"><strong>(c)</strong> Toto je dostředivá síla:
+                    <span data-tex="v = \sqrt{Fr/m} = \sqrt{37{,}9\cdot 1{,}47/1{,}34} = 6{,}45\ \mathrm{m\,s^{-1}}"></span>.
+                    <strong>(d)</strong> Výsledná síla je vodorovná a míří od míče směrem k tyči —
+                    je dostředivá, jak kruhový pohyb vyžaduje.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="T_2 \approx 8.74\ \mathrm{N}"></span><span lang="cs" data-tex="T_2 \approx 8{,}74\ \mathrm{N}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="F \approx 37.9\ \mathrm{N}"></span><span lang="cs" data-tex="F \approx 37{,}9\ \mathrm{N}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="v \approx 6.45\ \mathrm{m\,s^{-1}}"></span><span lang="cs" data-tex="v \approx 6{,}45\ \mathrm{m\,s^{-1}}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value"><span lang="en">Horizontal, toward the rod (centripetal).</span><span lang="cs">Vodorovná, směrem k tyči (dostředivá).</span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/force-and-motion.html"><span lang="en">← Topic: Force &amp; Motion</span><span lang="cs">← Téma: Síla a pohyb</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 6 · Ex. 59</span><span lang="cs">Kap. 6 · Úl. 59</span></span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b94d28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    const DEFAULTS = { t1: 35, m: 1.34, l: 1.70 };
+    let state = { ...DEFAULTS };
+    const show = { forces: true };
+
+    const fmtF = v => v.toFixed(1) + ' N';
+    const fmtM = v => v.toFixed(2) + ' kg';
+    const fmtL = v => v.toFixed(2) + ' m';
+    const SLIDERS = [['p-t1', 't1', fmtF], ['p-m', 'm', fmtM], ['p-l', 'l', fmtL]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-forces')?.addEventListener('click', function () {
+        show.forces = !show.forces;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const { t1, m, l } = state;
+        const r  = l * Math.sqrt(3) / 2;
+        const T2 = t1 - 2 * m * g;
+        const slack = T2 <= 0;
+        const F  = slack ? NaN : (t1 + T2) * Math.cos(Math.PI / 6);
+        const v  = slack ? NaN : Math.sqrt(F * r / m);
+
+        /* ── side view (main) ── */
+        const rodX = W * 0.30;
+        const Lpx = Math.min(H * 0.34, 150) * (l / 1.7);
+        const topY = H * 0.5 - Lpx / 2, botY = H * 0.5 + Lpx / 2;
+        const ballX = rodX + Lpx * Math.sqrt(3) / 2, ballY = H * 0.5;
+
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('SIDE VIEW', rodX + 40, H * 0.12);
+
+        /* rod */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 5; ctx.lineCap = 'butt';
+        ctx.beginPath(); ctx.moveTo(rodX, H * 0.14); ctx.lineTo(rodX, H * 0.86); ctx.stroke();
+        /* rotation hint arrows at the bottom */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.ellipse(rodX, H * 0.83, 18, 6, 0, 0.4, Math.PI * 2 - 0.6); ctx.stroke();
+
+        /* strings */
+        ctx.strokeStyle = slack ? col.faint : col.soft; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(rodX, topY); ctx.lineTo(ballX, ballY); ctx.stroke();
+        if (slack) ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(rodX, botY); ctx.lineTo(ballX, ballY); ctx.stroke();
+        ctx.setLineDash([]);
+        /* attachment marks + L dimension */
+        [topY, botY].forEach(y => {
+            ctx.beginPath(); ctx.arc(rodX, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = col.ink; ctx.fill();
+        });
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(rodX - 20, topY); ctx.lineTo(rodX - 20, botY); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('L', rodX - 24, H * 0.5);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('L', (rodX + ballX) / 2, (topY + ballY) / 2 - 6);
+        ctx.textBaseline = 'top';
+        ctx.fillText('L', (rodX + ballX) / 2, (botY + ballY) / 2 + 6);
+
+        /* ball with radial highlight */
+        const grad = ctx.createRadialGradient(ballX - 4, ballY - 4, 2, ballX, ballY, 13);
+        grad.addColorStop(0, col.paper); grad.addColorStop(1, col.acc);
+        ctx.beginPath(); ctx.arc(ballX, ballY, 13, 0, Math.PI * 2);
+        ctx.fillStyle = grad; ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.stroke();
+
+        /* forces on the ball */
+        if (show.forces && !slack) {
+            const s = 2.2;
+            arrow(ballX, ballY, ballX - Math.cos(Math.PI / 6) * t1 * s,
+                  ballY - Math.sin(Math.PI / 6) * t1 * s, col.soft, 1.7);
+            arrow(ballX, ballY, ballX - Math.cos(Math.PI / 6) * T2 * s,
+                  ballY + Math.sin(Math.PI / 6) * T2 * s, col.soft, 1.7);
+            arrow(ballX, ballY, ballX, ballY + m * g * s, col.soft, 1.7);
+            arrow(ballX, ballY, ballX - F * s, ballY, col.acc, 2.5);
+            ctx.fillStyle = col.acc;
+            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText('F', ballX - F * s - 6, ballY - 4);
+            ctx.fillStyle = col.soft;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText('T₁', ballX - Math.cos(Math.PI / 6) * t1 * s - 20,
+                         ballY - Math.sin(Math.PI / 6) * t1 * s - 4);
+            ctx.textBaseline = 'top';
+            ctx.fillText('T₂', ballX - Math.cos(Math.PI / 6) * T2 * s - 20,
+                         ballY + Math.sin(Math.PI / 6) * T2 * s + 4);
+            ctx.fillText('mg', ballX + 6, ballY + m * g * s + 2);
+        }
+        if (slack) {
+            ctx.fillStyle = col.acc;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText('LOWER STRING SLACK (T₂ ≤ 0)', 26, 22);
+        }
+
+        /* ── top view inset (orbiting dot) ── */
+        const tvx = W * 0.82, tvy = H * 0.30, tvr = Math.min(W, H) * 0.13;
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('TOP VIEW', tvx, tvy - tvr - 10);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+        ctx.beginPath(); ctx.arc(tvx, tvy, tvr, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(tvx, tvy, 4, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        const omega = slack ? 0.8 : v / r;
+        const ang = ts / 1000 * omega * 0.5;
+        const ox = tvx + Math.cos(ang) * tvr, oy = tvy + Math.sin(ang) * tvr;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(tvx, tvy); ctx.lineTo(ox, oy); ctx.stroke();
+        ctx.beginPath(); ctx.arc(ox, oy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+
+        const $ = id => document.getElementById(id);
+        if ($('r-r'))  $('r-r').textContent  = r.toFixed(2) + ' m';
+        if ($('r-t2')) $('r-t2').textContent = slack ? 'slack (≤0)' : T2.toFixed(2) + ' N';
+        if ($('r-f'))  $('r-f').textContent  = slack ? '—' : F.toFixed(1) + ' N';
+        if ($('r-v'))  $('r-v').textContent  = slack ? '—' : v.toFixed(2) + ' m/s';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

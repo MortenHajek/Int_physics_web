@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 15.101 · The Torsion Pendulum — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="oscillation" data-screen-label="Ex 15.101 The Torsion Pendulum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Oscillation</span><span lang="cs">Díl I · Kmity</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 15 · Ex. 101</span><span lang="cs">Kap. 15 · Úl. 101</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 8 · Oscillation — Chapter 15 · Exercise 101</span><span lang="cs">8. téma · Kmity — Kapitola 15 · Úloha 101</span></div>
+        <h1><span lang="en">The Torsion Pendulum</span><span lang="cs">Torzní kyvadlo</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>101</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A torsion pendulum consists of a metal disc soldered to a wire hanging vertically,
+                    clamped at the top. Fig. 15-56a shows the torque <span data-tex="M"></span> needed to
+                    hold the disc twisted by an angle <span data-tex="\theta"></span> — a straight line
+                    with <span class="given" data-tex="M_s = 4{,}0\cdot 10^{-3}\ \mathrm{N\,m}"></span>
+                    at <span data-tex="\theta = 0{,}20\ \mathrm{rad}"></span>. The disc is twisted by
+                    <span class="given" data-tex="0{,}200\ \mathrm{rad}"></span> and released; the
+                    resulting oscillation <span data-tex="\theta(t)"></span> is shown in fig. 15-56b,
+                    where <span class="given" data-tex="t_s = 0{,}40\ \mathrm{s}"></span> is the period.
+                </p>
+                <p lang="cs">
+                    Torzní kyvadlo tvoří kovový kotouč připájený k drátu, který visí svisle a je nahoře
+                    upevněn. Obr. 15-56a ukazuje moment síly <span data-tex="M"></span> potřebný k udržení
+                    kotouče pootočeného o úhel <span data-tex="\theta"></span> — přímka procházející bodem
+                    <span class="given" data-tex="M_s = 4{,}0\cdot 10^{-3}\ \mathrm{N\,m}"></span>
+                    při <span data-tex="\theta = 0{,}20\ \mathrm{rad}"></span>. Kotouč se pootočí o
+                    <span class="given" data-tex="0{,}200\ \mathrm{rad}"></span> a uvolní se; výsledné
+                    kmity <span data-tex="\theta(t)"></span> ukazuje obr. 15-56b, kde
+                    <span class="given" data-tex="t_s = 0{,}40\ \mathrm{s}"></span> je perioda.
+                </p>
+                <p lang="en">
+                    (a) Determine the disc's rotational inertia about the wire's axis.
+                    (b) What is the largest angular speed <span data-tex="|\mathrm{d}\theta/\mathrm{d}t|"></span>
+                    of the disc? (Beware: do not confuse the constant angular <em>frequency</em> of the
+                    oscillation with the varying angular <em>speed</em> of the disc.)
+                </p>
+                <p lang="cs">
+                    (a) Určete moment setrvačnosti kotouče vzhledem k ose drátu.
+                    (b) Jaká je největší úhlová rychlost <span data-tex="|\mathrm{d}\theta/\mathrm{d}t|"></span>
+                    kotouče? (Pozor: nezaměňujte konstantní úhlovou <em>frekvenci</em> kmitů s proměnlivou
+                    úhlovou <em>rychlostí</em> kotouče.)
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Torsion sandbox</span><span lang="cs">Sandbox: torze</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">slow motion</span><span lang="cs">zpomaleně</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\omega = \sqrt{\varkappa/I}"></div>
+                <div class="sim-hint"><span lang="en">both graphs from the book, now alive</span><span lang="cs">oba grafy z učebnice, teď živé</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Torque M_s (×10⁻³ N·m)</span><span lang="cs">Moment M_s (×10⁻³ N·m)</span></span>
+                            <span class="sim-control-val" id="p-ms-val">4.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-ms" min="2" max="8" step="0.1" value="4.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Release angle θ₀</span><span lang="cs">Počáteční úhel θ₀</span></span>
+                            <span class="sim-control-val" id="p-th0-val">0.200 rad</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-th0" min="0.10" max="0.30" step="0.005" value="0.20">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Period t_s</span><span lang="cs">Perioda t_s</span></span>
+                            <span class="sim-control-val" id="p-ts-val">0.40 s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-ts" min="0.20" max="0.80" step="0.01" value="0.40">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">From graph (a)</span><span lang="cs">Z grafu (a)</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varkappa = M_s/0{,}20"></span>
+                        <span class="readout-val" id="r-kap">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">From graph (b)</span><span lang="cs">Z grafu (b)</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega = 2\pi/t_s"></span>
+                        <span class="readout-val" id="r-om">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Results</span><span lang="cs">Výsledky</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I = \varkappa/\omega^2"></span>
+                        <span class="readout-val" id="r-i">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\dot\theta|_{\max} = \theta_0\,\omega"></span>
+                        <span class="readout-val" id="r-vmax">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-graphs">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">the two graphs</span><span lang="cs">oba grafy</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Graph (a) gives the torsion constant:
+                    <span data-tex="\varkappa = \dfrac{M_s}{\theta} = \dfrac{4{,}0\cdot 10^{-3}}{0{,}20} = 0{,}020\ \mathrm{N\,m\,rad^{-1}}"></span>.</span>
+                    <span lang="cs">Graf (a) dává torzní konstantu:
+                    <span data-tex="\varkappa = \dfrac{M_s}{\theta} = \dfrac{4{,}0\cdot 10^{-3}}{0{,}20} = 0{,}020\ \mathrm{N\,m\,rad^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> Graph (b) gives the period
+                    <span data-tex="t_s = 0{,}40\ \mathrm{s}"></span>, i.e.
+                    <span data-tex="\omega = 2\pi/t_s = 15{,}7\ \mathrm{rad\,s^{-1}}"></span>. From
+                    <span data-tex="\omega = \sqrt{\varkappa/I}"></span>:
+                    <span data-tex="I = \varkappa/\omega^2 = 0{,}020/247 = 8{,}1\cdot 10^{-5}\ \mathrm{kg\,m^2}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Graf (b) dává periodu
+                    <span data-tex="t_s = 0{,}40\ \mathrm{s}"></span>, tedy
+                    <span data-tex="\omega = 2\pi/t_s = 15{,}7\ \mathrm{rad\,s^{-1}}"></span>. Ze vztahu
+                    <span data-tex="\omega = \sqrt{\varkappa/I}"></span>:
+                    <span data-tex="I = \varkappa/\omega^2 = 0{,}020/247 = 8{,}1\cdot 10^{-5}\ \mathrm{kg\,m^2}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> With <span data-tex="\theta = \theta_0\cos\omega t"></span> the
+                    angular speed is <span data-tex="\dot\theta = -\theta_0\,\omega\sin\omega t"></span>,
+                    peaking at
+                    <span data-tex="|\dot\theta|_{\max} = \theta_0\,\omega = 0{,}200\cdot 15{,}7 = 3{,}1\ \mathrm{rad\,s^{-1}}"></span>
+                    (each pass through equilibrium). Energy check:
+                    <span data-tex="\tfrac12\varkappa\theta_0^2 = \tfrac12 I\dot\theta_{\max}^2"></span> ✓.</span>
+                    <span lang="cs"><strong>(b)</strong> Ze vztahu <span data-tex="\theta = \theta_0\cos\omega t"></span> je
+                    úhlová rychlost <span data-tex="\dot\theta = -\theta_0\,\omega\sin\omega t"></span>,
+                    s maximem
+                    <span data-tex="|\dot\theta|_{\max} = \theta_0\,\omega = 0{,}200\cdot 15{,}7 = 3{,}1\ \mathrm{rad\,s^{-1}}"></span>
+                    (při každém průchodu rovnovážnou polohou). Kontrola energií:
+                    <span data-tex="\tfrac12\varkappa\theta_0^2 = \tfrac12 I\dot\theta_{\max}^2"></span> ✓.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="I \approx 8{,}1\cdot 10^{-5}\ \mathrm{kg\,m^2}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="|\dot\theta|_{\max} \approx 3{,}1\ \mathrm{rad\,s^{-1}}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/oscillation.html"><span lang="en">← Topic: Oscillation</span><span lang="cs">← Téma: Kmity</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 15 · Ex. 101</span><span lang="cs">Kap. 15 · Úl. 101</span></span>
+        <span><span lang="en">Vol. I · Oscillation</span><span lang="cs">Díl I · Kmity</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6e6a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* ms ×1e-3 N·m, th0 rad, ts s */
+    const DEFAULTS = { ms: 4.0, th0: 0.20, ts: 0.40 };
+    let state = { ...DEFAULTS };
+    const show = { graphs: true };
+
+    const fmtMs = v => v.toFixed(1);
+    const fmtTh = v => v.toFixed(3) + ' rad';
+    const fmtTs = v => v.toFixed(2) + ' s';
+    const SLIDERS = [['p-ms', 'ms', fmtMs], ['p-th0', 'th0', fmtTh], ['p-ts', 'ts', fmtTs]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-graphs')?.addEventListener('click', function () {
+        show.graphs = !show.graphs;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const kap = state.ms * 1e-3 / 0.20;
+        const om  = 2 * Math.PI / state.ts;
+        const I   = kap / (om * om);
+        const vmax = state.th0 * om;
+
+        /* slow-motion disc oscillation (visual ×0.12) */
+        const tv = ts / 1000 * 0.12;
+        const th = state.th0 * Math.cos(om * tv);
+
+        /* ── left: disc on a wire, top view ── */
+        const dx = W * 0.24, dy = H * 0.42, dr = Math.min(W, H) * 0.16;
+        /* clamp + wire hint */
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('DISC · TOP VIEW', dx, dy - dr - 14);
+        ctx.beginPath(); ctx.arc(dx, dy, dr, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(dx - dr * 0.3, dy - dr * 0.3, 2, dx, dy, dr);
+        grad.addColorStop(0, col.paper); grad.addColorStop(1, 'rgba(45,110,106,0.22)');
+        ctx.fillStyle = grad; ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.stroke();
+        /* equilibrium mark + rotating marker line (angle exaggerated ×3) */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx, dy - dr); ctx.stroke();
+        ctx.setLineDash([]);
+        const va = -Math.PI / 2 + th * 3;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.moveTo(dx, dy);
+        ctx.lineTo(dx + Math.cos(va) * dr, dy + Math.sin(va) * dr); ctx.stroke();
+        ctx.beginPath(); ctx.arc(dx, dy, 3, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('θ = ' + th.toFixed(3) + ' rad (drawn ×3)', dx, dy + dr + 10);
+
+        /* ── right: the two book graphs ── */
+        if (show.graphs) {
+            const gx0 = W * 0.48, gx1 = W - 34;
+            /* (a) M vs θ */
+            const g1y0 = 34, g1y1 = H * 0.42;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.moveTo(gx0, g1y0 - 4); ctx.lineTo(gx0, g1y1); ctx.lineTo(gx1 + 4, g1y1);
+            ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('(a)  M vs θ', gx0 + 4, g1y0 + 10);
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.moveTo(gx0, g1y1);
+            ctx.lineTo(gx1, g1y0 + 8); ctx.stroke();
+            ctx.strokeStyle = col.faint; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(gx0, g1y0 + 8); ctx.lineTo(gx1, g1y0 + 8); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText('M_s at 0.20 rad', gx1, g1y0 + 6);
+            /* live point at the current twist */
+            const uu = Math.abs(th) / 0.20;
+            const px1 = gx0 + Math.min(uu, 1) * (gx1 - gx0);
+            const py1 = g1y1 - Math.min(uu, 1) * (g1y1 - g1y0 - 8);
+            ctx.beginPath(); ctx.arc(px1, py1, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+
+            /* (b) θ vs t */
+            const g2y0 = H * 0.54, g2y1 = H - 44, g2mid = (g2y0 + g2y1) / 2;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.1;
+            ctx.beginPath(); ctx.moveTo(gx0, g2mid); ctx.lineTo(gx1 + 4, g2mid); ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('(b)  θ vs t', gx0 + 4, g2y0 - 2);
+            const tWin = state.ts * 2.2;
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            for (let i = 0; i <= 120; i++) {
+                const t = i / 120 * tWin;
+                const y = g2mid - Math.cos(om * t) * (g2y1 - g2y0) / 2 * (state.th0 / 0.3);
+                i ? ctx.lineTo(gx0 + i / 120 * (gx1 - gx0), y)
+                  : ctx.moveTo(gx0, y);
+            }
+            ctx.stroke();
+            /* t_s span marker (one period) */
+            const xs0 = gx0, xs1 = gx0 + state.ts / tWin * (gx1 - gx0);
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(xs0, g2y1 + 6); ctx.lineTo(xs1, g2y1 + 6); ctx.stroke();
+            [xs0, xs1].forEach(x => {
+                ctx.beginPath(); ctx.moveTo(x, g2y1 + 2); ctx.lineTo(x, g2y1 + 10); ctx.stroke();
+            });
+            ctx.fillStyle = col.acc;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('t_s', (xs0 + xs1) / 2, g2y1 + 12);
+            /* live dot riding the curve */
+            const tc = (tv % tWin);
+            ctx.beginPath();
+            ctx.arc(gx0 + tc / tWin * (gx1 - gx0),
+                    g2mid - Math.cos(om * tc) * (g2y1 - g2y0) / 2 * (state.th0 / 0.3),
+                    4.5, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-kap'))  $('r-kap').textContent  = kap.toFixed(3) + ' N·m/rad';
+        if ($('r-om'))   $('r-om').textContent   = om.toFixed(1) + ' rad/s';
+        if ($('r-i'))    $('r-i').textContent    = (I * 1e5).toFixed(1) + ' ×10⁻⁵ kg·m²';
+        if ($('r-vmax')) $('r-vmax').textContent = vmax.toFixed(2) + ' rad/s';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

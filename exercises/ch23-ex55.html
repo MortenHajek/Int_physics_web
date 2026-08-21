@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 23.55 · Inside a Lopsided Sphere — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-1" data-screen-label="Ex 23.55 Graded Sphere">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 23 · Ex. 55</span><span lang="cs">Kap. 23 · Úl. 55</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 1 · Electrostatics I — Chapter 23 · Exercise 55</span><span lang="cs">1. téma · Elektrostatika I — Kapitola 23 · Úloha 55</span></div>
+        <h1><span lang="en">Inside a Graded Sphere</span><span lang="cs">Uvnitř nerovnoměrné koule</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•••</span>55</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A solid non-conducting sphere of radius
+                    <span class="given" data-tex="R = 5.60\ \mathrm{cm}"></span> carries a
+                    non-uniform charge density
+                    <span class="given" data-tex="\varrho = (14.1\ \mathrm{pC\,m^{-3}})\,r/R"></span>,
+                    where <span data-tex="r"></span> is the distance from the centre.
+                </p>
+                <p lang="cs">
+                    Uvnitř tuhé nevodivé koule o poloměru
+                    <span class="given" data-tex="R = 5{,}60\ \mathrm{cm}"></span> je nerovnoměrně
+                    rozložený náboj s objemovou hustotou
+                    <span class="given" data-tex="\varrho = (14{,}1\ \mathrm{pC\,m^{-3}})\,r/R"></span>,
+                    kde <span data-tex="r"></span> je vzdálenost od středu koule.
+                </p>
+                <p lang="en">
+                    (a) What is the sphere's total charge? Find the magnitude
+                    <span data-tex="E"></span> of the electric field at
+                    (b) <span data-tex="r = 0"></span>,
+                    (c) <span data-tex="r = R/2"></span>,
+                    (d) <span data-tex="r = R"></span>.
+                    (e) Sketch <span data-tex="E(r)"></span>.
+                </p>
+                <p lang="cs">
+                    (a) Jaký je celkový náboj koule? Určete velikost
+                    <span data-tex="E"></span> elektrické intenzity ve vzdálenosti
+                    (b) <span data-tex="r = 0"></span>,
+                    (c) <span data-tex="r = R/2"></span>,
+                    (d) <span data-tex="r = R"></span>.
+                    (e) Načrtněte graf <span data-tex="E(r)"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Gaussian probe</span><span lang="cs">Gaussova sonda</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="E\,4\pi r^2 = \dfrac{q_{\text{enc}}(r)}{\varepsilon_0},\quad q_{\text{enc}} = Q\left(\dfrac{r}{R}\right)^{\!4}"></div>
+                <div class="sim-hint"><span lang="en">drag the Gaussian sphere through the charge cloud</span><span lang="cs">protáhněte Gaussovu kouli oblakem náboje</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Probe radius r / R</span><span lang="cs">Poloměr sondy r / R</span></span>
+                            <span class="sim-control-val" id="p-r-val">0.50</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="0" max="2" step="0.01" value="0.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Density scale ϱ₀</span><span lang="cs">Škála hustoty ϱ₀</span></span>
+                            <span class="sim-control-val" id="p-rho-val">14.1 pC/m³</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-rho" min="5" max="30" step="0.1" value="14.1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q = \varrho_0 \pi R^3"></span>
+                        <span class="readout-val" id="r-q">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="q_{\text{enc}}(r)"></span>
+                        <span class="readout-val" id="r-qenc">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E(r)"></span>
+                        <span class="readout-val" id="r-e">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Printed points (ϱ₀ = 14.1)</span><span lang="cs">Tištěné body (ϱ₀ = 14,1)</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E(R/2)"></span>
+                        <span class="readout-val" id="r-ehalf">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E(R)"></span>
+                        <span class="readout-val" id="r-esurf">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a) Total charge.</strong> Integrate over shells:
+                    <span data-tex="Q = \int_0^R \varrho_0\frac{r}{R}\,4\pi r^2\,\mathrm{d}r = \varrho_0\,\pi R^3 = 14.1\cdot 10^{-12}\cdot\pi\cdot(0.056)^3 = 7.78\ \mathrm{fC}"></span>.</span>
+                    <span lang="cs"><strong>(a) Celkový náboj.</strong> Integrujeme přes kulové slupky:
+                    <span data-tex="Q = \int_0^R \varrho_0\frac{r}{R}\,4\pi r^2\,\mathrm{d}r = \varrho_0\,\pi R^3 = 14{,}1\cdot 10^{-12}\cdot\pi\cdot(0{,}056)^3 = 7{,}78\ \mathrm{fC}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The same integral cut off at <span data-tex="r"></span> gives
+                    <span data-tex="q_{\text{enc}} = Q\,(r/R)^4"></span>, so inside the sphere
+                    <span data-tex="E(r) = \dfrac{k\,q_{\text{enc}}}{r^2} = \dfrac{kQ\,r^2}{R^4}"></span> —
+                    the field <em>grows quadratically</em> from zero.</span>
+                    <span lang="cs">Týž integrál uříznutý v <span data-tex="r"></span> dává
+                    <span data-tex="q_{\text{enc}} = Q\,(r/R)^4"></span>, takže uvnitř koule
+                    <span data-tex="E(r) = \dfrac{k\,q_{\text{enc}}}{r^2} = \dfrac{kQ\,r^2}{R^4}"></span> —
+                    pole <em>roste kvadraticky</em> od nuly.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> <span data-tex="E(0) = 0"></span>.&nbsp;&nbsp;
+                    <strong>(c)</strong>
+                    <span data-tex="E(R/2) = \dfrac{kQ}{4R^2} = 5.58\ \mathrm{mN\,C^{-1}}"></span>.&nbsp;&nbsp;
+                    <strong>(d)</strong>
+                    <span data-tex="E(R) = \dfrac{kQ}{R^2} = 22.3\ \mathrm{mN\,C^{-1}}"></span>.
+                    Outside, <span data-tex="E"></span> falls off as <span data-tex="1/r^2"></span>
+                    like a point charge <span data-tex="Q"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> <span data-tex="E(0) = 0"></span>.&nbsp;&nbsp;
+                    <strong>(c)</strong>
+                    <span data-tex="E(R/2) = \dfrac{kQ}{4R^2} = 5{,}58\ \mathrm{mN\,C^{-1}}"></span>.&nbsp;&nbsp;
+                    <strong>(d)</strong>
+                    <span data-tex="E(R) = \dfrac{kQ}{R^2} = 22{,}3\ \mathrm{mN\,C^{-1}}"></span>.
+                    Vně klesá <span data-tex="E"></span> jako <span data-tex="1/r^2"></span>
+                    jako pole bodového náboje <span data-tex="Q"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="Q = 7.78\ \mathrm{fC}"></span><span lang="cs" data-tex="Q = 7{,}78\ \mathrm{fC}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="E(0) = 0"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E(R/2) = 5.58\ \mathrm{mN\,C^{-1}}"></span><span lang="cs" data-tex="E(R/2) = 5{,}58\ \mathrm{mN\,C^{-1}}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E(R) = 22.3\ \mathrm{mN\,C^{-1}}"></span><span lang="cs" data-tex="E(R) = 22{,}3\ \mathrm{mN\,C^{-1}}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-1.html"><span lang="en">← Topic: Electrostatics I</span><span lang="cs">← Téma: Elektrostatika I</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 23 · Ex. 55</span><span lang="cs">Kap. 23 · Úl. 55</span></span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#3D2E8A',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const K = 8.99e9, R_M = 0.056;
+    const DEFAULTS = { r: 0.50, rho: 14.1 };
+    let state = { ...DEFAULTS };
+
+    const SLIDERS = [
+        ['p-r',   'r',   v => v.toFixed(2)],
+        ['p-rho', 'rho', v => v.toFixed(1) + ' pC/m³'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+
+    function physics() {
+        const Q = state.rho * 1e-12 * Math.PI * Math.pow(R_M, 3);   /* C */
+        const x = state.r;                                          /* r/R */
+        const qEnc = x <= 1 ? Q * Math.pow(x, 4) : Q;
+        const rAbs = Math.max(x * R_M, 1e-6);
+        const E = x === 0 ? 0 : K * qEnc / (rAbs * rAbs);
+        return { Q, qEnc, E,
+                 eHalf: K * Q / (4 * R_M * R_M),
+                 eSurf: K * Q / (R_M * R_M) };
+    }
+    /* E in N/C for arbitrary x = r/R, current rho */
+    function eOf(x) {
+        const Q = state.rho * 1e-12 * Math.PI * Math.pow(R_M, 3);
+        if (x <= 0) return 0;
+        const rAbs = x * R_M;
+        const qEnc = x <= 1 ? Q * Math.pow(x, 4) : Q;
+        return K * qEnc / (rAbs * rAbs);
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        /* ── left: sphere cross-section with density gradient ───── */
+        const cx = W * 0.26, cy = H * 0.5;
+        const Rpx = Math.min(W * 0.42, H * 0.72) / 2;
+
+        const grad = ctx.createRadialGradient(cx, cy, Rpx * 0.05, cx, cy, Rpx);
+        grad.addColorStop(0, 'rgba(61,46,138,0.04)');
+        grad.addColorStop(1, 'rgba(61,46,138,0.34)');
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, Math.PI * 2); ctx.stroke();
+
+        /* Gaussian probe circle */
+        const rp = Math.min(state.r, 2) * Rpx;
+        if (rp > 2) {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 2; ctx.setLineDash([7, 5]);
+            ctx.beginPath(); ctx.arc(cx, cy, rp, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            /* E arrows on the probe */
+            const eNow = eOf(state.r), eMax = eOf(1);
+            const aLen = 10 + 26 * (eMax > 0 ? eNow / eMax : 0);
+            for (let i = 0; i < 8; i++) {
+                const a = i * Math.PI / 4 + Math.PI / 8;
+                const x1 = cx + Math.cos(a) * rp, y1 = cy + Math.sin(a) * rp;
+                const x2 = cx + Math.cos(a) * (rp + aLen), y2 = cy + Math.sin(a) * (rp + aLen);
+                ctx.strokeStyle = col.acc; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            }
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('ϱ ∝ r/R', cx, cy + Rpx + 10);
+
+        /* ── right: E(r) graph ───────────────────────────────────── */
+        const mL = W * 0.52, mR = 26, mT = 34, mB = 46;
+        const pw = W - mL - mR, ph = H - mT - mB;
+        const eMaxPlot = eOf(1) * 1.15;
+        const xPix = x => mL + (x / 2) * pw;
+        const yPix = e => mT + ph - (e / eMaxPlot) * ph;
+
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        [0.5, 1, 1.5].forEach(g => {
+            ctx.beginPath(); ctx.moveTo(xPix(g), mT); ctx.lineTo(xPix(g), mT + ph); ctx.stroke();
+        });
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, pw, ph);
+
+        /* R marker */
+        ctx.strokeStyle = col.faint; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(xPix(1), mT); ctx.lineTo(xPix(1), mT + ph); ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('R', xPix(1), mT + ph + 8);
+        ctx.fillText('2R', xPix(2), mT + ph + 8);
+        ctx.fillText('r', mL + pw / 2, mT + ph + 24);
+        ctx.save();
+        ctx.translate(mL - 14, mT + ph / 2); ctx.rotate(-Math.PI / 2);
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('E (mN/C)', 0, 0);
+        ctx.restore();
+
+        /* curve */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 240; i++) {
+            const x = 2 * i / 240;
+            const px = xPix(x), py = yPix(eOf(x));
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        /* printed answer dots at R/2 and R */
+        [[0.5, 'R/2'], [1, 'R']].forEach(([x]) => {
+            ctx.fillStyle = col.soft;
+            ctx.beginPath(); ctx.arc(xPix(x), yPix(eOf(x)), 3, 0, Math.PI * 2); ctx.fill();
+        });
+
+        /* probe dot */
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(xPix(state.r), yPix(eOf(state.r)), 4.5, 0, Math.PI * 2); ctx.fill();
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-q').textContent     = (f.Q * 1e15).toFixed(2) + ' fC';
+        $('r-qenc').textContent  = (f.qEnc * 1e15).toFixed(3) + ' fC';
+        $('r-e').textContent     = (f.E * 1e3).toFixed(2) + ' mN/C';
+        $('r-ehalf').textContent = (f.eHalf * 1e3).toFixed(2) + ' mN/C';
+        $('r-esurf').textContent = (f.eSurf * 1e3).toFixed(1) + ' mN/C';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

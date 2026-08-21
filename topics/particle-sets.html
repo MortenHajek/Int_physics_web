@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Particle Sets · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 80px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ─────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                        
+            
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                .topic-nav { grid-template-columns: 1fr; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="systems" data-screen-label="I.05 Particle Sets">
+
+<!-- ── Top bar ──────────────────────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">Σp</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 1  HERO
+         ════════════════════════════════════════════════════════════════════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.05 · particle sets</div>
+            <h1>Particle Sets</h1>
+            <p class="lede">
+                Momentum is the most conserved quantity in physics — collisions
+                are just momentum flowing between objects via the contact force.
+                Tune the elasticity and watch how the bookkeeping always balances.
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\sum \vec{p} = \text{const}"></div>
+            <div class="eq-caption">Total momentum of an isolated system is conserved in every collision</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">One body was a simplification; here there are several, and something new appears. However complicated the
+ internal forces are — an explosion, a collision, a bullet ploughing through a block — they come in equal and
+ opposite pairs and cancel in the total. So the <em>total momentum</em> of a system changes only through
+ external forces, and if there are none it does not change at all. That single statement solves problems where
+ the forces during the event are completely unknown and last an unmeasurable instant, which is exactly the
+ situation in every collision. Energy, by contrast, is <em>not</em> automatically conserved: whether it is
+ tells you what kind of collision you are looking at.</span><span lang="cs">Jedno těleso bylo zjednodušení; tady jich je několik a objevuje se něco nového. Ať jsou vnitřní síly
+ jakkoli složité — výbuch, srážka, kulka prorážející kvádr — vystupují ve dvojicích stejně velkých a opačných
+ a v součtu se vyruší. <em>Celková hybnost</em> soustavy se proto mění jedině vnějšími silami, a nejsou-li
+ žádné, nemění se vůbec. Tohle jediné tvrzení vyřeší úlohy, v nichž jsou síly během děje zcela neznámé a trvají
+ neměřitelný okamžik — a to je přesně situace každé srážky. Energie se naproti tomu <em>nezachovává
+ samozřejmě</em>: jestli ano, to vám řekne, o jaký druh srážky jde.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Momentum</span><span lang="cs">Hybnost</span></span>
+                        <span class="cf-eq" data-tex="\vec p = m\vec v"></span>
+                        <span class="cf-eq" data-tex="\vec p_{cel} = \textstyle\sum_i m_i\vec v_i"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A vector, so it is conserved <em>component by component</em> — and the two axes can behave quite
+      differently. Momentum can be conserved horizontally while gravity spoils it vertically, and using that
+      split is often the whole trick.</span><span lang="cs">Vektor, takže se zachovává <em>po složkách</em> — a obě osy se mohou chovat zcela jinak. Hybnost se
+      může zachovávat vodorovně, zatímco svisle ji kazí tíže, a využít právě tohle rozdělení bývá celý
+      trik.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Conservation of momentum</span><span lang="cs">Zákon zachování hybnosti</span></span>
+                        <span class="cf-eq" data-tex="\textstyle\sum \vec p_{před} = \textstyle\sum \vec p_{po}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Holds whenever the external forces are absent or negligible during the event. In a collision the
+      internal forces are enormous but brief, so gravity has no time to matter — which licenses using this even
+      for a shell bursting in mid-flight.</span><span lang="cs">Platí, kdykoli vnější síly během děje chybí nebo jsou zanedbatelné. Při srážce jsou vnitřní síly
+      obrovské, ale krátké, takže tíže nestihne nic udělat — a to opravňuje použít zákon i pro granát, který
+      vybuchne v letu.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Elastic collision</span><span lang="cs">Pružná srážka</span></span>
+                        <span class="cf-eq" data-tex="\textstyle\sum p = \text{konst.}\,,\qquad \textstyle\sum E_k = \text{konst.}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Both conserved, which gives two equations for two unknown final velocities. For a head-on collision
+      between two bodies this has a closed solution, and a light body bouncing off a heavy one comes back
+      almost as fast as it arrived — with a reversed sign.</span><span lang="cs">Zachovává se obojí, což dá dvě rovnice pro dvě neznámé koncové rychlosti. Pro přímou srážku dvou těles
+      má tahle soustava uzavřené řešení a lehké těleso odražené od těžkého se vrací skoro stejně rychle, jak
+      přiletělo — se obráceným znaménkem.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Perfectly inelastic collision</span><span lang="cs">Dokonale nepružná srážka</span></span>
+                        <span class="cf-eq" data-tex="m_1 v_1 + m_2 v_2 = (m_1+m_2)\,v"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The bodies leave together, so there is one unknown and momentum alone settles it. Kinetic energy is
+      <em>not</em> conserved here — some has gone into deformation and heat — and computing how much is a
+      standard follow-up question.</span><span lang="cs">Tělesa odcházejí společně, takže je jedna neznámá a vyřeší ji sama hybnost. Kinetická energie se tu
+      <em>nezachovává</em> — část odešla do deformace a tepla — a spočítat kolik je obvyklá navazující
+      otázka.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Centre of mass</span><span lang="cs">Těžiště</span></span>
+                        <span class="cf-eq" data-tex="\vec r_T = \dfrac{\sum m_i \vec r_i}{\sum m_i}"></span>
+                        <span class="cf-eq" data-tex="\vec v_T = \dfrac{\vec p_{cel}}{M}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The point that moves as if all the mass were there and only external forces acted. When a projectile
+      explodes, its centre of mass carries on along the original parabola as though nothing had happened —
+      which locates the second fragment once the first is known.</span><span lang="cs">Bod, který se pohybuje, jako by v něm byla veškerá hmotnost a působily jen vnější síly. Když se
+      střela roztrhne, pokračuje její těžiště po původní parabole, jako by se nic nestalo — a to určí polohu
+      druhého úlomku, jakmile znáte první.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Draw the before and the after.</strong> Two sketches, every mass and velocity labelled, arrows
+       showing directions. Momentum problems are almost entirely bookkeeping, and this is the ledger.</span><span lang="cs"><strong>Nakreslete stav před a po.</strong> Dva náčrtky, každá hmotnost a rychlost popsaná, šipky se
+       směry. Úlohy na hybnost jsou skoro celé účetnictví a tohle je ta účetní kniha.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Choose a positive direction and let signs do the work.</strong> A velocity that comes out
+       negative simply points the other way; do not "fix" it. This is how a ball bouncing back is
+       reported.</span><span lang="cs"><strong>Zvolte kladný směr a nechte pracovat znaménka.</strong> Rychlost, která vyjde záporně, prostě
+       míří opačně; neopravujte ji. Přesně takhle se hlásí míček, který se odrazil zpět.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Ask whether the energy is conserved before writing anything.</strong> "Bounces off",
+       "perfectly elastic" — two equations. "Embeds itself", "sticks", "lodges in" — one equation and a common
+       final velocity.</span><span lang="cs"><strong>Než cokoli napíšete, zeptejte se, jestli se zachovává energie.</strong> „Odrazí se",
+       „dokonale pružná" — dvě rovnice. „Uvízne", „zůstane v", „zaryje se" — jedna rovnice a společná koncová
+       rychlost.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>A multi-stage event is several conservation laws in a row.</strong> A bullet through two
+       blocks is two collisions; a pendulum striking a block is energy first, then momentum, then energy again.
+       Solve them one at a time, in order, and never mix two stages into one equation.</span><span lang="cs"><strong>Vícefázový děj jsou zákony zachování za sebou.</strong> Kulka dvěma kvádry jsou dvě srážky;
+       kyvadlo narážející do kvádru je nejdřív energie, pak hybnost a pak zase energie. Řešte je po jedné
+       v pořadí a nikdy nemíchejte dvě fáze do jedné rovnice.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Work backwards when the question asks for the start.</strong> The bullet's original speed comes
+       from the last stage first, then the one before it — the same chain run in reverse.</span><span lang="cs"><strong>Ptá-li se úloha na počátek, jděte pozpátku.</strong> Původní rychlost kulky plyne nejdřív
+       z poslední fáze, pak z té předchozí — týž řetěz pozpátku.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Explosion in flight: follow the centre of mass.</strong> It ignores the explosion completely.
+       Find where it would have landed, then use
+       <span data-tex="\sum m_i x_i = M x_T"></span> to place the fragment you were not told about.</span><span lang="cs"><strong>Výbuch za letu: sledujte těžiště.</strong> Výbuch úplně ignoruje. Zjistěte, kam by dopadlo,
+       a pak z <span data-tex="\sum m_i x_i = M x_T"></span> umístěte úlomek, o kterém vám neřekli.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 5  SIMULATION LAB
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="lab" class="lab" style="margin-top:72px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Collision sandbox</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap" style="flex:1;position:relative;overflow:hidden;">
+                <canvas id="sim-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+                <div class="canvas-formula-badge" data-tex="\sum p = \text{const}"></div>
+                <div class="sim-hint">watch momentum transfer · adjust elasticity</div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <!-- Parameters -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Mass m₁ (ball 1)</span>
+                            <span class="sim-control-val" id="p-m1-val">2.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-m1" min="0.5" max="5" step="0.5" value="2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Mass m₂ (ball 2)</span>
+                            <span class="sim-control-val" id="p-m2-val">2.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-m2" min="0.5" max="5" step="0.5" value="2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Initial speed v₁</span>
+                            <span class="sim-control-val" id="p-v1-val">5 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-v1" min="1" max="10" step="1" value="5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Elasticity e</span>
+                            <span class="sim-control-val" id="p-e-val">1.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-e" min="0" max="1" step="0.1" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Readout</span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section">Momentum</div>
+                    <div class="readout-row">
+                        <span class="readout-label">p before</span>
+                        <span class="readout-val" id="r-pbefore">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">p after</span>
+                        <span class="readout-val" id="r-pafter">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">Kinetic Energy</div>
+                    <div class="readout-row">
+                        <span class="readout-label">KE before</span>
+                        <span class="readout-val" id="r-kebefore">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">KE after</span>
+                        <span class="readout-val" id="r-keafter">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">ΔKE</span>
+                        <span class="readout-val" id="r-dke">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Display</span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-arrows">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">velocity arrows</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-labels">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">speed labels</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch09-ex15.html"><span lang="en">Ch. 9 · <span class="ex-no">Ex. 15</span></span><span lang="cs">Kap. 9 · <span class="ex-no">Úl. 15</span></span></a>
+            <a class="ex-tab" href="../exercises/ch09-ex53.html"><span lang="en">Ch. 9 · <span class="ex-no">Ex. 53</span></span><span lang="cs">Kap. 9 · <span class="ex-no">Úl. 53</span></span></a>
+            <a class="ex-tab" href="../exercises/ch09-ex66.html"><span lang="en">Ch. 9 · <span class="ex-no">Ex. 66</span></span><span lang="cs">Kap. 9 · <span class="ex-no">Úl. 66</span></span></a>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 8  PREV / NEXT
+         ════════════════════════════════════════════════════════════════════ -->
+    <nav class="topic-nav">
+        <a href="work-and-energy.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir">← Previous · § I.04</div>
+            <div class="topic-nav-title"><span lang="en">Work and Energy</span><span lang="cs">Práce a energie</span></div>
+        </a>
+        <a href="rotation.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir">Next · § I.06</div>
+            <div class="topic-nav-title"><span lang="en">Rotation</span><span lang="cs">Rotace</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.05 Particle Sets</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX render ─────────────────────────────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SIMULATION — 1D Collision with coefficient of restitution
+     ════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── CSS colour tokens ───────────────────────────────────────────── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:    s.getPropertyValue('--ink').trim()        || '#363026',
+            acc:    s.getPropertyValue('--accent').trim()     || '#5a3578',
+            soft:   s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint:  s.getPropertyValue('--ink-faint').trim()  || '#7A6A52',
+            paper:  s.getPropertyValue('--paper').trim()      || '#FFFDF6',
+            paperD: s.getPropertyValue('--paper-deep').trim() || '#efead6',
+        };
+    }
+    const col = readCol();
+
+    /* ── Simulation parameters ───────────────────────────────────────── */
+    const DEFAULTS = { m1: 2, m2: 2, v1: 5, e: 1.0 };
+    const p = { ...DEFAULTS };
+
+    /* ── Simulation state ────────────────────────────────────────────── */
+    /* Phase: 'approach' | 'collided' | 'separate' | 'reset' */
+    const SCALE = 40;       // px per m/s for velocity arrows
+    let phase       = 'approach';
+    let x1          = 0;    // px from left (ball 1 centre)
+    let x2          = 0;    // px from left (ball 2 centre)
+    let v1px        = 0;    // current screen velocity ball 1 px/frame
+    let v2px        = 0;    // current screen velocity ball 2 px/frame
+    let v1_post     = 0;    // m/s post-collision ball 1
+    let v2_post     = 0;    // m/s post-collision ball 2
+    let collisionX  = 0;    // x coordinate where collision happened
+    let flashTimer  = 0;    // frames for collision flash
+    let pauseTimer  = 0;    // frames pause before reset
+    let resetTimer  = 0;    // frames to delay reset
+    const SPEED_PX  = 1.4;  // base pixels per frame at 1 m/s
+
+    const show = { arrows: true, labels: true };
+
+    function radius(mass) { return 10 + mass * 4; }
+
+    function initPhase() {
+        const r1 = radius(p.m1), r2 = radius(p.m2);
+        x1 = r1 + 20;
+        x2 = W - r2 - 20;
+        v1px = p.v1 * SPEED_PX;
+        v2px = 0;
+
+        // Pre-compute post-collision velocities using coefficient of restitution
+        // v1' = (m1*v1 + m2*0 - m2*e*(v1-0)) / (m1+m2) = (m1 - m2*e)*v1 / (m1+m2)
+        // v2' = (m1*v1 + m2*0 + m1*e*(v1-0)) / (m1+m2) = m1*(1+e)*v1 / (m1+m2)
+        v1_post = ((p.m1 - p.m2 * p.e) * p.v1) / (p.m1 + p.m2);
+        v2_post = (p.m1 * (1 + p.e) * p.v1) / (p.m1 + p.m2);
+
+        phase = 'approach';
+        flashTimer = 0;
+        pauseTimer = 0;
+        resetTimer = 0;
+        collisionX = 0;
+    }
+
+    /* ── Slider wiring ───────────────────────────────────────────────── */
+    function bindSlider(id, valId, fmt, key) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.value = p[key];
+        inp.addEventListener('input', () => {
+            p[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(+inp.value);
+            initPhase();
+        });
+        if (lbl) lbl.textContent = fmt(p[key]);
+    }
+    bindSlider('p-m1', 'p-m1-val', v => v.toFixed(1) + ' kg', 'm1');
+    bindSlider('p-m2', 'p-m2-val', v => v.toFixed(1) + ' kg', 'm2');
+    bindSlider('p-v1', 'p-v1-val', v => v.toFixed(0) + ' m/s', 'v1');
+    bindSlider('p-e',  'p-e-val',  v => v.toFixed(1), 'e');
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        Object.assign(p, DEFAULTS);
+        ['m1','m2','v1','e'].forEach(k => {
+            const inp = document.getElementById('p-' + k);
+            if (inp) inp.value = p[k];
+        });
+        document.getElementById('p-m1-val').textContent = p.m1.toFixed(1) + ' kg';
+        document.getElementById('p-m2-val').textContent = p.m2.toFixed(1) + ' kg';
+        document.getElementById('p-v1-val').textContent = p.v1.toFixed(0) + ' m/s';
+        document.getElementById('p-e-val').textContent  = p.e.toFixed(1);
+        initPhase();
+    });
+
+    /* ── Toggle wiring ───────────────────────────────────────────────── */
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-arrows', 'arrows');
+    wireToggle('tgl-labels', 'labels');
+
+    /* ── Drawing helpers ─────────────────────────────────────────────── */
+    function drawBall(x, y, r, col1, col2, label) {
+        // Filled circle with soft radial highlight
+        const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
+        grad.addColorStop(0, col1);
+        grad.addColorStop(1, col2);
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        if (label) {
+            ctx.font = 'bold 13px "JetBrains Mono", monospace';
+            ctx.fillStyle = col.paper;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+        }
+    }
+
+    function drawArrow(x, y, vx, color) {
+        const len = vx * SCALE;
+        if (Math.abs(len) < 4) return;
+        const ex = x + len;
+        const hl = 10, hw = 5;
+        const dir = Math.sign(len);
+        ctx.strokeStyle = color;
+        ctx.fillStyle   = color;
+        ctx.lineWidth   = 2;
+        ctx.lineCap     = 'round';
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(ex - dir * hl * 0.5, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ex, y);
+        ctx.lineTo(ex - dir * hl - hw, y - hw);
+        ctx.lineTo(ex - dir * hl + hw * 0, y);
+        ctx.lineTo(ex - dir * hl - hw, y + hw);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    /* ── Main draw ───────────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        const trackY = H * 0.58;
+        const r1 = radius(p.m1), r2 = radius(p.m2);
+
+        /* Track line */
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(0, trackY + r1 + 1);
+        ctx.lineTo(W, trackY + r1 + 1);
+        ctx.stroke();
+
+        /* Ground hatching */
+        ctx.globalAlpha = 0.4;
+        ctx.strokeStyle = col.soft;
+        ctx.lineWidth = 0.8;
+        for (let xx = 4; xx < W; xx += 10) {
+            ctx.beginPath();
+            ctx.moveTo(xx, trackY + r1 + 1);
+            ctx.lineTo(xx - 6, trackY + r1 + 7);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+
+        /* Collision flash */
+        if (flashTimer > 0) {
+            ctx.globalAlpha = flashTimer / 12 * 0.4;
+            ctx.fillStyle = col.acc;
+            ctx.beginPath();
+            ctx.arc(collisionX, trackY, r1 + r2 + 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        /* Phase update */
+        if (phase === 'approach') {
+            x1 += v1px;
+            // Check collision: balls touch when x2 - x1 = r1 + r2
+            if (x2 - x1 <= r1 + r2) {
+                x1 = x2 - r1 - r2;
+                collisionX = (x1 + x2) / 2;
+                flashTimer = 12;
+                phase = 'collided';
+                // Switch to post-collision velocities
+                v1px = v1_post * SPEED_PX;
+                v2px = v2_post * SPEED_PX;
+            }
+        } else if (phase === 'collided') {
+            flashTimer--;
+            x1 += v1px;
+            x2 += v2px;
+            if (flashTimer <= 0) phase = 'separate';
+        } else if (phase === 'separate') {
+            x1 += v1px;
+            x2 += v2px;
+            // Reset when both balls have exited or been stationary long enough
+            const offLeft  = x1 + r1 < 0;
+            const offRight = x2 - r2 > W;
+            const bothOut  = (offLeft || x1 + r1 < 0 || v1px <= 0) && (offRight || x2 - r2 > W);
+            pauseTimer++;
+            if (pauseTimer > 90 || (offLeft && offRight)) {
+                pauseTimer = 0;
+                resetTimer = 40;
+                phase = 'reset';
+            }
+        } else if (phase === 'reset') {
+            resetTimer--;
+            if (resetTimer <= 0) initPhase();
+        }
+
+        /* Velocity arrows above balls */
+        if (show.arrows) {
+            const curV1 = (phase === 'approach') ? p.v1 : (phase === 'collided' || phase === 'separate' ? v1_post : p.v1);
+            const curV2 = (phase === 'approach') ? 0    : (phase === 'collided' || phase === 'separate' ? v2_post : 0);
+            drawArrow(x1, trackY - r1 - 18, curV1, col.acc);
+            drawArrow(x2, trackY - r2 - 18, curV2, col.soft);
+        }
+
+        /* Balls */
+        drawBall(x1, trackY, r1, col.acc + 'dd', col.acc + '66', 'm₁');
+        drawBall(x2, trackY, r2, col.soft + 'dd', col.soft + '44', 'm₂');
+
+        /* Speed labels */
+        if (show.labels) {
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.fillStyle = col.faint;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            const curV1 = (phase === 'approach') ? p.v1 : v1_post;
+            const curV2 = (phase === 'approach') ? 0    : v2_post;
+            ctx.fillText(curV1.toFixed(2) + ' m/s', x1, trackY + r1 + 6);
+            ctx.fillText(curV2.toFixed(2) + ' m/s', x2, trackY + r2 + 6);
+        }
+
+        /* Phase label */
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        const phaseLabel = phase === 'approach' ? 'APPROACHING' : (phase === 'reset' ? 'RESETTING' : 'POST-COLLISION');
+        ctx.fillText(phaseLabel, 14, 14);
+
+        /* Readout update */
+        const p_before = p.m1 * p.v1;
+        const ke_before = 0.5 * p.m1 * p.v1 * p.v1;
+        const p_after  = p.m1 * v1_post + p.m2 * v2_post;
+        const ke_after = 0.5 * p.m1 * v1_post * v1_post + 0.5 * p.m2 * v2_post * v2_post;
+        const dke      = ke_after - ke_before;
+
+        const $ = id => document.getElementById(id);
+        if ($('r-pbefore'))  $('r-pbefore').textContent  = p_before.toFixed(2) + ' kg·m/s';
+        if ($('r-pafter'))   $('r-pafter').textContent   = p_after.toFixed(2)  + ' kg·m/s';
+        if ($('r-kebefore')) $('r-kebefore').textContent = ke_before.toFixed(2) + ' J';
+        if ($('r-keafter'))  $('r-keafter').textContent  = ke_after.toFixed(2)  + ' J';
+        if ($('r-dke'))      $('r-dke').textContent      = dke.toFixed(2)       + ' J';
+    }
+
+    /* ── RAF loop ────────────────────────────────────────────────────── */
+    let lastT = 0, frames = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        draw();
+        frames++;
+        if (ts - lastT >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
+            frames = 0; lastT = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+
+    initPhase();
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 6.20 · Penguin on the Slope — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="dynamics" data-screen-label="Ex 6.20 Penguin on the Slope">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 6 · Ex. 20</span><span lang="cs">Kap. 6 · Úl. 20</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 3 · Force &amp; Motion — Chapter 6 · Exercise 20</span><span lang="cs">3. téma · Síla a pohyb — Kapitola 6 · Úloha 20</span></div>
+        <h1><span lang="en">Penguin on the Slope</span><span lang="cs">Tučňák na svahu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>20</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A sled carrying a penguin — total weight
+                    <span class="given" data-tex="W = 80\ \mathrm{N}"></span> — rests on a slope
+                    inclined at <span class="given" data-tex="\theta = 20^\circ"></span>
+                    to the horizontal (fig. 6-27). The coefficient of static friction between
+                    sled and slope is <span class="given" data-tex="\mu_s = 0{,}25"></span>;
+                    the coefficient of kinetic friction is
+                    <span class="given" data-tex="\mu_d = 0{,}15"></span>.
+                </p>
+                <p lang="cs">
+                    Sáně s tučňákem — celková tíha
+                    <span class="given" data-tex="W = 80\ \mathrm{N}"></span> — spočívají na svahu
+                    skloněném pod úhlem <span class="given" data-tex="\theta = 20^\circ"></span>
+                    k vodorovné rovině (obr. 6-27). Součinitel statického tření mezi
+                    sáněmi a svahem je <span class="given" data-tex="\mu_s = 0{,}25"></span>;
+                    součinitel dynamického tření je
+                    <span class="given" data-tex="\mu_d = 0{,}15"></span>.
+                </p>
+                <p lang="en">
+                    (a) What is the smallest force <span data-tex="\vec F"></span>, directed up along
+                    the slope, that prevents the sled from sliding down? (b) What is the smallest force
+                    of the same direction that will set the sled moving up the slope?
+                    (c) What force keeps the sled moving up at constant velocity?
+                </p>
+                <p lang="cs">
+                    (a) Jaká je nejmenší síla <span data-tex="\vec F"></span>, mířící nahoru podél
+                    svahu, která zabrání sáním sklouznout dolů? (b) Jaká je nejmenší síla
+                    stejného směru, která sáně uvede do pohybu vzhůru po svahu?
+                    (c) Jaká síla udržuje sáně v pohybu vzhůru konstantní rychlostí?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Friction sandbox</span><span lang="cs">Sandbox: tření</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="f_s \le \mu_s N"></div>
+                <div class="sim-hint"><span lang="en">pick a scenario · friction flips direction</span><span lang="cs">zvolte scénář · tření obrací směr</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Slope angle θ</span><span lang="cs">Úhel svahu θ</span></span>
+                            <span class="sim-control-val" id="p-th-val">20.0°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-th" min="5" max="40" step="0.5" value="20.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Weight W</span><span lang="cs">Tíha W</span></span>
+                            <span class="sim-control-val" id="p-w-val">80 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-w" min="20" max="200" step="1" value="80">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Static μ_s</span><span lang="cs">Statický μ_s</span></span>
+                            <span class="sim-control-val" id="p-mus-val">0.25</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-mus" min="0" max="0.6" step="0.01" value="0.25">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Kinetic μ_d</span><span lang="cs">Dynamický μ_d</span></span>
+                            <span class="sim-control-val" id="p-mud-val">0.15</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-mud" min="0" max="0.6" step="0.01" value="0.15">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Ingredients</span><span lang="cs">Vstupní veličiny</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W\sin\theta"></span>
+                        <span class="readout-val" id="r-wsin">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\mu_s W\cos\theta"></span>
+                        <span class="readout-val" id="r-fs">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\mu_d W\cos\theta"></span>
+                        <span class="readout-val" id="r-fd">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">The three forces</span><span lang="cs">Tři síly</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="(a)\ F_{\text{hold}}"></span><span lang="cs" data-tex="(a)\ F_{\text{drží}}"></span></span>
+                        <span class="readout-val" id="r-fa">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="(b)\ F_{\text{start}}"></span><span lang="cs" data-tex="(b)\ F_{\text{start}}"></span></span>
+                        <span class="readout-val" id="r-fb">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="(c)\ F_{\text{steady}}"></span><span lang="cs" data-tex="(c)\ F_{\text{stálá}}"></span></span>
+                        <span class="readout-val" id="r-fc">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Scenario</span><span lang="cs">Scénář</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="mode-a">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">(a) hold in place</span><span lang="cs">(a) udržet na místě</span></span>
+                    </div>
+                    <div class="toggle-row" id="mode-b">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">(b) break away upward</span><span lang="cs">(b) uvolnit se vzhůru</span></span>
+                    </div>
+                    <div class="toggle-row" id="mode-c">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">(c) steady climb</span><span lang="cs">(c) rovnoměrný výstup</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Along the slope the weight pulls down with
+                    <span data-tex="W\sin\theta = 80\sin 20^\circ = 27{,}4\ \mathrm{N}"></span>;
+                    the normal force is <span data-tex="N = W\cos\theta"></span>, so the maximum static
+                    friction is <span data-tex="\mu_s W\cos\theta = 18{,}8\ \mathrm{N}"></span> and kinetic
+                    friction is <span data-tex="\mu_d W\cos\theta = 11{,}3\ \mathrm{N}"></span>.</span>
+                    <span lang="cs">Podél svahu táhne tíha dolů silou
+                    <span data-tex="W\sin\theta = 80\sin 20^\circ = 27{,}4\ \mathrm{N}"></span>;
+                    normálová síla je <span data-tex="N = W\cos\theta"></span>, takže maximální statické
+                    tření je <span data-tex="\mu_s W\cos\theta = 18{,}8\ \mathrm{N}"></span> a dynamické
+                    tření je <span data-tex="\mu_d W\cos\theta = 11{,}3\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> On the verge of sliding <em>down</em>, static friction acts fully
+                    <em>up</em> the slope and helps <span data-tex="F"></span>:
+                    <span data-tex="F = W\sin\theta - \mu_s W\cos\theta = 27{,}4 - 18{,}8 = 8{,}6\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Na hranici sklouznutí <em>dolů</em> působí statické tření
+                    naplno <em>nahoru</em> po svahu a pomáhá síle <span data-tex="F"></span>:
+                    <span data-tex="F = W\sin\theta - \mu_s W\cos\theta = 27{,}4 - 18{,}8 = 8{,}6\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> On the verge of sliding <em>up</em>, friction flips to oppose the
+                    impending motion:
+                    <span data-tex="F = W\sin\theta + \mu_s W\cos\theta = 27{,}4 + 18{,}8 = 46\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Na hranici sklouznutí <em>nahoru</em> se tření obrátí
+                    a brání nastávajícímu pohybu:
+                    <span data-tex="F = W\sin\theta + \mu_s W\cos\theta = 27{,}4 + 18{,}8 = 46\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> Moving up at constant velocity, kinetic friction acts down the slope:
+                    <span data-tex="F = W\sin\theta + \mu_d W\cos\theta = 27{,}4 + 11{,}3 = 39\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(c)</strong> Při pohybu vzhůru konstantní rychlostí působí dynamické
+                    tření dolů po svahu:
+                    <span data-tex="F = W\sin\theta + \mu_d W\cos\theta = 27{,}4 + 11{,}3 = 39\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="F \approx 8{,}6\ \mathrm{N}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="F \approx 46\ \mathrm{N}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value" data-tex="F \approx 39\ \mathrm{N}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/force-and-motion.html"><span lang="en">← Topic: Force &amp; Motion</span><span lang="cs">← Téma: Síla a pohyb</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 6 · Ex. 20</span><span lang="cs">Kap. 6 · Úl. 20</span></span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b94d28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const DEFAULTS = { th: 20.0, w: 80, mus: 0.25, mud: 0.15 };
+    let state = { ...DEFAULTS };
+    let mode = 'a';   /* a = hold, b = break away, c = steady climb */
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtTh = v => v.toFixed(1) + '°';
+    const fmtW  = v => v.toFixed(0) + ' N';
+    const fmtMu = v => v.toFixed(2);
+    const SLIDERS = [['p-th', 'th', fmtTh], ['p-w', 'w', fmtW],
+                     ['p-mus', 'mus', fmtMu], ['p-mud', 'mud', fmtMu]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    /* radio-style scenario selector */
+    ['a', 'b', 'c'].forEach(m => {
+        document.getElementById('mode-' + m)?.addEventListener('click', () => {
+            mode = m;
+            ['a', 'b', 'c'].forEach(mm => {
+                document.querySelector('#mode-' + mm + ' .toggle-box')
+                    ?.classList.toggle('on', mm === mode);
+            });
+        });
+    });
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const th = state.th * Math.PI / 180;
+
+        /* slope geometry: foot at lower-left, rising to the right */
+        const fx = W * 0.10, fy = H * 0.86;
+        const runLen = W * 0.8;
+        const tx = fx + runLen * Math.cos(th);
+        const ty = fy - runLen * Math.sin(th);
+
+        /* slope surface + hatching underneath */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        const steps = Math.floor(runLen / 14);
+        for (let i = 1; i < steps; i++) {
+            const sx = fx + i * 14 * Math.cos(th);
+            const sy = fy - i * 14 * Math.sin(th);
+            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - 9, sy + 8); ctx.stroke();
+        }
+        /* angle marker */
+        ctx.strokeStyle = col.faint; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx + 110, fy); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(fx, fy, 52, -th, 0); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('θ', fx + 60, fy - Math.sin(th / 2) * 46);
+
+        /* sled + penguin drawn in slope coordinates */
+        const sPos = 0.52;                     /* fraction along the slope */
+        const cx = fx + runLen * sPos * Math.cos(th);
+        const cy = fy - runLen * sPos * Math.sin(th);
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(-th);
+        /* sled */
+        const sw = 86, sh = 16;
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(-sw / 2, -sh, sw, sh);
+        ctx.strokeRect(-sw / 2, -sh, sw, sh);
+        /* runner */
+        ctx.beginPath(); ctx.moveTo(-sw / 2 - 8, 0); ctx.lineTo(sw / 2 + 8, 0);
+        ctx.lineWidth = 1.4; ctx.stroke();
+        /* penguin: body, belly, head, beak, eye */
+        ctx.beginPath();
+        ctx.ellipse(0, -sh - 22, 13, 22, 0, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(2, -sh - 18, 8, 15, 0, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, -sh - 44, 8, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(7, -sh - 45); ctx.lineTo(16, -sh - 42); ctx.lineTo(7, -sh - 40);
+        ctx.closePath();
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.beginPath(); ctx.arc(3.4, -sh - 46, 1.4, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill();
+
+        /* forces along the slope (x' axis points up-slope) */
+        const wsin = state.w * Math.sin(th);
+        const fsMax = state.mus * state.w * Math.cos(th);
+        const fdVal = state.mud * state.w * Math.cos(th);
+        let Fapp, fric;
+        if (mode === 'a')      { Fapp = Math.max(0, wsin - fsMax); fric = Math.min(fsMax, wsin); }
+        else if (mode === 'b') { Fapp = wsin + fsMax;              fric = -fsMax; }
+        else                   { Fapp = wsin + fdVal;              fric = -fdVal; }
+
+        const fScale = 2.2;
+        /* applied force — up-slope, from the front of the sled */
+        arrow(sw / 2 + 10, -sh / 2, sw / 2 + 10 + Fapp * fScale, -sh / 2, col.acc, 2.6);
+        ctx.fillStyle = col.acc;
+        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('F', sw / 2 + 14 + Fapp * fScale, -sh / 2 - 6);
+        /* gravity component down-slope */
+        arrow(-sw / 2 - 10, -sh / 2, -sw / 2 - 10 - wsin * fScale, -sh / 2, col.soft, 1.8);
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+        ctx.fillText('W sinθ', -sw / 2 - 14 - wsin * fScale, -sh / 2 - 6);
+        /* friction under the runner */
+        if (Math.abs(fric) > 0.4) {
+            arrow(0, 10, fric * fScale, 10, col.soft, 1.8);
+            ctx.textAlign = fric > 0 ? 'left' : 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText('f', fric * fScale + (fric > 0 ? 6 : -6), 14);
+        }
+        ctx.restore();
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const Fa = Math.max(0, wsin - fsMax);
+        const Fb = wsin + fsMax;
+        const Fc = wsin + fdVal;
+        if ($('r-wsin')) $('r-wsin').textContent = wsin.toFixed(1) + ' N';
+        if ($('r-fs'))   $('r-fs').textContent   = fsMax.toFixed(1) + ' N';
+        if ($('r-fd'))   $('r-fd').textContent   = fdVal.toFixed(1) + ' N';
+        if ($('r-fa'))   $('r-fa').textContent   =
+            (wsin <= fsMax ? '0 (holds itself)' : Fa.toFixed(1) + ' N');
+        if ($('r-fb'))   $('r-fb').textContent   = Fb.toFixed(1) + ' N';
+        if ($('r-fc'))   $('r-fc').textContent   = Fc.toFixed(1) + ' N';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

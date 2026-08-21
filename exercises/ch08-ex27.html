@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 8.27 · Stone on a Spring — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="energy" data-screen-label="Ex 8.27 Stone on a Spring">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 8 · Ex. 27</span><span lang="cs">Kap. 8 · Úl. 27</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Work &amp; Energy — Chapter 8 · Exercise 27</span><span lang="cs">4. téma · Práce a energie — Kapitola 8 · Úloha 27</span></div>
+        <h1><span lang="en">Stone on a Spring</span><span lang="cs">Kámen na pružině</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>27</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Fig. 8-38 shows a stone of mass
+                    <span class="given" data-tex="m = 8.00\ \mathrm{kg}"></span> resting on a vertical
+                    spring, compressing it by
+                    <span class="given" data-tex="x_0 = 10.0\ \mathrm{cm}"></span>.
+                    (a) What is the spring stiffness? (b) The spring is pushed down by an additional
+                    <span class="given" data-tex="30.0\ \mathrm{cm}"></span> and released; call the
+                    stone's position at that moment <em>U</em>. What is the elastic potential energy of
+                    the compressed spring just before the release?
+                </p>
+                <p lang="cs">
+                    Obr. 8-38 zobrazuje kámen o hmotnosti
+                    <span class="given" data-tex="m = 8{,}00\ \mathrm{kg}"></span> spočívající na svislé
+                    pružině, kterou stlačuje o
+                    <span class="given" data-tex="x_0 = 10{,}0\ \mathrm{cm}"></span>.
+                    (a) Jaká je tuhost pružiny? (b) Pružina je stlačena o dalších
+                    <span class="given" data-tex="30{,}0\ \mathrm{cm}"></span> a poté puštěna; polohu
+                    kamene v tomto okamžiku označme <em>U</em>. Jaká je pružná potenciální energie
+                    stlačené pružiny těsně před uvolněním?
+                </p>
+                <p lang="en">
+                    (c) What change in the gravitational potential energy of the stone–Earth system
+                    corresponds to the stone rising from <em>U</em> to its highest point?
+                    (d) How high above <em>U</em> does the stone rise?
+                </p>
+                <p lang="cs">
+                    (c) Jaká změna tíhové potenciální energie soustavy kámen–Země odpovídá stoupání
+                    kamene z <em>U</em> do jeho nejvyššího bodu? (d) Jak vysoko nad <em>U</em> kámen
+                    vystoupá?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Launch sandbox</span><span lang="cs">Sandbox: vystřelení</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\tfrac12 kx^2 = mgh"></div>
+                <div class="sim-hint"><span lang="en">all the spring's energy becomes height</span><span lang="cs">veškerá energie pružiny se promění ve výšku</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Stone mass m</span><span lang="cs">Hmotnost kamene m</span></span>
+                            <span class="sim-control-val" id="p-m-val">8.00 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="2" max="15" step="0.25" value="8.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Resting compression x₀</span><span lang="cs">Klidové stlačení x₀</span></span>
+                            <span class="sim-control-val" id="p-x0-val">10.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-x0" min="5" max="20" step="0.5" value="10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Extra push Δx</span><span lang="cs">Přídavné stlačení Δx</span></span>
+                            <span class="sim-control-val" id="p-dx-val">30.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-dx" min="10" max="50" step="1" value="30">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Spring</span><span lang="cs">Pružina</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="k = mg/x_0"></span>
+                        <span class="readout-val" id="r-k">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_p = \tfrac12 k(x_0+\Delta x)^2"></span>
+                        <span class="readout-val" id="r-ep">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Flight</span><span lang="cs">Let</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Delta U_g"></span>
+                        <span class="readout-val" id="r-dug">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="h = E_p/mg"></span>
+                        <span class="readout-val" id="r-h">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-bars">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">energy bars</span><span lang="cs">sloupce energie</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> Sitting in equilibrium,
+                    <span data-tex="kx_0 = mg"></span>:
+                    <span data-tex="k = 8.00\cdot 9.8/0.100 = 784\ \mathrm{N\,m^{-1}} \approx 7.8\cdot 10^{2}\ \mathrm{N\,m^{-1}}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> V rovnovážné poloze
+                    <span data-tex="kx_0 = mg"></span>:
+                    <span data-tex="k = 8{,}00\cdot 9{,}8/0{,}100 = 784\ \mathrm{N\,m^{-1}} \approx 7{,}8\cdot 10^{2}\ \mathrm{N\,m^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> At the release point the total compression is
+                    <span data-tex="0.40\ \mathrm{m}"></span>:
+                    <span data-tex="E_p = \tfrac12\cdot 784\cdot 0.40^2 = 62.7\ \mathrm{J} \approx 63\ \mathrm{J}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> V okamžiku uvolnění je celkové stlačení
+                    <span data-tex="0{,}40\ \mathrm{m}"></span>:
+                    <span data-tex="E_p = \tfrac12\cdot 784\cdot 0{,}40^2 = 62{,}7\ \mathrm{J} \approx 63\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> At the top the stone is momentarily at rest and the spring is
+                    relaxed, so the whole elastic store went into gravitational energy:
+                    <span data-tex="\Delta U_g = 62.7\ \mathrm{J} \approx 63\ \mathrm{J}"></span>.</span>
+                    <span lang="cs"><strong>(c)</strong> V nejvyšším bodě je kámen okamžitě v klidu a pružina je
+                    neprodloužená, takže veškerá pružná energie přešla do tíhové:
+                    <span data-tex="\Delta U_g = 62{,}7\ \mathrm{J} \approx 63\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(d)</strong> Since <span data-tex="\Delta U_g = mgh"></span>:
+                    <span data-tex="h = 62.7/(8.00\cdot 9.8) = 0.800\ \mathrm{m} = 80.0\ \mathrm{cm}"></span>
+                    above <em>U</em>.</span>
+                    <span lang="cs"><strong>(d)</strong> Protože <span data-tex="\Delta U_g = mgh"></span>:
+                    <span data-tex="h = 62{,}7/(8{,}00\cdot 9{,}8) = 0{,}800\ \mathrm{m} = 80{,}0\ \mathrm{cm}"></span>
+                    nad <em>U</em>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="k \approx 7.8\cdot 10^{2}\ \mathrm{N\,m^{-1}}"></span><span lang="cs" data-tex="k \approx 7{,}8\cdot 10^{2}\ \mathrm{N\,m^{-1}}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b, c)</span><span lang="cs">Výsledek (b, c)</span></span>
+                <span class="ans-value" data-tex="E_p = \Delta U_g \approx 63\ \mathrm{J}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="h = 80.0\ \mathrm{cm}"></span><span lang="cs" data-tex="h = 80{,}0\ \mathrm{cm}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 8 · Ex. 27</span><span lang="cs">Kap. 8 · Úl. 27</span></span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    /* m kg, x0 cm, dx cm */
+    const DEFAULTS = { m: 8.0, x0: 10, dx: 30 };
+    let state = { ...DEFAULTS };
+    const show = { bars: true };
+
+    const fmtM = v => v.toFixed(2) + ' kg';
+    const fmtC = v => v.toFixed(1) + ' cm';
+    const SLIDERS = [['p-m', 'm', fmtM], ['p-x0', 'x0', fmtC], ['p-dx', 'dx', fmtC]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-bars')?.addEventListener('click', function () {
+        show.bars = !show.bars;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function physics() {
+        const x0 = state.x0 / 100, dx = state.dx / 100;
+        const k  = state.m * g / x0;
+        const xt = x0 + dx;
+        const Ep = 0.5 * k * xt * xt;
+        const h  = Ep / (state.m * g);
+        return { k, xt, Ep, h };
+    }
+
+    function spring(x, y0, y1, coils, width) {
+        const seg = (y1 - y0) / coils;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(x, y0);
+        for (let i = 0; i < coils; i++) {
+            ctx.lineTo(x + (i % 2 ? -16 : 16), y0 + seg * (i + 0.5));
+        }
+        ctx.lineTo(x, y1); ctx.stroke();
+    }
+
+    const ease = u => u * u * (3 - 2 * u);
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const ph = physics();
+
+        /* keyframed loop: sit(1) push(1.2) launch-up(1.1) hang(0.3) fall(0.9) settle(0.5) */
+        const T = [1.0, 1.2, 1.1, 0.3, 0.9, 0.5];
+        const total = T.reduce((a, b) => a + b, 0);
+        let tau = (ts / 1000) % total, phase = 0;
+        while (tau > T[phase]) { tau -= T[phase]; phase++; }
+        const u = tau / T[phase];
+
+        const cx = W * 0.42;
+        const groundY = H - 36;
+        const natTop = groundY - H * 0.34;              /* relaxed spring top */
+        const pxPerM = (H * 0.30) / Math.max(ph.h, 0.5); /* flight scale */
+        const pxPerC = 160;                              /* compression scale */
+
+        const x0 = state.x0 / 100, xt = ph.xt;
+        const ySit  = natTop + x0 * pxPerC;
+        const yU    = natTop + xt * pxPerC;
+        const yTop  = yU - ph.h * pxPerM;
+
+        let stoneY, springTop, note;
+        if (phase === 0)      { stoneY = ySit; springTop = ySit; note = 'resting — spring compressed x₀'; }
+        else if (phase === 1) { const e = ease(u); stoneY = ySit + (yU - ySit) * e; springTop = stoneY; note = 'pushing down by Δx'; }
+        else if (phase === 2) { const e = 1 - (1 - u) * (1 - u); stoneY = yU + (yTop - yU) * e; springTop = Math.max(natTop, Math.min(stoneY, yU)); note = 'released!'; }
+        else if (phase === 3) { stoneY = yTop; springTop = natTop; note = 'highest point — all energy gravitational'; }
+        else if (phase === 4) { const e = u * u; stoneY = yTop + (ySit - yTop) * e; springTop = Math.max(natTop, Math.min(stoneY, natTop)); if (stoneY > natTop) springTop = stoneY; note = 'falling back'; }
+        else                  { stoneY = ySit; springTop = ySit; note = 'settled'; }
+
+        /* ground */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(30, groundY); ctx.lineTo(W - 30, groundY); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = 36; x < W - 32; x += 13) {
+            ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x - 8, groundY + 9); ctx.stroke();
+        }
+
+        /* markers: U and the peak */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        [[yU, 'U (release)'], [yTop, 'top · h above U']].forEach(([y, name]) => {
+            ctx.beginPath(); ctx.moveTo(cx - 90, y); ctx.lineTo(cx + 90, y); ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText(name, cx + 96, y);
+        });
+        ctx.setLineDash([]);
+
+        /* spring + stone */
+        spring(cx, springTop, groundY, 9);
+        const rs = 20;
+        const grad = ctx.createRadialGradient(cx - 6, stoneY - rs - 6, 3, cx, stoneY - rs, rs);
+        grad.addColorStop(0, col.paper); grad.addColorStop(1, col.acc);
+        ctx.beginPath(); ctx.arc(cx, stoneY - rs, rs, 0, Math.PI * 2);
+        ctx.fillStyle = grad; ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.stroke();
+
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText(note, 26, 22);
+
+        /* energy bars — fractions of the release-point store E_p */
+        if (show.bars) {
+            const bx = W - 96, by1 = H * 0.72, span = H * 0.44;
+            const xNow = Math.max(0, (springTop - natTop)) / pxPerC;   /* current compression, m */
+            const elastic = Math.min(1, (xNow / xt) ** 2);
+            const grav = Math.max(0, Math.min(1, (yU - stoneY) / (yU - yTop)));
+            const kinetic = Math.max(0, 1 - elastic - grav);
+            [[elastic, 'spring', 0], [grav, 'grav', 26], [kinetic, 'kin', 52]]
+            .forEach(([f, name, off]) => {
+                ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+                ctx.strokeRect(bx + off, by1 - span, 15, span);
+                ctx.fillStyle = col.acc;
+                ctx.fillRect(bx + off, by1 - f * span, 15, f * span);
+                ctx.fillStyle = col.soft;
+                ctx.font = '8px "JetBrains Mono", monospace';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                ctx.fillText(name, bx + off + 7, by1 + 5);
+            });
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-k'))   $('r-k').textContent   = ph.k.toFixed(0) + ' N/m';
+        if ($('r-ep'))  $('r-ep').textContent  = ph.Ep.toFixed(1) + ' J';
+        if ($('r-dug')) $('r-dug').textContent = ph.Ep.toFixed(1) + ' J';
+        if ($('r-h'))   $('r-h').textContent   = (ph.h * 100).toFixed(1) + ' cm';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

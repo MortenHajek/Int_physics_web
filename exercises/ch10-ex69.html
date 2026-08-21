@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 10.69 · A Pulley with Inertia — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="rotation" data-screen-label="Ex 10.69 A Pulley with Inertia">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Rotation</span><span lang="cs">Díl I · Rotace</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 10 · Ex. 69</span><span lang="cs">Kap. 10 · Úl. 69</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 6 · Rotation — Chapter 10 · Exercise 69</span><span lang="cs">6. téma · Rotace — Kapitola 10 · Úloha 69</span></div>
+        <h1><span lang="en">A Pulley with Inertia</span><span lang="cs">Kladka s momentem setrvačnosti</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>69</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Two identical bodies of mass
+                    <span class="given" data-tex="M = 6.20\ \mathrm{kg}"></span> are connected by a cord
+                    of negligible mass running over a pulley of radius
+                    <span class="given" data-tex="R = 2.40\ \mathrm{cm}"></span> and rotational inertia
+                    <span class="given" data-tex="I = 7.40\cdot 10^{-4}\ \mathrm{kg\,m^2}"></span>
+                    (fig. 10-50). The cord does not slip on the pulley, which turns without friction on
+                    its axle. We do not know beforehand whether friction acts between the sliding body
+                    and the horizontal table.
+                </p>
+                <p lang="cs">
+                    Dvě stejná tělesa o hmotnosti
+                    <span class="given" data-tex="M = 6{,}20\ \mathrm{kg}"></span> jsou spojena vláknem
+                    zanedbatelné hmotnosti vedeným přes kladku o poloměru
+                    <span class="given" data-tex="R = 2{,}40\ \mathrm{cm}"></span> a momentu setrvačnosti
+                    <span class="given" data-tex="I = 7{,}40\cdot 10^{-4}\ \mathrm{kg\,m^2}"></span>
+                    (obr. 10-50). Vlákno na kladce neprokluzuje a kladka se otáčí na ose bez tření.
+                    Předem nevíme, zda mezi kloužícím tělesem a vodorovnou podložkou působí tření.
+                </p>
+                <p lang="en">
+                    After release the bodies move with constant acceleration; in
+                    <span class="given" data-tex="t = 95.0\ \mathrm{ms}"></span> the pulley turns through
+                    <span class="given" data-tex="\theta = 0.700\ \mathrm{rad}"></span>.
+                    Compute (a) the pulley's angular acceleration, (b) the acceleration of the bodies,
+                    and the tension (c) <span data-tex="T_1"></span> in the hanging and
+                    (d) <span data-tex="T_2"></span> in the horizontal part of the cord.
+                </p>
+                <p lang="cs">
+                    Po uvolnění se tělesa pohybují s konstantním zrychlením; za
+                    <span class="given" data-tex="t = 95{,}0\ \mathrm{ms}"></span> se kladka pootočí o
+                    <span class="given" data-tex="\theta = 0{,}700\ \mathrm{rad}"></span>.
+                    Vypočtěte (a) úhlové zrychlení kladky, (b) zrychlení těles a tahovou sílu
+                    (c) <span data-tex="T_1"></span> ve svislé a (d) <span data-tex="T_2"></span> ve
+                    vodorovné části vlákna.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Pulley sandbox</span><span lang="cs">Sandbox: kladka</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">slow motion</span><span lang="cs">zpomaleně</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="(T_1 - T_2)R = I\alpha"></div>
+                <div class="sim-hint"><span lang="en">the tension difference is what spins the pulley</span><span lang="cs">kladku roztáčí právě rozdíl tahových sil</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass M (each body)</span><span lang="cs">Hmotnost M (každé těleso)</span></span>
+                            <span class="sim-control-val" id="p-m-val">6.20 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="2" max="10" step="0.1" value="6.2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Pulley radius R</span><span lang="cs">Poloměr kladky R</span></span>
+                            <span class="sim-control-val" id="p-r-val">2.40 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="1.0" max="5.0" step="0.05" value="2.4">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Inertia I (×10⁻⁴)</span><span lang="cs">Moment setrvačnosti I (×10⁻⁴)</span></span>
+                            <span class="sim-control-val" id="p-i-val">7.40</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-i" min="2.0" max="15.0" step="0.1" value="7.4">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Measured angle θ</span><span lang="cs">Naměřený úhel θ</span></span>
+                            <span class="sim-control-val" id="p-th-val">0.700 rad</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-th" min="0.20" max="1.20" step="0.01" value="0.70">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Measured time t</span><span lang="cs">Naměřený čas t</span></span>
+                            <span class="sim-control-val" id="p-t-val">95.0 ms</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-t" min="50" max="200" step="1" value="95">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Kinematics</span><span lang="cs">Kinematika</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\alpha = 2\theta/t^2"></span>
+                        <span class="readout-val" id="r-alpha">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="a = \alpha R"></span>
+                        <span class="readout-val" id="r-a">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Dynamics</span><span lang="cs">Dynamika</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T_1 = M(g-a)"></span>
+                        <span class="readout-val" id="r-t1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T_2 = T_1 - I\alpha/R"></span>
+                        <span class="readout-val" id="r-t2">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="f = T_2 - Ma"></span><span lang="cs" data-tex="f = T_2 - Ma"></span></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-tension">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">tension labels</span><span lang="cs">popisky tahových sil</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> Constant angular acceleration from rest means
+                    <span data-tex="\theta = \tfrac12\alpha t^2"></span>, so
+                    <span data-tex="\alpha = 2\theta/t^2 = 2\cdot 0.700/(0.0950)^2 = 155\ \mathrm{rad\,s^{-2}}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Konstantní úhlové zrychlení z klidu znamená
+                    <span data-tex="\theta = \tfrac12\alpha t^2"></span>, tedy
+                    <span data-tex="\alpha = 2\theta/t^2 = 2\cdot 0{,}700/(0{,}0950)^2 = 155\ \mathrm{rad\,s^{-2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The cord does not slip, so
+                    <span data-tex="a = \alpha R = 155\cdot 0.0240 = 3.72\ \mathrm{m\,s^{-2}}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Vlákno neprokluzuje, takže
+                    <span data-tex="a = \alpha R = 155\cdot 0{,}0240 = 3{,}72\ \mathrm{m\,s^{-2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> For the hanging body,
+                    <span data-tex="Mg - T_1 = Ma"></span>:
+                    <span data-tex="T_1 = M(g-a) = 6.20\,(9.8 - 3.72) = 37.7\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(c)</strong> Pro visící těleso platí
+                    <span data-tex="Mg - T_1 = Ma"></span>:
+                    <span data-tex="T_1 = M(g-a) = 6{,}20\,(9{,}8 - 3{,}72) = 37{,}7\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(d)</strong> The pulley obeys
+                    <span data-tex="(T_1 - T_2)R = I\alpha"></span>, so
+                    <span data-tex="T_2 = T_1 - I\alpha/R = 37.7 - 4.8 = 32.9\ \mathrm{N}"></span>.
+                    (Comparing with <span data-tex="Ma = 23.1\ \mathrm{N}"></span> shows the table
+                    friction is <span data-tex="f \approx 9.8\ \mathrm{N}"></span> — not negligible.)</span>
+                    <span lang="cs"><strong>(d)</strong> Pro kladku platí
+                    <span data-tex="(T_1 - T_2)R = I\alpha"></span>, tedy
+                    <span data-tex="T_2 = T_1 - I\alpha/R = 37{,}7 - 4{,}8 = 32{,}9\ \mathrm{N}"></span>.
+                    (Porovnáním s <span data-tex="Ma = 23{,}1\ \mathrm{N}"></span> zjistíme, že tření o
+                    podložku je <span data-tex="f \approx 9{,}8\ \mathrm{N}"></span> — není zanedbatelné.)</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\alpha \approx 155\ \mathrm{rad\,s^{-2}}"></span><span lang="cs" data-tex="\alpha \approx 155\ \mathrm{rad\,s^{-2}}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="a \approx 3.72\ \mathrm{m\,s^{-2}}"></span><span lang="cs" data-tex="a \approx 3{,}72\ \mathrm{m\,s^{-2}}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="T_1 \approx 37.7\ \mathrm{N}"></span><span lang="cs" data-tex="T_1 \approx 37{,}7\ \mathrm{N}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="T_2 \approx 32.9\ \mathrm{N}"></span><span lang="cs" data-tex="T_2 \approx 32{,}9\ \mathrm{N}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/rotation.html"><span lang="en">← Topic: Rotation</span><span lang="cs">← Téma: Rotace</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 10 · Ex. 69</span><span lang="cs">Kap. 10 · Úl. 69</span></span>
+        <span><span lang="en">Vol. I · Rotation</span><span lang="cs">Díl I · Rotace</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#8a2840',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    /* M kg, R cm, I ×1e-4 kg·m², th rad, t ms */
+    const DEFAULTS = { m: 6.2, r: 2.4, i: 7.4, th: 0.70, t: 95 };
+    let state = { ...DEFAULTS };
+    const show = { tension: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtM  = v => v.toFixed(2) + ' kg';
+    const fmtR  = v => v.toFixed(2) + ' cm';
+    const fmtI  = v => v.toFixed(2);
+    const fmtTh = v => v.toFixed(3) + ' rad';
+    const fmtT  = v => v.toFixed(1) + ' ms';
+    const SLIDERS = [['p-m', 'm', fmtM], ['p-r', 'r', fmtR], ['p-i', 'i', fmtI],
+                     ['p-th', 'th', fmtTh], ['p-t', 't', fmtT]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('tgl-tension')?.addEventListener('click', function () {
+        show.tension = !show.tension;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function physics() {
+        const tS = state.t / 1000;
+        const alpha = 2 * state.th / (tS * tS);
+        const R = state.r / 100;
+        const a = alpha * R;
+        const T1 = state.m * (g - a);
+        const T2 = T1 - (state.i * 1e-4) * alpha / R;
+        const f  = T2 - state.m * a;
+        return { alpha, a, T1, T2, f };
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const ph = physics();
+
+        /* looping virtual time (slow motion) */
+        const runT = 0.55, pause = 0.7;
+        const cyc = (ts / 1000 * 0.9) % (runT + pause);
+        const tv  = Math.min(cyc, runT);
+        const s   = 0.5 * Math.max(ph.a, 0) * tv * tv;     /* metres travelled */
+
+        /* geometry */
+        const cornerX = W * 0.66, tableY = H * 0.40;
+        const pr = 26;                                     /* pulley px radius */
+        const pcx = cornerX + pr * 0.4, pcy = tableY + pr * 0.55;
+
+        /* table */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(24, tableY); ctx.lineTo(cornerX, tableY);
+        ctx.lineTo(cornerX, H - 24);
+        ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = 30; x < cornerX - 4; x += 13) {
+            ctx.beginPath(); ctx.moveTo(x, tableY); ctx.lineTo(x - 8, tableY + 9); ctx.stroke();
+        }
+        for (let y = tableY + 12; y < H - 28; y += 13) {
+            ctx.beginPath(); ctx.moveTo(cornerX, y); ctx.lineTo(cornerX - 9, y + 8); ctx.stroke();
+        }
+
+        /* travel in px, capped so nothing leaves the scene */
+        const sEnd = 0.5 * Math.max(ph.a, 0) * runT * runT;
+        const maxPx = Math.min(W * 0.28, H * 0.30);
+        const pxPerM = sEnd > 1e-6 ? maxPx / sEnd : 0;
+        const dPx = s * pxPerM;
+
+        /* sliding block */
+        const bw = 66, bh = 44;
+        const bx = W * 0.16 + dPx, by = tableY - bh;
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(bx, by, bw, bh); ctx.strokeRect(bx, by, bw, bh);
+        ctx.fillStyle = col.ink;
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('M', bx + bw / 2, by + bh / 2);
+
+        /* hanging block */
+        const hw = 52, hh = 52;
+        const hx = pcx + pr, hy0 = tableY + 74;
+        const hy = hy0 + dPx;
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(hx - hw / 2, hy, hw, hh); ctx.strokeRect(hx - hw / 2, hy, hw, hh);
+        ctx.fillStyle = col.ink;
+        ctx.fillText('M', hx, hy + hh / 2);
+
+        /* cord: block → over pulley → hanging block */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(bx + bw, by + bh - 6);
+        ctx.lineTo(pcx, pcy - pr);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(pcx, pcy, pr, -Math.PI / 2, 0);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pcx + pr, pcy); ctx.lineTo(hx, hy);
+        ctx.stroke();
+
+        /* pulley disc with spokes showing the turn */
+        const ang = state.r > 0 ? dPx / pr : 0;   /* visual angle matches visual travel */
+        ctx.beginPath(); ctx.arc(pcx, pcy, pr - 3, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.stroke();
+        for (let k = 0; k < 4; k++) {
+            const a = ang + k * Math.PI / 2;
+            ctx.strokeStyle = k === 0 ? col.acc : col.faint;
+            ctx.lineWidth = k === 0 ? 2 : 1.2;
+            ctx.beginPath();
+            ctx.moveTo(pcx, pcy);
+            ctx.lineTo(pcx + Math.cos(a) * (pr - 5), pcy + Math.sin(a) * (pr - 5));
+            ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(pcx, pcy, 3, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+
+        /* measured-window caption */
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('after ' + state.t.toFixed(0) + ' ms → θ = ' +
+                     state.th.toFixed(3) + ' rad', 28, 26);
+
+        /* tension labels */
+        if (show.tension) {
+            ctx.fillStyle = col.acc;
+            ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('T₂', (bx + bw + pcx) / 2, tableY - 26);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('T₁', hx + 12, (pcy + hy) / 2);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-alpha')) $('r-alpha').textContent = ph.alpha.toFixed(0) + ' rad/s²';
+        if ($('r-a'))     $('r-a').textContent     = ph.a.toFixed(2) + ' m/s²';
+        if ($('r-t1'))    $('r-t1').textContent    = ph.T1.toFixed(1) + ' N';
+        if ($('r-t2'))    $('r-t2').textContent    = ph.T2.toFixed(1) + ' N';
+        if ($('r-f'))     $('r-f').textContent     = ph.f.toFixed(1) + ' N';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

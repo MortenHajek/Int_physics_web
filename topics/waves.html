@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Waves · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ─────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                        
+            
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                .topic-nav { grid-template-columns: 1fr; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="waves" data-screen-label="I.09 Waves">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">λ</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ── Hero ── -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.09 · waves</div>
+            <h1>Waves</h1>
+            <p class="lede">
+                A plucked string sings at precise frequencies — harmonics that are integers
+                times the fundamental. Explore standing waves, nodes, and the relationship
+                between tension, density, and wave speed.
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="v = \lambda f"></div>
+            <div class="eq-caption">Wave speed equals wavelength times frequency</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">An oscillation that spreads is a wave. Nothing material travels with it — each piece of the medium simply
+ repeats the motion of its neighbour a moment later — but energy does, and the shape does. Two numbers describe
+ the repetition, one in space and one in time, and the speed is nothing but their ratio; on a string that speed
+ is fixed by the tension and the mass per length, not by how you shake it. The interesting behaviour comes
+ from putting two waves in the same place: they simply add, and depending on how far each has travelled they
+ reinforce or cancel — standing waves on a clamped string, loud and quiet spots between two speakers, the same
+ idea twice.</span><span lang="cs">Kmitání, které se šíří, je vlna. Nic hmotného s ní neputuje — každý kousek prostředí jen o okamžik později
+ opakuje pohyb svého souseda — ale energie ano a tvar také. Opakování popisují dvě čísla, jedno v prostoru
+ a jedno v čase, a rychlost není nic jiného než jejich podíl; na struně ji určuje napětí a hmotnost na
+ jednotku délky, ne to, jak strunou třesete. Zajímavé chování přijde, když dáte dvě vlny na totéž místo:
+ prostě se sečtou, a podle toho, kolik která urazila, se zesílí, nebo vyruší — stojaté vlnění na upnuté
+ struně, hlasitá a tichá místa mezi dvěma reproduktory, dvakrát táž myšlenka.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The travelling wave</span><span lang="cs">Postupná vlna</span></span>
+                        <span class="cf-eq" data-tex="y(x,t) = A\sin(kx - \omega t)"></span>
+                        <span class="cf-eq" data-tex="k = \dfrac{2\pi}{\lambda}\,,\qquad \omega = \dfrac{2\pi}{T}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en"><span data-tex="k"></span> counts radians per metre and <span data-tex="\omega"></span> radians per
+      second. A minus sign between the two terms sends the wave in the
+      <span data-tex="+x"></span> direction, a plus sign the other way.</span><span lang="cs"><span data-tex="k"></span> počítá radiány na metr a <span data-tex="\omega"></span> radiány za
+      sekundu. Znaménko minus mezi oběma členy posílá vlnu ve směru
+      <span data-tex="+x"></span>, plus opačně.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Wave speed</span><span lang="cs">Rychlost vlny</span></span>
+                        <span class="cf-eq" data-tex="v = \dfrac{\omega}{k} = \lambda f"></span>
+                        <span class="cf-eq" data-tex="v = \sqrt{\dfrac{F}{\mu}}\ \text{(struna)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The first is a definition; the second says what actually sets the speed on a string — the tension and
+      the mass per unit length, both properties of the medium. Shake it faster and the wavelength shortens to
+      keep the product fixed.</span><span lang="cs">První je definice; druhá říká, co rychlost na struně skutečně určuje — napětí a hmotnost na jednotku
+      délky, obojí vlastnost prostředí. Zatřeste rychleji a vlnová délka se zkrátí, aby součin
+      zůstal.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Transverse speed of the medium</span><span lang="cs">Rychlost bodů prostředí</span></span>
+                        <span class="cf-eq" data-tex="u_{max} = \omega A"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Not the wave speed. The wave may race along at metres per second while each particle merely wobbles at
+      centimetres per second — confusing the two is the classic error here.</span><span lang="cs">Není to rychlost vlny. Vlna se může řítit metry za sekundu, zatímco každá částice jen kmitá centimetry
+      za sekundu — záměna obojího je tu klasická chyba.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Standing waves</span><span lang="cs">Stojaté vlnění</span></span>
+                        <span class="cf-eq" data-tex="L = n\dfrac{\lambda}{2}\,,\qquad n = 1, 2, 3,\ldots"></span>
+                        <span class="cf-eq" data-tex="f_n = n\dfrac{v}{2L}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A string clamped at both ends can only hold whole numbers of half-wavelengths, so only certain
+      frequencies survive. Reading <span data-tex="n"></span> off a picture of the mode gives the length
+      immediately from the wavelength.</span><span lang="cs">Struna upnutá na obou koncích udrží jen celé počty půlvln, takže přežijí jen určité frekvence.
+      Odečtení <span data-tex="n"></span> z obrázku kmitu dá délku okamžitě z vlnové délky.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Pipes</span><span lang="cs">Píšťaly</span></span>
+                        <span class="cf-eq" data-tex="\text{oboustranně otevřená: } f_n = n\dfrac{v}{2L}"></span>
+                        <span class="cf-eq" data-tex="\text{jednostranně uzavřená: } f_n = n\dfrac{v}{4L}\,,\ n\ \text{liché}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">An open end must be an antinode and a closed end a node, and that alone fixes which harmonics a pipe
+      can sound. A pipe closed at one end has only the odd ones, and its fundamental is an octave below an open
+      pipe of the same length.</span><span lang="cs">Otevřený konec musí být kmitna a uzavřený uzel, a to samo určí, které harmonické píšťala umí. Píšťala
+      uzavřená na jednom konci má jen liché a její základní tón je o oktávu níž než u otevřené píšťaly téže
+      délky.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Interference of two sources</span><span lang="cs">Interference dvou zdrojů</span></span>
+                        <span class="cf-eq" data-tex="\Delta L = m\lambda\ \text{(zesílení)}"></span>
+                        <span class="cf-eq" data-tex="\Delta L = \left(m+\dfrac{1}{2}\right)\lambda\ \text{(zeslabení)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two speakers in step produce loud and quiet places set purely by the difference in the distances
+      travelled. Since <span data-tex="\lambda = v/f"></span>, turning that into a condition on the
+      <em>frequency</em> is one substitution away.</span><span lang="cs">Dva reproduktory ve fázi vytvoří hlasitá a tichá místa daná výhradně rozdílem uražených drah. Protože
+      <span data-tex="\lambda = v/f"></span>, je převod téhle podmínky na podmínku pro <em>frekvenci</em>
+      vzdálen jedno dosazení.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Doppler shift</span><span lang="cs">Dopplerův jev</span></span>
+                        <span class="cf-eq" data-tex="f' = f\,\dfrac{v \pm u_{det}}{v \mp u_{zdroj}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Motion towards raises the pitch and away lowers it. Rather than memorising the signs, decide the
+      direction of the shift physically first and then choose whichever combination produces it — the
+      arithmetic can be checked against common sense every time.</span><span lang="cs">Pohyb k sobě tón zvýší, od sebe sníží. Místo memorování znamének nejdřív fyzikálně rozhodněte, kterým
+      směrem se tón posune, a pak zvolte tu kombinaci, která to dá — výsledek si tak pokaždé ověříte selským
+      rozumem.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Read <span data-tex="k"></span> and <span data-tex="\omega"></span> straight off the
+       equation.</strong> They are the coefficients of <span data-tex="x"></span> and
+       <span data-tex="t"></span>. Everything else — wavelength, period, speed — follows from
+       <span data-tex="2\pi/k"></span>, <span data-tex="2\pi/\omega"></span> and their ratio.</span><span lang="cs"><strong>Odečtěte <span data-tex="k"></span> a <span data-tex="\omega"></span> přímo
+       z rovnice.</strong> Jsou to koeficienty u <span data-tex="x"></span> a
+       <span data-tex="t"></span>. Všechno ostatní — vlnová délka, perioda, rychlost — plyne z
+       <span data-tex="2\pi/k"></span>, <span data-tex="2\pi/\omega"></span> a jejich podílu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Which harmonic? Count the half-wavelengths.</strong> "Second harmonic" means
+       <span data-tex="n = 2"></span>, so <span data-tex="L = \lambda"></span>. The length of the string follows
+       from the wavelength without any further physics.</span><span lang="cs"><strong>Která harmonická? Spočítejte půlvlny.</strong> „Druhá harmonická" znamená
+       <span data-tex="n = 2"></span>, tedy <span data-tex="L = \lambda"></span>. Délka struny plyne z vlnové
+       délky bez jakékoli další fyziky.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Then the medium: <span data-tex="v = \sqrt{F/\mu}"></span>.</strong> Rearranged, this is how a
+       string's mass is extracted from a wave measurement —
+       <span data-tex="\mu = F/v^2"></span> and then <span data-tex="m = \mu L"></span>.</span><span lang="cs"><strong>Pak prostředí: <span data-tex="v = \sqrt{F/\mu}"></span>.</strong> Přeuspořádáno je to způsob,
+       jak se z měření vlny vytáhne hmotnost struny —
+       <span data-tex="\mu = F/v^2"></span> a pak <span data-tex="m = \mu L"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Writing a wave to order.</strong> Convert each given quantity into
+       <span data-tex="k"></span>, <span data-tex="\omega"></span> and
+       <span data-tex="A"></span>, then choose sine or cosine and the sign so the stated condition at
+       <span data-tex="t = 0"></span> holds. Watch the units — a wavenumber in
+       <span data-tex="\mathrm{cm^{-1}}"></span> is not one in <span data-tex="\mathrm{m^{-1}}"></span>.</span><span lang="cs"><strong>Napsat vlnu na zakázku.</strong> Převeďte každou zadanou veličinu na
+       <span data-tex="k"></span>, <span data-tex="\omega"></span> a
+       <span data-tex="A"></span>, pak zvolte sinus či kosinus a znaménko tak, aby platila zadaná podmínka
+       v <span data-tex="t = 0"></span>. Pozor na jednotky — vlnové číslo v
+       <span data-tex="\mathrm{cm^{-1}}"></span> není totéž co v
+       <span data-tex="\mathrm{m^{-1}}"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Two sources: get the path difference, then convert to frequency.</strong> Work out
+       <span data-tex="\Delta L"></span> from the geometry, set it equal to
+       <span data-tex="m\lambda"></span> or
+       <span data-tex="(m+\dfrac{1}{2})\lambda"></span>, and substitute
+       <span data-tex="\lambda = v/f"></span>. Then keep only the values that land inside the audible
+       range.</span><span lang="cs"><strong>Dva zdroje: nejdřív dráhový rozdíl, pak převod na frekvenci.</strong> Z geometrie určete
+       <span data-tex="\Delta L"></span>, položte ho rovno
+       <span data-tex="m\lambda"></span> nebo
+       <span data-tex="(m+\dfrac{1}{2})\lambda"></span> a dosaďte
+       <span data-tex="\lambda = v/f"></span>. Pak si nechte jen hodnoty padnoucí do slyšitelného
+       pásma.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Doppler: sanity-check the direction before trusting the signs.</strong> A detector moving away
+       must register a lower frequency. If your arithmetic says otherwise, you have picked the wrong
+       combination.</span><span lang="cs"><strong>Doppler: než uvěříte znaménkům, ověřte směr posuvu.</strong> Detektor vzdalující se od zdroje
+       musí naměřit nižší frekvenci. Říká-li váš výpočet něco jiného, zvolili jste špatnou
+       kombinaci.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Simulation Lab ── -->
+    <section id="lab" class="lab" style="margin-top:72px;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Standing wave sandbox</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="v = \lambda f"></div>
+                <div class="sim-hint">change harmonic n to see modes</div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+            <!-- Parameters -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
+                        title="Reset to defaults">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Harmonic <em>n</em></span>
+                            <span class="sim-control-val" id="p-n-val">1</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-n" min="1" max="5" step="1" value="1">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Tension <em>T</em> (N)</span>
+                            <span class="sim-control-val" id="p-tension-val">100 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-tension" min="10" max="200" step="1" value="100">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Linear density <em>μ</em> (g/m)</span>
+                            <span class="sim-control-val" id="p-mu-val">2.0 g/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-mu" min="1" max="10" step="0.5" value="2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Readout</span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label">f<sub>n</sub></span>
+                        <span class="readout-val" id="r-fn">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">λ<sub>n</sub></span>
+                        <span class="readout-val" id="r-lambda">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">v</span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">T<sub>period</sub></span>
+                        <span class="readout-val" id="r-period">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Display</span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-envelope">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">envelope curves</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-nodes">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">node markers</span>
+                    </div>
+                    <div class="toggle-row" id="tgl-antinodes">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name">antinode markers</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch16-ex50.html"><span lang="en">Ch. 16 · <span class="ex-no">Ex. 50</span></span><span lang="cs">Kap. 16 · <span class="ex-no">Úl. 50</span></span></a>
+            <a class="ex-tab" href="../exercises/ch16-ex84.html"><span lang="en">Ch. 16 · <span class="ex-no">Ex. 84</span></span><span lang="cs">Kap. 16 · <span class="ex-no">Úl. 84</span></span></a>
+            <a class="ex-tab" href="../exercises/ch17-ex19.html"><span lang="en">Ch. 17 · <span class="ex-no">Ex. 19</span></span><span lang="cs">Kap. 17 · <span class="ex-no">Úl. 19</span></span></a>
+            <a class="ex-tab" href="../exercises/ch17-ex64.html"><span lang="en">Ch. 17 · <span class="ex-no">Ex. 64</span></span><span lang="cs">Kap. 17 · <span class="ex-no">Úl. 64</span></span></a>
+        </div>
+    </section>
+
+    <!-- ── Prev / Next ── -->
+    <nav class="topic-nav">
+        <a href="oscillation.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Oscillation</span><span lang="cs">Kmity</span></div>
+        </a>
+        <a href="thermodynamics.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Thermodynamics</span><span lang="cs">Termodynamika</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.09 Waves</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX render ── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── SIMULATION — Standing Wave on String ── -->
+<script>
+(function () {
+    'use strict';
+
+    /* ── Canvas + context ── */
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── CSS colour tokens ── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--accent').trim()    || '#1a6678',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFFEC',
+        };
+    }
+    let col = readCol();
+
+    /* ── Simulation state ── */
+    const DEFAULTS = { n: 1, T: 100, mu: 0.002 };
+    let state = { ...DEFAULTS };
+
+    /* ── Display toggles ── */
+    const show = { envelope: true, nodes: true, antinodes: true };
+
+    /* ── Slider wiring ── */
+    function bindSlider(inputId, valId, transform, fmt, key) {
+        const inp = document.getElementById(inputId);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = transform(+inp.value);
+            if (lbl) lbl.textContent = fmt(+inp.value);
+        });
+        // init display
+        if (lbl) lbl.textContent = fmt(+inp.value);
+    }
+
+    bindSlider('p-n',       'p-n-val',       v => v,        v => String(v),               'n');
+    bindSlider('p-tension', 'p-tension-val', v => v,        v => v + ' N',                'T');
+    bindSlider('p-mu',      'p-mu-val',      v => v / 1000, v => v.toFixed(1) + ' g/m',  'mu');
+    // init mu
+    state.mu = 0.002;
+
+    /* ── Reset ── */
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        const sets = [
+            ['p-n',       1,    v => String(v),             'n'],
+            ['p-tension', 100,  v => v + ' N',              'T'],
+            ['p-mu',      2,    v => v.toFixed(1) + ' g/m', 'mu_display'],
+        ];
+        sets.forEach(([id, val, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = val;
+            if (lbl) lbl.textContent = fmt(val);
+        });
+        state.mu = 0.002;
+    });
+
+    /* ── Toggle wiring ── */
+    function wireToggle(id, key) {
+        const row = document.getElementById(id);
+        if (!row) return;
+        row.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-envelope',   'envelope');
+    wireToggle('tgl-nodes',      'nodes');
+    wireToggle('tgl-antinodes',  'antinodes');
+
+    /* ── Wall hatching helper ── */
+    function drawWall(x, side) {
+        // side: +1 = right face hatching, -1 = left face hatching
+        const wallW = 10, wallH = H * 0.72;
+        const wy = (H - wallH) / 2;
+        ctx.fillStyle = col.soft + '30';
+        ctx.fillRect(x - (side > 0 ? wallW : 0), wy, wallW, wallH);
+        ctx.strokeStyle = col.soft + '80';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x, wy); ctx.lineTo(x, wy + wallH);
+        ctx.stroke();
+        // diagonal hatching
+        ctx.strokeStyle = col.soft + '50';
+        ctx.lineWidth = 0.8;
+        const hatch = 10;
+        for (let i = -wallH; i < wallH * 2; i += hatch) {
+            const x1 = x + (side > 0 ? 0 : -wallW);
+            const x2 = x1 + wallW * side;
+            ctx.beginPath();
+            ctx.moveTo(x1, wy + i);
+            ctx.lineTo(x2, wy + i + wallW);
+            ctx.stroke();
+        }
+    }
+
+    /* ── Main draw ── */
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+
+        const WALL_PAD = 36;
+        const x0 = WALL_PAD;
+        const x1 = W - WALL_PAD;
+        const ropeLen = x1 - x0;        // canvas pixels = "1 m" scale reference
+        const midY    = H * 0.5;
+        const A       = Math.min(H * 0.28, 35); // amplitude in px, fixed visual
+
+        const n   = state.n;
+        const T   = state.T;
+        const mu  = state.mu;           // kg/m
+        const v   = Math.sqrt(T / mu);  // m/s (physics)
+        // L = 1 m conceptual scale for readout; ropeLen px = 1 m
+        const L_m = 1.0;               // meters (physical string length for display)
+        const fn  = n * v / (2 * L_m); // Hz
+        const omn = 2 * Math.PI * fn;  // rad/s
+        const lam = 2 * L_m / n;       // m
+
+        // time in seconds (physical), capped speed for visual appeal
+        const t_sec = (ts / 1000) * Math.min(fn / 5, 6);
+
+        // Dashed envelope ±A
+        if (show.envelope) {
+            ctx.strokeStyle = col.acc + '40';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([6, 5]);
+            for (const sign of [1, -1]) {
+                ctx.beginPath();
+                const SAMPLES = 120;
+                for (let i = 0; i <= SAMPLES; i++) {
+                    const xFrac = i / SAMPLES;
+                    const xPx   = x0 + xFrac * ropeLen;
+                    const env   = A * Math.sin(n * Math.PI * xFrac);
+                    const yPx   = midY - sign * env;
+                    if (i === 0) ctx.moveTo(xPx, yPx);
+                    else ctx.lineTo(xPx, yPx);
+                }
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+        }
+
+        // Standing wave rope
+        const SAMPLES = 200;
+        ctx.beginPath();
+        for (let i = 0; i <= SAMPLES; i++) {
+            const xFrac  = i / SAMPLES;
+            const xPx    = x0 + xFrac * ropeLen;
+            const kx     = n * Math.PI * xFrac;   // = (nπ/L)·x = k·x
+            const coswt  = Math.cos(omn * t_sec); // temporal factor
+            const yDisp  = A * Math.sin(kx) * coswt;
+            const yPx    = midY - yDisp;
+            if (i === 0) ctx.moveTo(xPx, yPx);
+            else ctx.lineTo(xPx, yPx);
+        }
+        ctx.strokeStyle = col.acc;
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([]);
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Node markers (including fixed endpoints)
+        if (show.nodes) {
+            // Nodes at x = k * L / n  for k = 0..n
+            for (let k = 0; k <= n; k++) {
+                const xFrac = k / n;
+                const xPx   = x0 + xFrac * ropeLen;
+                ctx.beginPath();
+                ctx.arc(xPx, midY, 5, 0, Math.PI * 2);
+                ctx.fillStyle = col.ink;
+                ctx.fill();
+                ctx.strokeStyle = col.paper;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        // Antinode markers — subtle arcs at peak positions
+        if (show.antinodes) {
+            // Antinodes at x = (2k+1) * L / (2n) for k=0..n-1
+            for (let k = 0; k < n; k++) {
+                const xFrac = (2 * k + 1) / (2 * n);
+                const xPx   = x0 + xFrac * ropeLen;
+                // Current displacement at this antinode
+                const coswt = Math.cos(omn * t_sec);
+                ctx.beginPath();
+                ctx.arc(xPx, midY - A * coswt, 4, 0, Math.PI * 2);
+                ctx.fillStyle = col.acc + 'CC';
+                ctx.fill();
+            }
+        }
+
+        // Walls
+        drawWall(x0, -1);   // left wall: hatching to the left
+        drawWall(x1,  1);   // right wall: hatching to the right
+
+        // Readout
+        const $ = id => document.getElementById(id);
+        if ($('r-fn'))     $('r-fn').textContent     = fn.toFixed(1) + ' Hz';
+        if ($('r-lambda')) $('r-lambda').textContent = lam.toFixed(3) + ' m';
+        if ($('r-v'))      $('r-v').textContent      = v.toFixed(1) + ' m/s';
+        if ($('r-period')) $('r-period').textContent = (1000 / fn).toFixed(2) + ' ms';
+    }
+
+    /* ── RAF loop ── */
+    let lastT = 0, frames = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        draw(ts);
+        frames++;
+        if (ts - lastT >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
+            frames = 0; lastT = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

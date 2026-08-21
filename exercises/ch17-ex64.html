@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 17.64 · Four Pipes and a Runner — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="waves" data-screen-label="Ex 17.64 Four Pipes and a Runner">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Waves</span><span lang="cs">Díl I · Vlny</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 17 · Ex. 64</span><span lang="cs">Kap. 17 · Úl. 64</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 9 · Waves — Chapter 17 · Exercise 64</span><span lang="cs">9. téma · Vlny — Kapitola 17 · Úloha 64</span></div>
+        <h1><span lang="en">Four Pipes and a Runner</span><span lang="cs">Čtyři trubice a běžec</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>64</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Fig. 17-43 shows four pipes of lengths
+                    <span class="given" data-tex="1{,}0\ \mathrm{m}"></span> or
+                    <span class="given" data-tex="2{,}0\ \mathrm{m}"></span>, each with one or both ends
+                    open, as marked. Each pipe sounds its <em>third harmonic</em> toward detector
+                    <em>D</em>, which moves directly away from the pipes.
+                </p>
+                <p lang="cs">
+                    Obr. 17-43 ukazuje čtyři trubice délky
+                    <span class="given" data-tex="1{,}0\ \mathrm{m}"></span> nebo
+                    <span class="given" data-tex="2{,}0\ \mathrm{m}"></span>, každá s jedním nebo oběma
+                    otevřenými konci, jak je vyznačeno. Každá trubice vydává svou <em>třetí harmonickou</em>
+                    směrem k detektoru <em>D</em>, který se od trubic přímo vzdaluje.
+                </p>
+                <p lang="en">
+                    How fast must the detector move (in multiples of the speed of sound) so that the
+                    frequency it registers equals the <em>fundamental</em> frequency of
+                    (a) pipe 1, (b) pipe 2, (c) pipe 3 and (d) pipe 4?
+                </p>
+                <p lang="cs">
+                    Jak rychle se musí detektor pohybovat (v násobcích rychlosti zvuku), aby kmitočet,
+                    který zaznamená, byl roven <em>základnímu</em> kmitočtu
+                    (a) trubice 1, (b) trubice 2, (c) trubice 3 a (d) trubice 4?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Doppler sandbox</span><span lang="cs">Sandbox: Dopplerův jev</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="f' = f\,\dfrac{v - u}{v}"></div>
+                <div class="sim-hint"><span lang="en">try every pipe — the answer refuses to change</span><span lang="cs">vyzkoušejte každou trubici — odpověď se odmítá změnit</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset the search">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Detector speed u/v — find it!</span><span lang="cs">Rychlost detektoru u/v — najděte ji!</span></span>
+                            <span class="sim-control-val" id="p-u-val">0.30</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-u" min="0" max="0.95" step="0.005" value="0.30">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Pipe</span><span lang="cs">Trubice</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="mode-1">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">1 — 1.0 m, both open</span><span lang="cs">1 — 1,0 m, oba konce otevřené</span></span>
+                    </div>
+                    <div class="toggle-row" id="mode-2">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">2 — 1.0 m, one closed</span><span lang="cs">2 — 1,0 m, jeden konec uzavřený</span></span>
+                    </div>
+                    <div class="toggle-row" id="mode-3">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">3 — 2.0 m, both open</span><span lang="cs">3 — 2,0 m, oba konce otevřené</span></span>
+                    </div>
+                    <div class="toggle-row" id="mode-4">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">4 — 2.0 m, one closed</span><span lang="cs">4 — 2,0 m, jeden konec uzavřený</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Selected pipe</span><span lang="cs">Vybraná trubice</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="f_1"></span>
+                        <span class="readout-val" id="r-f1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="f_3 = 3f_1"></span>
+                        <span class="readout-val" id="r-f3">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Match the target</span><span lang="cs">Trefte cíl</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="f'/f_1 = 3(1-u/v)"></span>
+                        <span class="readout-val" id="r-ratio">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{status}"></span>
+                        <span class="readout-val" id="r-status">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">For a receding detector,
+                    <span data-tex="f' = f_3\,\dfrac{v-u}{v}"></span>. We require
+                    <span data-tex="f' = f_1"></span>, i.e.
+                    <span data-tex="\dfrac{v-u}{v} = \dfrac{f_1}{f_3}"></span>.</span>
+                    <span lang="cs">Pro vzdalující se detektor je
+                    <span data-tex="f' = f_3\,\dfrac{v-u}{v}"></span>. Požadujeme
+                    <span data-tex="f' = f_1"></span>, tedy
+                    <span data-tex="\dfrac{v-u}{v} = \dfrac{f_1}{f_3}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">In an open–open pipe the harmonics are
+                    <span data-tex="f_n = n\,v/2L"></span>; in a closed–open pipe
+                    <span data-tex="f_n = n\,v/4L"></span> with odd <span data-tex="n"></span> — and
+                    <span data-tex="n = 3"></span> is odd, so the third harmonic exists in both.
+                    In <em>every</em> case <span data-tex="f_3 = 3f_1"></span>: neither the length nor
+                    the end condition changes the <em>ratio</em>.</span>
+                    <span lang="cs">V trubici otevřené na obou koncích jsou harmonické
+                    <span data-tex="f_n = n\,v/2L"></span>; v trubici uzavřené na jednom konci
+                    <span data-tex="f_n = n\,v/4L"></span> s lichým <span data-tex="n"></span> — a
+                    <span data-tex="n = 3"></span> je liché, takže třetí harmonická existuje v obou
+                    případech. Ve <em>všech</em> případech je <span data-tex="f_3 = 3f_1"></span>: ani
+                    délka, ani koncová podmínka nemění <em>poměr</em>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Hence for all four pipes
+                    <span data-tex="\dfrac{v-u}{v} = \dfrac13"></span>, i.e.
+                    <span data-tex="u = \dfrac{2}{3}\,v \approx 0{,}67\,v"></span>.</span>
+                    <span lang="cs">Pro všechny čtyři trubice tedy platí
+                    <span data-tex="\dfrac{v-u}{v} = \dfrac13"></span>, tedy
+                    <span data-tex="u = \dfrac{2}{3}\,v \approx 0{,}67\,v"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a–d)</span><span lang="cs">Výsledek (a–d)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="u = \tfrac23\,v \approx 0{,}67\,v\ \text{— the same for all four pipes}"></span><span lang="cs" data-tex="u = \tfrac23\,v \approx 0{,}67\,v\ \text{— stejné pro všechny čtyři trubice}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/waves.html"><span lang="en">← Topic: Waves</span><span lang="cs">← Téma: Vlny</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 17 · Ex. 64</span><span lang="cs">Kap. 17 · Úl. 64</span></span>
+        <span><span lang="en">Vol. I · Waves</span><span lang="cs">Díl I · Vlny</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#1a6678',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const VS = 343;
+    const PIPES = [
+        { L: 1.0, closed: false },   /* 1 */
+        { L: 1.0, closed: true  },   /* 2 */
+        { L: 2.0, closed: false },   /* 3 */
+        { L: 2.0, closed: true  },   /* 4 */
+    ];
+    const DEFAULTS = { u: 0.30 };    /* wrong on purpose */
+    let state = { ...DEFAULTS };
+    let pipe = 0;
+
+    const fmtU = v => v.toFixed(3);
+    const inp = document.getElementById('p-u');
+    const lbl = document.getElementById('p-u-val');
+    inp?.addEventListener('input', () => {
+        state.u = +inp.value;
+        if (lbl) lbl.textContent = fmtU(state.u);
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        if (inp) inp.value = state.u;
+        if (lbl) lbl.textContent = fmtU(state.u);
+    });
+
+    /* radio-style pipe selector */
+    [0, 1, 2, 3].forEach(i => {
+        document.getElementById('mode-' + (i + 1))?.addEventListener('click', () => {
+            pipe = i;
+            [0, 1, 2, 3].forEach(j => {
+                document.querySelector('#mode-' + (j + 1) + ' .toggle-box')
+                    ?.classList.toggle('on', j === pipe);
+            });
+        });
+    });
+
+    function drawPipe(x, y, wPx, hPx, p, selected, idx, ts) {
+        /* body */
+        ctx.strokeStyle = selected ? col.acc : col.faint;
+        ctx.lineWidth = selected ? 2 : 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x, y); ctx.lineTo(x + wPx, y);
+        ctx.moveTo(x, y + hPx); ctx.lineTo(x + wPx, y + hPx);
+        ctx.stroke();
+        /* closed cap at the left end */
+        if (p.closed) {
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + hPx); ctx.stroke();
+        }
+        /* number */
+        ctx.fillStyle = selected ? col.acc : col.faint;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText((idx + 1) + '', x - 10, y + hPx / 2);
+
+        /* third-harmonic displacement mode inside the selected pipe */
+        if (selected) {
+            const phase = Math.sin(ts / 1000 * 5);
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.3;
+            [1, -1].forEach(sgn => {
+                ctx.beginPath();
+                for (let i = 0; i <= 70; i++) {
+                    const fr = i / 70;
+                    /* open-open: antinodes at both ends → cos(3πx/L)
+                       closed-open: node at closed end → sin(3π x / 2L) with x from closed end */
+                    const amp = p.closed
+                        ? Math.sin(3 * Math.PI * fr / 2)
+                        : Math.cos(3 * Math.PI * fr);
+                    const px = x + fr * wPx;
+                    const py = y + hPx / 2 - sgn * amp * phase * hPx * 0.34;
+                    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+                }
+                ctx.stroke();
+            });
+        }
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const p = PIPES[pipe];
+        const f1 = p.closed ? VS / (4 * p.L) : VS / (2 * p.L);
+        const f3 = 3 * f1;
+        const ratio = 3 * (1 - state.u);
+        const matched = Math.abs(ratio - 1) <= 0.03;
+
+        /* pipes at left */
+        const px0 = 54, pipeH = 22, gap = 20;
+        const maxW = W * 0.42;
+        PIPES.forEach((pp, i) => {
+            const wPx = maxW * (pp.L / 2.0);
+            const y = 44 + i * (pipeH + gap);
+            drawPipe(px0, y, wPx, pipeH, pp, i === pipe, i, ts);
+        });
+
+        /* detector D running right */
+        const dy = 44 + pipe * (pipeH + gap) + pipeH / 2;
+        const dx = W * 0.60 + ((ts / 1000 * (20 + state.u * 60)) % (W * 0.26));
+        /* sound rings coming from the selected pipe mouth */
+        const mouthX = px0 + maxW * (p.L / 2.0);
+        ctx.strokeStyle = col.faint; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
+        for (let k = 0; k < 4; k++) {
+            const r = ((ts / 1000 * 60) + k * 34) % 136;
+            ctx.beginPath(); ctx.arc(mouthX, dy, r, -0.7, 0.7); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.arc(dx, dy, 8, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.lineWidth = 1.6; ctx.strokeStyle = col.paper; ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('D →  u = ' + state.u.toFixed(2) + ' v', dx, dy + 14);
+
+        /* frequency-ratio gauge at the bottom */
+        const gx0 = 60, gx1 = W - 50, gy = H - 52;
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(gx0, gy); ctx.lineTo(gx1, gy); ctx.stroke();
+        [0, 1, 2, 3].forEach(r => {
+            const x = gx0 + r / 3 * (gx1 - gx0);
+            ctx.beginPath(); ctx.moveTo(x, gy - 5); ctx.lineTo(x, gy + 5); ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(r + '', x, gy + 8);
+        });
+        ctx.fillText("f ' / f₁", (gx0 + gx1) / 2, gy + 22);
+        /* dashed target at ratio 1 */
+        const tx = gx0 + 1 / 3 * (gx1 - gx0);
+        ctx.strokeStyle = matched ? col.acc : col.ink;
+        ctx.lineWidth = 1.6; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(tx, gy - 18); ctx.lineTo(tx, gy + 5); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = col.soft;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('target: fundamental', tx, gy - 22);
+        /* live needle */
+        const nx = gx0 + Math.max(0, Math.min(3, ratio)) / 3 * (gx1 - gx0);
+        ctx.beginPath(); ctx.arc(nx, gy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.lineWidth = 1.6; ctx.strokeStyle = col.paper; ctx.stroke();
+
+        if (matched) {
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('● MATCHED at u = 2v/3 — for every pipe', (gx0 + gx1) / 2, 16);
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-f1'))     $('r-f1').textContent     = f1.toFixed(1) + ' Hz';
+        if ($('r-f3'))     $('r-f3').textContent     = f3.toFixed(1) + ' Hz';
+        if ($('r-ratio'))  $('r-ratio').textContent  = ratio.toFixed(2);
+        if ($('r-status')) $('r-status').textContent = matched ? 'matched ✓' : 'keep running…';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

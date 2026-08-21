@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 5.69 · The Unknown Angle — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="dynamics" data-screen-label="Ex 5.69 The Unknown Angle">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 5 · Ex. 69</span><span lang="cs">Kap. 5 · Úl. 69</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 3 · Force &amp; Motion — Chapter 5 · Exercise 69</span><span lang="cs">3. téma · Síla a pohyb — Kapitola 5 · Úloha 69</span></div>
+        <h1><span lang="en">The Unknown Angle</span><span lang="cs">Neznámý úhel</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>69</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Two boxes of masses
+                    <span class="given" data-tex="m_1 = 1{,}0\ \mathrm{kg}"></span> and
+                    <span class="given" data-tex="m_2 = 2{,}0\ \mathrm{kg}"></span> are connected by a
+                    cord over a massless, frictionless pulley as in fig. 5-59;
+                    <span data-tex="m_1"></span> lies on a frictionless slope of angle
+                    <span data-tex="\beta"></span>. A force
+                    <span class="given" data-tex="F = 6{,}0\ \mathrm{N}"></span>, pointing straight up,
+                    acts on <span data-tex="m_2"></span> from below. The box
+                    <span data-tex="m_2"></span> descends with acceleration
+                    <span class="given" data-tex="a = 5{,}5\ \mathrm{m\,s^{-2}}"></span>.
+                </p>
+                <p lang="cs">
+                    Dvě bedny o hmotnostech
+                    <span class="given" data-tex="m_1 = 1{,}0\ \mathrm{kg}"></span> a
+                    <span class="given" data-tex="m_2 = 2{,}0\ \mathrm{kg}"></span> jsou spojeny
+                    provazem přes nehmotnou, dokonale hladkou kladku jako na obr. 5-59;
+                    <span data-tex="m_1"></span> leží na dokonale hladkém svahu se sklonem
+                    <span data-tex="\beta"></span>. Síla
+                    <span class="given" data-tex="F = 6{,}0\ \mathrm{N}"></span>, mířící svisle vzhůru,
+                    působí na <span data-tex="m_2"></span> zezdola. Bedna
+                    <span data-tex="m_2"></span> klesá se zrychlením
+                    <span class="given" data-tex="a = 5{,}5\ \mathrm{m\,s^{-2}}"></span>.
+                </p>
+                <p lang="en">
+                    Determine (a) the tension in the cord and (b) the angle <span data-tex="\beta"></span>.
+                </p>
+                <p lang="cs">
+                    Určete (a) napětí v provazu a (b) úhel <span data-tex="\beta"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Pulley sandbox</span><span lang="cs">Sandbox: kladka</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="m_2 g - T - F = m_2 a"></div>
+                <div class="sim-hint"><span lang="en">tilt β until a hits the measured 5.5 m/s²</span><span lang="cs">naklánějte β, dokud a nedosáhne naměřených 5,5 m/s²</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset the search">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Angle β — find it!</span><span lang="cs">Úhel β — najděte ho!</span></span>
+                            <span class="sim-control-val" id="p-b-val">30.0°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-b" min="5" max="45" step="0.2" value="30">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Upward force F</span><span lang="cs">Síla vzhůru F</span></span>
+                            <span class="sim-control-val" id="p-f-val">6.0 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-f" min="0" max="12" step="0.2" value="6.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m₁</span><span lang="cs">Hmotnost m₁</span></span>
+                            <span class="sim-control-val" id="p-m1-val">1.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m1" min="0.5" max="4" step="0.1" value="1.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m₂</span><span lang="cs">Hmotnost m₂</span></span>
+                            <span class="sim-control-val" id="p-m2-val">2.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m2" min="0.5" max="5" step="0.1" value="2.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Match the measurement</span><span lang="cs">Shodujte s naměřenou hodnotou</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="a(\beta)"></span>
+                        <span class="readout-val" id="r-a">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="a\ \text{target}"></span><span lang="cs" data-tex="a\ \text{cíl}"></span></span>
+                        <span class="readout-val">5.50 m/s²</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="\text{status}"></span><span lang="cs" data-tex="\text{stav}"></span></span>
+                        <span class="readout-val" id="r-status">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Then read off</span><span lang="cs">Poté odečtěte</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T = m_2(g-a) - F"></span>
+                        <span class="readout-val" id="r-t">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-forces">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">force arrows</span><span lang="cs">šipky sil</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> For the descending box (down positive):
+                    <span data-tex="m_2 g - T - F = m_2 a"></span>, so
+                    <span data-tex="T = m_2(g - a) - F = 2{,}0\,(9{,}8-5{,}5) - 6{,}0 = 2{,}6\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Pro klesající bednu (dolů kladné):
+                    <span data-tex="m_2 g - T - F = m_2 a"></span>, tedy
+                    <span data-tex="T = m_2(g - a) - F = 2{,}0\,(9{,}8-5{,}5) - 6{,}0 = 2{,}6\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> Box <span data-tex="m_1"></span> slides down the slope toward
+                    the pulley with the same acceleration; both the tension and the weight component
+                    pull it that way:
+                    <span data-tex="T + m_1 g\sin\beta = m_1 a"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Bedna <span data-tex="m_1"></span> klouže po svahu
+                    směrem ke kladce se stejným zrychlením; oběma směrem ji táhne napětí i tíhová složka:
+                    <span data-tex="T + m_1 g\sin\beta = m_1 a"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Solving,
+                    <span data-tex="\sin\beta = \dfrac{a - T/m_1}{g} = \dfrac{5{,}5 - 2{,}6}{9{,}8} = 0{,}296"></span>,
+                    hence <span data-tex="\beta = 17^\circ"></span>.</span>
+                    <span lang="cs">Odtud
+                    <span data-tex="\sin\beta = \dfrac{a - T/m_1}{g} = \dfrac{5{,}5 - 2{,}6}{9{,}8} = 0{,}296"></span>,
+                    tedy <span data-tex="\beta = 17^\circ"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="T \approx 2{,}6\ \mathrm{N}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="\beta \approx 17^\circ"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/force-and-motion.html"><span lang="en">← Topic: Force &amp; Motion</span><span lang="cs">← Téma: Síla a pohyb</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 5 · Ex. 69</span><span lang="cs">Kap. 5 · Úl. 69</span></span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b94d28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8, A_TARGET = 5.5;
+    const DEFAULTS = { b: 30, f: 6.0, m1: 1.0, m2: 2.0 };
+    let state = { ...DEFAULTS };
+    const show = { forces: true };
+
+    const fmtB = v => v.toFixed(1) + '°';
+    const fmtF = v => v.toFixed(1) + ' N';
+    const fmtM = v => v.toFixed(1) + ' kg';
+    const SLIDERS = [['p-b', 'b', fmtB], ['p-f', 'f', fmtF],
+                     ['p-m1', 'm1', fmtM], ['p-m2', 'm2', fmtM]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-forces')?.addEventListener('click', function () {
+        show.forces = !show.forces;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const b = state.b * Math.PI / 180;
+        /* m1 slides toward the pulley (down-slope); m2 descends */
+        const a = (state.m2 * g - state.f + state.m1 * g * Math.sin(b)) / (state.m1 + state.m2);
+        const T = state.m2 * (g - a) - state.f;
+        const matched = Math.abs(a - A_TARGET) <= 0.06;
+
+        /* corner geometry */
+        const cx = W * 0.62, cy = H * 0.36, pr = 13;
+        const slopeLen = Math.min(W * 0.52, (cx - 30) / Math.cos(b));
+
+        /* slope from corner rising to the left */
+        const sx = cx - slopeLen * Math.cos(b);
+        const syUp = cy - slopeLen * Math.sin(b);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(sx, syUp); ctx.stroke();
+        /* hatching under the slope */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let i = 1; i < Math.floor(slopeLen / 14); i++) {
+            const hx = cx - i * 14 * Math.cos(b);
+            const hy = cy - i * 14 * Math.sin(b);
+            ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx - 5, hy + 10); ctx.stroke();
+        }
+        /* vertical wall below the corner */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, H - 26); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let y = cy + 12; y < H - 30; y += 13) {
+            ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx - 9, y + 8); ctx.stroke();
+        }
+        /* β marker at the corner (angle between slope and horizontal) */
+        ctx.strokeStyle = col.faint; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - 90, cy); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(cx, cy, 44, Math.PI, Math.PI + b, false); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+        ctx.fillText('β', cx - 50, cy - 4);
+
+        /* animated drift */
+        const cyc = (ts / 1000) % 2.6;
+        const tv = Math.min(cyc, 2.0);
+        const drift = Math.min(0.5 * Math.max(a, 0) * tv * tv * 8, slopeLen * 0.25);
+
+        /* m1 on the slope (slides toward the pulley) */
+        const s1 = slopeLen * 0.58 - drift;
+        const bx = cx - s1 * Math.cos(b), by = cy - s1 * Math.sin(b);
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(-b);
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(-26, -36, 52, 36); ctx.strokeRect(-26, -36, 52, 36);
+        ctx.fillStyle = col.ink;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m₁', 0, -18);
+        ctx.restore();
+
+        /* pulley at corner */
+        ctx.beginPath(); ctx.arc(cx + 4, cy - 4, pr, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx + 4, cy - 4, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+
+        /* cord: m1 → pulley → m2 */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(bx + 18 * Math.sin(b), by - 18 * Math.cos(b));
+        ctx.lineTo(cx + 4 - pr * Math.sin(b) * 0.2, cy - 4 - pr);
+        ctx.stroke();
+        const hangX = cx + 4 + pr;
+        const hangY = cy + 70 + drift;
+        ctx.beginPath(); ctx.moveTo(hangX, cy - 4); ctx.lineTo(hangX, hangY); ctx.stroke();
+
+        /* m2 hanging with F from below */
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(hangX - 25, hangY, 50, 46);
+        ctx.strokeRect(hangX - 25, hangY, 50, 46);
+        ctx.fillStyle = col.ink;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m₂', hangX, hangY + 23);
+
+        if (show.forces) {
+            arrow(hangX, hangY + 46 + 8 + state.f * 4.5, hangX, hangY + 46 + 8, col.acc, 2.4);
+            ctx.fillStyle = col.acc;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('F', hangX + 10, hangY + 54 + state.f * 2.2);
+            arrow(hangX - 40, hangY + 10, hangX - 40, hangY + 10 + state.m2 * g * 1.6, col.soft, 1.6);
+            ctx.fillStyle = col.soft;
+            ctx.textAlign = 'right';
+            ctx.fillText('m₂g', hangX - 46, hangY + 14 + state.m2 * g * 0.9);
+        }
+
+        if (matched) {
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText('● MATCHED — β found', 26, 22);
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-a'))      $('r-a').textContent      = a.toFixed(2) + ' m/s²';
+        if ($('r-status')) $('r-status').textContent = matched ? 'matched ✓' : 'keep tuning…';
+        if ($('r-t'))      $('r-t').textContent      = T.toFixed(2) + ' N';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 28.70 · Hall Probe — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="magnetism" data-screen-label="Ex 28.70 Hall Probe">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 28 · Ex. 70</span><span lang="cs">Kap. 28 · Úl. 70</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Magnetic Field — Chapter 28 · Exercise 70</span><span lang="cs">4. téma · Magnetické pole — Kapitola 28 · Úloha 70</span></div>
+        <h1><span lang="en">Hall Probe</span><span lang="cs">Hallova sonda</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>70</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    In a Hall-effect experiment a current of
+                    <span class="given" data-tex="3.0\ \mathrm{A}"></span> flows lengthwise through
+                    a conducting strip
+                    <span class="given" data-tex="4.0\ \mathrm{cm}"></span> long,
+                    <span class="given" data-tex="1.0\ \mathrm{cm}"></span> wide and
+                    <span class="given" data-tex="10\ \mathrm{\mu m}"></span> thick. A magnetic field
+                    of <span class="given" data-tex="1.5\ \mathrm{T}"></span>, perpendicular to the
+                    strip's face, produces a transverse Hall voltage of
+                    <span class="given" data-tex="10\ \mathrm{\mu V}"></span> across its width.
+                </p>
+                <p lang="cs">
+                    V experimentu s Hallovým jevem prochází podélně vodivým pásem proud
+                    <span class="given" data-tex="3{,}0\ \mathrm{A}"></span>. Pás je
+                    <span class="given" data-tex="4{,}0\ \mathrm{cm}"></span> dlouhý,
+                    <span class="given" data-tex="1{,}0\ \mathrm{cm}"></span> široký a
+                    <span class="given" data-tex="10\ \mathrm{\mu m}"></span> tlustý. Magnetické pole
+                    o velikosti <span class="given" data-tex="1{,}5\ \mathrm{T}"></span>, kolmé na
+                    plochu pásu, vytváří příčné Hallovo napětí
+                    <span class="given" data-tex="10\ \mathrm{\mu V}"></span> napříč jeho šířkou.
+                </p>
+                <p lang="en">
+                    From these data find (a) the drift speed of the charge carriers and (b) their
+                    number density. (c) Choose directions for the current and field and mark the
+                    polarity of the Hall voltage, assuming the carriers are electrons.
+                </p>
+                <p lang="cs">
+                    Z těchto údajů určete (a) driftovou rychlost nosičů náboje a (b) jejich
+                    hustotu počtu. (c) Zvolte směry proudu a pole a vyznačte
+                    polaritu Hallova napětí za předpokladu, že nosiči jsou elektrony.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Strip in a field</span><span lang="cs">Pás v poli</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="U_H = v_d B\,w,\qquad n = \dfrac{IB}{e\,t\,U_H}"></div>
+                <div class="sim-hint"><span lang="en">electrons drift against I · the field piles them on one edge</span><span lang="cs">elektrony driftují proti I · pole je hromadí na jednom okraji</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Current I</span><span lang="cs">Proud I</span></span>
+                            <span class="sim-control-val" id="p-i-val">3.0 A</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-i" min="0.5" max="6" step="0.1" value="3">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Field B</span><span lang="cs">Pole B</span></span>
+                            <span class="sim-control-val" id="p-b-val">1.5 T</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-b" min="0.2" max="3" step="0.05" value="1.5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Material (fixed by the printed data)</span><span lang="cs">Materiál (dán tištěnými údaji)</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="n"></span>
+                        <span class="readout-val" id="r-n">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">At the dialled I and B</span><span lang="cs">Při nastaveném I a B</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_d"></span>
+                        <span class="readout-val" id="r-vd">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="U_H"></span>
+                        <span class="readout-val" id="r-uh">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> In equilibrium the magnetic and electric forces on a carrier
+                    balance: <span data-tex="e\,v_d B = e\,U_H/w"></span>, so
+                    <span data-tex="v_d = \dfrac{U_H}{B\,w} = \dfrac{10\cdot 10^{-6}}{1.5\cdot 0.010} = 6.7\cdot 10^{-4}\ \mathrm{m\,s^{-1}} \approx 0.67\ \mathrm{mm\,s^{-1}}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> V rovnováze se magnetická a elektrická síla na nosič
+                    vyrovnávají: <span data-tex="e\,v_d B = e\,U_H/w"></span>, tedy
+                    <span data-tex="v_d = \dfrac{U_H}{B\,w} = \dfrac{10\cdot 10^{-6}}{1{,}5\cdot 0{,}010} = 6{,}7\cdot 10^{-4}\ \mathrm{m\,s^{-1}} \approx 0{,}67\ \mathrm{mm\,s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> From <span data-tex="I = n\,e\,v_d\,(w\,t)"></span>:
+                    <span data-tex="n = \dfrac{I}{e\,v_d\,w\,t} = \dfrac{3.0}{1.602\cdot 10^{-19}\cdot 6.7\cdot 10^{-4}\cdot 0.010\cdot 10\cdot 10^{-6}} = 2.8\cdot 10^{29}\ \mathrm{m^{-3}}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Z <span data-tex="I = n\,e\,v_d\,(w\,t)"></span>:
+                    <span data-tex="n = \dfrac{I}{e\,v_d\,w\,t} = \dfrac{3{,}0}{1{,}602\cdot 10^{-19}\cdot 6{,}7\cdot 10^{-4}\cdot 0{,}010\cdot 10\cdot 10^{-6}} = 2{,}8\cdot 10^{29}\ \mathrm{m^{-3}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> With the current to the right and
+                    <span data-tex="\vec{B}"></span> out of the strip's face, electrons drift left;
+                    the force <span data-tex="-e\,\vec{v}\times\vec{B}"></span> pushes them to one
+                    edge, which turns <em>negative</em>, leaving the opposite edge positive — that
+                    polarity is what the sandbox marks. (Swap either the current or the field and the
+                    polarity flips.)</span>
+                    <span lang="cs"><strong>(c)</strong> Pro proud doprava a
+                    <span data-tex="\vec{B}"></span> ven z plochy pásu driftují elektrony doleva;
+                    síla <span data-tex="-e\,\vec{v}\times\vec{B}"></span> je tlačí k jednomu
+                    okraji, který se stane <em>záporným</em>, zatímco protější okraj zůstává
+                    kladný — tuto polaritu sandbox vyznačuje. (Prohozením směru proudu nebo
+                    pole se polarita obrátí.)</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="v_d \approx 0.67\ \mathrm{mm\,s^{-1}}"></span><span lang="cs" data-tex="v_d \approx 0{,}67\ \mathrm{mm\,s^{-1}}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="n \approx 2.8\cdot 10^{29}\ \mathrm{m^{-3}}"></span><span lang="cs" data-tex="n \approx 2{,}8\cdot 10^{29}\ \mathrm{m^{-3}}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/magnetism.html"><span lang="en">← Topic: Magnetic Field</span><span lang="cs">← Téma: Magnetické pole</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 28 · Ex. 70</span><span lang="cs">Kap. 28 · Úl. 70</span></span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a6878',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const E_CH = 1.602e-19;
+    const WID = 0.010, THK = 10e-6;
+    /* n fixed by the printed data: I=3, B=1.5, UH=10µV */
+    const N_FIX = 3.0 * 1.5 / (E_CH * THK * 10e-6);
+    const DEFAULTS = { i: 3.0, b: 1.5 };
+    let state = { ...DEFAULTS };
+
+    const SLIDERS = [
+        ['p-i', 'i', v => v.toFixed(1) + ' A'],
+        ['p-b', 'b', v => v.toFixed(2) + ' T'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+
+    function physics() {
+        const vd = state.i / (N_FIX * E_CH * WID * THK);
+        const uh = vd * state.b * WID;
+        return { vd, uh, n: N_FIX };
+    }
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(10, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    let eShift = 0;
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        /* strip seen face-on: length → x, width → y, B out of page */
+        const sx = W * 0.14, sw = W * 0.6;
+        const syT = H * 0.32, syB = H * 0.68;
+
+        /* B out-of-page dots around the strip */
+        ctx.strokeStyle = col.faint; ctx.fillStyle = col.faint;
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 3; j++) {
+                const x = sx + sw * (i + 0.5) / 6;
+                const y = H * 0.12 + j * (H * 0.76) / 2.15;
+                if (y > syT - 14 && y < syB + 14) continue;
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(x, y, 1.4, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('B out of page · ' + state.b.toFixed(2) + ' T', sx + sw + 16, H * 0.13);
+
+        /* strip body */
+        ctx.fillStyle = 'rgba(90,104,120,0.16)';
+        ctx.fillRect(sx, syT, sw, syB - syT);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.strokeRect(sx, syT, sw, syB - syT);
+
+        /* edge charge accumulation: electrons pushed to BOTTOM edge
+           (I → +x, B out of page, v(e) = -x, F = -e v×B = down)          */
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        for (let i = 0; i < 9; i++) {
+            const x = sx + sw * (i + 0.5) / 9;
+            ctx.fillStyle = col.acc;
+            ctx.fillText('−', x, syB - 9);
+            ctx.fillStyle = col.soft;
+            ctx.fillText('+', x, syT + 9);
+        }
+
+        /* drifting electrons */
+        eShift = (eShift + f.vd * 4e4) % 40;
+        ctx.fillStyle = col.ink;
+        for (let i = 0; i < 8; i++) {
+            const x = sx + ((i * 40 + (40 - eShift)) % (sw - 20)) + 10;
+            const y = (syT + syB) / 2 + ((i % 3) - 1) * 16;
+            ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('electrons drift ← (I points →)', sx + sw / 2, syT - 8);
+
+        /* current arrows */
+        arrow(sx - 46, (syT + syB) / 2, sx - 8, (syT + syB) / 2, col.acc, 2.2);
+        arrow(sx + sw + 8, (syT + syB) / 2, sx + sw + 46, (syT + syB) / 2, col.acc, 2.2);
+        ctx.fillStyle = col.acc;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('I = ' + state.i.toFixed(1) + ' A', sx + sw + 10, (syT + syB) / 2 - 8);
+
+        /* Hall voltmeter */
+        const vx = sx + sw * 0.82;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(vx, syT); ctx.lineTo(vx, syT - 26); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(vx, syB); ctx.lineTo(vx, syB + 26); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(vx, syT - 26); ctx.lineTo(vx + 62, syT - 26); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(vx, syB + 26); ctx.lineTo(vx + 62, syB + 26); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(vx + 62, syT - 26); ctx.lineTo(vx + 62, (syT + syB) / 2 - 13); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(vx + 62, syB + 26); ctx.lineTo(vx + 62, (syT + syB) / 2 + 13); ctx.stroke();
+        ctx.beginPath(); ctx.arc(vx + 62, (syT + syB) / 2, 13, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('V', vx + 62, (syT + syB) / 2);
+
+        /* UH readout on canvas */
+        ctx.fillStyle = col.acc;
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('U_H = ' + (f.uh * 1e6).toFixed(1) + ' µV', vx + 62, (syT + syB) / 2 + 20);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-n').textContent  = (f.n / 1e29).toFixed(2) + ' ×10²⁹ m⁻³';
+        $('r-vd').textContent = (f.vd * 1e3).toFixed(3) + ' mm/s';
+        $('r-uh').textContent = (f.uh * 1e6).toFixed(2) + ' µV';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

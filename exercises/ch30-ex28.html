@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 30.28 · A Loop Around a Solenoid — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="induction" data-screen-label="Ex 30.28 Loop Around Solenoid">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electromagnetic Induction</span><span lang="cs">Díl II · Elektromagnetická indukce</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 30 · Ex. 28</span><span lang="cs">Kap. 30 · Úl. 28</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 5 · Electromagnetic Induction — Chapter 30 · Exercise 28</span><span lang="cs">5. téma · Elektromagnetická indukce — Kapitola 30 · Úloha 28</span></div>
+        <h1><span lang="en">A Loop Around a Solenoid</span><span lang="cs">Smyčka kolem solenoidu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>28</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A circular loop of radius
+                    <span class="given" data-tex="6.00\ \mathrm{cm}"></span> is coaxial with a
+                    solenoid of radius <span class="given" data-tex="2.00\ \mathrm{cm}"></span> and
+                    winding density
+                    <span class="given" data-tex="8\,000\ \mathrm{turns\,m^{-1}}"></span>. The
+                    solenoid current ramps linearly from zero to
+                    <span class="given" data-tex="I_{\mathrm{s}} = 1.00\ \mathrm{A}"></span> over
+                    <span class="given" data-tex="t_{\mathrm{s}} = 2.0\ \mathrm{s}"></span>. The
+                    Joule heat developed in the loop also grows linearly, reaching
+                    <span class="given" data-tex="Q_{\mathrm{s}} = 100.0\ \mathrm{nJ}"></span> at
+                    <span data-tex="t_{\mathrm{s}}"></span>.
+                </p>
+                <p lang="cs">
+                    Kruhová smyčka o poloměru
+                    <span class="given" data-tex="6{,}00\ \mathrm{cm}"></span> je souosá se
+                    solenoidem o poloměru <span class="given" data-tex="2{,}00\ \mathrm{cm}"></span> a
+                    hustotě vinutí
+                    <span class="given" data-tex="8\,000\ \mathrm{závitů\,m^{-1}}"></span>. Proud
+                    solenoidu lineárně narůstá z nuly na
+                    <span class="given" data-tex="I_{\mathrm{s}} = 1{,}00\ \mathrm{A}"></span> během
+                    <span class="given" data-tex="t_{\mathrm{s}} = 2{,}0\ \mathrm{s}"></span>. Jouleovo
+                    teplo vzniklé ve smyčce také lineárně roste a dosáhne
+                    <span class="given" data-tex="Q_{\mathrm{s}} = 100{,}0\ \mathrm{nJ}"></span> v čase
+                    <span data-tex="t_{\mathrm{s}}"></span>.
+                </p>
+                <p lang="en">
+                    What is the resistance of the loop?
+                </p>
+                <p lang="cs">
+                    Jaký je odpor smyčky?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Match the heat ramp</span><span lang="cs">Trefte se do nárůstu tepla</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\varepsilon = \mu_0 n \dot{I}\,\pi r_{\mathrm{s}}^2,\qquad Q(t) = \dfrac{\varepsilon^2}{R}\,t"></div>
+                <div class="sim-hint"><span lang="en">tune R until the heat line hits Q&#8347; at t&#8347;</span><span lang="cs">nastavte R, dokud přímka tepla nezasáhne Q&#8347; v čase t&#8347;</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Loop resistance R</span><span lang="cs">Odpor smyčky R</span></span>
+                            <span class="sim-control-val" id="p-r-val">2.00 mΩ</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="0.2" max="3" step="0.01" value="2">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varepsilon"></span>
+                        <span class="readout-val"><span lang="en">6.32 µV (constant)</span><span lang="cs">6,32 µV (konstantní)</span></span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="P = \varepsilon^2/R"></span>
+                        <span class="readout-val" id="r-p">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q(t_{\mathrm{s}})"></span>
+                        <span class="readout-val" id="r-q">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · 100.0 nJ at 2.0 s</span><span lang="cs">Cíl · 100,0 nJ při 2,0 s</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">match</span><span lang="cs">shoda</span></span>
+                        <span class="readout-val" id="r-match">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-target">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">printed Q(t) target</span><span lang="cs">zadaný cíl Q(t)</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The solenoid confines its field, so the loop's flux is
+                    <span data-tex="\Phi = \mu_0 n I\,\pi r_{\mathrm{s}}^2"></span> regardless of the
+                    loop's own radius. With the linear ramp
+                    <span data-tex="\dot{I} = 0.50\ \mathrm{A\,s^{-1}}"></span>:
+                    <span data-tex="\varepsilon = \mu_0\cdot 8000\cdot 0.50\cdot\pi\,(0.020)^2 = 6.32\ \mathrm{\mu V}"></span> —
+                    constant during the ramp.</span>
+                    <span lang="cs">Solenoid drží své pole uvnitř, takže tok smyčkou je
+                    <span data-tex="\Phi = \mu_0 n I\,\pi r_{\mathrm{s}}^2"></span> bez ohledu na
+                    poloměr samotné smyčky. S lineárním nárůstem
+                    <span data-tex="\dot{I} = 0{,}50\ \mathrm{A\,s^{-1}}"></span>:
+                    <span data-tex="\varepsilon = \mu_0\cdot 8000\cdot 0{,}50\cdot\pi\,(0{,}020)^2 = 6{,}32\ \mathrm{\mu V}"></span> —
+                    po celou dobu nárůstu konstantní.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">A constant EMF dissipates at a constant rate, which is exactly why the printed
+                    <span data-tex="Q(t)"></span> is a straight line. Its slope is
+                    <span data-tex="P = \dfrac{Q_{\mathrm{s}}}{t_{\mathrm{s}}} = \dfrac{100\ \mathrm{nJ}}{2.0\ \mathrm{s}} = 5.0\cdot 10^{-8}\ \mathrm{W}"></span>.</span>
+                    <span lang="cs">Konstantní EMN se rozptyluje konstantní rychlostí, což je přesně důvod,
+                    proč zadané <span data-tex="Q(t)"></span> je přímka. Její sklon je
+                    <span data-tex="P = \dfrac{Q_{\mathrm{s}}}{t_{\mathrm{s}}} = \dfrac{100\ \mathrm{nJ}}{2{,}0\ \mathrm{s}} = 5{,}0\cdot 10^{-8}\ \mathrm{W}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">From <span data-tex="P = \varepsilon^2/R"></span>:
+                    <span data-tex="R = \dfrac{\varepsilon^2}{P} = \dfrac{(6.32\cdot 10^{-6})^2}{5.0\cdot 10^{-8}} = 8.0\cdot 10^{-4}\ \Omega"></span>.</span>
+                    <span lang="cs">Z <span data-tex="P = \varepsilon^2/R"></span>:
+                    <span data-tex="R = \dfrac{\varepsilon^2}{P} = \dfrac{(6{,}32\cdot 10^{-6})^2}{5{,}0\cdot 10^{-8}} = 8{,}0\cdot 10^{-4}\ \Omega"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="R \approx 0.80\ \mathrm{m\Omega}"></span><span lang="cs" data-tex="R \approx 0{,}80\ \mathrm{m\Omega}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/induction.html"><span lang="en">← Topic: Electromagnetic Induction</span><span lang="cs">← Téma: Elektromagnetická indukce</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 30 · Ex. 28</span><span lang="cs">Kap. 30 · Úl. 28</span></span>
+        <span><span lang="en">Vol. II · Electromagnetic Induction</span><span lang="cs">Díl II · Elektromagnetická indukce</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a8478',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const MU0 = 4 * Math.PI * 1e-7;
+    const N = 8000, RS = 0.020, TS = 2.0, QS = 100e-9;
+    const EMF = MU0 * N * 0.5 * Math.PI * RS * RS;    /* 6.32 µV */
+    const R_TGT = EMF * EMF / (QS / TS) * 1e3;        /* mΩ ≈ 0.80 */
+    const DEFAULTS = { r: 2.00 };                     /* deliberately off-target */
+    let state = { ...DEFAULTS };
+    const show = { target: true };
+
+    const inp = document.getElementById('p-r');
+    const lbl = document.getElementById('p-r-val');
+    inp.addEventListener('input', () => {
+        state.r = +inp.value;
+        lbl.textContent = state.r.toFixed(2) + ' mΩ';
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        inp.value = state.r;
+        lbl.textContent = state.r.toFixed(2) + ' mΩ';
+    });
+    document.getElementById('tgl-target')?.addEventListener('click', function () {
+        show.target = !show.target;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function physics() {
+        const R = state.r * 1e-3;
+        const P = EMF * EMF / R;
+        return { P, qEnd: P * TS, matched: Math.abs(state.r - R_TGT) < 0.02 };
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        /* ── left: I(t) ramp (fixed) ─────────────────────────────── */
+        const g1L = 56, g1R = W * 0.46;
+        const gT = 40, gB = H - 52;
+        const xPix1 = t => g1L + (t / TS) * (g1R - g1L);
+        const yPix1 = i => gB - (i / 1.1) * (gB - gT);
+
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        for (let g = 1; g <= 4; g++) {
+            ctx.beginPath(); ctx.moveTo(xPix1(g / 2), gT); ctx.lineTo(xPix1(g / 2), gB); ctx.stroke();
+        }
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(g1L, gT, g1R - g1L, gB - gT);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(xPix1(0), yPix1(0)); ctx.lineTo(xPix1(TS), yPix1(1)); ctx.stroke();
+
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('ts', xPix1(TS), gB + 6);
+        ctx.fillText('t', (g1L + g1R) / 2, gB + 20);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('Is', g1L - 6, yPix1(1));
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('solenoid current', g1L + 6, gT - 6);
+
+        /* ── right: Q(t) — live + target ─────────────────────────── */
+        const g2L = W * 0.56, g2R = W - 30;
+        const QMAX = 220e-9;
+        const xPix2 = t => g2L + (t / TS) * (g2R - g2L);
+        const yPix2 = q => gB - Math.min(q / QMAX, 1.02) * (gB - gT);
+
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        for (let g = 1; g <= 4; g++) {
+            ctx.beginPath(); ctx.moveTo(xPix2(g / 2), gT); ctx.lineTo(xPix2(g / 2), gB); ctx.stroke();
+        }
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(g2L, gT, g2R - g2L, gB - gT);
+
+        ctx.fillStyle = col.soft;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('ts', xPix2(TS), gB + 6);
+        ctx.fillText('t', (g2L + g2R) / 2, gB + 20);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('Qs', g2L - 6, yPix2(QS));
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('loop heat', g2L + 6, gT - 6);
+
+        /* target line */
+        if (show.target) {
+            const tc = f.matched ? col.acc : col.soft;
+            ctx.strokeStyle = tc; ctx.lineWidth = 1.6; ctx.setLineDash([6, 5]);
+            ctx.beginPath();
+            ctx.moveTo(xPix2(0), yPix2(0));
+            ctx.lineTo(xPix2(TS), yPix2(QS));
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = tc;
+            ctx.beginPath(); ctx.arc(xPix2(TS), yPix2(QS), 4.5, 0, Math.PI * 2); ctx.fill();
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText((f.matched ? '✓ ' : '') + '100 nJ @ 2.0 s', xPix2(TS) - 6, yPix2(QS) - 6);
+        }
+
+        /* live line */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(xPix2(0), yPix2(0));
+        ctx.lineTo(xPix2(TS), yPix2(f.qEnd));
+        ctx.stroke();
+
+        /* solenoid + loop pictogram between the graphs */
+        const px = W * 0.51, py = H * 0.5;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.ellipse(px, py, 24, 34, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = col.soft;
+        for (let i = -2; i <= 2; i++) {
+            ctx.beginPath(); ctx.ellipse(px, py + i * 9, 9, 4.5, 0, 0, Math.PI * 2); ctx.stroke();
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-p').textContent = (f.P * 1e9).toFixed(1) + ' nW';
+        $('r-q').textContent = (f.qEnd * 1e9).toFixed(1) + ' nJ';
+        const csLang = document.documentElement.getAttribute('data-lang') === 'cs';
+        $('r-match').textContent = f.matched
+            ? (csLang ? '✓ shoda · R = 0,80 mΩ' : '✓ matched · R = 0.80 mΩ')
+            : '—';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

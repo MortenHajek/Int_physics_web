@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 25.30 · The Parallel-Plate Capacitor — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-2" data-screen-label="Ex 25.30 Parallel-Plate Capacitor">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 25 · Ex. 30</span><span lang="cs">Kap. 25 · Úl. 30</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 2 · Electrostatics II — Chapter 25 · Exercise 30</span><span lang="cs">2. téma · Elektrostatika II — Kapitola 25 · Úloha 30</span></div>
+        <h1><span lang="en">The Parallel-Plate Capacitor</span><span lang="cs">Deskový kondenzátor</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>30</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    An air-filled parallel-plate capacitor has plate area
+                    <span class="given" data-tex="S = 40\ \mathrm{cm^2}"></span> and plate
+                    separation <span class="given" data-tex="d = 1.0\ \mathrm{mm}"></span>.
+                    It is charged to <span class="given" data-tex="U = 600\ \mathrm{V}"></span>.
+                </p>
+                <p lang="cs">
+                    Vzduchový deskový kondenzátor má plochu desky
+                    <span class="given" data-tex="S = 40\ \mathrm{cm^2}"></span> a vzdálenost desek
+                    <span class="given" data-tex="d = 1{,}0\ \mathrm{mm}"></span>.
+                    Je nabit na <span class="given" data-tex="U = 600\ \mathrm{V}"></span>.
+                </p>
+                <p lang="en">
+                    Determine (a) its capacitance, (b) the magnitude of the charge on each
+                    plate, (c) the stored energy, (d) the electric field between the plates,
+                    and (e) the energy density of that field.
+                </p>
+                <p lang="cs">
+                    Určete (a) jeho kapacitu, (b) velikost náboje na každé desce,
+                    (c) uloženou energii, (d) elektrické pole mezi deskami
+                    a (e) hustotu energie tohoto pole.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Capacitor sandbox</span><span lang="cs">Sandbox: kondenzátor</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="C = \varepsilon_0 \dfrac{S}{d}"></div>
+                <div class="sim-hint"><span lang="en">widen the gap · watch C and E fall</span><span lang="cs">rozšiřte mezeru · sledujte pokles C a E</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Plate area S</span><span lang="cs">Plocha desky S</span></span>
+                            <span class="sim-control-val" id="p-s-val">40 cm²</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-s" min="10" max="100" step="1" value="40">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Separation d</span><span lang="cs">Vzdálenost d</span></span>
+                            <span class="sim-control-val" id="p-d-val">1.00 mm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="0.5" max="3.0" step="0.05" value="1.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Voltage U</span><span lang="cs">Napětí U</span></span>
+                            <span class="sim-control-val" id="p-u-val">600 V</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-u" min="100" max="1000" step="10" value="600">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Capacitor</span><span lang="cs">Kondenzátor</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="C = \varepsilon_0 S/d"></span>
+                        <span class="readout-val" id="r-c">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q = CU"></span>
+                        <span class="readout-val" id="r-q">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W = \tfrac{1}{2}CU^2"></span>
+                        <span class="readout-val" id="r-w">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Field between plates</span><span lang="cs">Pole mezi deskami</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E = U/d"></span>
+                        <span class="readout-val" id="r-e">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="u = \tfrac{1}{2}\varepsilon_0 E^2"></span>
+                        <span class="readout-val" id="r-u">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-field">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">field lines</span><span lang="cs">siločáry</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-charges">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">plate charges</span><span lang="cs">náboje desek</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Capacitance</strong>:
+                    <span data-tex="C = \varepsilon_0 S/d = 8.85\cdot 10^{-12} \cdot 4.0\cdot 10^{-3} / 1.0\cdot 10^{-3} = 3.54\cdot 10^{-11}\ \mathrm{F}"></span>.</span>
+                    <span lang="cs"><strong>Kapacita</strong>:
+                    <span data-tex="C = \varepsilon_0 S/d = 8{,}85\cdot 10^{-12} \cdot 4{,}0\cdot 10^{-3} / 1{,}0\cdot 10^{-3} = 3{,}54\cdot 10^{-11}\ \mathrm{F}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Charge</strong>:
+                    <span data-tex="Q = CU = 3.54\cdot 10^{-11} \cdot 600 = 2.12\cdot 10^{-8}\ \mathrm{C}"></span>.</span>
+                    <span lang="cs"><strong>Náboj</strong>:
+                    <span data-tex="Q = CU = 3{,}54\cdot 10^{-11} \cdot 600 = 2{,}12\cdot 10^{-8}\ \mathrm{C}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Stored energy</strong>:
+                    <span data-tex="W = \tfrac{1}{2}CU^2 = \tfrac{1}{2} \cdot 3.54\cdot 10^{-11} \cdot (600)^2 = 6.4\cdot 10^{-6}\ \mathrm{J}"></span>.</span>
+                    <span lang="cs"><strong>Uložená energie</strong>:
+                    <span data-tex="W = \tfrac{1}{2}CU^2 = \tfrac{1}{2} \cdot 3{,}54\cdot 10^{-11} \cdot (600)^2 = 6{,}4\cdot 10^{-6}\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en">Between large plates the field is <strong>uniform</strong>:
+                    <span data-tex="E = U/d = 600/0.0010 = 6.0\cdot 10^{5}\ \mathrm{V/m}"></span>.</span>
+                    <span lang="cs">Mezi velkými deskami je pole <strong>homogenní</strong>:
+                    <span data-tex="E = U/d = 600/0{,}0010 = 6{,}0\cdot 10^{5}\ \mathrm{V/m}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">05</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Energy density</strong>:
+                    <span data-tex="u = \tfrac{1}{2}\varepsilon_0 E^2 = \tfrac{1}{2} \cdot 8.85\cdot 10^{-12} \cdot (6.0\cdot 10^{5})^2 = 1.6\ \mathrm{J/m^3}"></span>
+                    (check: <span data-tex="W/(S\,d)"></span> gives the same).</span>
+                    <span lang="cs"><strong>Hustota energie</strong>:
+                    <span data-tex="u = \tfrac{1}{2}\varepsilon_0 E^2 = \tfrac{1}{2} \cdot 8{,}85\cdot 10^{-12} \cdot (6{,}0\cdot 10^{5})^2 = 1{,}6\ \mathrm{J/m^3}"></span>
+                    (kontrola: <span data-tex="W/(S\,d)"></span> dává stejný výsledek).</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="C \approx 35.4\ \mathrm{pF}"></span><span lang="cs" data-tex="C \approx 35{,}4\ \mathrm{pF}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="Q \approx 21.2\ \mathrm{nC}"></span><span lang="cs" data-tex="Q \approx 21{,}2\ \mathrm{nC}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="W \approx 6.4\ \mathrm{\mu J}"></span><span lang="cs" data-tex="W \approx 6{,}4\ \mathrm{\mu J}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E = 6.0\cdot 10^{5}\ \mathrm{V/m}"></span><span lang="cs" data-tex="E = 6{,}0\cdot 10^{5}\ \mathrm{V/m}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (e)</span><span lang="cs">Výsledek (e)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="u \approx 1.6\ \mathrm{J/m^3}"></span><span lang="cs" data-tex="u \approx 1{,}6\ \mathrm{J/m^3}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-2.html"><span lang="en">← Topic: Electrostatics II</span><span lang="cs">← Téma: Elektrostatika II</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 25 · Ex. 30</span><span lang="cs">Kap. 25 · Úl. 30</span></span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const EPS0 = 8.85e-12;
+    /* s in cm², d in mm, u in V */
+    const DEFAULTS = { s: 40, d: 1.0, u: 600 };
+    let state = { ...DEFAULTS };
+    const show = { field: true, charges: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtS = v => v.toFixed(0) + ' cm²';
+    const fmtD = v => v.toFixed(2) + ' mm';
+    const fmtU = v => v.toFixed(0) + ' V';
+    bindSlider('p-s', 's', fmtS);
+    bindSlider('p-d', 'd', fmtD);
+    bindSlider('p-u', 'u', fmtU);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-s', 's', fmtS], ['p-d', 'd', fmtD], ['p-u', 'u', fmtU]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-field',   'field');
+    wireToggle('tgl-charges', 'charges');
+
+    /* ── Physics — SI units ─────────────────────────────────────── */
+    function derived() {
+        const S = state.s * 1e-4;   /* m²  */
+        const d = state.d * 1e-3;   /* m   */
+        const U = state.u;          /* V   */
+        const C = EPS0 * S / d;
+        const Q = C * U;
+        const Wn = 0.5 * C * U * U;
+        const E = U / d;
+        const u = 0.5 * EPS0 * E * E;
+        return { C, Q, Wn, E, u };
+    }
+
+    /* 3 significant figures, plain notation */
+    const fmt3 = v => String(Number(v.toPrecision(3)));
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function plusGlyph(x, y, colr) {
+        ctx.strokeStyle = colr; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x - 3.2, y); ctx.lineTo(x + 3.2, y);
+        ctx.moveTo(x, y - 3.2); ctx.lineTo(x, y + 3.2);
+        ctx.stroke();
+    }
+    function minusGlyph(x, y, colr) {
+        ctx.strokeStyle = colr; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x - 3.2, y); ctx.lineTo(x + 3.2, y);
+        ctx.stroke();
+    }
+    function fieldLine(x, y0, y1) {
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 1.3; ctx.lineCap = 'butt';
+        ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
+        if (y1 - y0 >= 22) {
+            const ym = (y0 + y1) / 2;
+            ctx.fillStyle = col.acc;
+            ctx.beginPath();
+            ctx.moveTo(x, ym + 4.5);
+            ctx.lineTo(x - 3.4, ym - 3);
+            ctx.lineTo(x + 3.4, ym - 3);
+            ctx.closePath(); ctx.fill();
+        }
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const g = derived();
+
+        /* geometry — width ∝ √S, gap ∝ d (exaggerated px scale) */
+        const plateW = Math.min(W * 0.62, W * (0.16 + 0.032 * Math.sqrt(state.s)));
+        const gap    = Math.min(H * 0.52, Math.max(14, H * 0.15 * state.d));
+        const pT     = 12;
+        const cx = W * 0.44, cy = H * 0.47;
+        const x0 = cx - plateW / 2;
+        const yTopPlate = cy - gap / 2 - pT;   /* top of top plate    */
+        const yGapTop   = cy - gap / 2;        /* inner surface, top  */
+        const yGapBot   = cy + gap / 2;        /* inner surface, bot  */
+
+        /* S extent guide above the top plate */
+        const yS = yTopPlate - 14;
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.lineCap = 'butt';
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(x0, yS + 0.5); ctx.lineTo(x0 + plateW, yS + 0.5); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x0 + 0.5, yS - 3); ctx.lineTo(x0 + 0.5, yS + 3);
+        ctx.moveTo(x0 + plateW - 0.5, yS - 3); ctx.lineTo(x0 + plateW - 0.5, yS + 3);
+        ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('S = ' + state.s.toFixed(0) + ' cm²', cx, yS - 7);
+
+        /* d dimension guide on the left */
+        const xd = x0 - 30;
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x0, yGapTop + 0.5); ctx.lineTo(xd - 8, yGapTop + 0.5);
+        ctx.moveTo(x0, yGapBot - 0.5); ctx.lineTo(xd - 8, yGapBot - 0.5);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(xd + 0.5, yGapTop); ctx.lineTo(xd + 0.5, yGapBot); ctx.stroke();
+        if (gap >= 26) {
+            ctx.fillStyle = col.faint;
+            ctx.beginPath();
+            ctx.moveTo(xd, yGapTop + 1); ctx.lineTo(xd - 3, yGapTop + 8); ctx.lineTo(xd + 3, yGapTop + 8);
+            ctx.closePath(); ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(xd, yGapBot - 1); ctx.lineTo(xd - 3, yGapBot - 8); ctx.lineTo(xd + 3, yGapBot - 8);
+            ctx.closePath(); ctx.fill();
+        }
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'center';
+        ctx.fillText('d = ' + state.d.toFixed(2) + ' mm', Math.max(xd, 48), yGapBot + 18);
+
+        /* field lines — density ∝ E */
+        if (show.field) {
+            const eKvMm = state.u / 1000 / state.d;
+            const nL = Math.max(2, Math.min(30, Math.round(eKvMm * 13)));
+            const span = plateW * 0.88, sx0 = cx - span / 2;
+            for (let i = 0; i < nL; i++) {
+                const x = sx0 + span * (i + 0.5) / nL;
+                fieldLine(x, yGapTop + 2, yGapBot - 2);
+            }
+        }
+
+        /* plates */
+        ctx.fillStyle = col.ink;
+        ctx.fillRect(x0, yTopPlate, plateW, pT);
+        ctx.fillRect(x0, yGapBot, plateW, pT);
+
+        /* plate charges — count ∝ Q */
+        if (show.charges) {
+            const qNc = g.Q * 1e9;
+            let n = Math.max(4, Math.min(40, Math.round(qNc / 2)));
+            n = Math.min(n, Math.floor(plateW / 9));
+            for (let i = 0; i < n; i++) {
+                const x = x0 + plateW * (i + 0.5) / n;
+                plusGlyph(x,  yTopPlate + pT / 2, col.paper);
+                minusGlyph(x, yGapBot + pT / 2,   col.paper);
+            }
+        }
+
+        /* battery + wires on the right */
+        const xB = Math.min(cx + plateW / 2 + 52, W - 92);
+        const yWireTop = yTopPlate + pT / 2;
+        const yWireBot = yGapBot + pT / 2;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.lineCap = 'butt';
+        ctx.beginPath();
+        ctx.moveTo(cx + plateW / 2, yWireTop); ctx.lineTo(xB, yWireTop); ctx.lineTo(xB, cy - 8);
+        ctx.moveTo(cx + plateW / 2, yWireBot); ctx.lineTo(xB, yWireBot); ctx.lineTo(xB, cy + 8);
+        ctx.stroke();
+        /* long thin bar = + terminal · short thick bar = − terminal */
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(xB - 11, cy - 5); ctx.lineTo(xB + 11, cy - 5); ctx.stroke();
+        ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(xB - 6, cy + 5); ctx.lineTo(xB + 6, cy + 5); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('+', xB - 15, cy - 6);
+        ctx.fillText('−', xB - 15, cy + 7);
+        ctx.fillStyle = col.acc;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('U = ' + state.u.toFixed(0) + ' V', xB + 16, cy + 1);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-c')) $('r-c').textContent = fmt3(g.C * 1e12) + ' pF';
+        if ($('r-q')) $('r-q').textContent = fmt3(g.Q * 1e9) + ' nC';
+        if ($('r-w')) $('r-w').textContent = fmt3(g.Wn * 1e6) + ' µJ';
+        if ($('r-e')) $('r-e').textContent = (state.u / 1000 / state.d).toFixed(2) + ' kV/mm';
+        if ($('r-u')) $('r-u').textContent = fmt3(g.u) + ' J/m³';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 16.50 · Second Harmonic — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="waves" data-screen-label="Ex 16.50 Second Harmonic">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Waves</span><span lang="cs">Díl I · Vlny</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 16 · Ex. 50</span><span lang="cs">Kap. 16 · Úl. 50</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 9 · Waves — Chapter 16 · Exercise 50</span><span lang="cs">9. téma · Vlny — Kapitola 16 · Úloha 50</span></div>
+        <h1><span lang="en">Second Harmonic</span><span lang="cs">Druhá harmonická</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>50</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A rope stretched with tension
+                    <span class="given" data-tex="T = 200\ \mathrm{N}"></span> is clamped at both ends,
+                    and a standing wave of the second harmonic is set up on it. The transverse
+                    displacement of its points is described by
+                    <span class="given" data-tex="y = (0{,}10\ \mathrm{m})\,\sin(\pi x/2)\,\sin(12\pi t)"></span>,
+                    where <span data-tex="x"></span> is in metres, <span data-tex="t"></span> in seconds,
+                    and <span data-tex="x = 0"></span> at one end of the rope.
+                </p>
+                <p lang="cs">
+                    Lano napnuté silou
+                    <span class="given" data-tex="T = 200\ \mathrm{N}"></span> je upevněno na obou koncích
+                    a vzniká na něm stojaté vlnění druhé harmonické. Příčná výchylka jeho bodů je popsána
+                    vztahem
+                    <span class="given" data-tex="y = (0{,}10\ \mathrm{m})\,\sin(\pi x/2)\,\sin(12\pi t)"></span>,
+                    kde <span data-tex="x"></span> je v metrech, <span data-tex="t"></span> v sekundách
+                    a <span data-tex="x = 0"></span> je na jednom konci lana.
+                </p>
+                <p lang="en">
+                    Determine (a) the length of the rope, (b) the speed of waves on it, and
+                    (c) the rope's mass. (d) What would the period of oscillation be at the
+                    third harmonic?
+                </p>
+                <p lang="cs">
+                    Určete (a) délku lana, (b) rychlost vln na něm a (c) hmotnost lana.
+                    (d) Jaká by byla perioda kmitů při třetí harmonické?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Standing-wave sandbox</span><span lang="cs">Sandbox: stojaté vlnění</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">slow motion</span><span lang="cs">zpomaleně</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="v = \sqrt{T/\mu}"></div>
+                <div class="sim-hint"><span lang="en">nodes stand still · antinodes do the work</span><span lang="cs">uzly stojí · kmitny odvádí práci</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Harmonic n</span><span lang="cs">Harmonická n</span></span>
+                            <span class="sim-control-val" id="p-n-val">2</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-n" min="1" max="5" step="1" value="2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Tension T</span><span lang="cs">Tahová síla T</span></span>
+                            <span class="sim-control-val" id="p-t-val">200 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-t" min="50" max="400" step="5" value="200">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Amplitude</span><span lang="cs">Amplituda</span></span>
+                            <span class="sim-control-val" id="p-a-val">10 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-a" min="2" max="14" step="0.5" value="10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Fixed by the equation</span><span lang="cs">Dáno rovnicí</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="L"></span>
+                        <span class="readout-val" id="r-L">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="m = \mu L"></span>
+                        <span class="readout-val" id="r-m">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">At the current sliders</span><span lang="cs">Podle aktuálních posuvníků</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v = \sqrt{T/\mu}"></span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\lambda_n = 2L/n"></span>
+                        <span class="readout-val" id="r-lam">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="f_n"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\tau_3\ (n=3)"></span>
+                        <span class="readout-val" id="r-t3">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-env">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">envelope</span><span lang="cs">obálka</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-nodes">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">nodes</span><span lang="cs">uzly</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Compare with <span data-tex="y = A\sin(kx)\sin(\omega t)"></span>:
+                    <span data-tex="k = \pi/2\ \mathrm{m^{-1}}"></span> and
+                    <span data-tex="\omega = 12\pi\ \mathrm{s^{-1}}"></span>, so
+                    <span data-tex="\lambda = 2\pi/k = 4{,}0\ \mathrm{m}"></span>.
+                    <strong>(a)</strong> The second harmonic fits one whole wavelength between the clamps:
+                    <span data-tex="L = \lambda = 4{,}0\ \mathrm{m}"></span>.</span>
+                    <span lang="cs">Srovnejte s <span data-tex="y = A\sin(kx)\sin(\omega t)"></span>:
+                    <span data-tex="k = \pi/2\ \mathrm{m^{-1}}"></span> a
+                    <span data-tex="\omega = 12\pi\ \mathrm{s^{-1}}"></span>, tedy
+                    <span data-tex="\lambda = 2\pi/k = 4{,}0\ \mathrm{m}"></span>.
+                    <strong>(a)</strong> Druhá harmonická obsahuje mezi úchyty jednu celou vlnovou délku:
+                    <span data-tex="L = \lambda = 4{,}0\ \mathrm{m}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The travelling waves that superpose move at
+                    <span data-tex="v = \omega/k = 12\pi/(\pi/2) = 24\ \mathrm{m\,s^{-1}}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Postupné vlny, které se skládají, se pohybují
+                    rychlostí
+                    <span data-tex="v = \omega/k = 12\pi/(\pi/2) = 24\ \mathrm{m\,s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> From <span data-tex="v = \sqrt{T/\mu}"></span>:
+                    <span data-tex="\mu = T/v^2 = 200/576 = 0{,}347\ \mathrm{kg\,m^{-1}}"></span>, hence
+                    <span data-tex="m = \mu L = 1{,}4\ \mathrm{kg}"></span>.</span>
+                    <span lang="cs"><strong>(c)</strong> Ze vztahu <span data-tex="v = \sqrt{T/\mu}"></span>:
+                    <span data-tex="\mu = T/v^2 = 200/576 = 0{,}347\ \mathrm{kg\,m^{-1}}"></span>, tedy
+                    <span data-tex="m = \mu L = 1{,}4\ \mathrm{kg}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(d)</strong> At the third harmonic
+                    <span data-tex="f_3 = 3v/2L = 9{,}0\ \mathrm{Hz}"></span>, so the period is
+                    <span data-tex="\tau_3 = 1/f_3 = 0{,}11\ \mathrm{s}"></span>.</span>
+                    <span lang="cs"><strong>(d)</strong> Při třetí harmonické je
+                    <span data-tex="f_3 = 3v/2L = 9{,}0\ \mathrm{Hz}"></span>, takže perioda je
+                    <span data-tex="\tau_3 = 1/f_3 = 0{,}11\ \mathrm{s}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="L = 4{,}0\ \mathrm{m}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="v = 24\ \mathrm{m\,s^{-1}}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value" data-tex="m \approx 1{,}4\ \mathrm{kg}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value" data-tex="\tau_3 \approx 0{,}11\ \mathrm{s}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/waves.html"><span lang="en">← Topic: Waves</span><span lang="cs">← Téma: Vlny</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 16 · Ex. 50</span><span lang="cs">Kap. 16 · Úl. 50</span></span>
+        <span><span lang="en">Vol. I · Waves</span><span lang="cs">Díl I · Vlny</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#1a6678',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* fixed by the printed equation */
+    const L  = 4.0;                 /* m */
+    const MU = 200 / (24 * 24);     /* kg/m — from T = 200 N, v = 24 m/s */
+
+    const DEFAULTS = { n: 2, t: 200, a: 10 };
+    let state = { ...DEFAULTS };
+    const show = { env: true, nodes: true };
+    const SLOW = 0.08;
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtN = v => v.toFixed(0);
+    const fmtT = v => v.toFixed(0) + ' N';
+    const fmtA = v => v.toFixed(1) + ' cm';
+    const SLIDERS = [['p-n', 'n', fmtN], ['p-t', 't', fmtT], ['p-a', 'a', fmtA]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-env',   'env');
+    wireToggle('tgl-nodes', 'nodes');
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const v  = Math.sqrt(state.t / MU);
+        const f  = state.n * v / (2 * L);
+        const om = 2 * Math.PI * f;
+
+        const x0 = 46, x1 = W - 46;
+        const midY = H * 0.46;
+        const ampPx = state.a / 14 * H * 0.24;
+
+        /* walls */
+        [x0, x1].forEach((wx, side) => {
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.moveTo(wx, midY - H * 0.3); ctx.lineTo(wx, midY + H * 0.3);
+            ctx.stroke();
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            for (let y = midY - H * 0.3 + 6; y < midY + H * 0.3 - 2; y += 12) {
+                ctx.beginPath();
+                ctx.moveTo(wx, y);
+                ctx.lineTo(wx + (side === 0 ? -9 : 9), y - 8);
+                ctx.stroke();
+            }
+        });
+
+        const phase = Math.sin(om * SLOW * ts / 1000);
+        const yAt = frac => Math.sin(state.n * Math.PI * frac) * ampPx;
+
+        /* envelope */
+        if (show.env) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+            [1, -1].forEach(sgn => {
+                ctx.beginPath();
+                for (let i = 0; i <= 120; i++) {
+                    const fr = i / 120;
+                    const px = x0 + fr * (x1 - x0);
+                    const py = midY - sgn * yAt(fr);
+                    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+                }
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+        }
+
+        /* rope */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 160; i++) {
+            const fr = i / 160;
+            const px = x0 + fr * (x1 - x0);
+            const py = midY - yAt(fr) * phase;
+            i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+
+        /* nodes */
+        if (show.nodes) {
+            for (let k = 0; k <= state.n; k++) {
+                const px = x0 + k / state.n * (x1 - x0);
+                ctx.beginPath(); ctx.arc(px, midY, 4, 0, Math.PI * 2);
+                ctx.fillStyle = col.paper; ctx.fill();
+                ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.stroke();
+            }
+            ctx.fillStyle = col.soft;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('nodes every λ/2', (x0 + x1) / 2, midY + H * 0.26);
+        }
+
+        /* length dimension */
+        const dimY = midY + H * 0.32;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.1;
+        ctx.beginPath(); ctx.moveTo(x0, dimY); ctx.lineTo(x1, dimY); ctx.stroke();
+        [x0, x1].forEach(x => {
+            ctx.beginPath(); ctx.moveTo(x, dimY - 4); ctx.lineTo(x, dimY + 4); ctx.stroke();
+        });
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('L = 4.0 m', (x0 + x1) / 2, dimY - 4);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-L'))   $('r-L').textContent   = L.toFixed(1) + ' m';
+        if ($('r-m'))   $('r-m').textContent   = (MU * L).toFixed(2) + ' kg';
+        if ($('r-v'))   $('r-v').textContent   = v.toFixed(1) + ' m/s';
+        if ($('r-lam')) $('r-lam').textContent = (2 * L / state.n).toFixed(2) + ' m';
+        if ($('r-f'))   $('r-f').textContent   = f.toFixed(2) + ' Hz';
+        if ($('r-t3'))  $('r-t3').textContent  = (2 * L / (3 * v)).toFixed(3) + ' s';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

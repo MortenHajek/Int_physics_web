@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 5.51 · A Train of Blocks — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="dynamics" data-screen-label="Ex 5.51 A Train of Blocks">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 5 · Ex. 51</span><span lang="cs">Kap. 5 · Úl. 51</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 3 · Force &amp; Motion — Chapter 5 · Exercise 51</span><span lang="cs">3. téma · Síla a pohyb — Kapitola 5 · Úloha 51</span></div>
+        <h1><span lang="en">A Train of Blocks</span><span lang="cs">Vlak kvádrů</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>51</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Three blocks connected as in fig. 5-47 are dragged to the right along a horizontal
+                    frictionless surface. The pulling force is
+                    <span class="given" data-tex="T_3 = 65\ \mathrm{N}"></span>; the masses are
+                    <span class="given" data-tex="m_1 = 12{,}0\ \mathrm{kg}"></span>,
+                    <span class="given" data-tex="m_2 = 24{,}0\ \mathrm{kg}"></span> and
+                    <span class="given" data-tex="m_3 = 31{,}0\ \mathrm{kg}"></span>.
+                </p>
+                <p lang="cs">
+                    Tři kvádry spojené jako na obr. 5-47 jsou taženy doprava po vodorovné
+                    dokonale hladké podložce. Tažná síla je
+                    <span class="given" data-tex="T_3 = 65\ \mathrm{N}"></span>; hmotnosti jsou
+                    <span class="given" data-tex="m_1 = 12{,}0\ \mathrm{kg}"></span>,
+                    <span class="given" data-tex="m_2 = 24{,}0\ \mathrm{kg}"></span> a
+                    <span class="given" data-tex="m_3 = 31{,}0\ \mathrm{kg}"></span>.
+                </p>
+                <p lang="en">
+                    Compute (a) the acceleration of the system and the tensions
+                    (b) <span data-tex="T_1"></span> and (c) <span data-tex="T_2"></span> in the cords
+                    connecting the blocks.
+                </p>
+                <p lang="cs">
+                    Určete (a) zrychlení soustavy a napětí
+                    (b) <span data-tex="T_1"></span> a (c) <span data-tex="T_2"></span> v provazech
+                    spojujících kvádry.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Cord sandbox</span><span lang="cs">Sandbox: provazy</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="T = (\textstyle\sum m)\,a"></div>
+                <div class="sim-hint"><span lang="en">each cord drags everything behind it</span><span lang="cs">každý provaz táhne vše, co je za ním</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Pulling force T₃</span><span lang="cs">Tažná síla T₃</span></span>
+                            <span class="sim-control-val" id="p-t3-val">65.0 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-t3" min="10" max="120" step="1" value="65">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m₁</span><span lang="cs">Hmotnost m₁</span></span>
+                            <span class="sim-control-val" id="p-m1-val">12.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m1" min="4" max="40" step="0.5" value="12">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m₂</span><span lang="cs">Hmotnost m₂</span></span>
+                            <span class="sim-control-val" id="p-m2-val">24.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m2" min="4" max="40" step="0.5" value="24">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m₃</span><span lang="cs">Hmotnost m₃</span></span>
+                            <span class="sim-control-val" id="p-m3-val">31.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m3" min="4" max="40" step="0.5" value="31">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">System</span><span lang="cs">Soustava</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="a = T_3/(m_1+m_2+m_3)"></span>
+                        <span class="readout-val" id="r-a">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Cord tensions</span><span lang="cs">Napětí v provazech</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T_1 = m_1 a"></span>
+                        <span class="readout-val" id="r-t1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T_2 = (m_1+m_2)\,a"></span>
+                        <span class="readout-val" id="r-t2">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-tension">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">tension labels</span><span lang="cs">popisky napětí</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> The cords are inextensible, so all three blocks share one
+                    acceleration. Treating them as a single body:
+                    <span data-tex="a = \dfrac{T_3}{m_1+m_2+m_3} = \dfrac{65}{67{,}0} = 0{,}97\ \mathrm{m\,s^{-2}}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Provazy jsou neroztažitelné, takže všechny tři kvádry
+                    sdílejí jedno zrychlení. Uvažujeme-li je jako jedno těleso:
+                    <span data-tex="a = \dfrac{T_3}{m_1+m_2+m_3} = \dfrac{65}{67{,}0} = 0{,}97\ \mathrm{m\,s^{-2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> Cord 1 pulls only <span data-tex="m_1"></span>:
+                    <span data-tex="T_1 = m_1 a = 12{,}0\cdot 0{,}970 = 11{,}6\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Provaz 1 táhne pouze <span data-tex="m_1"></span>:
+                    <span data-tex="T_1 = m_1 a = 12{,}0\cdot 0{,}970 = 11{,}6\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> Cord 2 drags everything behind it, i.e.
+                    <span data-tex="m_1+m_2"></span>:
+                    <span data-tex="T_2 = (m_1+m_2)\,a = 36{,}0\cdot 0{,}970 = 34{,}9\ \mathrm{N}"></span>.</span>
+                    <span lang="cs"><strong>(c)</strong> Provaz 2 táhne vše, co je za ním, tedy
+                    <span data-tex="m_1+m_2"></span>:
+                    <span data-tex="T_2 = (m_1+m_2)\,a = 36{,}0\cdot 0{,}970 = 34{,}9\ \mathrm{N}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value" data-tex="a \approx 0{,}97\ \mathrm{m\,s^{-2}}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="T_1 \approx 11{,}6\ \mathrm{N}"></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value" data-tex="T_2 \approx 34{,}9\ \mathrm{N}"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/force-and-motion.html"><span lang="en">← Topic: Force &amp; Motion</span><span lang="cs">← Téma: Síla a pohyb</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 5 · Ex. 51</span><span lang="cs">Kap. 5 · Úl. 51</span></span>
+        <span><span lang="en">Vol. I · Force &amp; Motion</span><span lang="cs">Díl I · Síla a pohyb</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b94d28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const DEFAULTS = { t3: 65, m1: 12, m2: 24, m3: 31 };
+    let state = { ...DEFAULTS };
+    const show = { tension: true };
+
+    const fmtF = v => v.toFixed(1) + ' N';
+    const fmtM = v => v.toFixed(1) + ' kg';
+    const SLIDERS = [['p-t3', 't3', fmtF], ['p-m1', 'm1', fmtM],
+                     ['p-m2', 'm2', fmtM], ['p-m3', 'm3', fmtM]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-tension')?.addEventListener('click', function () {
+        show.tension = !show.tension;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const a  = state.t3 / (state.m1 + state.m2 + state.m3);
+        const T1 = state.m1 * a;
+        const T2 = (state.m1 + state.m2) * a;
+
+        /* animated drift: blocks slide right with the computed acceleration, loop */
+        const cyc = (ts / 1000) % 3.2;
+        const tv  = Math.min(cyc, 2.4);
+        const drift = 0.5 * a * tv * tv * 26;          /* px, exaggerated */
+
+        const gy = H * 0.62;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(20, gy); ctx.lineTo(W - 20, gy); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = 26; x < W - 22; x += 13) {
+            ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x - 8, gy + 9); ctx.stroke();
+        }
+
+        /* blocks sized by mass */
+        const sizes = [state.m1, state.m2, state.m3].map(m => 34 + m * 1.1);
+        const gapPx = 46;
+        let x = W * 0.06 + drift;
+        const rects = [];
+        sizes.forEach((s, i) => {
+            const bh = Math.min(s, 74), bw = Math.min(s, 84);
+            rects.push([x, gy - bh, bw, bh]);
+            x += bw + gapPx;
+        });
+
+        /* cords + tension labels */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.8;
+        for (let i = 0; i < 2; i++) {
+            const [xa, ya, wa, ha] = rects[i];
+            const [xb, yb] = rects[i + 1];
+            const y = gy - 18;
+            ctx.beginPath(); ctx.moveTo(xa + wa, y); ctx.lineTo(xb, y); ctx.stroke();
+            if (show.tension) {
+                ctx.fillStyle = col.acc;
+                ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+                ctx.fillText('T' + (i + 1), (xa + wa + xb) / 2, y - 6);
+            }
+        }
+        /* pulling force */
+        const [x3, y3, w3, h3] = rects[2];
+        arrow(x3 + w3, gy - 18, x3 + w3 + 30 + state.t3 * 0.9, gy - 18, col.acc, 2.6);
+        ctx.fillStyle = col.acc;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('T₃', x3 + w3 + 34 + state.t3 * 0.9, gy - 24);
+
+        /* draw blocks on top */
+        rects.forEach(([bx, by, bw, bh], i) => {
+            ctx.fillStyle = col.paper;
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+            ctx.fillRect(bx, by, bw, bh);
+            ctx.strokeRect(bx, by, bw, bh);
+            ctx.fillStyle = col.ink;
+            ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('m' + (i + 1), bx + bw / 2, by + bh / 2);
+        });
+
+        const $ = id => document.getElementById(id);
+        if ($('r-a'))  $('r-a').textContent  = a.toFixed(3) + ' m/s²';
+        if ($('r-t1')) $('r-t1').textContent = T1.toFixed(1) + ' N';
+        if ($('r-t2')) $('r-t2').textContent = T2.toFixed(1) + ' N';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

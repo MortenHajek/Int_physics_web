@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Work and Energy · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+                                
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name { font-size: 14px; color: var(--ink); }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label { font-family: var(--f-serif); font-style: italic; font-size: 15px; color: var(--ink-soft); }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+                        
+                        
+                                                    
+                        
+                                                
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-dir { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--ink-faint); margin-bottom: 6px; }
+    .topic-nav-title { font-family: var(--f-serif); font-size: 22px; line-height: 1.1; }
+
+        @media (max-width: 900px) { .topic-nav { grid-template-columns: 1fr; } }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="energy" data-screen-label="I.04 Work and Energy">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">W</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ I.04 · energy</div>
+            <h1>Work and Energy</h1>
+            <p class="lede">
+                Energy is the capacity to do work. Roll a ball down a ramp and watch
+                potential energy convert to kinetic — watch the bars, feel the theorem.
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="W_{net} = \Delta KE"></div>
+            <div class="eq-caption">Work-energy theorem — net work equals the change in kinetic energy</div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Newton's laws work, but they make you track directions at every instant. Energy is the shortcut: it is a
+ <em>scalar</em>, so it has no components to resolve, and it lets you jump straight from a starting state to a
+ finishing state without knowing anything about the journey between them. The price is learning which forces
+ store their work and which destroy it. Gravity and a spring are <em>conservative</em> — take a body away and
+ bring it back and they return everything, so their work can be booked as a potential energy. Friction is not:
+ its work is gone as heat, and it depends on the path taken, which is exactly why it has to sit on the other
+ side of the equation.</span><span lang="cs">Newtonovy zákony fungují, ale nutí vás hlídat směry v každém okamžiku. Energie je zkratka: je to
+ <em>skalár</em>, nemá tedy žádné složky k rozkládání, a dovolí vám skočit rovnou z počátečního stavu do
+ koncového, aniž byste cokoli věděli o cestě mezi nimi. Cenou je naučit se, které síly svou práci uloží
+ a které ji zničí. Tíha a pružina jsou <em>konzervativní</em> — odneste těleso a přineste ho zpět a vrátí vám
+ všechno, takže jejich práci lze zaúčtovat jako potenciální energii. Tření ne: jeho práce je pryč jako teplo
+ a závisí na zvolené cestě, a právě proto musí stát na druhé straně rovnice.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Work of a constant force</span><span lang="cs">Práce konstantní síly</span></span>
+                        <span class="cf-eq" data-tex="W = \vec F\cdot\vec d = Fd\cos\varphi"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A dot product, so only the component of the force <em>along</em> the displacement counts. A force at
+      right angles to the motion does no work at all — which is why a normal force, and the tension in a rope
+      whose end moves sideways, contribute nothing.</span><span lang="cs">Skalární součin, takže se počítá jen složka síly <em>podél</em> posunutí. Síla kolmá na pohyb nekoná
+      žádnou práci — a proto nepřispívá normálová síla ani tahová síla lana, jehož konec se pohybuje do
+      strany.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Work of a varying force</span><span lang="cs">Práce proměnné síly</span></span>
+                        <span class="cf-eq" data-tex="W = \int_{x_1}^{x_2} F(x)\,\mathrm{d}x"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">When the force changes along the way, sum it in slices — which on an
+      <span data-tex="F(x)"></span> graph is simply the <em>area under the curve</em>, counted negative below
+      the axis. Reading that area off a graph is often faster than any integral.</span><span lang="cs">Mění-li se síla po cestě, sečtěte ji po kouscích — což je v grafu
+      <span data-tex="F(x)"></span> prostě <em>plocha pod křivkou</em>, pod osou počítaná záporně. Odečíst tu
+      plochu z grafu bývá rychlejší než jakýkoli integrál.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Work–energy theorem</span><span lang="cs">Věta o kinetické energii</span></span>
+                        <span class="cf-eq" data-tex="W_{cel} = \Delta E_k = \dfrac{1}{2}mv_2^2 - \dfrac{1}{2}mv_1^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The total work of <em>all</em> forces equals the change in kinetic energy. This is the bridge between
+      the two halves of mechanics: it turns a force problem into a speed answer without ever computing an
+      acceleration.</span><span lang="cs">Celková práce <em>všech</em> sil se rovná změně kinetické energie. Tohle je most mezi oběma polovinami
+      mechaniky: promění silovou úlohu v odpověď o rychlosti, aniž byste kdy počítali zrychlení.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Potential energy</span><span lang="cs">Potenciální energie</span></span>
+                        <span class="cf-eq" data-tex="E_p^{tíž} = mgh"></span>
+                        <span class="cf-eq" data-tex="E_p^{pruž} = \dfrac{1}{2}kx^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The work a conservative force has banked, ready to be returned. Both need a chosen zero level, and the
+      choice is free — only <em>differences</em> ever appear in an answer. For a spring,
+      <span data-tex="x"></span> is the stretch from the relaxed length, never a position on a ruler.</span><span lang="cs">Práce, kterou konzervativní síla uložila do banky a je připravena ji vrátit. Obě potřebují zvolenou
+      nulovou hladinu a volba je libovolná — ve výsledku vystupují vždy jen <em>rozdíly</em>. U pružiny je
+      <span data-tex="x"></span> prodloužení od nenapjaté délky, nikdy poloha na pravítku.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Conservation of mechanical energy</span><span lang="cs">Zachování mechanické energie</span></span>
+                        <span class="cf-eq" data-tex="E_k + E_p = \text{konst.}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With no friction and no external push, the sum is the same at every moment of the motion. Two states,
+      one equation — pick the two moments where you know the most, and everything in between can be
+      ignored.</span><span lang="cs">Bez tření a bez vnějšího působení je součet ve všech okamžicích pohybu stejný. Dva stavy, jedna
+      rovnice — zvolte dva okamžiky, o kterých víte nejvíc, a všechno mezi nimi lze ignorovat.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">When friction is present</span><span lang="cs">Když je ve hře tření</span></span>
+                        <span class="cf-eq" data-tex="\Delta E_k + \Delta E_p = -f_d\, d"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Kinetic friction removes <span data-tex="f_d d"></span> from the mechanical total, with
+      <span data-tex="d"></span> the distance actually travelled <em>along the rough patch</em>. Energy is still
+      conserved overall; it has simply left the ledger as heat.</span><span lang="cs">Dynamické tření odebere z mechanického součtu <span data-tex="f_d d"></span>, kde
+      <span data-tex="d"></span> je vzdálenost skutečně uražená <em>po drsném úseku</em>. Energie se celkově
+      pořád zachovává; jen z účetnictví odešla jako teplo.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Two states, not a trajectory.</strong> Mark the moment you know most about and the moment you
+       are asked about. Energy never cares what happened between them.</span><span lang="cs"><strong>Dva stavy, ne dráha.</strong> Označte okamžik, o kterém víte nejvíc, a okamžik, na který se
+       ptají. Energii nikdy nezajímá, co bylo mezi nimi.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>List the forces and sort them.</strong> Conservative ones (gravity, spring) become potential
+       energies; everything else keeps its work on the left as
+       <span data-tex="W"></span>. A force perpendicular to the motion can be crossed out at once.</span><span lang="cs"><strong>Vypište síly a roztřiďte je.</strong> Konzervativní (tíha, pružina) se stanou potenciálními
+       energiemi; ostatní si svou práci ponechají vlevo jako <span data-tex="W"></span>. Sílu kolmou na pohyb
+       lze rovnou škrtnout.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Choose the zero level and write it down.</strong> Usually the lowest point of the motion.
+       Then every height in the problem is measured from it, consistently.</span><span lang="cs"><strong>Zvolte nulovou hladinu a napište si ji.</strong> Obvykle nejnižší bod pohybu. Pak se všechny
+       výšky v úloze měří od ní, důsledně.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Varying force? Take the area.</strong> On an <span data-tex="F(x)"></span> graph the work is
+       the area under the curve; count anything below the axis as negative. For
+       <span data-tex="F(x) = -kx"></span> in disguise, the area is a triangle.</span><span lang="cs"><strong>Proměnná síla? Vezměte plochu.</strong> V grafu <span data-tex="F(x)"></span> je práce plocha
+       pod křivkou; co je pod osou, počítejte záporně. U <span data-tex="F(x) = -kx"></span> v přestrojení je
+       ta plocha trojúhelník.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Reading an energy graph.</strong> Where the kinetic energy peaks, the net force is zero — that
+       locates the equilibrium and gives one equation. Where it returns to zero, the body has stopped: that
+       gives the second.</span><span lang="cs"><strong>Odečítání z energetického grafu.</strong> Tam, kde má kinetická energie maximum, je výslednice
+       nulová — to určí rovnovážnou polohu a dá jednu rovnici. Tam, kde se vrátí k nule, se těleso zastavilo:
+       to dá druhou.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Friction: multiply by the distance actually rubbed.</strong> Not the height, not the
+       displacement — the path length along the rough section. Then check whether the body even reaches the far
+       end; if the energy runs out first, solve instead for where it stops.</span><span lang="cs"><strong>Tření: násobte vzdáleností, po které se opravdu tře.</strong> Ne výškou, ne posunutím — délkou
+       dráhy po drsném úseku. Pak ověřte, jestli těleso vůbec dojede na konec; dojde-li energie dřív, řešte
+       místo toho, kde se zastaví.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="lab" class="lab" style="margin-top:72px;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span>Ramp energy sandbox — KE / PE exchange</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\Delta KE = W_{net}"></div>
+                <div class="sim-hint">adjust height and friction · watch energy bars</div>
+            </div>
+        </div>
+        <div class="side-stack">
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Parameters</span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;background:none;border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Height <em>h</em></span>
+                            <span class="sim-control-val" id="p-height-val">5.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-height" min="1" max="10" step="0.5" value="5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Mass <em>m</em></span>
+                            <span class="sim-control-val" id="p-mass-val">2.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-mass" min="0.5" max="5" step="0.5" value="2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">Friction <em>μ</em></span>
+                            <span class="sim-control-val" id="p-mu-val">0.00</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-mu" min="0" max="0.5" step="0.05" value="0">
+                    </div>
+                </div>
+            </div>
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span>Readout</span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section">Energy</div>
+                    <div class="readout-row">
+                        <span class="readout-label">KE</span>
+                        <span class="readout-val" id="r-ke">— J</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">PE</span>
+                        <span class="readout-val" id="r-pe">— J</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">Motion</div>
+                    <div class="readout-row">
+                        <span class="readout-label">v</span>
+                        <span class="readout-val" id="r-vel">— m/s</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">efficiency</span>
+                        <span class="readout-val" id="r-eff">— %</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch07-ex20.html"><span lang="en">Ch. 7 · <span class="ex-no">Ex. 20</span></span><span lang="cs">Kap. 7 · <span class="ex-no">Úl. 20</span></span></a>
+            <a class="ex-tab" href="../exercises/ch07-ex29.html"><span lang="en">Ch. 7 · <span class="ex-no">Ex. 29</span></span><span lang="cs">Kap. 7 · <span class="ex-no">Úl. 29</span></span></a>
+            <a class="ex-tab" href="../exercises/ch07-ex32.html"><span lang="en">Ch. 7 · <span class="ex-no">Ex. 32</span></span><span lang="cs">Kap. 7 · <span class="ex-no">Úl. 32</span></span></a>
+            <a class="ex-tab" href="../exercises/ch07-ex54.html"><span lang="en">Ch. 7 · <span class="ex-no">Ex. 54</span></span><span lang="cs">Kap. 7 · <span class="ex-no">Úl. 54</span></span></a>
+            <a class="ex-tab" href="../exercises/ch07-ex65.html"><span lang="en">Ch. 7 · <span class="ex-no">Ex. 65</span></span><span lang="cs">Kap. 7 · <span class="ex-no">Úl. 65</span></span></a>
+            <a class="ex-tab" href="../exercises/ch08-ex25.html"><span lang="en">Ch. 8 · <span class="ex-no">Ex. 25</span></span><span lang="cs">Kap. 8 · <span class="ex-no">Úl. 25</span></span></a>
+            <a class="ex-tab" href="../exercises/ch08-ex27.html"><span lang="en">Ch. 8 · <span class="ex-no">Ex. 27</span></span><span lang="cs">Kap. 8 · <span class="ex-no">Úl. 27</span></span></a>
+            <a class="ex-tab" href="../exercises/ch08-ex64.html"><span lang="en">Ch. 8 · <span class="ex-no">Ex. 64</span></span><span lang="cs">Kap. 8 · <span class="ex-no">Úl. 64</span></span></a>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="force-and-motion.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Force and Motion</span><span lang="cs">Síla a pohyb</span></div>
+        </a>
+        <a href="particle-sets.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Particle Sets</span><span lang="cs">Soustavy částic</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ I.04 Work and Energy</span>
+        <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()        || '#363026',
+            acc:   s.getPropertyValue('--accent').trim()     || '#2d6b3a',
+            soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()      || '#FFFFEC',
+            deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+        };
+    }
+    let col = readCol();
+
+    const DEFAULTS = { height: 5, mass: 2, mu: 0 };
+    let state = { ...DEFAULTS };
+
+    const THETA = 30 * Math.PI / 180;
+    const G = 9.8;
+
+    let simT = 0;
+    let loopDuration = 0;
+
+    function computeLoop() {
+        const L = state.height / Math.sin(THETA);
+        const frictionWork = state.mu * state.mass * G * Math.cos(THETA) * L;
+        const peTop = state.mass * G * state.height;
+        const keBot = Math.max(0, peTop - frictionWork);
+        const vBot = Math.sqrt(2 * keBot / state.mass);
+        const aDown = G * (Math.sin(THETA) - state.mu * Math.cos(THETA));
+        loopDuration = aDown > 0.001 ? vBot / aDown : 2;
+        if (loopDuration < 0.3) loopDuration = 0.3;
+        return { L, frictionWork, peTop, keBot, vBot };
+    }
+
+    let cached = computeLoop();
+
+    function bindSlider(inputId, valId, key, fmt) {
+        const inp = document.getElementById(inputId);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(+inp.value);
+            simT = 0;
+            cached = computeLoop();
+        });
+    }
+    bindSlider('p-height', 'p-height-val', 'height', v => (+v).toFixed(1) + ' m');
+    bindSlider('p-mass',   'p-mass-val',   'mass',   v => (+v).toFixed(1) + ' kg');
+    bindSlider('p-mu',     'p-mu-val',     'mu',     v => (+v).toFixed(2));
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        simT = 0;
+        [['p-height','p-height-val','height', v => (+v).toFixed(1) + ' m'],
+         ['p-mass','p-mass-val','mass', v => (+v).toFixed(1) + ' kg'],
+         ['p-mu','p-mu-val','mu', v => (+v).toFixed(2)]].forEach(([id, vid, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(vid);
+            if (inp) inp.value = DEFAULTS[key];
+            if (lbl) lbl.textContent = fmt(DEFAULTS[key]);
+        });
+        cached = computeLoop();
+    });
+
+    function ballPos(t, L) {
+        const frac = Math.min(t / loopDuration, 1);
+        const s = L * frac;
+        const rampTX = 0.12 * W;
+        const rampTY = 0.12 * H;
+        const rampBX = rampTX + L * Math.cos(THETA) * (H * 0.6) / state.height;
+        const rampBY = rampTY + L * Math.sin(THETA) * (H * 0.6) / state.height;
+        const dx = rampBX - rampTX, dy = rampBY - rampTY;
+        const len = Math.hypot(dx, dy);
+        return {
+            x: rampTX + (dx / len) * s * (H * 0.6) / state.height,
+            y: rampTY + (dy / len) * s * (H * 0.6) / state.height,
+            frac,
+            rampTX, rampTY, rampBX, rampBY,
+        };
+    }
+
+    function draw(t) {
+        ctx.clearRect(0, 0, W, H);
+
+        const { L, frictionWork, peTop, keBot } = cached;
+
+        const rampScale = (H * 0.62) / state.height;
+        const rampTX = W * 0.12;
+        const rampTY = H * 0.11;
+        const rampBX = rampTX + L * Math.cos(THETA) * rampScale;
+        const rampBY = rampTY + L * Math.sin(THETA) * rampScale;
+
+        ctx.save();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(rampTX, rampTY); ctx.lineTo(rampBX, rampBY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(rampBX, rampBY); ctx.lineTo(rampTX, rampBY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(rampTX, rampTY); ctx.lineTo(rampTX, rampBY); ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        for (let x = rampBX; x < W * 1.1; x += 12) {
+            ctx.beginPath(); ctx.moveTo(x, rampBY); ctx.lineTo(x - 10, rampBY + 10); ctx.stroke();
+        }
+        ctx.restore();
+
+        const frac = Math.min(t / loopDuration, 1);
+        const s = L * rampScale * frac;
+        const dx = rampBX - rampTX, dy = rampBY - rampTY;
+        const rLen = Math.hypot(dx, dy);
+        const bx = rampTX + (dx / rLen) * s;
+        const by = rampTY + (dy / rLen) * s;
+
+        const sAlong = frac * L;
+        const hRemain = Math.max(0, state.height - sAlong * Math.sin(THETA));
+        const wFrict  = state.mu * state.mass * G * Math.cos(THETA) * sAlong;
+        const peNow   = state.mass * G * hRemain;
+        const keNow   = Math.max(0, peTop - peNow - wFrict);
+        const vNow    = Math.sqrt(2 * keNow / state.mass);
+
+        const R = 12;
+        ctx.save();
+        const rg = ctx.createRadialGradient(bx - R * 0.3, by - R * 0.3, 1, bx, by, R);
+        rg.addColorStop(0, col.deep);
+        rg.addColorStop(1, col.acc + 'cc');
+        ctx.fillStyle = rg;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(bx, by, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.restore();
+
+        const BAR_X = W * 0.68;
+        const BAR_W = 42;
+        const BAR_MAX_H = H * 0.55;
+        const BAR_BASE = H * 0.80;
+        const BAR_GAP = 60;
+
+        function drawBar(x, val, total, color, label) {
+            const h = total > 0 ? (val / total) * BAR_MAX_H : 0;
+            ctx.save();
+            ctx.fillStyle = col.deep;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.fillRect(x, BAR_BASE - BAR_MAX_H, BAR_W, BAR_MAX_H);
+            ctx.strokeRect(x, BAR_BASE - BAR_MAX_H, BAR_W, BAR_MAX_H);
+            if (h > 1) {
+                ctx.fillStyle = color + 'cc';
+                ctx.fillRect(x, BAR_BASE - h, BAR_W, h);
+                ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+                ctx.strokeRect(x, BAR_BASE - h, BAR_W, h);
+            }
+            ctx.fillStyle = col.ink;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(label, x + BAR_W / 2, BAR_BASE + 5);
+            ctx.fillStyle = col.acc;
+            ctx.font = '700 10px "JetBrains Mono", monospace';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(val.toFixed(1) + ' J', x + BAR_W / 2, BAR_BASE - h - 3);
+            ctx.restore();
+        }
+
+        drawBar(BAR_X,           keNow, peTop, col.acc,  'KE');
+        drawBar(BAR_X + BAR_GAP, peNow, peTop, col.soft, 'PE');
+
+        const eff = peTop > 0 ? (keBot / peTop * 100) : 100;
+        const $ = id => document.getElementById(id);
+        if ($('r-ke'))  $('r-ke').textContent  = keNow.toFixed(2)  + ' J';
+        if ($('r-pe'))  $('r-pe').textContent  = peNow.toFixed(2)  + ' J';
+        if ($('r-vel')) $('r-vel').textContent  = vNow.toFixed(2)   + ' m/s';
+        if ($('r-eff')) $('r-eff').textContent  = eff.toFixed(1)    + ' %';
+    }
+
+    let lastT = 0, fpsFrames = 0, fpsTs = 0;
+    const fpsEl = document.getElementById('sim-fps');
+    let wallT = 0;
+
+    function frame(ts) {
+        const dt = Math.min((ts - lastT) / 1000, 0.05);
+        lastT = ts;
+        fpsFrames++;
+        if (ts - fpsTs >= 1000) {
+            if (fpsEl) fpsEl.textContent = fpsFrames + ' fps · live';
+            fpsFrames = 0; fpsTs = ts;
+        }
+
+        simT += dt;
+        if (simT > loopDuration + 0.5) simT = 0;
+
+        draw(simT);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

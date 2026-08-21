@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 38.25 · Photoelectrons in a Magnetic Field — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="quantum" data-screen-label="Ex 38.25 X-ray Photoelectrons">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Modern Physics</span><span lang="cs">Díl II · Moderní fyzika</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 38 · Ex. 25</span><span lang="cs">Kap. 38 · Úl. 25</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 7 · Modern Physics — Chapter 38 · Exercise 25</span><span lang="cs">7. téma · Moderní fyzika — Kapitola 38 · Úloha 25</span></div>
+        <h1><span lang="en">Photoelectrons in a Magnetic Field</span><span lang="cs">Fotoelektrony v magnetickém poli</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>25</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    X-rays of wavelength
+                    <span class="given" data-tex="71\ \mathrm{pm}"></span> eject electrons from the
+                    inner shells of gold atoms in a foil. The emitted electrons then move on circular
+                    paths of radius <span data-tex="r"></span> in a homogeneous magnetic field
+                    <span data-tex="\vec{B}"></span>, and the product is measured to be
+                    <span class="given" data-tex="B\,r = 1{,}88\cdot 10^{-4}\ \mathrm{T\,m}"></span>.
+                </p>
+                <p lang="cs">
+                    Rentgenové záření o vlnové délce
+                    <span class="given" data-tex="71\ \mathrm{pm}"></span> vyráží elektrony z vnitřních
+                    slupek atomů zlata ve fólii. Emitované elektrony se pak pohybují po kruhových
+                    drahách o poloměru <span data-tex="r"></span> v homogenním magnetickém poli
+                    <span data-tex="\vec{B}"></span>, přičemž naměřený součin je
+                    <span class="given" data-tex="B\,r = 1{,}88\cdot 10^{-4}\ \mathrm{T\,m}"></span>.
+                </p>
+                <p lang="en">
+                    Determine (a) the maximum kinetic energy of the emitted electrons and
+                    (b) the work needed to release them from the gold atoms.
+                </p>
+                <p lang="cs">
+                    Určete (a) maximální kinetickou energii emitovaných elektronů a
+                    (b) výstupní práci potřebnou k jejich uvolnění z atomů zlata.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Momentum spectrometer</span><span lang="cs">Hybnostní spektrometr</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="p = eBr,\qquad E_{\text{f}} = \dfrac{hc}{\lambda} = E_k + W"></div>
+                <div class="sim-hint"><span lang="en">Br measures momentum · the photon budget pays for KE and escape</span><span lang="cs">Br udává hybnost · energie fotonu se dělí mezi KE a výstupní práci</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Wavelength λ</span><span lang="cs">Vlnová délka λ</span></span>
+                            <span class="sim-control-val" id="p-lam-val">71 pm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-lam" min="40" max="120" step="0.5" value="71">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Measured B·r</span><span lang="cs">Naměřené B·r</span></span>
+                            <span class="sim-control-val" id="p-br-val">1.88 ×10⁻⁴ T·m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-br" min="0.5" max="3.5" step="0.01" value="1.88">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="p = eBr"></span>
+                        <span class="readout-val" id="r-p">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_k = p^2/2m_e"></span>
+                        <span class="readout-val" id="r-ke">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_{\text{photon}}"></span>
+                        <span class="readout-val" id="r-eph">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W = E_{\text{photon}} - E_k"></span>
+                        <span class="readout-val" id="r-w">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> In the field the electron's momentum follows from the orbit:
+                    <span data-tex="p = eBr = 1.602\cdot 10^{-19}\cdot 1.88\cdot 10^{-4} = 3.01\cdot 10^{-23}\ \mathrm{kg\,m\,s^{-1}}"></span>.
+                    Non-relativistically,
+                    <span data-tex="E_k = \dfrac{p^2}{2m_e} = \dfrac{(3.01\cdot 10^{-23})^2}{2\cdot 9.11\cdot 10^{-31}} = 4.98\cdot 10^{-16}\ \mathrm{J} = 3.1\ \mathrm{keV}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> V poli plyne hybnost elektronu z poloměru dráhy:
+                    <span data-tex="p = eBr = 1{,}602\cdot 10^{-19}\cdot 1{,}88\cdot 10^{-4} = 3{,}01\cdot 10^{-23}\ \mathrm{kg\,m\,s^{-1}}"></span>.
+                    Nerelativisticky,
+                    <span data-tex="E_k = \dfrac{p^2}{2m_e} = \dfrac{(3{,}01\cdot 10^{-23})^2}{2\cdot 9{,}11\cdot 10^{-31}} = 4{,}98\cdot 10^{-16}\ \mathrm{J} = 3{,}1\ \mathrm{keV}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The photon carries
+                    <span data-tex="E_{\text{f}} = \dfrac{hc}{\lambda} = \dfrac{1240\ \mathrm{eV\,nm}}{0.071\ \mathrm{nm}} = 17.5\ \mathrm{keV}"></span>.</span>
+                    <span lang="cs">Foton nese energii
+                    <span data-tex="E_{\text{f}} = \dfrac{hc}{\lambda} = \dfrac{1240\ \mathrm{eV\,nm}}{0{,}071\ \mathrm{nm}} = 17{,}5\ \mathrm{keV}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The photoelectric energy balance
+                    <span data-tex="E_{\text{f}} = E_k + W"></span> gives
+                    <span data-tex="W = 17.5 - 3.1 = 14.4\ \mathrm{keV}"></span> — the binding
+                    energy of the inner-shell electrons in gold.</span>
+                    <span lang="cs"><strong>(b)</strong> Energetická bilance fotoelektrického jevu
+                    <span data-tex="E_{\text{f}} = E_k + W"></span> dává
+                    <span data-tex="W = 17{,}5 - 3{,}1 = 14{,}4\ \mathrm{keV}"></span> — vazebnou
+                    energii elektronů z vnitřní slupky zlata.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E_k \approx 3.1\ \mathrm{keV}"></span><span lang="cs" data-tex="E_k \approx 3{,}1\ \mathrm{keV}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="W \approx 14\ \mathrm{keV}"></span><span lang="cs" data-tex="W \approx 14\ \mathrm{keV}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/quantum.html"><span lang="en">← Topic: Quantum &amp; Atoms</span><span lang="cs">← Téma: Kvantová fyzika a atomy</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 38 · Ex. 25</span><span lang="cs">Kap. 38 · Úl. 25</span></span>
+        <span><span lang="en">Vol. II · Modern Physics</span><span lang="cs">Díl II · Moderní fyzika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2a1f50',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const E_CH = 1.602e-19, ME = 9.109e-31, HC = 1240;   /* eV·nm */
+    const DEFAULTS = { lam: 71, br: 1.88 };              /* pm, 1e-4 T·m */
+    let state = { ...DEFAULTS };
+
+    const SLIDERS = [
+        ['p-lam', 'lam', v => v.toFixed(0) + ' pm'],
+        ['p-br',  'br',  v => v.toFixed(2) + ' ×10⁻⁴ T·m'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+
+    function physics() {
+        const p = E_CH * state.br * 1e-4;                /* kg m/s */
+        const keJ = p * p / (2 * ME);
+        const keKeV = keJ / E_CH / 1e3;
+        const ephKeV = HC / (state.lam * 1e-3) / 1e3;    /* λ pm → nm */
+        return { p, keKeV, ephKeV, wKeV: ephKeV - keKeV };
+    }
+
+    let phase = 0;
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        /* ── left: foil + orbit ──────────────────────────────────── */
+        const foilX = W * 0.16;
+        const foilY0 = H * 0.2, foilY1 = H * 0.86;
+
+        /* B out-of-page dots */
+        ctx.strokeStyle = col.faint; ctx.fillStyle = col.faint; ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                const x = W * 0.28 + i * W * 0.09;
+                const y = H * 0.16 + j * H * 0.22;
+                ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(x, y, 1.2, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        /* gold foil */
+        ctx.fillStyle = 'rgba(212,164,24,0.5)';
+        ctx.fillRect(foilX - 5, foilY0, 10, foilY1 - foilY0);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+        ctx.strokeRect(foilX - 5, foilY0, 10, foilY1 - foilY0);
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('gold foil', foilX, foilY1 + 8);
+
+        /* incoming X-ray (wavy line) */
+        const hitY = H * 0.52;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        for (let x = 20; x < foilX - 6; x += 2) {
+            const y = hitY + Math.sin((x + ts * 0.12) * 0.55) * 6;
+            if (x === 20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('X-ray λ = ' + state.lam.toFixed(0) + ' pm', 20, hitY - 12);
+
+        /* electron circular orbit; radius ∝ Br */
+        const orbR = 30 + state.br * 42;
+        const ocx = foilX + orbR, ocy = hitY;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.arc(ocx, ocy, orbR, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+        /* electron dot */
+        phase = ts * 0.0016;
+        const ex = ocx + Math.cos(Math.PI + phase) * orbR;
+        const ey = ocy + Math.sin(Math.PI + phase) * orbR;
+        ctx.fillStyle = col.acc;
+        ctx.beginPath(); ctx.arc(ex, ey, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = col.soft;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('r ∝ Br', ocx, ocy - orbR - 6);
+
+        /* ── right: energy budget bars ───────────────────────────── */
+        const bx = W * 0.68, bw = 60;
+        const bh = H * 0.6, byB = H * 0.84;
+        const eMax = Math.max(f.ephKeV * 1.1, 5);
+
+        /* photon bar */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.strokeRect(bx, byB - bh, bw, bh);
+        const hP = bh * f.ephKeV / eMax;
+        ctx.fillStyle = 'rgba(42,31,80,0.28)';
+        ctx.fillRect(bx, byB - hP, bw, hP);
+
+        /* split bar: W below, KE on top */
+        const bx2 = bx + 100;
+        ctx.strokeRect(bx2, byB - bh, bw, bh);
+        const hW = bh * Math.max(0, f.wKeV) / eMax;
+        const hK = bh * f.keKeV / eMax;
+        ctx.fillStyle = 'rgba(42,31,80,0.6)';
+        ctx.fillRect(bx2, byB - hW, bw, hW);
+        ctx.fillStyle = col.acc;
+        ctx.fillRect(bx2, byB - hW - hK, bw, hK);
+
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('photon', bx + bw / 2, byB + 8);
+        ctx.fillText(f.ephKeV.toFixed(1) + ' keV', bx + bw / 2, byB + 21);
+        ctx.fillText('W + KE', bx2 + bw / 2, byB + 8);
+        ctx.fillText(f.wKeV.toFixed(1) + ' + ' + f.keKeV.toFixed(1), bx2 + bw / 2, byB + 21);
+
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        if (hK > 12) {
+            ctx.fillStyle = col.paper;
+            ctx.fillText('KE', bx2 + 6, byB - hW - hK / 2);
+        }
+        if (hW > 12) {
+            ctx.fillStyle = col.paper;
+            ctx.fillText('W', bx2 + 6, byB - hW / 2);
+        }
+        if (f.wKeV < 0) {
+            ctx.fillStyle = '#a03030';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('KE exceeds photon energy — unphysical', bx2 + bw / 2, byB - bh - 8);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-p').textContent   = (f.p * 1e23).toFixed(2) + ' ×10⁻²³ kg·m/s';
+        $('r-ke').textContent  = f.keKeV.toFixed(2) + ' keV';
+        $('r-eph').textContent = f.ephKeV.toFixed(2) + ' keV';
+        $('r-w').textContent   = f.wKeV.toFixed(1) + ' keV';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

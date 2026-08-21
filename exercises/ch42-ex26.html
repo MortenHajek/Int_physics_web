@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 42.26 · Four Half-Lives — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="quantum" data-screen-label="Ex 42.26 Four Half-Lives">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Modern Physics</span><span lang="cs">Díl II · Moderní fyzika</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 42 · Ex. 26</span><span lang="cs">Kap. 42 · Úl. 26</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 7 · Modern Physics — Chapter 42 · Exercise 26</span><span lang="cs">7. téma · Moderní fyzika — Kapitola 42 · Úloha 26</span></div>
+        <h1><span lang="en">Four Half-Lives</span><span lang="cs">Čtyři poločasy rozpadu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>26</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A radioactive isotope has a half-life of
+                    <span class="given" data-tex="T_{1/2} = 6.5\ \mathrm{h}"></span>.
+                    A sample initially contains
+                    <span class="given" data-tex="N_0 = 48\cdot 10^{19}"></span>
+                    atoms of it.
+                </p>
+                <p lang="cs">
+                    Radioaktivní izotop má poločas rozpadu
+                    <span class="given" data-tex="T_{1/2} = 6{,}5\ \mathrm{h}"></span>.
+                    Vzorek jich zpočátku obsahuje
+                    <span class="given" data-tex="N_0 = 48\cdot 10^{19}"></span>
+                    atomů.
+                </p>
+                <p lang="en">
+                    How many of those atoms remain after
+                    <span class="given" data-tex="26\ \mathrm{h}"></span>?
+                </p>
+                <p lang="cs">
+                    Kolik z těchto atomů zůstane po
+                    <span class="given" data-tex="26\ \mathrm{h}"></span>?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Decay sandbox</span><span lang="cs">Sandbox: rozpad</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="N(t) = N_0 \cdot 2^{-t/T_{1/2}}"></div>
+                <div class="sim-hint"><span lang="en">slide t · every T½ cuts the sample in half</span><span lang="cs">posouvejte t · každý poločas rozpolí vzorek</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Elapsed time t</span><span lang="cs">Uplynulý čas t</span></span>
+                            <span class="sim-control-val" id="p-t-val">26.0 h</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-t" min="0" max="52" step="0.5" value="26.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Half-life T½</span><span lang="cs">Poločas rozpadu T½</span></span>
+                            <span class="sim-control-val" id="p-th-val">6.5 h</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-th" min="1" max="24" step="0.5" value="6.5">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Decay</span><span lang="cs">Rozpad</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="t/T_{1/2}"></span>
+                        <span class="readout-val" id="r-k">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="2^{-t/T_{1/2}}"></span>
+                        <span class="readout-val" id="r-frac">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="N(t)"></span>
+                        <span class="readout-val" id="r-n">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-stair">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">half-life staircase</span><span lang="cs">schody poločasů</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-grid">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">atom grid</span><span lang="cs">mřížka atomů</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Radioactive decay halves the population every
+                    <span data-tex="T_{1/2}"></span>:
+                    <span data-tex="N(t) = N_0 \cdot 2^{-t/T_{1/2}}"></span>.</span>
+                    <span lang="cs">Radioaktivní rozpad rozpůlí počet atomů za každý
+                    <span data-tex="T_{1/2}"></span>:
+                    <span data-tex="N(t) = N_0 \cdot 2^{-t/T_{1/2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">
+                    <span data-tex="t/T_{1/2} = 26/6.5 = 4.0"></span>
+                    — exactly four half-lives.</span>
+                    <span lang="cs">
+                    <span data-tex="t/T_{1/2} = 26/6{,}5 = 4{,}0"></span>
+                    — přesně čtyři poločasy rozpadu.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">
+                    <span data-tex="N = N_0/2^4 = 48\cdot 10^{19}/16 = 3.0\cdot 10^{19}"></span>
+                    atoms.</span>
+                    <span lang="cs">
+                    <span data-tex="N = N_0/2^4 = 48\cdot 10^{19}/16 = 3{,}0\cdot 10^{19}"></span>
+                    atomů.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="N \approx 3.0\cdot 10^{19}"></span><span lang="cs" data-tex="N \approx 3{,}0\cdot 10^{19}"></span></span>
+                <span class="ans-value"><span lang="en">atoms remain (1/16 of the sample)</span><span lang="cs">atomů zbývá (1/16 vzorku)</span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/quantum.html"><span lang="en">← Topic: Quantum &amp; Atoms</span><span lang="cs">← Téma: Kvantová fyzika a atomy</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 42 · Ex. 26</span><span lang="cs">Kap. 42 · Úl. 26</span></span>
+        <span><span lang="en">Vol. II · Modern Physics</span><span lang="cs">Díl II · Moderní fyzika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2a1f50',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const N0_19 = 48;   /* N₀ in units of 10¹⁹ atoms */
+
+    const DEFAULTS = { t: 26.0, th: 6.5 };   /* hours */
+    let state = { ...DEFAULTS };
+    const show = { stair: true, grid: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtT = v => v.toFixed(1) + ' h';
+    bindSlider('p-t',  't',  fmtT);
+    bindSlider('p-th', 'th', fmtT);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-t', 't', fmtT], ['p-th', 'th', fmtT]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-stair', 'stair');
+    wireToggle('tgl-grid',  'grid');
+
+    /* ── Deterministic decay order for the 200-dot sample ───────── */
+    const rank = (function () {
+        const order = [];
+        for (let i = 0; i < 200; i++) order.push(i);
+        let seed = 123456789;
+        function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+        for (let i = 199; i > 0; i--) {
+            const j = Math.floor(rnd() * (i + 1));
+            const tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+        }
+        const r = new Array(200);
+        order.forEach((d, i) => { r[d] = i; });
+        return r;
+    }());
+
+    /* ── Formatting ─────────────────────────────────────────────── */
+    const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                  '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+    function sci(v, d) {
+        if (!isFinite(v) || v === 0) return '0';
+        let exp = Math.floor(Math.log10(Math.abs(v)));
+        let man = v / Math.pow(10, exp);
+        if (+man.toFixed(d) >= 10) { man /= 10; exp += 1; }
+        const es = String(exp).split('').map(c => SUP[c]).join('');
+        return man.toFixed(d) + '·10' + es;
+    }
+    function fmtH(v) {
+        const r = Math.round(v * 10) / 10;
+        return (r % 1 === 0) ? String(r) : r.toFixed(1);
+    }
+    function fmtFrac(f) {
+        let s = (f >= 0.001) ? f.toFixed(4) : sci(f, 2);
+        const k = state.t / state.th;
+        const kr = Math.round(k);
+        if (kr >= 1 && kr <= 12 && Math.abs(k - kr) < 1e-9) {
+            s += ' = 1/' + Math.pow(2, kr);
+        }
+        return s;
+    }
+    function fmtCount(f) {
+        const v19 = N0_19 * f;
+        if (v19 >= 0.01) return v19.toFixed(2) + ' ·10¹⁹';
+        return sci(v19 * 1e19, 2);
+    }
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function line(x1, y1, x2, y2) {
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        const frac = Math.pow(2, -state.t / state.th);
+        const tmax = 8 * state.th;
+        const px0 = 64, px1 = W - 26;
+        const py0 = 30;
+        const py1 = show.grid ? H - 188 : H - 60;
+        const X = t => px0 + (t / tmax) * (px1 - px0);
+        const Y = f => py1 - (f / 1.06) * (py1 - py0);
+
+        /* axes */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.3;
+        line(px0, py0, px0, py1);
+        line(px0, py1, px1, py1);
+
+        /* axis annotations */
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('N (·10¹⁹ ATOMS)', px0, py0 - 8);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        line(px0 - 4, Y(1), px0, Y(1));
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('48', px0 - 8, Y(1));
+        ctx.fillText('0',  px0 - 8, py1);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('0', px0, py1 + 7);
+        ctx.textAlign = 'right';
+        ctx.fillText(fmtH(tmax) + ' h', px1, py1 + 7);
+
+        /* halving staircase guides */
+        if (show.stair) {
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 0.9;
+            for (let k = 1; k <= 7; k++) line(X(k * state.th), py0, X(k * state.th), py1);
+            for (let k = 1; k <= 5; k++) line(px0, Y(Math.pow(0.5, k)), px1, Y(Math.pow(0.5, k)));
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.faint;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            for (let k = 1; k <= 7; k++) ctx.fillText(fmtH(k * state.th), X(k * state.th), py1 + 7);
+            const names = ['N₀/2', 'N₀/4', 'N₀/8', 'N₀/16'];
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            for (let k = 1; k <= 4; k++) ctx.fillText(names[k - 1], px1 - 2, Y(Math.pow(0.5, k)) - 2);
+        }
+
+        /* decay curve */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 240; i++) {
+            const tt = tmax * i / 240;
+            const x = X(tt), y = Y(Math.pow(2, -tt / state.th));
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        /* marker at the slider's t (clamped to the plotted domain) */
+        const tc = Math.min(state.t, tmax);
+        const fc = Math.pow(2, -tc / state.th);
+        const mx = X(tc), my = Y(fc);
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        line(mx, py1, mx, my);
+        line(px0, my, mx, my);
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(mx, my, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.strokeStyle = col.paper; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = col.acc;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textBaseline = 'bottom';
+        if (mx > px1 - 50) { ctx.textAlign = 'right'; ctx.fillText('N(t)', mx - 8, my - 6); }
+        else               { ctx.textAlign = 'left';  ctx.fillText('N(t)', mx + 8, my - 6); }
+
+        /* atom grid — the sample visibly thinning */
+        if (show.grid) {
+            const gy0 = H - 146, gy1 = H - 56;
+            const cell = (gy1 - gy0) / 10;
+            const alive = Math.round(200 * frac);
+            for (let i = 0; i < 200; i++) {
+                const dx = px0 + ((i % 20) + 0.5) * cell;
+                const dy = gy0 + (Math.floor(i / 20) + 0.5) * cell;
+                if (rank[i] < alive) {
+                    ctx.beginPath(); ctx.arc(dx, dy, 2.8, 0, Math.PI * 2);
+                    ctx.fillStyle = col.acc; ctx.fill();
+                } else {
+                    ctx.beginPath(); ctx.arc(dx, dy, 2.3, 0, Math.PI * 2);
+                    ctx.strokeStyle = col.faint; ctx.lineWidth = 0.9;
+                    ctx.globalAlpha = 0.55; ctx.stroke(); ctx.globalAlpha = 1;
+                }
+            }
+            const bx = px0 + 20 * cell + 18;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.fillStyle = col.faint;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+            ctx.fillText('SAMPLE OF 200 DOTS',        bx, gy0 + 6);
+            ctx.fillText('1 DOT ≈ 0.24·10¹⁹ ATOMS',   bx, gy0 + 20);
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.fillText(alive + ' / 200 REMAIN',      bx, gy0 + 42);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-k'))    $('r-k').textContent    = (state.t / state.th).toFixed(2);
+        if ($('r-frac')) $('r-frac').textContent = fmtFrac(frac);
+        if ($('r-n'))    $('r-n').textContent    = fmtCount(frac);
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

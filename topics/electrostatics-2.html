@@ -1,0 +1,2284 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Electrostatics 2 · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-cool);
+    }
+    .canvas-wrap > canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    #phi-canvas   { cursor: grab; touch-action: none; }
+    #phi-canvas:active { cursor: grabbing; }
+    #slice-canvas, #sim-canvas, #net-canvas { cursor: default; }
+    #lab2 .canvas-wrap { min-height: 440px; }
+    #lab4 .canvas-wrap { min-height: 460px; }
+
+    /* Small text button in a panel head (reset) */
+    .btn-mini {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+    .btn-mini:hover { color: var(--accent); }
+
+    /* Radio-style rows (single choice) */
+    .obj-row .toggle-box { border-radius: 50%; }
+    .obj-row .toggle-box.on { background: var(--paper); }
+    .obj-row .toggle-box.on::after {
+        clip-path: none;
+        border-radius: 50%;
+        inset: 3px;
+        background: var(--accent);
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ─────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                                        
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                                    
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+        border-bottom-color: var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                        .topic-nav { grid-template-columns: 1fr; }
+                                        .core-formula { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="electrostatics-2" data-screen-label="II.02 Electrostatics 2">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">V</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ════ § 1  HERO ════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ II.02 · electrostatics-2</div>
+            <h1><span lang="en">Electrostatics&nbsp;2</span><span lang="cs">Elektrostatika&nbsp;2</span></h1>
+            <p class="lede">
+                <span lang="en">Give every point of an electric field an energy altitude and the vector problem
+                becomes arithmetic. That altitude is the potential <span data-tex="\varphi"></span> — and two
+                conductors held apart at a fixed potential difference make a capacitor.</span>
+                <span lang="cs">Přiřaďte každému bodu elektrického pole energetickou výšku a z vektorové úlohy
+                se stane počítání s čísly. Tou výškou je potenciál <span data-tex="\varphi"></span> — a dva
+                vodiče držené na stálém rozdílu potenciálů tvoří kondenzátor.</span>
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\Delta\varphi = -\int_a^b \vec{E}\cdot\mathrm{d}\vec{\ell}"></div>
+            <div class="eq-caption"><span lang="en">Voltage is a potential difference, U = Δφ — the field points down the steepest fall of φ</span><span lang="cs">Napětí je rozdíl potenciálů, U = Δφ — pole míří po nejprudším spádu φ</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">The electrostatic force is conservative: the work it does in moving a charge
+                between two points does not depend on the path taken, so every point in a field can be given
+                an energy &ldquo;altitude&rdquo;. That altitude per unit charge is the <em>electric potential</em>
+                <span data-tex="\varphi"></span> — the electrostatic counterpart of height in a gravitational
+                field, where <span data-tex="E_p = mgh"></span> becomes <span data-tex="E_p = Q\varphi"></span>.
+                Because <span data-tex="\varphi"></span> is a <em>scalar</em>, the contributions of many charges
+                add as plain signed numbers, and the field is recovered from it by a single derivative. Two
+                conductors placed close together turn this into a device: a <em>capacitor</em> carries a charge
+                proportional to the voltage between its electrodes and stores energy in the field in the gap.</span>
+                <span lang="cs">Elektrostatická síla je konzervativní: práce, kterou vykoná při přenesení náboje
+                mezi dvěma body, nezávisí na dráze — každému místu v poli lze proto přiřadit energetickou
+                „nadmořskou výšku“. Ta v přepočtu na jednotkový náboj je <em>elektrický potenciál</em>
+                <span data-tex="\varphi"></span> — elektrostatická obdoba výšky v gravitačním poli, kde se
+                z <span data-tex="E_p = mgh"></span> stává <span data-tex="E_p = Q\varphi"></span>. Protože
+                <span data-tex="\varphi"></span> je <em>skalár</em>, příspěvky mnoha nábojů se sčítají jako
+                obyčejná čísla se znaménky a pole z něj získáme jedinou derivací. Dva vodiče umístěné blízko
+                sebe z toho udělají součástku: <em>kondenzátor</em> nese náboj úměrný napětí mezi elektrodami
+                a ukládá energii do pole v mezeře mezi nimi.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Potential — definition</span><span lang="cs">Potenciál — definice</span></span>
+                        <span class="cf-eq" data-tex="\varphi = \dfrac{E_p}{Q}\,,\qquad E_p = Q\varphi"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Potential separates the property of the <em>place</em> from the property
+                        of the <em>particle</em>: the same <span data-tex="\varphi"></span> gives a different
+                        energy to every charge placed there. Unit [φ] = J/C = V. The zero level is a free
+                        choice — for isolated charges we take <span data-tex="\varphi(\infty) = 0"></span>.</span>
+                        <span lang="cs">Potenciál odděluje vlastnost <em>místa</em> od vlastnosti <em>částice</em>:
+                        stejné <span data-tex="\varphi"></span> dá jinou energii každému náboji, který tam
+                        vložíme. Jednotka [φ] = J/C = V. Nulovou hladinu lze zvolit — u izolovaných nábojů
+                        volíme <span data-tex="\varphi(\infty) = 0"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Voltage — potential difference</span><span lang="cs">Napětí — rozdíl potenciálů</span></span>
+                        <span class="cf-eq" data-tex="U = \Delta\varphi = -\int_a^b \vec{E}\cdot\mathrm{d}\vec{\ell}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The work done by the electric force per unit charge, taken with a minus
+                        sign: <span data-tex="\Delta\varphi = \Delta E_p/Q = -W/Q"></span>. In electrostatics the
+                        integral does not depend on the route, so the voltage between two points is a number,
+                        not a path. A positive charge released in the field runs downhill in
+                        <span data-tex="\varphi"></span>, a negative one uphill.</span>
+                        <span lang="cs">Práce elektrické síly připadající na jednotkový náboj, se záporným
+                        znaménkem: <span data-tex="\Delta\varphi = \Delta E_p/Q = -W/Q"></span>. V elektrostatice
+                        na dráze nezáleží, napětí mezi dvěma body je proto číslo, ne trasa. Kladný náboj se
+                        v poli rozjede z kopce po <span data-tex="\varphi"></span>, záporný do kopce.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Point charge and superposition</span><span lang="cs">Bodový náboj a superpozice</span></span>
+                        <span class="cf-eq" data-tex="\varphi(r) = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q}{r}"></span>
+                        <span class="cf-eq" data-tex="\varphi = \dfrac{1}{4\pi\varepsilon_0}\textstyle\sum_i \dfrac{Q_i}{r_i}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With <span data-tex="\varphi(\infty)=0"></span> the potential of a point
+                        charge falls as <span data-tex="1/r"></span> — not <span data-tex="1/r^2"></span> like the
+                        field — and carries the sign of <span data-tex="Q"></span>. Several charges superpose as
+                        an algebraic sum: no axes, no components, nothing to decompose. That is the whole reason
+                        to work with <span data-tex="\varphi"></span> instead of <span data-tex="\vec{E}"></span>.</span>
+                        <span lang="cs">Při volbě <span data-tex="\varphi(\infty)=0"></span> klesá potenciál
+                        bodového náboje s <span data-tex="1/r"></span> — ne s <span data-tex="1/r^2"></span> jako
+                        pole — a nese znaménko náboje <span data-tex="Q"></span>. Několik nábojů se sčítá
+                        algebraicky: žádné osy, žádné složky, není co rozkládat. Právě proto se vyplatí počítat
+                        s <span data-tex="\varphi"></span> místo s <span data-tex="\vec{E}"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Continuous charge</span><span lang="cs">Spojitě rozložený náboj</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}\varphi = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{\mathrm{d}Q}{r}"></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}Q = \tau_e\,\mathrm{d}x = \sigma_e\,\mathrm{d}S = \varrho_e\,\mathrm{d}V"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A charged body is sliced into elements <span data-tex="\mathrm{d}Q"></span>
+                        set by its linear (τₑ), surface (σₑ) or volume (ϱₑ) density, and the potentials of the
+                        elements are summed by integration, <span data-tex="\varphi = \int \mathrm{d}\varphi"></span>.
+                        Scalars again — the only real work is expressing the distance
+                        <span data-tex="r"></span> of the element from the point.</span>
+                        <span lang="cs">Nabité těleso krájíme na elementy <span data-tex="\mathrm{d}Q"></span> podle
+                        jeho délkové (τₑ), plošné (σₑ) nebo objemové (ϱₑ) hustoty a potenciály elementů sečteme
+                        integrálem, <span data-tex="\varphi = \int \mathrm{d}\varphi"></span>. Opět skaláry —
+                        jediná skutečná práce je vyjádřit vzdálenost <span data-tex="r"></span> elementu
+                        od bodu.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Field from a potential</span><span lang="cs">Intenzita z potenciálu</span></span>
+                        <span class="cf-eq" data-tex="\vec{E} = -\vec{\nabla}\varphi"></span>
+                        <span class="cf-eq" data-tex="E_x = -\dfrac{\partial\varphi}{\partial x}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The component of <span data-tex="\vec{E}"></span> in any direction equals
+                        the drop of <span data-tex="\varphi"></span> in that direction per unit distance. The two
+                        halves of the topic therefore connect both ways: integrate
+                        <span data-tex="\vec{E}"></span> to get <span data-tex="\varphi"></span>, differentiate
+                        <span data-tex="\varphi"></span> to get <span data-tex="\vec{E}"></span> — and on a
+                        symmetry axis only the axial component survives.</span>
+                        <span lang="cs">Složka <span data-tex="\vec{E}"></span> v libovolném směru se rovná poklesu
+                        <span data-tex="\varphi"></span> v tomto směru připadajícímu na jednotkovou vzdálenost.
+                        Obě poloviny tématu tak spojuje cesta tam i zpět: integrací
+                        <span data-tex="\vec{E}"></span> získáme <span data-tex="\varphi"></span>, derivací
+                        <span data-tex="\varphi"></span> získáme <span data-tex="\vec{E}"></span> — a na ose
+                        symetrie zbude jen osová složka.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Capacitance</span><span lang="cs">Kapacita</span></span>
+                        <span class="cf-eq" data-tex="C = \dfrac{Q}{U}\,,\qquad [C] = \mathrm{F} = \mathrm{C/V}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two conductors carrying <span data-tex="+Q"></span> and
+                        <span data-tex="-Q"></span> hold a charge proportional to the voltage between them. The
+                        capacitance <span data-tex="C \gt 0"></span> is set purely by geometry — shape, area,
+                        separation, and what fills the gap — never by how much charge happens to be on the
+                        plates. On a <span data-tex="Q\!-\!U"></span> graph, <span data-tex="C"></span> is the
+                        slope.</span>
+                        <span lang="cs">Dva vodiče s náboji <span data-tex="+Q"></span> a
+                        <span data-tex="-Q"></span> nesou náboj úměrný napětí mezi nimi. Kapacita
+                        <span data-tex="C \gt 0"></span> je dána výhradně geometrií — tvarem, plochou, vzdáleností
+                        a výplní mezery — nikdy tím, kolik náboje na elektrodách zrovna je. V grafu
+                        <span data-tex="Q\!-\!U"></span> je <span data-tex="C"></span> směrnicí.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Parallel-plate capacitor</span><span lang="cs">Deskový kondenzátor</span></span>
+                        <span class="cf-eq" data-tex="C = \dfrac{\varepsilon_0 S}{d}"></span>
+                        <span class="cf-eq" data-tex="E = \dfrac{\sigma_e}{\varepsilon_0} = \dfrac{U}{d}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Gauss's law over a surface enclosing one plate gives
+                        <span data-tex="Q = \varepsilon_0 E S"></span>; the field between the plates is uniform,
+                        so <span data-tex="U = Ed"></span>. Dividing the two yields the capacitance. Between the
+                        plates <span data-tex="E"></span> is constant and <span data-tex="\varphi"></span> falls
+                        linearly from one electrode to the other.</span>
+                        <span lang="cs">Gaussova věta pro plochu obepínající jednu elektrodu dá
+                        <span data-tex="Q = \varepsilon_0 E S"></span>; pole mezi deskami je homogenní, takže
+                        <span data-tex="U = Ed"></span>. Podíl obojího dá kapacitu. Mezi deskami je
+                        <span data-tex="E"></span> konstantní a <span data-tex="\varphi"></span> klesá lineárně
+                        od jedné elektrody ke druhé.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Dielectric in the gap</span><span lang="cs">Dielektrikum v mezeře</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon = \varepsilon_0\varepsilon_r \;\Rightarrow\; C = \dfrac{\varepsilon_0\varepsilon_r S}{d}"></span>
+                        <span class="cf-eq" data-tex="U_{max} = E_{max}\,d"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A dielectric has no free charge carriers; its molecular dipoles line up
+                        against the applied field and weaken it by the factor
+                        <span data-tex="\varepsilon_r \gt 1"></span> (air 1, polystyrene 2.6, paper 3.5). Same
+                        charge, weaker field, lower voltage — so the capacitance grows
+                        <span data-tex="\varepsilon_r"></span>-fold. Push the field past
+                        <span data-tex="E_{max}"></span> and the material breaks down, punching a conducting
+                        path through it.</span>
+                        <span lang="cs">Dielektrikum nemá volné nosiče náboje; jeho molekulární dipóly se postaví
+                        proti vloženému poli a zeslabí ho <span data-tex="\varepsilon_r"></span>-krát,
+                        <span data-tex="\varepsilon_r \gt 1"></span> (vzduch 1, polystyren 2,6, papír 3,5). Stejný
+                        náboj, slabší pole, nižší napětí — kapacita proto vzroste
+                        <span data-tex="\varepsilon_r"></span>-krát. Při překročení
+                        <span data-tex="E_{max}"></span> nastane elektrický průraz a materiálem se prorazí
+                        vodivá dráha.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Series and parallel</span><span lang="cs">Sériové a paralelní zapojení</span></span>
+                        <span class="cf-eq" data-tex="C_p = \textstyle\sum_i C_i"></span>
+                        <span class="cf-eq" data-tex="\dfrac{1}{C_s} = \textstyle\sum_i \dfrac{1}{C_i}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Capacitors side by side (parallel) share the same voltage and their
+                        charges add. Capacitors one after another (series) share the same charge — the inner
+                        plates are isolated, so the induced charge is identical on all of them — and their
+                        voltages add.</span>
+                        <span lang="cs">Kondenzátory vedle sebe (paralelně) mají stejné napětí a jejich náboje
+                        se sčítají. Kondenzátory za sebou (sériově) mají stejný náboj — vnitřní elektrody jsou
+                        izolované, indukovaný náboj je tedy na všech stejný — a jejich napětí se sčítají.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy of the field</span><span lang="cs">Energie pole</span></span>
+                        <span class="cf-eq" data-tex="E_{el} = \dfrac{Q^2}{2C} = \dfrac{1}{2}CU^2"></span>
+                        <span class="cf-eq" data-tex="w_{el} = \dfrac{1}{2}\varepsilon_0 E^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Charging is work: every further element
+                        <span data-tex="\mathrm{d}Q'"></span> has to be pushed across the voltage
+                        <span data-tex="U' = Q'/C"></span> already built up, and integrating that gives
+                        <span data-tex="Q^2/2C"></span>. The energy is not on the plates but in the field
+                        between them — hence the energy density <span data-tex="w_{el}"></span>, which holds for
+                        any electric field, not only a capacitor's.</span>
+                        <span lang="cs">Nabíjení je práce: každý další element
+                        <span data-tex="\mathrm{d}Q'"></span> je nutné přenést přes už vytvořené napětí
+                        <span data-tex="U' = Q'/C"></span>, a integrací vyjde
+                        <span data-tex="Q^2/2C"></span>. Energie není na deskách, ale v poli mezi nimi — odtud
+                        hustota energie <span data-tex="w_{el}"></span>, která platí pro libovolné elektrické
+                        pole, nejen pro pole kondenzátoru.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Potentials are numbers.</strong> Fix the zero level
+                    (<span data-tex="\varphi(\infty)=0"></span>), compute
+                    <span data-tex="\varphi_i = \dfrac{1}{4\pi\varepsilon_0}\,Q_i/r_i"></span> for each charge
+                    <em>with its own sign</em>, and add them up. No arrows to draw — only the distances
+                    <span data-tex="r_i"></span> matter.</span>
+                    <span lang="cs"><strong>Potenciály jsou čísla.</strong> Zvolte nulovou hladinu
+                    (<span data-tex="\varphi(\infty)=0"></span>), spočtěte
+                    <span data-tex="\varphi_i = \dfrac{1}{4\pi\varepsilon_0}\,Q_i/r_i"></span> pro každý náboj
+                    <em>i se znaménkem</em> a sečtěte je. Žádné šipky — rozhodují jen vzdálenosti
+                    <span data-tex="r_i"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>An unknown charge out of a graph.</strong> Split
+                    <span data-tex="\varphi"></span> into its contributions and read the special points:
+                    <span data-tex="x\to\infty"></span> kills the moving charge's term and leaves the fixed one,
+                    a zero crossing means the two terms cancel. Then solve
+                    <span data-tex="\varphi = \dfrac{1}{4\pi\varepsilon_0}\,Q/r"></span> for the unknown — and
+                    divide by <span data-tex="e"></span> if the answer is wanted in elementary charges.</span>
+                    <span lang="cs"><strong>Neznámý náboj z grafu.</strong> Rozdělte
+                    <span data-tex="\varphi"></span> na příspěvky a odečtěte význačné body:
+                    <span data-tex="x\to\infty"></span> vynuluje člen pohyblivého náboje a zbude pevný, průchod
+                    nulou znamená, že se oba členy ruší. Pak z
+                    <span data-tex="\varphi = \dfrac{1}{4\pi\varepsilon_0}\,Q/r"></span> dopočtěte neznámou —
+                    a vydělte <span data-tex="e"></span>, chcete-li výsledek v elementárních nábojích.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Continuous body → integrate.</strong> Take an element
+                    <span data-tex="\mathrm{d}Q = \tau_e\,\mathrm{d}x"></span> (or
+                    <span data-tex="\sigma_e\,\mathrm{d}S"></span>), read its distance
+                    <span data-tex="r"></span> to the point straight off the sketch, and integrate over the body.
+                    Every element of a ring sits at the same
+                    <span data-tex="\sqrt{\varrho^2+z^2}"></span>, so a disc or an annulus is just a stack of
+                    rings — integrate over the radius.</span>
+                    <span lang="cs"><strong>Spojité těleso → integrujte.</strong> Vezměte element
+                    <span data-tex="\mathrm{d}Q = \tau_e\,\mathrm{d}x"></span> (nebo
+                    <span data-tex="\sigma_e\,\mathrm{d}S"></span>), z náčrtku vyjádřete jeho vzdálenost
+                    <span data-tex="r"></span> od bodu a integrujte přes těleso. Všechny elementy prstence leží
+                    ve stejné vzdálenosti <span data-tex="\sqrt{\varrho^2+z^2}"></span>, disk i mezikruží jsou
+                    proto jen sadou prstenců — integrujte přes poloměr.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Need the field? Differentiate.</strong>
+                    <span data-tex="E_x = -\partial\varphi/\partial x"></span>. Do the integral with a general
+                    distance rather than with the numbers already substituted, or there will be nothing left
+                    to differentiate.</span>
+                    <span lang="cs"><strong>Potřebujete pole? Derivujte.</strong>
+                    <span data-tex="E_x = -\partial\varphi/\partial x"></span>. Integrál proto počítejte
+                    s obecnou vzdáleností, ne s dosazenými čísly — jinak nebude co derivovat.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Capacitance in three steps.</strong> (I) put
+                    <span data-tex="\pm Q"></span> on the electrodes, (II) get <span data-tex="E"></span> from
+                    Gauss's law and then <span data-tex="U = \int \vec{E}\cdot\mathrm{d}\vec{s} = Ed"></span>,
+                    (III) divide, <span data-tex="C = Q/U"></span>. The unknown
+                    <span data-tex="Q"></span> cancels every time — that is the proof that
+                    <span data-tex="C"></span> is pure geometry.</span>
+                    <span lang="cs"><strong>Kapacita ve třech krocích.</strong> (I) na elektrody dejte
+                    <span data-tex="\pm Q"></span>, (II) z Gaussovy věty určete <span data-tex="E"></span> a pak
+                    <span data-tex="U = \int \vec{E}\cdot\mathrm{d}\vec{s} = Ed"></span>, (III) vydělte,
+                    <span data-tex="C = Q/U"></span>. Neznámé <span data-tex="Q"></span> se pokaždé vykrátí —
+                    to je právě důkaz, že <span data-tex="C"></span> je čirá geometrie.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Networks: collapse, then expand back.</strong> Reduce the
+                    circuit to a single equivalent capacitor (parallel add <span data-tex="C"></span>, series
+                    add <span data-tex="1/C"></span>), find its charge from
+                    <span data-tex="Q = C_{ekv}U"></span>, then walk back out step by step — a parallel node
+                    shares the voltage, a series string shares the charge.</span>
+                    <span lang="cs"><strong>Sítě: sbalit a zase rozbalit.</strong> Obvod nahraďte jediným
+                    ekvivalentním kondenzátorem (paralelně sčítáme <span data-tex="C"></span>, sériově
+                    <span data-tex="1/C"></span>), z <span data-tex="Q = C_{ekv}U"></span> určete jeho náboj
+                    a pak se krok po kroku vracejte zpět — v paralelní větvi je společné napětí, v sériové
+                    náboj.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">07</span>
+                    <span><span lang="en"><strong>Something inserted in the gap.</strong> A dielectric layer is
+                    a capacitor of its own thickness with its own
+                    <span data-tex="\varepsilon_r"></span>; a metal slab of thickness
+                    <span data-tex="b"></span> carries no field inside, so the gap simply shrinks to
+                    <span data-tex="d-b"></span>. Layers stacked along <span data-tex="\vec{E}"></span> are in
+                    series, layers side by side are in parallel.</span>
+                    <span lang="cs"><strong>Něco vloženého do mezery.</strong> Vrstva dielektrika je kondenzátor
+                    o své tloušťce s vlastním <span data-tex="\varepsilon_r"></span>; kovová deska tloušťky
+                    <span data-tex="b"></span> nemá uvnitř pole, mezera se tedy jen zmenší na
+                    <span data-tex="d-b"></span>. Vrstvy nad sebou ve směru <span data-tex="\vec{E}"></span>
+                    jsou sériově, vrstvy vedle sebe paralelně.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">08</span>
+                    <span><span lang="en"><strong>Energy, work, and the pull.</strong> The two forms
+                    <span data-tex="E_{el} = Q^2/2C"></span> and <span data-tex="\dfrac{1}{2}CU^2"></span>
+                    agree for any single state, but the moment <span data-tex="C"></span> changes it matters
+                    which quantity is held fixed — an isolated capacitor keeps its
+                    <span data-tex="Q"></span>, one wired to a battery keeps its <span data-tex="U"></span>.
+                    Work done on the system is <span data-tex="W = \Delta E_{el}"></span>; at fixed charge the
+                    field pulls an object into the gap, because that is the direction of <em>lower</em> stored
+                    energy.</span>
+                    <span lang="cs"><strong>Energie, práce a přitahování.</strong> Tvary
+                    <span data-tex="E_{el} = Q^2/2C"></span> a <span data-tex="\dfrac{1}{2}CU^2"></span> dávají
+                    pro jeden daný stav totéž, jakmile se však mění <span data-tex="C"></span>, záleží na tom,
+                    co je konstantní — izolovaný kondenzátor si drží <span data-tex="Q"></span>, kondenzátor
+                    připojený k baterii <span data-tex="U"></span>. Práce vykonaná na soustavě je
+                    <span data-tex="W = \Delta E_{el}"></span>; při konstantním náboji pole těleso do mezery
+                    vtahuje, protože tím uloženou energii <em>sníží</em>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">09</span>
+                    <span><span lang="en"><strong>Voltage ratings.</strong> <span data-tex="n"></span> identical
+                    capacitors in series divide the applied voltage between them, so the string survives
+                    <span data-tex="n\,U_{max}"></span> and has capacitance
+                    <span data-tex="C_1/n"></span>; putting <span data-tex="m"></span> such strings in parallel
+                    multiplies the capacitance by <span data-tex="m"></span> without changing what the bank can
+                    withstand.</span>
+                    <span lang="cs"><strong>Napěťová odolnost.</strong> <span data-tex="n"></span> stejných
+                    kondenzátorů v sérii si napětí rozdělí — větev tedy vydrží
+                    <span data-tex="n\,U_{max}"></span> a má kapacitu <span data-tex="C_1/n"></span>;
+                    <span data-tex="m"></span> takových větví paralelně kapacitu
+                    <span data-tex="m"></span>-krát znásobí, aniž by se změnilo, co sestava vydrží.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 5  LAB 1 · POTENTIAL MAP ════ -->
+    <section id="lab" class="lab" style="margin-top:72px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Potential map</span><span lang="cs">Mapa potenciálu</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">1 / 3</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="phi-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\varphi = \dfrac{1}{4\pi\varepsilon_0}\sum_i \dfrac{Q_i}{r_i}"></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Arrangement</span><span lang="cs">Uspořádání</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-preset="dipole">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">dipole: +Q and −Q</span><span lang="cs">dipól: +Q a −Q</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-preset="ex15">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Ex. 24-15 · four charges</span><span lang="cs">Úl. 24-15 · čtyři náboje</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-preset="ex20">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Ex. 24-20 · pair on an axis</span><span lang="cs">Úl. 24-20 · dvojice na ose</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="m1-reset" class="btn-mini" type="button" title="Reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge <em>Q</em></span><span lang="cs">Náboj <em>Q</em></span></span>
+                            <span class="sim-control-val" id="m1-q-val">2.0 nC</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m1-q" min="0.5" max="8" step="0.5" value="2">
+                    </div>
+                    <div class="sim-control" id="m1-x2-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Position <em>x</em>₂</span><span lang="cs">Poloha <em>x</em>₂</span></span>
+                            <span class="sim-control-val" id="m1-x2-val">8.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m1-x2" min="2" max="24" step="0.5" value="8">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout at P</span><span lang="cs">Odečty v bodě P</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varphi_P"></span>
+                        <span class="readout-val" id="r1-phi">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_x"></span>
+                        <span class="readout-val" id="r1-ex">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_y"></span>
+                        <span class="readout-val" id="r1-ey">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="|\vec{E}|"></span>
+                        <span class="readout-val" id="r1-e">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="m1-tgl-eq">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">equipotentials</span><span lang="cs">ekvipotenciály</span></span>
+                    </div>
+                    <div class="toggle-row" id="m1-tgl-contrib">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">contributions to the sum</span><span lang="cs">příspěvky do součtu</span></span>
+                    </div>
+                    <div class="toggle-row" id="m1-tgl-evec">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en"><em>E</em> = −∇φ at P</span><span lang="cs"><em>E</em> = −∇φ v bodě P</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ════ § 6  LAB 2 · SLICE AND SUM ════ -->
+    <section id="lab2" class="lab" style="margin-top:28px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Slice and sum</span><span lang="cs">Krájení a sčítání</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">2 / 3</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="slice-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\mathrm{d}\varphi = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{\mathrm{d}Q}{r}"></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Body</span><span lang="cs">Těleso</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section">1D</div>
+                    <div class="toggle-row obj-row" data-body="rod">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">rod, τₑ = const</span><span lang="cs">tyč, τₑ = konst</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-body="rodx">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">rod, τₑ = c·x <span style="color:var(--ink-faint);">(24-33)</span></span><span lang="cs">tyč, τₑ = c·x <span style="color:var(--ink-faint);">(24-33)</span></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-body="arc">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">arc of radius R</span><span lang="cs">oblouk o poloměru R</span></span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;">2D</div>
+                    <div class="toggle-row obj-row" data-body="ring">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">ring on its axis</span><span lang="cs">prstenec na ose</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-body="annulus">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">annulus <span style="color:var(--ink-faint);">(24-70)</span></span><span lang="cs">mezikruží <span style="color:var(--ink-faint);">(24-70)</span></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-body="disc">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">disc</span><span lang="cs">disk</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="m2-reset" class="btn-mini" type="button" title="Reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Integrated so far</span><span lang="cs">Zintegrováno</span></span>
+                            <span class="sim-control-val" id="m2-s-val">100 %</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m2-s" min="0" max="100" step="1" value="100">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name" id="m2-dist-name"><span lang="en">Distance <em>d</em></span><span lang="cs">Vzdálenost <em>d</em></span></span>
+                            <span class="sim-control-val" id="m2-dist-val">3.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m2-dist" min="0.5" max="30" step="0.5" value="3">
+                    </div>
+                    <div class="sim-control" id="m2-arc-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Arc angle <em>α</em>₀</span><span lang="cs">Úhel oblouku <em>α</em>₀</span></span>
+                            <span class="sim-control-val" id="m2-arc-val">180°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m2-arc" min="20" max="360" step="10" value="180">
+                    </div>
+                    <div class="sim-control" id="m2-ri-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Inner radius <em>r</em></span><span lang="cs">Vnitřní poloměr <em>r</em></span></span>
+                            <span class="sim-control-val" id="m2-ri-val">0.20 R</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m2-ri" min="0.05" max="0.9" step="0.05" value="0.2">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\mathrm{d}Q"></span>
+                        <span class="readout-val" id="r2-dq">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="r"></span>
+                        <span class="readout-val" id="r2-r">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\sum \mathrm{d}\varphi"></span>
+                        <span class="readout-val" id="r2-sum">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varphi\ \text{(exact)}"></span>
+                        <span class="readout-val" id="r2-exact">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q_{cel}"></span>
+                        <span class="readout-val" id="r2-qtot">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="m2-tgl-r">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">distance <em>r</em> to P</span><span lang="cs">vzdálenost <em>r</em> k P</span></span>
+                    </div>
+                    <div class="toggle-row" id="m2-tgl-graph">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">running-sum graph</span><span lang="cs">graf průběžného součtu</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ════ § 7  LAB 3 · CAPACITOR WITH AN INSERT ════ -->
+    <section id="lab3" class="lab" style="margin-top:28px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Capacitor with an insert</span><span lang="cs">Kondenzátor s vloženým tělesem</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">3 / 3</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="C = \dfrac{\varepsilon_0\varepsilon_r S}{d}"></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">In the gap</span><span lang="cs">V mezeře</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-ins="none">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">nothing</span><span lang="cs">nic</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-ins="diel">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">dielectric slab <span style="color:var(--ink-faint);">(25-49)</span></span><span lang="cs">deska dielektrika <span style="color:var(--ink-faint);">(25-49)</span></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-ins="metal">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">copper slab <span style="color:var(--ink-faint);">(25-74)</span></span><span lang="cs">měděná deska <span style="color:var(--ink-faint);">(25-74)</span></span></span>
+                    </div>
+                    <div class="readout-section" style="margin-top:6px;"><span lang="en">Layout</span><span lang="cs">Uspořádání</span></div>
+                    <div class="toggle-row obj-row" data-arr="series">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">stacked → in series</span><span lang="cs">nad sebou → sériově</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-arr="parallel">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">side by side → in parallel</span><span lang="cs">vedle sebe → paralelně</span></span>
+                    </div>
+                    <div class="readout-section" style="margin-top:6px;"><span lang="en">Held constant</span><span lang="cs">Konstantní veličina</span></div>
+                    <div class="toggle-row obj-row" data-hold="U">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en"><em>U</em> — wired to a battery</span><span lang="cs"><em>U</em> — připojen k baterii</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-hold="Q">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en"><em>Q</em> — isolated</span><span lang="cs"><em>Q</em> — izolovaný</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="m3-reset" class="btn-mini" type="button" title="Reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name" id="m3-src-name"><span lang="en">Voltage <em>U</em></span><span lang="cs">Napětí <em>U</em></span></span>
+                            <span class="sim-control-val" id="m3-src-val">100 V</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m3-src" min="10" max="500" step="10" value="100">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Separation <em>d</em></span><span lang="cs">Vzdálenost <em>d</em></span></span>
+                            <span class="sim-control-val" id="m3-d-val">5.0 mm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m3-d" min="2" max="20" step="0.5" value="5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Gap medium <em>ε</em>ᵣ₁</span><span lang="cs">Prostředí mezery <em>ε</em>ᵣ₁</span></span>
+                            <span class="sim-control-val" id="m3-er-val">1.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m3-er" min="1" max="12" step="0.5" value="1">
+                    </div>
+                    <div class="sim-control" id="m3-er2-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Slab <em>ε</em>ᵣ₂</span><span lang="cs">Deska <em>ε</em>ᵣ₂</span></span>
+                            <span class="sim-control-val" id="m3-er2-val">11.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m3-er2" min="1" max="14" step="0.5" value="11">
+                    </div>
+                    <div class="sim-control" id="m3-b-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Slab thickness <em>b</em></span><span lang="cs">Tloušťka desky <em>b</em></span></span>
+                            <span class="sim-control-val" id="m3-b-val">2.0 mm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="m3-b" min="0.5" max="19" step="0.5" value="2">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">S = 24 cm²</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="C"></span>
+                        <span class="readout-val" id="r3-C">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q"></span>
+                        <span class="readout-val" id="r3-Q">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="U"></span>
+                        <span class="readout-val" id="r3-U">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_1\ \text{(gap)}"></span>
+                        <span class="readout-val" id="r3-E1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_2\ \text{(slab)}"></span>
+                        <span class="readout-val" id="r3-E2">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_{el}"></span>
+                        <span class="readout-val" id="r3-W">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">slab is</span><span lang="cs">deska je</span></span>
+                        <span class="readout-val" id="r3-pull">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch24-ex15.html"><span lang="en">Ch. 24 · <span class="ex-no">Ex. 15</span></span><span lang="cs">Kap. 24 · <span class="ex-no">Úl. 15</span></span></a>
+            <a class="ex-tab" href="../exercises/ch24-ex20.html"><span lang="en">Ch. 24 · <span class="ex-no">Ex. 20</span></span><span lang="cs">Kap. 24 · <span class="ex-no">Úl. 20</span></span></a>
+            <a class="ex-tab" href="../exercises/ch24-ex33.html"><span lang="en">Ch. 24 · <span class="ex-no">Ex. 33</span></span><span lang="cs">Kap. 24 · <span class="ex-no">Úl. 33</span></span></a>
+            <a class="ex-tab" href="../exercises/ch24-ex70.html"><span lang="en">Ch. 24 · <span class="ex-no">Ex. 70</span></span><span lang="cs">Kap. 24 · <span class="ex-no">Úl. 70</span></span></a>
+            <a class="ex-tab" href="../exercises/ch25-ex18.html"><span lang="en">Ch. 25 · <span class="ex-no">Ex. 18</span></span><span lang="cs">Kap. 25 · <span class="ex-no">Úl. 18</span></span></a>
+            <a class="ex-tab" href="../exercises/ch25-ex30.html"><span lang="en">Ch. 25 · <span class="ex-no">Ex. 30</span></span><span lang="cs">Kap. 25 · <span class="ex-no">Úl. 30</span></span></a>
+            <a class="ex-tab" href="../exercises/ch25-ex49.html"><span lang="en">Ch. 25 · <span class="ex-no">Ex. 49</span></span><span lang="cs">Kap. 25 · <span class="ex-no">Úl. 49</span></span></a>
+            <a class="ex-tab" href="../exercises/ch25-ex74.html"><span lang="en">Ch. 25 · <span class="ex-no">Ex. 74</span></span><span lang="cs">Kap. 25 · <span class="ex-no">Úl. 74</span></span></a>
+            <a class="ex-tab" href="../exercises/ch25-ex76.html"><span lang="en">Ch. 25 · <span class="ex-no">Ex. 76</span></span><span lang="cs">Kap. 25 · <span class="ex-no">Úl. 76</span></span></a>
+        </div>
+    </section>
+
+    <!-- ════ § 8  PREV / NEXT ════ -->
+    <nav class="topic-nav">
+        <a href="electrostatics-1.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Electrostatics 1</span><span lang="cs">Elektrostatika 1</span></div>
+        </a>
+        <a href="circuits.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Circuits</span><span lang="cs">Obvody</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ II.02 <span lang="en">Electrostatics 2</span><span lang="cs">Elektrostatika 2</span></span>
+        <span><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX ── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Shared sandbox helpers ── -->
+<script>
+const PP = (function () {
+    'use strict';
+
+    const K    = 8.9875517923e9;    /* 1/4πε₀ */
+    const EPS0 = 8.8541878128e-12;
+
+    function isCS() { return document.documentElement.getAttribute('data-lang') === 'cs'; }
+    function t(en, cs) { return isCS() ? cs : en; }
+
+    /* Colour tokens — --accent lives on <body> (set by the topic class) */
+    function cols() {
+        const rs = getComputedStyle(document.documentElement);
+        const bs = getComputedStyle(document.body);
+        const get = (n, d) => ((bs.getPropertyValue(n) || rs.getPropertyValue(n)).trim() || d);
+        return {
+            accent: get('--accent',     '#7a2868'),
+            ink:    get('--ink',        '#363026'),
+            soft:   get('--ink-soft',   '#4d4436'),
+            faint:  get('--ink-faint',  '#7a6a52'),
+            paper:  get('--paper',      '#fffdf6'),
+            deep:   get('--paper-deep', '#efead6'),
+            edge:   get('--paper-edge', '#e6dfc9'),
+        };
+    }
+
+    /* Decimal comma in CS, as everywhere else on the site */
+    function dec(str) { return isCS() ? String(str).replace(/\./g, ',') : String(str); }
+
+    const PREFIX = [[1e9,'G'],[1e6,'M'],[1e3,'k'],[1,''],[1e-3,'m'],[1e-6,'μ'],[1e-9,'n'],[1e-12,'p'],[1e-15,'f']];
+    function fmtSI(v, unit, dp) {
+        if (!isFinite(v)) return '—';
+        if (dp === undefined) dp = 2;
+        const a = Math.abs(v);
+        if (a === 0) return dec((0).toFixed(dp)) + ' ' + unit;
+        for (let i = 0; i < PREFIX.length; i++) {
+            const s = PREFIX[i][0];
+            if (a >= s) return dec((v / s).toFixed(dp)) + ' ' + PREFIX[i][1] + unit;
+        }
+        return dec(v.toExponential(2)) + ' ' + unit;
+    }
+    function fmtNum(v, dp) { return dec((+v).toFixed(dp === undefined ? 1 : dp)); }
+
+    function setText(id, s) { const e = document.getElementById(id); if (e) e.textContent = s; }
+    function show(id, on) { const e = document.getElementById(id); if (e) e.style.display = on ? '' : 'none'; }
+
+    /* Canvas mount: dpr sizing, resize observer, coalesced on-demand redraw */
+    function mount(id, draw) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const wrap = canvas.parentElement;
+        const ctx  = canvas.getContext('2d');
+        const api  = { canvas: canvas, wrap: wrap, ctx: ctx, W: 0, H: 0, col: cols() };
+        let pending = false;
+
+        api.redraw = function () {
+            if (pending) return;
+            pending = true;
+            requestAnimationFrame(function () {
+                pending  = false;
+                api.col  = cols();
+                ctx.clearRect(0, 0, api.W, api.H);
+                draw(api);
+            });
+        };
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const r = wrap.getBoundingClientRect();
+            api.W = Math.max(r.width,  200);
+            api.H = Math.max(r.height, 160);
+            canvas.width  = Math.round(api.W * dpr);
+            canvas.height = Math.round(api.H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            api.redraw();
+        }
+        resize();
+        if (window.ResizeObserver) new ResizeObserver(resize).observe(wrap);
+        else window.addEventListener('resize', resize);
+        document.addEventListener('langchange', api.redraw);
+        return api;
+    }
+
+    /* Radio group over [data-<attr>] rows */
+    function radios(attr, onPick) {
+        const rows = Array.prototype.slice.call(document.querySelectorAll('[data-' + attr + ']'));
+        rows.forEach(function (row) {
+            row.addEventListener('click', function () {
+                rows.forEach(function (r) {
+                    const b = r.querySelector('.toggle-box');
+                    if (b) b.classList.toggle('on', r === row);
+                });
+                onPick(row.getAttribute('data-' + attr));
+            });
+        });
+        return {
+            pick: function (val) {
+                rows.forEach(function (r) {
+                    const b = r.querySelector('.toggle-box');
+                    if (b) b.classList.toggle('on', r.getAttribute('data-' + attr) === val);
+                });
+            }
+        };
+    }
+
+    /* Checkbox toggle row */
+    function toggle(id, onChange) {
+        const row = document.getElementById(id);
+        if (!row) return;
+        row.addEventListener('click', function () {
+            const box = row.querySelector('.toggle-box');
+            if (!box) return;
+            const on = !box.classList.contains('on');
+            box.classList.toggle('on', on);
+            onChange(on);
+        });
+    }
+
+    /* Range slider bound to a value label */
+    function slider(id, valId, fmt, onInput) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(valId);
+        if (!inp) return null;
+        function label() { if (lbl) lbl.textContent = fmt(+inp.value); }
+        const api = {
+            el: inp,
+            get: function () { return +inp.value; },
+            set: function (v) { inp.value = v; label(); },
+            label: label,
+            range: function (min, max, step, v) {
+                inp.min = min; inp.max = max; inp.step = step;
+                if (v !== undefined) inp.value = v;
+                label();
+            }
+        };
+        inp.addEventListener('input', function () { label(); onInput(+inp.value); });
+        label();
+        return api;
+    }
+
+    /* Pointer dragging on a canvas, in CSS pixels */
+    function drag(canvas, handlers) {
+        function pos(ev) {
+            const r = canvas.getBoundingClientRect();
+            return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+        }
+        canvas.addEventListener('pointerdown', function (ev) {
+            if (handlers.down(pos(ev))) {
+                canvas.setPointerCapture(ev.pointerId);
+                ev.preventDefault();
+            }
+        });
+        canvas.addEventListener('pointermove', function (ev) { handlers.move(pos(ev)); });
+        canvas.addEventListener('pointerup',     function () { handlers.up(); });
+        canvas.addEventListener('pointercancel', function () { handlers.up(); });
+    }
+
+    /* Small canvas helpers */
+    function label(ctx, text, x, y, opt) {
+        opt = opt || {};
+        ctx.save();
+        ctx.font = (opt.size || 11) + 'px ' + (opt.mono === false
+            ? 'Source Serif 4, Georgia, serif'
+            : 'JetBrains Mono, ui-monospace, monospace');
+        ctx.textAlign    = opt.align  || 'center';
+        ctx.textBaseline = opt.base   || 'middle';
+        if (opt.bg) {
+            const w = ctx.measureText(text).width;
+            const h = (opt.size || 11) + 6;
+            let bx = x - w / 2 - 4;
+            if (opt.align === 'left')  bx = x - 4;
+            if (opt.align === 'right') bx = x - w - 4;
+            ctx.fillStyle = opt.bg;
+            ctx.fillRect(bx, y - h / 2, w + 8, h);
+        }
+        ctx.fillStyle = opt.color || '#000';
+        ctx.fillText(text, x, y);
+        ctx.restore();
+    }
+    function dashed(ctx, x1, y1, x2, y2, pattern) {
+        ctx.save();
+        ctx.setLineDash(pattern || [4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.restore();
+    }
+    function arrow(ctx, x1, y1, x2, y2, head) {
+        head = head || 7;
+        const a = Math.atan2(y2 - y1, x2 - x1);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - head * Math.cos(a - 0.4), y2 - head * Math.sin(a - 0.4));
+        ctx.lineTo(x2 - head * Math.cos(a + 0.4), y2 - head * Math.sin(a + 0.4));
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    return { K: K, EPS0: EPS0, isCS: isCS, t: t, cols: cols, fmtSI: fmtSI, fmtNum: fmtNum,
+             dec: dec, setText: setText, show: show, mount: mount, radios: radios,
+             toggle: toggle, slider: slider, drag: drag, label: label, dashed: dashed, arrow: arrow };
+}());
+</script>
+
+<!-- ── Lab 1 · Potential map ── -->
+<script>
+(function () {
+    'use strict';
+
+    const LEVELS = [25, 50, 100, 200, 400, 800, 1600];   /* volts */
+    const RMIN   = 0.55;                                  /* cm — clamp near a charge */
+    const STEP   = 7;                                     /* px — contour grid */
+
+    /* preset → charges in cm, sign multipliers of the Q slider */
+    function preset(name, x2) {
+        if (name === 'ex15') {
+            const d = 4;
+            return { probe: { x: 0, y: 0 },
+                     q: [ { x: -d, y: 0, s:  1 }, { x: d, y: 0, s:  1 },
+                          { x: 0, y: -d, s: -1 }, { x: 0, y: -2 * d, s: -1 } ] };
+        }
+        if (name === 'ex20') {
+            return { probe: { x: 0, y: 0 },
+                     q: [ { x: -8, y: 0, s: 1 }, { x: x2, y: 0, s: -1 } ] };
+        }
+        return { probe: { x: 0, y: 6 },
+                 q: [ { x: -6, y: 0, s: 1 }, { x: 6, y: 0, s: -1 } ] };
+    }
+
+    let mode  = 'dipole';
+    let Qn    = 2;                 /* nC */
+    let st    = preset(mode, 8);
+    const showF = { eq: true, contrib: true, evec: true };
+
+    const view = PP.mount('phi-canvas', draw);
+    if (!view) return;
+
+    /* ── world ↔ screen ─────────────────────────────────────────────── */
+    function scale() { return Math.min(view.W / 46, view.H / 30); }
+    function sx(x) { return view.W / 2 + x * scale(); }
+    function sy(y) { return view.H / 2 - y * scale(); }
+    function wx(px) { return (px - view.W / 2) / scale(); }
+    function wy(py) { return (view.H / 2 - py) / scale(); }
+
+    /* ── physics ────────────────────────────────────────────────────── */
+    function phiAt(x, y) {
+        let p = 0;
+        for (let i = 0; i < st.q.length; i++) {
+            const c = st.q[i];
+            const r = Math.max(Math.hypot(x - c.x, y - c.y), RMIN);
+            p += PP.K * (c.s * Qn * 1e-9) / (r * 1e-2);
+        }
+        return p;
+    }
+    function fieldAt(x, y) {
+        let ex = 0, ey = 0;
+        for (let i = 0; i < st.q.length; i++) {
+            const c  = st.q[i];
+            const dx = x - c.x, dy = y - c.y;
+            const r  = Math.max(Math.hypot(dx, dy), RMIN);
+            const m  = PP.K * (c.s * Qn * 1e-9) / Math.pow(r * 1e-2, 2);
+            ex += m * dx / r;
+            ey += m * dy / r;
+        }
+        return { ex: ex, ey: ey, mag: Math.hypot(ex, ey) };
+    }
+
+    /* ── marching squares ───────────────────────────────────────────── */
+    const CASES = {
+        1:[[3,0]], 2:[[0,1]], 3:[[3,1]], 4:[[1,2]], 5:[[3,0],[1,2]], 6:[[0,2]],
+        7:[[3,2]], 8:[[3,2]], 9:[[0,2]], 10:[[0,1],[3,2]], 11:[[1,2]], 12:[[3,1]],
+        13:[[0,1]], 14:[[3,0]]
+    };
+    function contours(level, g, nx, ny) {
+        const segs = [];
+        function ip(va, vb, xa, ya, xb, yb) {
+            const t = (level - va) / (vb - va);
+            return [xa + (xb - xa) * t, ya + (yb - ya) * t];
+        }
+        for (let j = 0; j < ny - 1; j++) {
+            for (let i = 0; i < nx - 1; i++) {
+                const v0 = g[j * nx + i],       v1 = g[j * nx + i + 1];
+                const v2 = g[(j + 1) * nx + i + 1], v3 = g[(j + 1) * nx + i];
+                let idx = 0;
+                if (v0 > level) idx |= 1;
+                if (v1 > level) idx |= 2;
+                if (v2 > level) idx |= 4;
+                if (v3 > level) idx |= 8;
+                const cs = CASES[idx];
+                if (!cs) continue;
+                const x0 = i * STEP, y0 = j * STEP, x1 = x0 + STEP, y1 = y0 + STEP;
+                const edge = [
+                    function () { return ip(v0, v1, x0, y0, x1, y0); },  /* top    */
+                    function () { return ip(v1, v2, x1, y0, x1, y1); },  /* right  */
+                    function () { return ip(v3, v2, x0, y1, x1, y1); },  /* bottom */
+                    function () { return ip(v0, v3, x0, y0, x0, y1); }   /* left   */
+                ];
+                for (let k = 0; k < cs.length; k++) {
+                    const a = edge[cs[k][0]](), b = edge[cs[k][1]]();
+                    segs.push([a[0], a[1], b[0], b[1]]);
+                }
+            }
+        }
+        return segs;
+    }
+
+    /* ── drawing ────────────────────────────────────────────────────── */
+    function draw(v) {
+        const ctx = v.ctx, col = v.col;
+
+        if (showF.eq) {
+            const nx = Math.ceil(v.W / STEP) + 1;
+            const ny = Math.ceil(v.H / STEP) + 1;
+            const g  = new Float64Array(nx * ny);
+            for (let j = 0; j < ny; j++)
+                for (let i = 0; i < nx; i++)
+                    g[j * nx + i] = phiAt(wx(i * STEP), wy(j * STEP));
+
+            ctx.lineWidth = 1.1;
+            for (let li = 0; li < LEVELS.length; li++) {
+                const alpha = 0.62 - li * 0.055;
+                for (let sgn = 1; sgn >= -1; sgn -= 2) {
+                    const lvl  = sgn * LEVELS[li];
+                    const segs = contours(lvl, g, nx, ny);
+                    if (!segs.length) continue;
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(alpha, 0.16);
+                    ctx.strokeStyle = sgn > 0 ? col.accent : col.soft;
+                    ctx.setLineDash(sgn > 0 ? [] : [3, 3]);
+                    ctx.beginPath();
+                    for (let s = 0; s < segs.length; s++) {
+                        ctx.moveTo(segs[s][0], segs[s][1]);
+                        ctx.lineTo(segs[s][2], segs[s][3]);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+            PP.label(ctx, PP.t('equipotentials  ± 25 · 50 · 100 · 200 · 400 · 800 V',
+                               'ekvipotenciály  ± 25 · 50 · 100 · 200 · 400 · 800 V'),
+                     12, 35, { align: 'left', size: 10, color: col.faint, bg: col.paper });
+        }
+
+        const px = sx(st.probe.x), py = sy(st.probe.y);
+
+        /* contributions: one dashed line per term of φ = Σ kQᵢ/rᵢ */
+        if (showF.contrib) {
+            ctx.strokeStyle = col.faint;
+            ctx.lineWidth   = 1;
+            for (let i = 0; i < st.q.length; i++) {
+                const c  = st.q[i];
+                const cx = sx(c.x), cy = sy(c.y);
+                PP.dashed(ctx, cx, cy, px, py, [3, 3]);
+                const r  = Math.max(Math.hypot(st.probe.x - c.x, st.probe.y - c.y), RMIN);
+                const pi = PP.K * (c.s * Qn * 1e-9) / (r * 1e-2);
+                PP.label(ctx, (pi >= 0 ? '+' : '−') + PP.fmtSI(Math.abs(pi), 'V', 0),
+                         (cx + px) / 2, (cy + py) / 2,
+                         { size: 10, color: pi >= 0 ? col.accent : col.soft, bg: col.paper });
+            }
+        }
+
+        /* charges */
+        for (let i = 0; i < st.q.length; i++) {
+            const c   = st.q[i];
+            const cx  = sx(c.x), cy = sy(c.y);
+            const pos = c.s > 0;
+            const rad = 12;
+            const grd = ctx.createRadialGradient(cx - 3, cy - 4, 1, cx, cy, rad);
+            grd.addColorStop(0, pos ? col.accent : col.soft);
+            grd.addColorStop(1, pos ? col.accent : col.ink);
+            ctx.fillStyle = grd;
+            ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.stroke();
+            PP.label(ctx, pos ? '+' : '−', cx, cy - 0.5, { size: 15, color: col.paper });
+            PP.label(ctx, (c.s > 0 ? '+' : '−') + PP.fmtNum(Qn, 1) + ' nC',
+                     cx, cy + rad + 10, { size: 9.5, color: col.faint });
+        }
+
+        /* probe P */
+        const f = fieldAt(st.probe.x, st.probe.y);
+        if (showF.evec && f.mag > 0) {
+            const len = Math.min(58, 16 + 26 * Math.log10(1 + f.mag / 400));
+            ctx.strokeStyle = col.ink; ctx.fillStyle = col.ink; ctx.lineWidth = 2;
+            PP.arrow(ctx, px, py, px + f.ex / f.mag * len, py - f.ey / f.mag * len, 7);
+            PP.label(ctx, 'E', px + f.ex / f.mag * (len + 12), py - f.ey / f.mag * (len + 12),
+                     { size: 11, color: col.ink, bg: col.paper });
+        }
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(px - 9, py); ctx.lineTo(px + 9, py);
+        ctx.moveTo(px, py - 9); ctx.lineTo(px, py + 9); ctx.stroke();
+        ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill(); ctx.stroke();
+        PP.label(ctx, 'P', px + 14, py - 12, { size: 12, color: col.ink, mono: false, bg: col.paper });
+
+        const phi = phiAt(st.probe.x, st.probe.y);
+        PP.label(ctx, 'φ(P) = ' + PP.fmtSI(phi, 'V', 1), 12, 16,
+                 { align: 'left', size: 11, color: col.accent, bg: col.paper });
+    }
+
+    /* ── readout ────────────────────────────────────────────────────── */
+    function update() {
+        const phi = phiAt(st.probe.x, st.probe.y);
+        const f   = fieldAt(st.probe.x, st.probe.y);
+        PP.setText('r1-phi', PP.fmtSI(phi, 'V', 1));
+        PP.setText('r1-ex',  PP.fmtSI(f.ex, 'V/m', 1));
+        PP.setText('r1-ey',  PP.fmtSI(f.ey, 'V/m', 1));
+        PP.setText('r1-e',   PP.fmtSI(f.mag, 'V/m', 1));
+        view.redraw();
+    }
+
+    /* ── controls ───────────────────────────────────────────────────── */
+    const sQ  = PP.slider('m1-q',  'm1-q-val',  function (v) { return PP.fmtNum(v, 1) + ' nC'; },
+                          function (v) { Qn = v; update(); });
+    const sX2 = PP.slider('m1-x2', 'm1-x2-val', function (v) { return PP.fmtNum(v, 1) + ' cm'; },
+                          function (v) { if (mode === 'ex20') { st.q[1].x = v; update(); } });
+
+    PP.radios('preset', function (name) {
+        mode = name;
+        st = preset(mode, sX2 ? sX2.get() : 8);
+        PP.show('m1-x2-ctl', mode === 'ex20');
+        update();
+    });
+    PP.toggle('m1-tgl-eq',      function (on) { showF.eq      = on; view.redraw(); });
+    PP.toggle('m1-tgl-contrib', function (on) { showF.contrib = on; view.redraw(); });
+    PP.toggle('m1-tgl-evec',    function (on) { showF.evec    = on; view.redraw(); });
+
+    document.getElementById('m1-reset')?.addEventListener('click', function () {
+        if (sQ)  sQ.set(2);
+        if (sX2) sX2.set(8);
+        Qn = 2;
+        st = preset(mode, 8);
+        update();
+    });
+
+    /* ── dragging ───────────────────────────────────────────────────── */
+    let held = null;
+    PP.drag(view.canvas, {
+        down: function (p) {
+            if (Math.hypot(p.x - sx(st.probe.x), p.y - sy(st.probe.y)) < 16) { held = { probe: true }; return true; }
+            for (let i = 0; i < st.q.length; i++) {
+                if (Math.hypot(p.x - sx(st.q[i].x), p.y - sy(st.q[i].y)) < 18) { held = { i: i }; return true; }
+            }
+            return false;
+        },
+        move: function (p) {
+            if (!held) return;
+            const x = wx(p.x), y = wy(p.y);
+            if (held.probe) { st.probe.x = x; st.probe.y = y; }
+            else if (mode === 'ex20' && held.i === 1) {
+                const cl = Math.min(24, Math.max(2, x));
+                st.q[1].x = cl; st.q[1].y = 0;
+                if (sX2) sX2.set(Math.round(cl * 2) / 2);
+            } else { st.q[held.i].x = x; st.q[held.i].y = y; }
+            update();
+        },
+        up: function () { held = null; }
+    });
+
+    update();
+}());
+</script>
+
+<!-- ── Lab 2 · Slice and sum ── -->
+<script>
+(function () {
+    'use strict';
+
+    const N   = 300;          /* integration steps */
+    const L   = 0.12;         /* rod length, m (12 cm) */
+    const R   = 0.13;         /* ring / annulus / disc outer radius, m (13 cm) */
+    const TAU = 5e-9;         /* C/m  — uniform rod and arc */
+    const CC  = 28.9e-12;     /* C/m² — rod with τ = c·x   (Ex. 24-33) */
+    const SIG = 6.20e-12;     /* C/m² — annulus and disc   (Ex. 24-70) */
+    const QR  = 2e-9;         /* C    — ring total charge */
+
+    const DIST_DEFAULT = { rod: 3, rodx: 3, arc: 13, ring: 26, annulus: 26, disc: 26 };
+
+    let body = 'rod';
+    let prog = 1.0;           /* 0..1 */
+    let dist = 3;             /* cm — d for rods, R for arc, z for the axial bodies */
+    let arcA = 180;           /* deg */
+    let riF  = 0.2;           /* inner radius as a fraction of R */
+    const showF = { r: true, graph: true };
+
+    const view = PP.mount('slice-canvas', draw);
+    if (!view) return;
+
+    /* ── one integration element, index i of N ──────────────────────── */
+    function element(i) {
+        const u  = (i + 0.5) / N;
+        const d  = dist * 1e-2;
+        if (body === 'rod' || body === 'rodx') {
+            const x  = u * L, dx = L / N;
+            const dQ = (body === 'rod' ? TAU : CC * x) * dx;
+            return { dQ: dQ, r: d + x, u: u };
+        }
+        if (body === 'arc') {
+            const Rr = d;                                   /* the slider is R here */
+            const a0 = arcA * Math.PI / 180;
+            const dQ = TAU * Rr * (a0 / N);
+            return { dQ: dQ, r: Rr, u: u, ang: (u - 0.5) * a0 };
+        }
+        if (body === 'ring') {
+            return { dQ: QR / N, r: Math.hypot(R, d), u: u };
+        }
+        const r0 = (body === 'annulus' ? riF * R : 0);
+        const rr = r0 + u * (R - r0), dr = (R - r0) / N;
+        return { dQ: SIG * 2 * Math.PI * rr * dr, r: Math.hypot(rr, d), u: u, rho: rr };
+    }
+
+    function runningSum(upTo) {
+        let s = 0;
+        const n = Math.round(upTo * N);
+        for (let i = 0; i < n; i++) { const e = element(i); s += PP.K * e.dQ / e.r; }
+        return s;
+    }
+    function totalCharge() {
+        let q = 0;
+        for (let i = 0; i < N; i++) q += element(i).dQ;
+        return q;
+    }
+    function exact() {
+        const d = dist * 1e-2;
+        switch (body) {
+            case 'rod':  return PP.K * TAU * Math.log((d + L) / d);
+            case 'rodx': return PP.K * CC * (L - d * Math.log((d + L) / d));
+            case 'arc':  return PP.K * (TAU * d * (arcA * Math.PI / 180)) / d;
+            case 'ring': return PP.K * QR / Math.hypot(R, d);
+            case 'annulus':
+                return SIG / (2 * PP.EPS0) * (Math.hypot(R, d) - Math.hypot(riF * R, d));
+            default:
+                return SIG / (2 * PP.EPS0) * (Math.hypot(R, d) - d);
+        }
+    }
+    function formula() {
+        switch (body) {
+            case 'rod':  return 'φ = kτₑ ln((d+L)/d)';
+            case 'rodx': return 'φ = kc [L − d ln((d+L)/d)]';
+            case 'arc':  return 'φ = kQ/R';
+            case 'ring': return 'φ = kQ/√(R²+z²)';
+            case 'annulus': return 'φ = σₑ/2ε₀ (√(z²+R²) − √(z²+r²))';
+            default:     return 'φ = σₑ/2ε₀ (√(z²+R²) − z)';
+        }
+    }
+
+    /* ── drawing ────────────────────────────────────────────────────── */
+    function draw(v) {
+        const ctx = v.ctx, col = v.col;
+        const cx  = v.W * 0.46, cy = v.H * 0.56;
+        const done = Math.round(prog * N);
+
+        if (body === 'rod' || body === 'rodx') {
+            /* scale so that P and the whole rod always fit side by side */
+            const span = L + dist * 1e-2;                     /* P → far end, metres */
+            const px   = Math.min((v.W - 150) / span, 2600);  /* px per metre */
+            const ppx  = 70;                                  /* P pinned to the left margin */
+            const x0   = ppx + dist * 1e-2 * px, y0 = cy;
+            /* rod, split into done / remaining */
+            for (let i = 0; i < N; i += 3) {
+                const e = element(i);
+                const xa = x0 + (i / N) * L * px, w = (3 / N) * L * px + 0.6;
+                const dens = body === 'rod' ? 1 : (i + 0.5) / N;   /* τ = c·x grows */
+                const h = 7 + 15 * dens;
+                ctx.fillStyle   = i < done ? col.accent : col.edge;
+                ctx.globalAlpha = i < done ? 0.85 : 1;
+                ctx.fillRect(xa, y0 - h / 2, w, h);
+            }
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+            ctx.strokeRect(x0, y0 - 11, L * px, 22);
+            PP.label(ctx, body === 'rod' ? 'τₑ = konst' : 'τₑ = c·x',
+                     x0 + L * px / 2, y0 - 58, { size: 10, color: col.soft });
+            PP.label(ctx, 'L = 12 cm', x0 + L * px / 2, y0 + 26, { size: 10, color: col.faint });
+
+            drawP(ctx, col, ppx, y0);
+            PP.label(ctx, 'd = ' + PP.fmtNum(dist, 1) + ' cm', (ppx + x0) / 2, y0 + 44,
+                     { size: 10, color: col.faint });
+
+            if (done > 0 && done <= N) {
+                const e  = element(Math.min(done - 1, N - 1));
+                const ex = x0 + ((done - 0.5) / N) * L * px;
+                ctx.fillStyle = col.ink;
+                ctx.fillRect(ex - 1.5, y0 - 15, 3, 30);
+                if (showF.r) {
+                    ctx.strokeStyle = col.ink; ctx.lineWidth = 1;
+                    PP.dashed(ctx, ppx, y0 - 34, ex, y0 - 34, [3, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(ppx, y0 - 6);  ctx.lineTo(ppx, y0 - 38);
+                    ctx.moveTo(ex,  y0 - 16); ctx.lineTo(ex,  y0 - 38);
+                    ctx.stroke();
+                    PP.label(ctx, 'r = ' + PP.fmtNum(e.r * 100, 1) + ' cm',
+                             (ppx + ex) / 2, y0 - 34, { size: 10, color: col.ink, bg: col.paper });
+                }
+            }
+
+        } else if (body === 'arc') {
+            const Rp = Math.min(v.W * 0.20, v.H * 0.34);
+            const a0 = arcA * Math.PI / 180;
+            ctx.lineWidth = 12;
+            ctx.strokeStyle = col.edge;
+            ctx.beginPath(); ctx.arc(cx, cy, Rp, -a0 / 2 - Math.PI / 2, a0 / 2 - Math.PI / 2); ctx.stroke();
+            if (done > 0) {
+                ctx.strokeStyle = col.accent;
+                ctx.beginPath();
+                ctx.arc(cx, cy, Rp, -a0 / 2 - Math.PI / 2, (-a0 / 2 + prog * a0) - Math.PI / 2);
+                ctx.stroke();
+            }
+            ctx.lineWidth = 1;
+            drawP(ctx, col, cx, cy);
+            const ang = (-a0 / 2 + prog * a0) - Math.PI / 2;
+            const ex = cx + Rp * Math.cos(ang), ey = cy + Rp * Math.sin(ang);
+            if (showF.r) {
+                ctx.strokeStyle = col.ink;
+                PP.dashed(ctx, cx, cy, ex, ey, [3, 3]);
+                PP.label(ctx, 'r = R = ' + PP.fmtNum(dist, 1) + ' cm',
+                         (cx + ex) / 2, (cy + ey) / 2 - 10,
+                         { size: 10, color: col.ink, bg: col.paper });
+            }
+            PP.label(ctx, PP.t('every element is the same distance from P',
+                               'každý element je od P stejně daleko'),
+                     cx, Math.min(cy + Rp + 26, v.H - 100), { size: 10, color: col.faint });
+
+        } else {
+            /* axial bodies drawn as a perspective ellipse with P above the centre */
+            const Rp  = Math.min(v.W * 0.19, v.H * 0.30);
+            const ky  = 0.34;
+            const zPx = Math.min(v.H * 0.34, (dist / 40) * v.H * 0.7 + 26);
+            const pxP = cx, pyP = cy - zPx;
+            const isRing = (body === 'ring');
+            const r0f = (body === 'annulus' ? riF : (isRing ? 0.94 : 0));
+
+            /* body disc */
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, Rp, Rp * ky, 0, 0, Math.PI * 2);
+            if (r0f > 0) { ctx.ellipse(cx, cy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2, true); }
+            ctx.fillStyle = col.edge; ctx.fill('evenodd');
+            ctx.restore();
+
+            /* filled-so-far part: a ring sweeps round, a disc/annulus grows outward */
+            const rNow = isRing ? 1 : r0f + (1 - r0f) * prog;
+            if (prog > 0 && isRing) {
+                ctx.save();
+                ctx.strokeStyle = col.accent; ctx.lineWidth = Rp * (1 - 0.94) * 2;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, Rp * 0.97, Rp * 0.97 * ky, 0,
+                            -Math.PI / 2, -Math.PI / 2 + prog * Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            } else if (prog > 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, Rp * rNow, Rp * rNow * ky, 0, 0, Math.PI * 2);
+                if (r0f > 0) ctx.ellipse(cx, cy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2, true);
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = col.accent; ctx.fill('evenodd');
+                ctx.restore();
+            }
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.ellipse(cx, cy, Rp, Rp * ky, 0, 0, Math.PI * 2); ctx.stroke();
+            if (r0f > 0) {
+                ctx.beginPath(); ctx.ellipse(cx, cy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2); ctx.stroke();
+            }
+            /* the sub-ring currently being added */
+            if (!isRing) {
+                ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.ellipse(cx, cy, Rp * rNow, Rp * rNow * ky, 0, 0, Math.PI * 2); ctx.stroke();
+            }
+
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            PP.dashed(ctx, cx, cy, pxP, pyP, [4, 4]);
+            drawP(ctx, col, pxP, pyP);
+            PP.label(ctx, 'z = ' + PP.fmtNum(dist, 1) + ' cm', cx - 8, (cy + pyP) / 2,
+                     { align: 'right', size: 10, color: col.faint, bg: col.paper });
+            if (showF.r) {
+                ctx.strokeStyle = col.ink;
+                PP.dashed(ctx, pxP, pyP, cx + Rp * rNow, cy, [3, 3]);
+                const e = element(Math.max(0, Math.min(done - 1, N - 1)));
+                PP.label(ctx, 'r = ' + PP.fmtNum(e.r * 100, 1) + ' cm',
+                         (pxP + cx + Rp * rNow) / 2 + 22, (pyP + cy) / 2 + 6,
+                         { size: 10, color: col.ink, bg: col.paper });
+            }
+            PP.label(ctx, 'R = 13 cm', cx, Math.min(cy + Rp * ky + 20, v.H - 100),
+                     { size: 10, color: col.faint });
+        }
+
+        /* running-sum graph */
+        if (showF.graph) {
+            const gw = Math.min(190, v.W * 0.30), gh = 74;
+            const gx = v.W - gw - 16, gy = 16;
+            const ex = exact();
+            ctx.save();
+            ctx.fillStyle = col.paper; ctx.globalAlpha = 0.92;
+            ctx.fillRect(gx, gy, gw, gh);
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.strokeRect(gx, gy, gw, gh);
+            const top = Math.abs(ex) * 1.12 || 1;
+            ctx.strokeStyle = col.faint;
+            PP.dashed(ctx, gx, gy + gh - (Math.abs(ex) / top) * gh, gx + gw,
+                      gy + gh - (Math.abs(ex) / top) * gh, [3, 3]);
+            ctx.strokeStyle = col.accent; ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            for (let s = 0; s <= 40; s++) {
+                const u = (s / 40) * prog;
+                const y = gy + gh - (Math.abs(runningSum(u)) / top) * gh;
+                if (s === 0) ctx.moveTo(gx, y); else ctx.lineTo(gx + (u) * gw, y);
+            }
+            ctx.stroke();
+            PP.label(ctx, 'Σ dφ → φ', gx, gy + gh + 10, { align: 'left', size: 9, color: col.faint });
+            ctx.restore();
+        }
+
+        PP.label(ctx, formula(), 12, 16,
+                 { align: 'left', size: 11, color: col.accent, bg: col.paper });
+    }
+
+    function drawP(ctx, col, x, y) {
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = col.paper; ctx.fill(); ctx.stroke();
+        PP.label(ctx, 'P', x, y - 15, { size: 12, color: col.ink, mono: false });
+    }
+
+    /* ── readout ────────────────────────────────────────────────────── */
+    function update() {
+        const done = Math.max(0, Math.min(N - 1, Math.round(prog * N) - 1));
+        const e    = element(done);
+        PP.setText('r2-dq',    prog > 0 ? PP.fmtSI(e.dQ, 'C', 2) : '—');
+        PP.setText('r2-r',     prog > 0 ? PP.fmtSI(e.r, 'm', 3)  : '—');
+        PP.setText('r2-sum',   PP.fmtSI(runningSum(prog), 'V', 3));
+        PP.setText('r2-exact', PP.fmtSI(exact(), 'V', 3));
+        PP.setText('r2-qtot',  PP.fmtSI(totalCharge(), 'C', 2));
+        view.redraw();
+    }
+
+    /* ── controls ───────────────────────────────────────────────────── */
+    const sS = PP.slider('m2-s', 'm2-s-val', function (v) { return PP.dec(Math.round(v)) + ' %'; },
+                         function (v) { prog = v / 100; update(); });
+    const sD = PP.slider('m2-dist', 'm2-dist-val', function (v) { return PP.fmtNum(v, 1) + ' cm'; },
+                         function (v) { dist = v; update(); });
+    const sA = PP.slider('m2-arc', 'm2-arc-val', function (v) { return PP.dec(Math.round(v)) + '°'; },
+                         function (v) { arcA = v; update(); });
+    const sR = PP.slider('m2-ri', 'm2-ri-val', function (v) { return PP.fmtNum(v, 2) + ' R'; },
+                         function (v) { riF = v; update(); });
+
+    function distLabel() {
+        const el = document.getElementById('m2-dist-name');
+        if (!el) return;
+        const en = el.querySelector('[lang="en"]'), cs = el.querySelector('[lang="cs"]');
+        const map = {
+            rod:  ['Distance <em>d</em>',   'Vzdálenost <em>d</em>'],
+            rodx: ['Distance <em>d</em>',   'Vzdálenost <em>d</em>'],
+            arc:  ['Radius <em>R</em>',     'Poloměr <em>R</em>'],
+            ring: ['Axial distance <em>z</em>', 'Vzdálenost na ose <em>z</em>'],
+            annulus: ['Axial distance <em>z</em>', 'Vzdálenost na ose <em>z</em>'],
+            disc: ['Axial distance <em>z</em>', 'Vzdálenost na ose <em>z</em>']
+        };
+        if (en) en.innerHTML = map[body][0];
+        if (cs) cs.innerHTML = map[body][1];
+    }
+
+    PP.radios('body', function (name) {
+        body = name;
+        PP.show('m2-arc-ctl', body === 'arc');
+        PP.show('m2-ri-ctl',  body === 'annulus');
+        dist = DIST_DEFAULT[body];
+        if (sD) sD.set(dist);
+        distLabel();
+        update();
+    });
+    PP.toggle('m2-tgl-r',     function (on) { showF.r     = on; view.redraw(); });
+    PP.toggle('m2-tgl-graph', function (on) { showF.graph = on; view.redraw(); });
+
+    document.getElementById('m2-reset')?.addEventListener('click', function () {
+        prog = 1; dist = DIST_DEFAULT[body]; arcA = 180; riF = 0.2;
+        if (sS) sS.set(100);
+        if (sD) sD.set(dist);
+        if (sA) sA.set(180);
+        if (sR) sR.set(0.2);
+        update();
+    });
+
+    distLabel();
+    update();
+}());
+</script>
+
+<!-- ── Lab 3 · Capacitor with an insert ── -->
+<script>
+(function () {
+    'use strict';
+
+    const S = 2.40e-4;                 /* plate area, m² (2.40 cm² — Ex. 25-74) */
+
+    let ins   = 'none';                /* none | diel | metal */
+    let arr   = 'series';              /* series (stacked) | parallel (side by side) */
+    let hold  = 'U';                   /* U | Q */
+    let U     = 100;                   /* V   — when hold === 'U' */
+    let Qc    = 2e-9;                  /* C   — when hold === 'Q' */
+    let d_mm  = 5, er1 = 1, er2 = 11, b_mm = 2;
+
+    const view = PP.mount('sim-canvas', draw);
+    if (!view) return;
+
+    /* ── model ──────────────────────────────────────────────────────── */
+    function geom() {
+        const d = d_mm * 1e-3;
+        let b = Math.min(b_mm * 1e-3, d - 0.5e-3);
+        if (ins === 'none') b = 0;
+        const ers = (ins === 'metal') ? Infinity : er2;
+        return { d: d, b: b, ers: ers };
+    }
+    function capacitance() {
+        const g = geom();
+        if (ins === 'none') return PP.EPS0 * er1 * S / g.d;
+        if (arr === 'parallel' && ins === 'diel')
+            return PP.EPS0 * (S / 2) * (er1 + er2) / g.d;
+        /* stacked → two capacitors in series (metal layer contributes nothing) */
+        const inv = (g.d - g.b) / (PP.EPS0 * er1 * S)
+                  + (g.ers === Infinity ? 0 : g.b / (PP.EPS0 * g.ers * S));
+        return 1 / inv;
+    }
+    function state() {
+        const C = capacitance();
+        const u = (hold === 'U') ? U  : Qc / C;
+        const q = (hold === 'U') ? C * U : Qc;
+        const g = geom();
+        let E1, E2;
+        if (ins === 'none') { E1 = u / g.d; E2 = 0; }
+        else if (arr === 'parallel' && ins === 'diel') { E1 = u / g.d; E2 = u / g.d; }
+        else {
+            E1 = q / (PP.EPS0 * er1 * S);
+            E2 = (g.ers === Infinity) ? 0 : q / (PP.EPS0 * g.ers * S);
+        }
+        const W = q * q / (2 * C);
+        return { C: C, U: u, Q: q, E1: E1, E2: E2, W: W, g: g };
+    }
+    /* sign of dC/db decides whether the slab is pulled in or pushed out */
+    function pull() {
+        if (ins === 'none') return 0;
+        if (arr === 'parallel' && ins === 'diel') return er2 > er1 ? 1 : (er2 < er1 ? -1 : 0);
+        if (ins === 'metal') return 1;
+        return er2 > er1 ? 1 : (er2 < er1 ? -1 : 0);
+    }
+
+    /* ── drawing ────────────────────────────────────────────────────── */
+    function draw(v) {
+        const ctx = v.ctx, col = v.col;
+        const s = state(), g = s.g;
+
+        const plateW = Math.min(v.W * 0.60, 420);
+        const gapPx  = Math.min(v.H * 0.42, 40 + g.d * 1e3 * 9);
+        const cx = v.W * 0.5, cy = v.H * 0.5;
+        const lx = cx - plateW / 2, rx = cx + plateW / 2;
+        const topY = cy - gapPx / 2, botY = cy + gapPx / 2;
+        const bPx  = gapPx * (g.b / g.d);
+
+        /* plates */
+        ctx.fillStyle = col.ink;
+        ctx.fillRect(lx, topY - 9, plateW, 9);
+        ctx.fillRect(lx, botY,     plateW, 9);
+
+        /* the insert */
+        if (ins !== 'none' && g.b > 0) {
+            if (arr === 'parallel' && ins === 'diel') {
+                ctx.save();
+                ctx.globalAlpha = 0.30; ctx.fillStyle = col.accent;
+                ctx.fillRect(cx, topY, plateW / 2, gapPx);
+                ctx.restore();
+                ctx.strokeStyle = col.accent; ctx.lineWidth = 1.2;
+                ctx.strokeRect(cx, topY, plateW / 2, gapPx);
+                PP.label(ctx, 'εᵣ₂ = ' + PP.fmtNum(er2, 1), cx + plateW / 4, topY - 24,
+                         { size: 10, color: col.accent });
+                PP.label(ctx, 'εᵣ₁ = ' + PP.fmtNum(er1, 1), cx - plateW / 4, topY - 24,
+                         { size: 10, color: col.faint });
+            } else {
+                const sy0 = cy - bPx / 2;
+                if (ins === 'metal') {
+                    ctx.fillStyle = col.soft;
+                    ctx.fillRect(lx + 14, sy0, plateW - 28, bPx);
+                    ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+                    ctx.strokeRect(lx + 14, sy0, plateW - 28, bPx);
+                    /* induced surface charge */
+                    for (let i = 0; i < 9; i++) {
+                        const x = lx + 30 + i * (plateW - 60) / 8;
+                        PP.label(ctx, '−', x, sy0 + 5,        { size: 12, color: col.paper });
+                        PP.label(ctx, '+', x, sy0 + bPx - 5,  { size: 12, color: col.paper });
+                    }
+                    PP.label(ctx, PP.t('copper — E = 0 inside', 'měď — uvnitř E = 0'),
+                             cx, sy0 + bPx / 2, { size: 10, color: col.paper });
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = 0.30; ctx.fillStyle = col.accent;
+                    ctx.fillRect(lx + 14, sy0, plateW - 28, bPx);
+                    ctx.restore();
+                    ctx.strokeStyle = col.accent; ctx.lineWidth = 1.2;
+                    ctx.strokeRect(lx + 14, sy0, plateW - 28, bPx);
+                    PP.label(ctx, 'εᵣ₂ = ' + PP.fmtNum(er2, 1), cx, sy0 + bPx / 2,
+                             { size: 10, color: col.ink });
+                }
+                /* b dimension */
+                ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+                PP.dashed(ctx, rx + 10, sy0, rx + 26, sy0, [3, 3]);
+                PP.dashed(ctx, rx + 10, sy0 + bPx, rx + 26, sy0 + bPx, [3, 3]);
+                PP.label(ctx, 'b', rx + 34, sy0 + bPx / 2, { size: 11, color: col.faint });
+            }
+        }
+
+        /* field lines — spacing reflects the local magnitude */
+        const nLines = 11;
+        ctx.strokeStyle = col.accent; ctx.fillStyle = col.accent; ctx.lineWidth = 1.3;
+        for (let i = 0; i < nLines; i++) {
+            const x = lx + 18 + i * (plateW - 36) / (nLines - 1);
+            if (arr === 'parallel' && ins === 'diel' && g.b > 0) {
+                ctx.save();
+                ctx.globalAlpha = (x > cx) ? 0.45 : 0.85;
+                PP.arrow(ctx, x, topY + 2, x, botY - 3, 6);
+                ctx.restore();
+            } else if (ins === 'metal' && g.b > 0) {
+                const sy0 = cy - bPx / 2;
+                PP.arrow(ctx, x, topY + 2, x, sy0 - 2, 6);
+                PP.arrow(ctx, x, sy0 + bPx + 2, x, botY - 3, 6);
+            } else if (ins === 'diel' && g.b > 0) {
+                const sy0 = cy - bPx / 2;
+                PP.arrow(ctx, x, topY + 2, x, sy0 - 2, 6);
+                ctx.save();
+                ctx.globalAlpha = Math.max(0.25, Math.min(1, er1 / er2));
+                PP.arrow(ctx, x, sy0 + 2, x, sy0 + bPx - 2, 5);
+                ctx.restore();
+                PP.arrow(ctx, x, sy0 + bPx + 2, x, botY - 3, 6);
+            } else {
+                PP.arrow(ctx, x, topY + 2, x, botY - 3, 6);
+            }
+        }
+
+        /* plate charges */
+        for (let i = 0; i < 9; i++) {
+            const x = lx + 22 + i * (plateW - 44) / 8;
+            PP.label(ctx, s.Q >= 0 ? '+' : '−', x, topY - 4.5, { size: 12, color: col.paper });
+            PP.label(ctx, s.Q >= 0 ? '−' : '+', x, botY + 4.5, { size: 12, color: col.paper });
+        }
+
+        /* d dimension */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        PP.dashed(ctx, lx - 26, topY, lx - 10, topY, [3, 3]);
+        PP.dashed(ctx, lx - 26, botY, lx - 10, botY, [3, 3]);
+        ctx.beginPath(); ctx.moveTo(lx - 18, topY); ctx.lineTo(lx - 18, botY); ctx.stroke();
+        PP.label(ctx, 'd', lx - 30, cy, { size: 11, color: col.faint });
+
+        /* held-constant banner */
+        const heldTxt = hold === 'U'
+            ? PP.t('battery holds U constant', 'baterie drží U konstantní')
+            : PP.t('isolated — Q constant', 'izolovaný — Q konstantní');
+        PP.label(ctx,
+                 'U = ' + PP.fmtSI(s.U, 'V', 1) + '   ·   Q = ' + PP.fmtSI(s.Q, 'C', 2) +
+                 '   ·   C = ' + PP.fmtSI(s.C, 'F', 2),
+                 12, 16, { align: 'left', size: 11, color: col.accent, bg: col.paper });
+        PP.label(ctx, heldTxt, 12, 35, { align: 'left', size: 10, color: col.faint, bg: col.paper });
+    }
+
+    /* ── readout ────────────────────────────────────────────────────── */
+    function update() {
+        const s = state();
+        PP.setText('r3-C', PP.fmtSI(s.C, 'F', 3));
+        PP.setText('r3-Q', PP.fmtSI(s.Q, 'C', 3));
+        PP.setText('r3-U', PP.fmtSI(s.U, 'V', 2));
+        PP.setText('r3-E1', PP.fmtSI(s.E1, 'V/m', 2));
+        PP.setText('r3-E2', ins === 'none' ? '—' : PP.fmtSI(s.E2, 'V/m', 2));
+        PP.setText('r3-W', PP.fmtSI(s.W, 'J', 3));
+        const p = pull();
+        PP.setText('r3-pull', p === 0 ? '—'
+            : p > 0 ? PP.t('pulled in', 'vtahována') : PP.t('pushed out', 'vytlačována'));
+        view.redraw();
+    }
+
+    /* ── controls ───────────────────────────────────────────────────── */
+    const sSrc = PP.slider('m3-src', 'm3-src-val',
+        function (v) { return hold === 'U' ? PP.dec(Math.round(v)) + ' V' : PP.fmtNum(v, 1) + ' nC'; },
+        function (v) { if (hold === 'U') U = v; else Qc = v * 1e-9; update(); });
+    const sD  = PP.slider('m3-d', 'm3-d-val', function (v) { return PP.fmtNum(v, 1) + ' mm'; },
+        function (v) { d_mm = v; if (sB) sB.el.max = Math.max(0.5, v - 0.5); if (b_mm > v - 0.5) { b_mm = v - 0.5; if (sB) sB.set(b_mm); } update(); });
+    const sEr = PP.slider('m3-er', 'm3-er-val', function (v) { return PP.fmtNum(v, 1); },
+        function (v) { er1 = v; update(); });
+    const sE2 = PP.slider('m3-er2', 'm3-er2-val', function (v) { return PP.fmtNum(v, 1); },
+        function (v) { er2 = v; update(); });
+    const sB  = PP.slider('m3-b', 'm3-b-val', function (v) { return PP.fmtNum(v, 1) + ' mm'; },
+        function (v) { b_mm = v; update(); });
+
+    function srcLabel() {
+        const el = document.getElementById('m3-src-name');
+        if (!el) return;
+        const en = el.querySelector('[lang="en"]'), cs = el.querySelector('[lang="cs"]');
+        if (en) en.innerHTML = hold === 'U' ? 'Voltage <em>U</em>' : 'Charge <em>Q</em>';
+        if (cs) cs.innerHTML = hold === 'U' ? 'Napětí <em>U</em>'  : 'Náboj <em>Q</em>';
+    }
+
+    const arrRadio = PP.radios('arr', function (name) { arr = name; update(); });
+    const insRadio = PP.radios('ins', function (name) {
+        ins = name;
+        if (ins === 'metal') { arr = 'series'; arrRadio.pick('series'); }
+        PP.show('m3-er2-ctl', ins === 'diel');
+        PP.show('m3-b-ctl',   ins !== 'none');
+        update();
+    });
+    const holdRadio = PP.radios('hold', function (name) {
+        const s = state();
+        hold = name;
+        if (hold === 'Q') { Qc = s.Q; if (sSrc) sSrc.range(0.1, 20, 0.1, Math.max(0.1, Qc * 1e9).toFixed(1)); }
+        else              { U  = s.U; if (sSrc) sSrc.range(10, 500, 10, Math.max(10, Math.round(U / 10) * 10)); }
+        if (sSrc) { if (hold === 'Q') Qc = sSrc.get() * 1e-9; else U = sSrc.get(); }
+        srcLabel();
+        update();
+    });
+
+    document.getElementById('m3-reset')?.addEventListener('click', function () {
+        ins = 'none'; arr = 'series'; hold = 'U';
+        U = 100; Qc = 2e-9; d_mm = 5; er1 = 1; er2 = 11; b_mm = 2;
+        insRadio.pick('none');
+        arrRadio.pick('series');
+        holdRadio.pick('U');
+        if (sSrc) sSrc.range(10, 500, 10, 100);
+        if (sD) sD.set(5); if (sEr) sEr.set(1); if (sE2) sE2.set(11); if (sB) sB.set(2);
+        PP.show('m3-er2-ctl', false);
+        PP.show('m3-b-ctl', false);
+        srcLabel();
+        update();
+    });
+
+    srcLabel();
+    update();
+}());
+</script>
+
+</body>
+</html>

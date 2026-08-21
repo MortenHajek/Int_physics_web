@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 8.64 · The Friction Patch — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="energy" data-screen-label="Ex 8.64 The Friction Patch">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 8 · Ex. 64</span><span lang="cs">Kap. 8 · Úl. 64</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Work &amp; Energy — Chapter 8 · Exercise 64</span><span lang="cs">4. téma · Práce a energie — Kapitola 8 · Úloha 64</span></div>
+        <h1><span lang="en">The Friction Patch</span><span lang="cs">Drsný úsek</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•••</span>64</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    The block in fig. 8-55 slides without friction until it reaches the marked section
+                    of length <span class="given" data-tex="L = 0.75\ \mathrm{m}"></span>, which begins
+                    at height <span class="given" data-tex="h = 2.0\ \mathrm{m}"></span> on a slope of
+                    angle <span class="given" data-tex="\theta = 30^\circ"></span>. In that section the
+                    coefficient of kinetic friction is
+                    <span class="given" data-tex="\mu_d = 0.40"></span>. The block passes point
+                    <em>A</em> with speed
+                    <span class="given" data-tex="v_A = 8.0\ \mathrm{m\,s^{-1}}"></span>.
+                </p>
+                <p lang="cs">
+                    Klínek na obr. 8-55 klouže bez tření, dokud nedosáhne vyznačeného úseku délky
+                    <span class="given" data-tex="L = 0{,}75\ \mathrm{m}"></span>, který začíná ve výšce
+                    <span class="given" data-tex="h = 2{,}0\ \mathrm{m}"></span> na svahu se sklonem
+                    <span class="given" data-tex="\theta = 30^\circ"></span>. V tomto úseku je součinitel
+                    kinetického tření
+                    <span class="given" data-tex="\mu_d = 0{,}40"></span>. Klínek prochází bodem
+                    <em>A</em> rychlostí
+                    <span class="given" data-tex="v_A = 8{,}0\ \mathrm{m\,s^{-1}}"></span>.
+                </p>
+                <p lang="en">
+                    Find the block's speed at point <em>B</em>, where the marked section ends. If the
+                    block does not reach <em>B</em>, determine the height of its turning point
+                    above the level of <em>A</em>.
+                </p>
+                <p lang="cs">
+                    Najděte rychlost klínku v bodě <em>B</em>, kde vyznačený úsek končí. Pokud klínek
+                    bodu <em>B</em> nedosáhne, určete výšku jeho obratového bodu nad úrovní bodu
+                    <em>A</em>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Slope sandbox</span><span lang="cs">Sandbox: svah</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\Delta E_{\text{mech}} = -f_k L"></div>
+                <div class="sim-hint"><span lang="en">only the rough patch eats mechanical energy</span><span lang="cs">mechanickou energii ubírá jen drsný úsek</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Speed at A</span><span lang="cs">Rychlost v A</span></span>
+                            <span class="sim-control-val" id="p-v-val">8.0 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-v" min="5" max="12" step="0.1" value="8.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Patch start height h</span><span lang="cs">Výška začátku úseku h</span></span>
+                            <span class="sim-control-val" id="p-h-val">2.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-h" min="1.0" max="3.2" step="0.1" value="2.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Slope angle θ</span><span lang="cs">Úhel svahu θ</span></span>
+                            <span class="sim-control-val" id="p-th-val">30.0°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-th" min="15" max="45" step="0.5" value="30">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Friction μ_d</span><span lang="cs">Tření μ_d</span></span>
+                            <span class="sim-control-val" id="p-mu-val">0.40</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-mu" min="0.1" max="0.8" step="0.01" value="0.40">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Patch length L</span><span lang="cs">Délka úseku L</span></span>
+                            <span class="sim-control-val" id="p-l-val">0.75 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-l" min="0.3" max="2.0" step="0.05" value="0.75">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Along the way</span><span lang="cs">Po cestě</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v\ \text{entering patch}"></span>
+                        <span class="readout-val" id="r-v1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{verdict}"></span>
+                        <span class="readout-val" id="r-verdict">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_B"></span>
+                        <span class="readout-val" id="r-vb">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{turn height above}\ A"></span>
+                        <span class="readout-val" id="r-turn">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-dim">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">height dimension</span><span lang="cs">výškový rozměr</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">From <em>A</em> to the start of the patch mechanical energy is conserved:
+                    <span data-tex="v_1^2 = v_A^2 - 2gh = 64 - 39.2 = 24.8\ \mathrm{m^2 s^{-2}}"></span>,
+                    i.e. <span data-tex="v_1 = 5.0\ \mathrm{m\,s^{-1}}"></span>.</span>
+                    <span lang="cs">Od <em>A</em> po začátek úseku se mechanická energie zachovává:
+                    <span data-tex="v_1^2 = v_A^2 - 2gh = 64 - 39{,}2 = 24{,}8\ \mathrm{m^2 s^{-2}}"></span>,
+                    tedy <span data-tex="v_1 = 5{,}0\ \mathrm{m\,s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Inside the patch, both gravity and friction brake the block:
+                    <span data-tex="v_B^2 = v_1^2 - 2gL(\sin\theta + \mu_d\cos\theta)"></span>.
+                    The loss term is
+                    <span data-tex="2\cdot 9.8\cdot 0.75\,(0.5 + 0.40\cdot 0.866) = 12.4\ \mathrm{m^2 s^{-2}}"></span>.</span>
+                    <span lang="cs">Uvnitř úseku klínek brzdí jak tíha, tak tření:
+                    <span data-tex="v_B^2 = v_1^2 - 2gL(\sin\theta + \mu_d\cos\theta)"></span>.
+                    Ztrátový člen je
+                    <span data-tex="2\cdot 9{,}8\cdot 0{,}75\,(0{,}5 + 0{,}40\cdot 0{,}866) = 12{,}4\ \mathrm{m^2 s^{-2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Since <span data-tex="24.8 > 12.4"></span>, the block does reach <em>B</em>:
+                    <span data-tex="v_B = \sqrt{24.8 - 12.4} = 3.5\ \mathrm{m\,s^{-1}}"></span>.
+                    (Had it stopped inside, the turning height would follow from
+                    <span data-tex="s = v_1^2/[2g(\sin\theta + \mu_d\cos\theta)]"></span>.)</span>
+                    <span lang="cs">Protože <span data-tex="24{,}8 > 12{,}4"></span>, klínek bodu <em>B</em> dosáhne:
+                    <span data-tex="v_B = \sqrt{24{,}8 - 12{,}4} = 3{,}5\ \mathrm{m\,s^{-1}}"></span>.
+                    (Kdyby se zastavil uvnitř, výška obratového bodu by vyplynula ze vztahu
+                    <span data-tex="s = v_1^2/[2g(\sin\theta + \mu_d\cos\theta)]"></span>.)</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="v_B \approx 3.5\ \mathrm{m\,s^{-1}}"></span><span lang="cs" data-tex="v_B \approx 3{,}5\ \mathrm{m\,s^{-1}}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 8 · Ex. 64</span><span lang="cs">Kap. 8 · Úl. 64</span></span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    const DEFAULTS = { v: 8.0, h: 2.0, th: 30, mu: 0.40, l: 0.75 };
+    let state = { ...DEFAULTS };
+    const show = { dim: true };
+
+    /* simulation state: distance s along the path (m) and speed */
+    const RUN = 2.6;                 /* horizontal approach length, m */
+    let sim = { s: 0, v: state.v, mode: 'run', wait: 0 };
+    function resetSim() { sim = { s: 0, v: state.v, mode: 'run', wait: 0 }; }
+
+    const fmtV  = v => v.toFixed(1) + ' m/s';
+    const fmtH  = v => v.toFixed(1) + ' m';
+    const fmtTh = v => v.toFixed(1) + '°';
+    const fmtMu = v => v.toFixed(2);
+    const fmtL  = v => v.toFixed(2) + ' m';
+    const SLIDERS = [['p-v', 'v', fmtV], ['p-h', 'h', fmtH], ['p-th', 'th', fmtTh],
+                     ['p-mu', 'mu', fmtMu], ['p-l', 'l', fmtL]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+            resetSim();
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+        resetSim();
+    });
+    document.getElementById('tgl-dim')?.addEventListener('click', function () {
+        show.dim = !show.dim;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function analysis() {
+        const th = state.th * Math.PI / 180;
+        const v1sq = state.v * state.v - 2 * g * state.h;
+        const loss = 2 * g * state.l * (Math.sin(th) + state.mu * Math.cos(th));
+        const reaches = v1sq > loss;
+        const vB = reaches ? Math.sqrt(v1sq - loss) : 0;
+        const sStop = v1sq / (2 * g * (Math.sin(th) + state.mu * Math.cos(th)));
+        const turnH = state.h + sStop * Math.sin(th);
+        return { th, v1: v1sq > 0 ? Math.sqrt(v1sq) : 0, reaches, vB, sStop, turnH, v1sq };
+    }
+
+    let last = 0;
+    function draw(ts) {
+        const dt = Math.min((ts - last) / 1000, 0.03) || 0.016;
+        last = ts;
+        const an = analysis();
+        const th = an.th;
+        const s1 = state.h / Math.sin(th);          /* slope length below the patch */
+        const sPatchEnd = RUN + s1 + state.l;
+
+        /* integrate (symplectic Euler along the path) */
+        if (sim.mode === 'run') {
+            let acc = 0;
+            if (sim.s > RUN) {
+                acc = -g * Math.sin(th);
+                if (sim.s > RUN + s1 && sim.s < sPatchEnd)
+                    acc -= state.mu * g * Math.cos(th);
+            }
+            sim.v += acc * dt;
+            if (sim.v <= 0) { sim.v = 0; sim.mode = 'wait'; sim.wait = ts + 1000; }
+            sim.s += sim.v * dt;
+            if (sim.s > sPatchEnd + 0.8) { sim.mode = 'wait'; sim.wait = ts + 1000; }
+        } else if (ts >= sim.wait) resetSim();
+
+        ctx.clearRect(0, 0, W, H);
+
+        /* geometry: A at right on the ground, slope rising to the left */
+        const gy = H * 0.80;
+        const pxPerM = Math.min((W - 90) / (RUN + (s1 + state.l + 0.9) * Math.cos(th)),
+                                (gy - 40) / ((s1 + state.l + 0.9) * Math.sin(th)));
+        const ax = W - 46;                           /* point A */
+        const foot = ax - RUN * pxPerM;              /* foot of the slope */
+        const P = s => {                             /* path coordinate → screen */
+            if (s <= RUN) return [ax - s * pxPerM, gy];
+            const d = s - RUN;
+            return [foot - d * Math.cos(th) * pxPerM, gy - d * Math.sin(th) * pxPerM];
+        };
+
+        /* ground + slope */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(ax + 26, gy); ctx.lineTo(foot, gy);
+        const top = P(RUN + s1 + state.l + 0.9);
+        ctx.lineTo(top[0], top[1]); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let x = foot + 8; x < ax + 22; x += 13) {
+            ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x - 8, gy + 9); ctx.stroke();
+        }
+        const slopeSteps = Math.floor((s1 + state.l + 0.9) * pxPerM / 14);
+        for (let i = 1; i < slopeSteps; i++) {
+            const q = P(RUN + i * 14 / pxPerM);
+            ctx.beginPath(); ctx.moveTo(q[0], q[1]); ctx.lineTo(q[0] - 4, q[1] + 10); ctx.stroke();
+        }
+
+        /* the rough patch: dotted band between s1 and s1+L on the slope */
+        const pA = P(RUN + s1), pB = P(RUN + s1 + state.l);
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 5; ctx.lineCap = 'butt';
+        ctx.setLineDash([2, 4]);
+        ctx.beginPath(); ctx.moveTo(pA[0], pA[1]); ctx.lineTo(pB[0], pB[1]); ctx.stroke();
+        ctx.setLineDash([]);
+
+        /* markers A and B */
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.beginPath(); ctx.arc(ax, gy, 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillText('A', ax, gy + 10);
+        ctx.beginPath(); ctx.arc(pB[0], pB[1], 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+        ctx.fillText('B', pB[0] - 8, pB[1] - 4);
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('L', (pA[0] + pB[0]) / 2 - 12, (pA[1] + pB[1]) / 2 - 8);
+
+        /* h dimension from ground level to patch start */
+        if (show.dim) {
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+            ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(pA[0], pA[1]); ctx.lineTo(pA[0], gy); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.soft;
+            ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            ctx.fillText('h', pA[0] - 6, (pA[1] + gy) / 2);
+        }
+
+        /* block */
+        const bp = P(Math.min(sim.s, sPatchEnd + 0.8));
+        ctx.save();
+        ctx.translate(bp[0], bp[1]);
+        if (sim.s > RUN) ctx.rotate(-th);
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        ctx.fillRect(-13, -24, 26, 24); ctx.strokeRect(-13, -24, 26, 24);
+        ctx.restore();
+
+        /* status caption */
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('v = ' + sim.v.toFixed(2) + ' m/s', 26, 22);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-v1'))      $('r-v1').textContent      = an.v1.toFixed(2) + ' m/s';
+        if ($('r-verdict')) $('r-verdict').textContent = an.reaches ? 'reaches B' : 'stops in the patch';
+        if ($('r-vb'))      $('r-vb').textContent      = an.reaches ? an.vB.toFixed(2) + ' m/s' : '—';
+        if ($('r-turn'))    $('r-turn').textContent    = an.reaches ? '—' : an.turnH.toFixed(2) + ' m';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

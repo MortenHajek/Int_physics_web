@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 7.32 · Reading the Energy Graph — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="energy" data-screen-label="Ex 7.32 Reading the Energy Graph">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 7 · Ex. 32</span><span lang="cs">Kap. 7 · Úl. 32</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Work &amp; Energy — Chapter 7 · Exercise 32</span><span lang="cs">4. téma · Práce a energie — Kapitola 7 · Úloha 32</span></div>
+        <h1><span lang="en">Reading the Energy Graph</span><span lang="cs">Čtení grafu energie</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>32</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A block of mass <span data-tex="m"></span> lies on a horizontal frictionless surface,
+                    attached to a horizontal spring of stiffness <span data-tex="k"></span> whose other
+                    end is fixed. At first the block rests at <span data-tex="x = 0"></span>, where the
+                    spring is relaxed. Then a constant horizontal force
+                    <span data-tex="\vec F"></span> starts pushing the block in the
+                    <span data-tex="+x"></span> direction. Fig. 7-39 plots the block's kinetic energy
+                    against <span data-tex="x"></span>: it peaks at
+                    <span class="given" data-tex="E_{ks} = 4.0\ \mathrm{J}"></span> at
+                    <span class="given" data-tex="x = 1.0\ \mathrm{m}"></span> and returns to zero at
+                    <span class="given" data-tex="x = 2.0\ \mathrm{m}"></span>.
+                </p>
+                <p lang="cs">
+                    Klínek o hmotnosti <span data-tex="m"></span> leží na vodorovné hladké podložce bez
+                    tření, připevněný k vodorovné pružině o tuhosti <span data-tex="k"></span>, jejíž
+                    druhý konec je pevný. Zpočátku klínek spočívá v <span data-tex="x = 0"></span>, kde je
+                    pružina neprodloužená. Poté na klínek začne působit konstantní vodorovná síla
+                    <span data-tex="\vec F"></span> ve směru <span data-tex="+x"></span>. Obr. 7-39
+                    zobrazuje závislost kinetické energie klínku na <span data-tex="x"></span>: dosahuje
+                    maxima <span class="given" data-tex="E_{ks} = 4{,}0\ \mathrm{J}"></span> v
+                    <span class="given" data-tex="x = 1{,}0\ \mathrm{m}"></span> a vrací se na nulu v
+                    <span class="given" data-tex="x = 2{,}0\ \mathrm{m}"></span>.
+                </p>
+                <p lang="en">
+                    Determine (a) the magnitude of <span data-tex="\vec F"></span> and
+                    (b) the spring stiffness <span data-tex="k"></span>.
+                </p>
+                <p lang="cs">
+                    Určete (a) velikost <span data-tex="\vec F"></span> a
+                    (b) tuhost pružiny <span data-tex="k"></span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Energy-graph sandbox</span><span lang="cs">Sandbox: graf energie</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="E_k = Fx - \tfrac12 kx^2"></div>
+                <div class="sim-hint"><span lang="en">fit the parabola through both dashed targets</span><span lang="cs">proložte parabolu oběma tečkovanými cíli</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset the search">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Force F — find it!</span><span lang="cs">Síla F — najděte ji!</span></span>
+                            <span class="sim-control-val" id="p-f-val">5.0 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-f" min="2" max="12" step="0.1" value="5.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Stiffness k — find it!</span><span lang="cs">Tuhost k — najděte ji!</span></span>
+                            <span class="sim-control-val" id="p-k-val">4.0 N/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-k" min="2" max="12" step="0.1" value="4.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Your curve</span><span lang="cs">Vaše křivka</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_k\ \text{peak} = F^2\!/2k"></span>
+                        <span class="readout-val" id="r-peak">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{returns to 0 at}\ 2F/k"></span>
+                        <span class="readout-val" id="r-zero">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Targets from the figure</span><span lang="cs">Cíle z obrázku</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{peak}"></span>
+                        <span class="readout-val"><span lang="en">4.0 J at 1.0 m</span><span lang="cs">4,0 J v 1,0 m</span></span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{zero}"></span>
+                        <span class="readout-val"><span lang="en">at 2.0 m</span><span lang="cs">v 2,0 m</span></span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{status}"></span>
+                        <span class="readout-val" id="r-status">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-scene">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">block &amp; spring scene</span><span lang="cs">scéna: klínek a pružina</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Work–energy theorem from the start (rest, relaxed spring):
+                    <span data-tex="E_k(x) = Fx - \tfrac12 kx^2"></span> — a downward parabola.</span>
+                    <span lang="cs">Věta o práci a kinetické energii od začátku (klid, neprodloužená pružina):
+                    <span data-tex="E_k(x) = Fx - \tfrac12 kx^2"></span> — parabola otevřená dolů.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The kinetic energy returns to zero at
+                    <span data-tex="x = 2F/k = 2.0\ \mathrm{m}"></span>, giving
+                    <span data-tex="F = k\cdot(1\ \mathrm{m})"></span>. Its peak sits where
+                    <span data-tex="F = kx"></span>, i.e. at <span data-tex="x = F/k = 1.0\ \mathrm{m}"></span>
+                    — consistent with the figure.</span>
+                    <span lang="cs">Kinetická energie se vrací na nulu v
+                    <span data-tex="x = 2F/k = 2{,}0\ \mathrm{m}"></span>, což dává
+                    <span data-tex="F = k\cdot(1\ \mathrm{m})"></span>. Její maximum je tam, kde
+                    <span data-tex="F = kx"></span>, tedy v <span data-tex="x = F/k = 1{,}0\ \mathrm{m}"></span>
+                    — v souladu s obrázkem.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">The peak value is
+                    <span data-tex="E_{ks} = F^2/2k = F/2\cdot(1\ \mathrm{m}) = 4.0\ \mathrm{J}"></span>,
+                    so <span data-tex="F = 8.0\ \mathrm{N}"></span> and
+                    <span data-tex="k = 8.0\ \mathrm{N\,m^{-1}}"></span>.</span>
+                    <span lang="cs">Maximální hodnota je
+                    <span data-tex="E_{ks} = F^2/2k = F/2\cdot(1\ \mathrm{m}) = 4{,}0\ \mathrm{J}"></span>,
+                    tedy <span data-tex="F = 8{,}0\ \mathrm{N}"></span> a
+                    <span data-tex="k = 8{,}0\ \mathrm{N\,m^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="F = 8.0\ \mathrm{N}"></span><span lang="cs" data-tex="F = 8{,}0\ \mathrm{N}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="k = 8.0\ \mathrm{N\,m^{-1}}"></span><span lang="cs" data-tex="k = 8{,}0\ \mathrm{N\,m^{-1}}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 7 · Ex. 32</span><span lang="cs">Kap. 7 · Úl. 32</span></span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const DEFAULTS = { f: 5.0, k: 4.0 };   /* deliberately wrong — the fit is the exercise */
+    let state = { ...DEFAULTS };
+    const show = { scene: true };
+
+    const fmtF = v => v.toFixed(1) + ' N';
+    const fmtK = v => v.toFixed(1) + ' N/m';
+    const SLIDERS = [['p-f', 'f', fmtF], ['p-k', 'k', fmtK]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-scene')?.addEventListener('click', function () {
+        show.scene = !show.scene;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function spring(x0, y, x1, coils) {
+        const seg = (x1 - x0) / coils;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(x0, y);
+        for (let i = 0; i < coils; i++) {
+            ctx.lineTo(x0 + seg * (i + 0.5), y + (i % 2 ? -7 : 7));
+        }
+        ctx.lineTo(x1, y); ctx.stroke();
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const { f, k } = state;
+        const Ek = x => f * x - 0.5 * k * x * x;
+        const xZero = 2 * f / k;
+        const peak = f * f / (2 * k);
+        const matched = Math.abs(xZero - 2.0) <= 0.05 && Math.abs(peak - 4.0) <= 0.12;
+
+        /* scene strip (block oscillating along the driven stroke) */
+        let gy0 = 40;
+        if (show.scene) {
+            const sy = 64;
+            const sx0 = 60, sx1 = W - 60;
+            /* wall left */
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.moveTo(sx0 - 20, sy - 30); ctx.lineTo(sx0 - 20, sy + 16); ctx.stroke();
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            for (let y = sy - 26; y < sy + 14; y += 10) {
+                ctx.beginPath(); ctx.moveTo(sx0 - 20, y); ctx.lineTo(sx0 - 29, y + 7); ctx.stroke();
+            }
+            /* floor */
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(sx0 - 20, sy + 16); ctx.lineTo(sx1 + 30, sy + 16); ctx.stroke();
+            /* block scrubs back and forth over [0, xZero] */
+            const u = (Math.sin(ts / 900) + 1) / 2;
+            const bx = sx0 + 40 + u * Math.min(xZero, 2.4) / 2.4 * (sx1 - sx0 - 120);
+            spring(sx0 - 20, sy - 6, bx - 20, 8);
+            ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+            ctx.fillRect(bx - 20, sy - 26, 40, 42);
+            ctx.strokeRect(bx - 20, sy - 26, 40, 42);
+            /* applied force */
+            ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(bx + 22, sy - 5); ctx.lineTo(bx + 52, sy - 5); ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(bx + 58, sy - 5); ctx.lineTo(bx + 48, sy - 10); ctx.lineTo(bx + 48, sy);
+            ctx.closePath(); ctx.fill();
+            ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('F', bx + 60, sy - 8);
+            gy0 = 118;
+        }
+
+        /* graph */
+        const mx0 = 62, mx1 = W - 36, my1 = H - 50;
+        const X_MAX = 2.6, Y_MAX = 5.2;
+        const SX = x => mx0 + x / X_MAX * (mx1 - mx0);
+        const SY = e => my1 - Math.max(e, 0) / Y_MAX * (my1 - gy0);
+
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(mx0, gy0 - 4); ctx.lineTo(mx0, my1); ctx.lineTo(mx1 + 6, my1);
+        ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        [0.5, 1.0, 1.5, 2.0, 2.5].forEach(x => {
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(x.toFixed(1), SX(x), my1 + 6);
+        });
+        ctx.fillText('x (m)', (mx0 + mx1) / 2, my1 + 20);
+        [2, 4].forEach(e => {
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            ctx.fillText(e + ' J', mx0 - 7, SY(e));
+        });
+        ctx.save();
+        ctx.translate(mx0 - 38, (gy0 + my1) / 2); ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('Ek', 0, 0);
+        ctx.restore();
+
+        /* the student's parabola */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= 160; i++) {
+            const x = i / 160 * X_MAX;
+            const e = Ek(x);
+            if (e < -0.02) break;
+            started ? ctx.lineTo(SX(x), SY(e)) : ctx.moveTo(SX(x), SY(e));
+            started = true;
+        }
+        ctx.stroke();
+
+        /* dashed targets from the printed figure */
+        [[1.0, 4.0], [2.0, 0]].forEach(([x, e]) => {
+            ctx.beginPath(); ctx.arc(SX(x), SY(e), 8, 0, Math.PI * 2);
+            ctx.strokeStyle = matched ? col.acc : col.ink;
+            ctx.lineWidth = 1.6; ctx.setLineDash([3, 3]); ctx.stroke();
+            ctx.setLineDash([]);
+        });
+        ctx.strokeStyle = col.faint; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(mx0, SY(4)); ctx.lineTo(SX(1.0), SY(4));
+        ctx.lineTo(SX(1.0), my1); ctx.stroke();
+        ctx.setLineDash([]);
+
+        if (matched) {
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('● MATCHED — F and k found', (mx0 + mx1) / 2, gy0);
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-peak'))   $('r-peak').textContent   = peak.toFixed(2) + ' J';
+        if ($('r-zero'))   $('r-zero').textContent   = xZero.toFixed(2) + ' m';
+        if ($('r-status')) $('r-status').textContent = matched ? 'matched ✓' : 'keep fitting…';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

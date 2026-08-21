@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Physics Lab — Interactive Textbook for Undergraduates</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="lang.js"></script>
+
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+    <style>
+    /* ── Option A: main page header — double rule at content width only ── */
+    .topbar {
+        position: relative;
+        background: transparent;
+        border-bottom: none;
+    }
+    .topbar::after { display: none; }
+    /* Rules aligned to text — stop at the 48px padding boundary, not the box edge */
+    .topbar-inner {
+        position: relative;
+        justify-content: center;   /* override styles.css space-between — single centred brand */
+    }
+    .topbar-inner::before,
+    .topbar-inner::after {
+        display: block;
+        content: "";
+        position: absolute;
+        left: 48px; right: 48px;
+        height: 1.5px;
+        background: var(--ink);
+    }
+    .topbar-inner::before { bottom: 0; }
+    .topbar-inner::after  { bottom: -5px; }
+    @media (max-width: 960px) {
+        .topbar-inner::before,
+        .topbar-inner::after { left: 20px; right: 20px; }
+    }
+    /* Language switch — pinned to the right edge of the text-width rules */
+    .topbar .lang-switch {
+        position: absolute;
+        right: 48px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    @media (max-width: 960px) {
+        .topbar .lang-switch { right: 20px; }
+    }
+    /* ── Hero entrance — soft fade-up with a blur dissolve, staggered ──
+       fill-mode is `backwards` (not forwards) on purpose: the final keyframe
+       equals the natural state, and forwards fill would permanently override
+       the .vol-btn:hover transform lift. */
+    @keyframes hero-rise {
+        from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+        to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+    }
+    .hero-text h1 {
+        /* 8px (6pt) below the global h1 clamp(48px, 6vw, 84px) */
+        font-size: clamp(35px, 5.4vw, 65px);
+        animation: hero-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms backwards;
+    }
+    .hero-nav .vol-btn {
+        animation: hero-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+    .hero-nav .vol-1 { animation-delay: 350ms; }
+    .hero-nav .vol-2 { animation-delay: 480ms; }
+    @media (prefers-reduced-motion: reduce) {
+        .hero-text h1, .hero-nav .vol-btn { animation: none; }
+    }
+    /* ── Vol section heads: double rule in ink ── */
+    #vol1 .section-head,
+    #vol2 .section-head {
+        border-bottom: 1.5px solid var(--ink);
+        padding-bottom: 18px;
+        background-image: linear-gradient(var(--ink), var(--ink));
+        background-size: 100% 1.5px;
+        background-repeat: no-repeat;
+        background-position: bottom 7px left 0px;
+    }
+    /* ── Spring canvas — absolute (scrolls with page), left margin ── */
+    #spring-canvas {
+        position: absolute;
+        top: 0;
+        left: max(4px, calc(50vw - 960px));
+        width: 200px;
+        height: 540px;
+        pointer-events: none;
+        z-index: 0;
+    }
+    @media (max-width: 1360px) { #spring-canvas { display: none; } }
+    /* ── Rocket canvas — symmetric to spring, right margin ── */
+    #rocket-canvas {
+        position: absolute;
+        top: 0;
+        right: max(4px, calc(50vw - 960px));
+        width: 160px;
+        pointer-events: none;
+        z-index: 0;
+    }
+    @media (max-width: 1360px) { #rocket-canvas { display: none; } }
+    </style>
+</head>
+<body data-screen-label="01 Home">
+
+<!--
+  ════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+                    $$
+
+    $$$$   $$$$    $$$$    $$$$   $$$$  $$$$$$     $$$$$$$     $$$    $$$$$$$$   $$$$$$$$  $$$$$$ $$$$$$$$
+    $$$$   $$$$   $$$$$$   $$$$   $$$$  $$$        $$$  $$$   $$ $$   $$$   $$$ $$$    $$  $$        $$
+    $$ $$ $$ $$   $$  $$   $$ $$ $$ $$  $$$$$$     $$$$$$    $$  $$$  $$$    $$ $$     $$$  $$$$$    $$
+    $$ $$$$  $$  $$$$$$$$  $$ $$ $  $$  $$$        $$$ $$$  X$$$$$$$  $$$   $$$ $$$    $$      $$    $$
+    $$  $$$  $$ $$$    $$  $$  $$$  $$  $$$$$$     $$$  $$$ $$    $$$ $$$$$$$X   $$$$$$$   $$$$$$    $$
+                                                         
+                                                                                            
+                                        =--=-==--==:=                                       
+                                       -=:-::::-.--:::-                                     
+                                   ===:-:.:::--:-::::-:-:- -                                
+                                   ===-::===+=+==---::--:--==   -                           
+                           - =- == =*#######*****+++===--------=                            
+                           --:=-+####%%%%%%%%###**++++=+=---:-: ---==----                   
+                          =---#%%%%%%%%%%%%%%#####****++++==----:.:---:---                  
+                        -:-+#%%%%%%%%%%%%%%%%%%#####***+++===----......:--                  
+                      ::.*#%%%%%%%%%%%%%%%%%%%##%###****+++======--   .:::=                 
+                   ==. .#%%%%%%%%%%%%%%%%%%%%%%%%####****++=========. . :. --               
+                  =.  *#%%%%%%%%%%%%%%%%%%%%%%%%%%%#####***+====-==---    :--               
+                 -...+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%##**+++===-=-=---  .=::-              
+                -..::#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%#****++++===+=----   - =:             
+               ...::##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%####****+++++===-=====   :               
+              :.:..+%%%%%%%%%%%%%%%%%%%%%%%%#%%%%%%%##*****+*+++++===++==   ..              
+             =-:- +*#%%%%%%%%%%%%%%%%%%%%%%%%#%%%%%%%%#*+**++=+++*+=+++-=    -              
+             --=.:+*##%%%%%%%%%%%%%%%%%%%%%%%#%%%%+###***+++++==+*+=+====    :              
+               -:=+###%%%%%%%%%##+%%#:%#%%%%%##%%%####**+*++++++++*++===: .  .              
+               ::-#*##%%%%%%%%%%%%**=++* #*%%##%##*+-:%+:..= ---++++++==:  . =              
+               :.--++%%%%%%%%%%%%%%**++++.#%%%%%#+-:=-:++*++=-+::-=+++--. --                
+               :.:: .+%%%%#*:*+-:#+ .=:==-+=%%+. +:* ...    :===:-==++.   .. -              
+               ==:.-*#%%%%%%*#%%%%*=*+===###%%%#=::.  .+:...:: .+.: ++-::                   
+                #%%*-%%%%%%%%+%%%%##**+++##*%%%#+--:.  :==++====-:=+++=.-:                  
+                #*%%%%%%%%%%%%%#%%%#**#%##%%%%%#++:=:-..:-=+==*+===++++-.== -               
+                 %%%#%%%%%%%%%%%%%%%%#%#%%%%%%%#+==.=::---=+*:=++++++++:==. .               
+                 %%%#*%%%%%%%%%%%%%%%%%%%%%%%%%#**===-::---++====-+++=---== -               
+                 %%%%*%%%%%%%%%%%%%%%%%%%%%%%%%##*+++.:::==+**++++=+++-= .+.                
+                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#*+*==-  .:=++++++=*++=:=: .=                
+                 %%%%*#%%%%%%%%%%%%%*+%%%#=+##%*=-:::-   .:==++=**++==::  .+                
+                 %%%%*#%%%#%%%%%%%*=#%%*%%%#%#*--:::..:   :--=-=++===--::-==                
+                 *%%%#%*%%%%%%%%#=#%%*+*##+:=-:-::     .   .----=----:=*--==                
+                    =##*##%%#%%##*+-+=.++:-.=: .-=.#. .-     :-:---::.=:.==                 
+                    =*%%***%%%#%-=--=+=.:-:=:-...#.:.+  :     .:::....=--                   
+                   =  +%%%%+#%*++:..=+#+*#*##++=--:::..      ...+=:=::+:-                   
+                    *###%#*+%*#*+#-#%%%%%%#%*#**+=+-+=*.. .. :..:+-.:+:=                    
+                 ** **%#+%%%%%%#+*#=*###%+#++=+-=+*-=*-.. .  -- .:-...:=-                   
+                      ##**-%%=#+*=#+:+*%#%##**:+..:-=..:..  .. :=-..=--=                    
+                         *-=+-=:: :=- #%+#%#*#*=-:-=*:-           -..:                      
+                         =+=:--:.+-.:-**#%%+%#*%==#=##.            .-                       
+                       -  =*--: :: :::*#+=#+++*--:=-=.=.         :: =                       
+                           ##=: :.+..%#-%.+++*.=*-==:==         :--   :                     
+                          +###*=.:  : +:..-*.= =-: *   :     .:--:-     =                   
+                        +:.+%%*#=*.   :-=   %.      .      .-----=-.     -                  
+                      +-.  .%#%%##*=-=--.   .           :.:.:::--==:      =                 
+                    +=.    .#%%%%%#%##%%*#**+:::...:..:---.::----=-       .=                
+                   +-     =##%%%%%#%#%%%#%%%#%#=-*::::-==:-::-----.       ....:=            
+                 =+:     =#%#%%%%%%##%%%%%%%%##*++=:=---:::::---:.        ...     .-=       
+           ==-:::-=..   :*#%%%%%%%%#%%%%%%%%%*==-:-:::=-:------.          .. .         . := 
+    +==-:::::::---=..   =*#%%%%%%%%%%#%%%#%%+=:--==---::-=---..       ..    ..              .
+==-:::::::::--=-----.. .=#%%%%%%%%%%%%%#%%#+-::++==--:==--=:..      ...   .   .             
+::----------:-------:.  -*%%%%%%%%%#%%%%#####++=++==:-==++:..      .::                    ..  .  .
+---:::--:--:-------=-:. .+%%%%%%%%%%%%%%%####****=-==**+==:.     :::-.                     ..
+----:-:--------------::. :*#%%%%%%%%%%%%%#######*+++***+-:..   .:::-:.    .                 
+------:-:::-----------::. -##%%%%%%%%%%%##*##*=+**##%*==::.   :-:--:.                       
+::-------::------------:..  +#%%%%%%%%%%###*****#%%%#*=--:  :------:.                       
+-::---------=---=------::. . -+%%%%%%%%%##**###%%%%#*+=-:.:-::----:.                    .   
+--:::-------=--------=-:::=----:-%%%%%%%####%%%%%%%=:::. ::.:.::-..                   .   .......
+----:-::----=---------=----.:.:-::::*%%%#*#%%%#:..--             .                       .........:..
+---------:------==--::--: =::--:..-::::+*##-:::.--                                       .........:..
+---------::------=---:      ..     .::::.:                                               ..........:.
+---------------==--:    .::::::.....:: -                       ....                 .        ........
+--------------: .:::::--------::::--:-:      ..  ....................        .       .  .............
+--------------:-----:--------::::::::--. .. ::.::.................................    . ...:.........
+----------------------------::-::::::-.  .. -:.................................... .  ...............
+
+  ════════════════════════════════════════════════════════════════════════════════════════════════════════
+-->
+
+<!-- Spring decoration — left margin -->
+<canvas id="spring-canvas" aria-hidden="true"></canvas>
+<!-- Rocket decoration — right margin -->
+<canvas id="rocket-canvas" aria-hidden="true"></canvas>
+
+<!-- Top bar — outside .page so it spans full viewport width -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+        </div>
+        <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+            <button type="button" data-lang-btn="en">EN</button>
+            <button type="button" data-lang-btn="cs">CS</button>
+        </div>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1>
+                <span lang="en">“I’m going to <em>play</em> with physics, whenever I want to.” <br> — R. Feynman</span><span lang="cs">Fyzikální úlohy <em>radostně</em></span>
+            </h1>
+        </div>
+        <div class="hero-nav">
+            <a href="#vol1" class="vol-btn vol-1">
+                <span class="vol-label"><span lang="en">Course: Physics 1</span><span lang="cs">Kurz: Fyzika 1</span></span>
+                <span class="vol-sub"><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
+                <span class="vol-arrow">→</span>
+            </a>
+            <a href="#vol2" class="vol-btn vol-2">
+                <span class="vol-label"><span lang="en">Course: Physics 2</span><span lang="cs">Kurz: Fyzika 2</span></span>
+                <span class="vol-sub"><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
+                <span class="vol-arrow">→</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Vol. I -->
+    <section id="vol1">
+        <div class="section-head">
+            <h2><span lang="en">Physics 1 · Mechanics</span><span lang="cs">Fyzika 1 · Mechanika</span></h2>
+            <span class="count">§ 01 — 10</span>
+        </div>
+
+        <div class="cards">
+
+            <!-- 01 · Vectors -->
+            <article class="card vectors">
+                <a class="card-link" href="topics/vectors.html" aria-label="Open Vectors"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>steel blue · #1e5080</span>
+                <div class="viewport">
+                    <canvas id="card-vectors"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\vec{a} + \vec{b} = \vec{c}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#152e55;"></div>
+                        <div class="sw" style="background:#1e5080;"></div>
+                        <div class="sw" style="background:#6090c0;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 01</div>
+                    <div class="topic-name"><span lang="en">Vectors</span><span lang="cs">Vektory</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 02 · Particle motion -->
+            <article class="card kinematics">
+                <a class="card-link" href="topics/particle-motion.html" aria-label="Open Particle motion"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>warm umber · #7a3c1a</span>
+                <div class="viewport">
+                    <canvas id="card-kinematics"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="y = y_0 + v_{0y}t - \tfrac{1}{2}gt^2"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#5a2c12;"></div>
+                        <div class="sw" style="background:#7a3c1a;"></div>
+                        <div class="sw" style="background:#b87050;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 02</div>
+                    <div class="topic-name"><span lang="en">Particle motion</span><span lang="cs">Pohyb částice</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 03 · Force and motion -->
+            <article class="card dynamics">
+                <a class="card-link" href="topics/force-and-motion.html" aria-label="Open Force and motion"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>terracotta · #b94d28</span>
+                <div class="viewport">
+                    <canvas id="card-dynamics"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\sum \vec{F} = m\vec{a}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#8b3a1d;"></div>
+                        <div class="sw" style="background:#b94d28;"></div>
+                        <div class="sw" style="background:#d97a4d;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 03</div>
+                    <div class="topic-name"><span lang="en">Force and motion</span><span lang="cs">Síla a pohyb</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 04 · Work and energy -->
+            <article class="card energy">
+                <a class="card-link" href="topics/work-and-energy.html" aria-label="Open Work and energy"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>forest green · #2d6b3a</span>
+                <div class="viewport">
+                    <canvas id="card-energy"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="mgh = \tfrac{1}{2} m v^2"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#1e4e2a;"></div>
+                        <div class="sw" style="background:#2d6b3a;"></div>
+                        <div class="sw" style="background:#5a9a68;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 04</div>
+                    <div class="topic-name"><span lang="en">Work and energy</span><span lang="cs">Práce a energie</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 05 · Particle sets -->
+            <article class="card systems">
+                <a class="card-link" href="topics/particle-sets.html" aria-label="Open Particle sets"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>violet · #5a3578</span>
+                <div class="viewport">
+                    <canvas id="card-systems"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\sum \vec{p} = \vec{const}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#421a5a;"></div>
+                        <div class="sw" style="background:#5a3578;"></div>
+                        <div class="sw" style="background:#9068b8;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 05</div>
+                    <div class="topic-name"><span lang="en">Particle sets</span><span lang="cs">Soustavy částic</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 06 · Rotation -->
+            <article class="card rotation">
+                <a class="card-link" href="topics/rotation.html" aria-label="Open Rotation"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>burgundy · #8a2840</span>
+                <div class="viewport">
+                    <canvas id="card-rotation"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\sum \vec{M} = I\vec{\varepsilon}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#621830;"></div>
+                        <div class="sw" style="background:#8a2840;"></div>
+                        <div class="sw" style="background:#c05878;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 06</div>
+                    <div class="topic-name"><span lang="en">Rotation</span><span lang="cs">Rotace</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 07 · Gravity -->
+            <article class="card gravity">
+                <a class="card-link" href="topics/gravity.html" aria-label="Open Gravity"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>deep prussian navy · #163868</span>
+                <div class="viewport">
+                    <canvas id="card-gravity"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="F = G\dfrac{Mm}{r^2}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#0D2040;"></div>
+                        <div class="sw" style="background:#163868;"></div>
+                        <div class="sw" style="background:#3462A0;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 07</div>
+                    <div class="topic-name"><span lang="en">Gravity</span><span lang="cs">Gravitace</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 08 · Oscillation -->
+            <article class="card oscillation">
+                <a class="card-link" href="topics/oscillation.html" aria-label="Open Oscillation"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>oxidized teal · #2d6e6a</span>
+                <div class="viewport">
+                    <canvas id="card-oscillation"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="F = -kx"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#1f4f4c;"></div>
+                        <div class="sw" style="background:#2d6e6a;"></div>
+                        <div class="sw" style="background:#5da19a;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 08</div>
+                    <div class="topic-name"><span lang="en">Oscillation</span><span lang="cs">Kmitání</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 09 · Waves -->
+            <article class="card waves">
+                <a class="card-link" href="topics/waves.html" aria-label="Open Waves"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>cerulean · #1a6678</span>
+                <div class="viewport">
+                    <canvas id="card-waves"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="v = \lambda f"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#124858;"></div>
+                        <div class="sw" style="background:#1a6678;"></div>
+                        <div class="sw" style="background:#4898b0;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 09</div>
+                    <div class="topic-name"><span lang="en">Waves</span><span lang="cs">Vlnění</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- 10 · Thermodynamics -->
+            <article class="card thermo">
+                <a class="card-link" href="topics/thermodynamics.html" aria-label="Open Thermodynamics"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>amber · #b05a18</span>
+                <div class="viewport">
+                    <canvas id="card-thermo"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\Delta U = Q - W"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#803e10;"></div>
+                        <div class="sw" style="background:#b05a18;"></div>
+                        <div class="sw" style="background:#d88848;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ 10</div>
+                    <div class="topic-name"><span lang="en">Thermodynamics</span><span lang="cs">Termodynamika</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- Vol. II -->
+    <section id="vol2" style="margin-top:80px;">
+        <div class="section-head">
+            <h2><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Fyzika 2 · Elektromagnetismus</span></h2>
+            <span class="count">§ 01 — 07</span>
+        </div>
+
+        <div class="cards">
+
+            <!-- II.01 · Electrostatics 1 -->
+            <article class="card electrostatics-1">
+                <a class="card-link" href="topics/electrostatics-1.html" aria-label="Open Electrostatics 1"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>indigo violet · #3D2E8A</span>
+                <div class="viewport">
+                    <canvas id="card-electrostatics-1"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="F = k\dfrac{Q_1 Q_2}{r^2}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#1a1448;"></div>
+                        <div class="sw" style="background:#3D2E8A;"></div>
+                        <div class="sw" style="background:#6048b0;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ II.01</div>
+                    <div class="topic-name"><span lang="en">Electrostatics 1</span><span lang="cs">Elektrostatika 1</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- II.02 · Electrostatics 2 -->
+            <article class="card electrostatics-2">
+                <a class="card-link" href="topics/electrostatics-2.html" aria-label="Open Electrostatics 2"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>fuchsia plum · #7a2868</span>
+                <div class="viewport">
+                    <canvas id="card-electrostatics-2"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\varphi = \frac{1}{4\pi\varepsilon_0}\int \frac{\mathrm{d}Q}{r}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#4a1840;"></div>
+                        <div class="sw" style="background:#7a2868;"></div>
+                        <div class="sw" style="background:#aa4898;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ II.02</div>
+                    <div class="topic-name"><span lang="en">Electrostatics 2</span><span lang="cs">Elektrostatika 2</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- II.03 · Currents and circuits -->
+            <article class="card circuits">
+                <a class="card-link" href="topics/circuits.html" aria-label="Open Circuits"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>antique copper · #a25a28</span>
+                <div class="viewport">
+                    <canvas id="card-circuits"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="U = IR"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#603a14;"></div>
+                        <div class="sw" style="background:#a25a28;"></div>
+                        <div class="sw" style="background:#c87840;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ II.03</div>
+                    <div class="topic-name"><span lang="en">Currents and circuits</span><span lang="cs">Proud a obvody</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- II.04 · Magnetic field -->
+            <article class="card magnetism">
+                <a class="card-link" href="topics/magnetism.html" aria-label="Open Magnetic Field"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>pewter · #5a6878</span>
+                <div class="viewport">
+                    <canvas id="card-magnetism"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\vec{F} = q\vec{v}\times\vec{B}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#3a4858;"></div>
+                        <div class="sw" style="background:#5a6878;"></div>
+                        <div class="sw" style="background:#7a8898;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ II.04</div>
+                    <div class="topic-name"><span lang="en">Magnetic field</span><span lang="cs">Magnetické pole</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- II.05 · Electromagnetic induction -->
+            <article class="card induction">
+                <a class="card-link" href="topics/induction.html" aria-label="Open Electromagnetic Induction"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>verdigris · #5a8478</span>
+                <div class="viewport">
+                    <canvas id="card-induction"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="\varepsilon = -\dfrac{d\Phi}{dt}"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#3a5848;"></div>
+                        <div class="sw" style="background:#5a8478;"></div>
+                        <div class="sw" style="background:#7aa498;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ II.05</div>
+                    <div class="topic-name"><span lang="en">Electromagnetic induction</span><span lang="cs">Elektromagnetická indukce</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- II.06 · Optics -->
+            <article class="card optics">
+                <a class="card-link" href="topics/optics.html" aria-label="Open Optics"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>saffron · #d4a418</span>
+                <div class="viewport">
+                    <canvas id="card-optics"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="n_1\sin\theta_1 = n_2\sin\theta_2"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#a47010;"></div>
+                        <div class="sw" style="background:#d4a418;"></div>
+                        <div class="sw" style="background:#f4c438;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ II.06</div>
+                    <div class="topic-name"><span lang="en">Optics</span><span lang="cs">Optika</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+            <!-- II.07 · Quantum and atomistic physics -->
+            <article class="card quantum">
+                <a class="card-link" href="topics/quantum.html" aria-label="Open Quantum Physics"></a>
+                <span class="accent-tab"></span>
+                <span class="accent-meta"><span class="dot"></span>midnight indigo · #2a1f50</span>
+                <div class="viewport">
+                    <canvas id="card-quantum"
+                            style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+                    <div class="eq-chip" data-tex="E = h\nu"></div>
+                    <div class="swatch-strip"><div class="swatches">
+                        <div class="sw" style="background:#15102f;"></div>
+                        <div class="sw" style="background:#2a1f50;"></div>
+                        <div class="sw" style="background:#503e90;"></div>
+                        <div class="sw" style="background:var(--paper);"></div>
+                    </div></div>
+                </div>
+                <div class="meta">
+                    <div class="topic-num">§ II.07</div>
+                    <div class="topic-name"><span lang="en">Quantum and atomistic physics</span><span lang="cs">Kvantová a atomová fyzika</span></div>
+                    <div class="arrow">→</div>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="foot">
+        <span><span lang="en">Questions? :)</span><span lang="cs">Dotazy? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span>© Martin Hájek</span>
+    </footer>
+
+</div>
+
+<!-- Tweaks panel root -->
+<div id="tweaks-root"></div>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" data-presets="react">
+/* global React, ReactDOM, TweaksPanel, useTweaks, TweakSection, TweakColor */
+const { useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "cMechanics":  "#8b3a1d",
+  "cSprings":    "#2d6e6a",
+  "cOrbital":    "#1f3460",
+  "cCollision":  "#8c2412",
+  "cPendulum":   "#8a651e",
+  "cElectric":   "#3D2E8A",
+  "cVectors":    "#1e5080",
+  "cKinematics": "#7a3c1a",
+  "cEnergy":     "#2d6b3a",
+  "cSystems":    "#5a3578",
+  "cRotation":   "#8a2840",
+  "cGravity":    "#163868",
+  "cWaves":      "#1a6678",
+  "cThermo":     "#b05a18"
+}/*EDITMODE-END*/;
+
+const PALETTES = {
+    mechanics:  ["#b94d28", "#8b3a1d", "#d97a4d", "#7a3e22", "#a14322"],
+    springs:    ["#2d6e6a", "#1f4f4c", "#3e8e7c", "#4a7d36", "#1c6b8f"],
+    orbital:    ["#2a4a8a", "#1f3460", "#3a6abf", "#5a3d8a", "#2d5fa1"],
+    collision:  ["#b1311c", "#8c2412", "#c75539", "#9c1f2c", "#a8442d"],
+    pendulum:   ["#b3862a", "#8a651e", "#cba550", "#9c6a1d", "#a87a35"],
+    electric:   ["#3D2E8A", "#261C60", "#6858C0", "#4E40A8", "#2E2278"],
+    vectors:    ["#1e5080", "#153a60", "#2a6aaa", "#1a4070", "#3060a0"],
+    kinematics: ["#7a3c1a", "#5a2c12", "#a05028", "#8c4820", "#6a3016"],
+    energy:     ["#2d6b3a", "#1e4e2a", "#3e8a50", "#2a5e38", "#4a7a42"],
+    systems:    ["#5a3578", "#42265a", "#7a5098", "#6040a0", "#4a2868"],
+    rotation:   ["#8a2840", "#6a1e30", "#b04060", "#9c3050", "#782038"],
+    gravity:    ["#163868", "#0D2040", "#3462A0", "#1E4888", "#244870"],
+    waves:      ["#1a6678", "#125060", "#2a88a0", "#1e7080", "#308898"],
+    thermo:     ["#b05a18", "#8a4210", "#d07830", "#c06020", "#983e10"],
+};
+const NAMES = {
+    mechanics: 'terracotta', springs: 'prussian teal', orbital: 'ultramarine',
+    collision: 'venetian red', pendulum: 'yellow ochre', electric: 'indigo violet',
+};
+
+function PaletteApp() {
+    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+    useEffect(() => {
+        const r = document.documentElement.style;
+        r.setProperty('--c-mechanics',  t.cMechanics);
+        r.setProperty('--c-springs',    t.cSprings);
+        r.setProperty('--c-orbital',    t.cOrbital);
+        r.setProperty('--c-collision',  t.cCollision);
+        r.setProperty('--c-pendulum',   t.cPendulum);
+        r.setProperty('--c-electric',   t.cElectric);
+        r.setProperty('--c-vectors',    t.cVectors);
+        r.setProperty('--c-kinematics', t.cKinematics);
+        r.setProperty('--c-energy',     t.cEnergy);
+        r.setProperty('--c-systems',    t.cSystems);
+        r.setProperty('--c-rotation',   t.cRotation);
+        r.setProperty('--c-gravity',    t.cGravity);
+        r.setProperty('--c-waves',      t.cWaves);
+        r.setProperty('--c-thermo',     t.cThermo);
+
+        const map = { mechanics: t.cMechanics, springs: t.cSprings, orbital: t.cOrbital, collision: t.cCollision, pendulum: t.cPendulum, electric: t.cElectric };
+        document.querySelectorAll('.card').forEach(card => {
+            const cls = Object.keys(NAMES).find(c => card.classList.contains(c));
+            if (!cls) return;
+            const meta = card.querySelector('.accent-meta');
+            if (meta) meta.innerHTML = `<span class="dot"></span>${NAMES[cls]} · ${map[cls]}`;
+        });
+    }, [t]);
+
+    return (
+        <TweaksPanel title="Tweaks" defaultPosition={{ right: 24, bottom: 24 }}>
+            <TweakSection title="Vol. I accents">
+                <TweakColor label="1 · Vectors"       value={t.cVectors}    options={PALETTES.vectors}    onChange={v => setTweak('cVectors', v)} />
+                <TweakColor label="2 · Kinematics"    value={t.cKinematics} options={PALETTES.kinematics} onChange={v => setTweak('cKinematics', v)} />
+                <TweakColor label="3 · Dynamics"      value={t.cMechanics}  options={PALETTES.mechanics}  onChange={v => setTweak('cMechanics', v)} />
+                <TweakColor label="4 · Energy"        value={t.cEnergy}     options={PALETTES.energy}     onChange={v => setTweak('cEnergy', v)} />
+                <TweakColor label="5 · Systems"       value={t.cSystems}    options={PALETTES.systems}    onChange={v => setTweak('cSystems', v)} />
+                <TweakColor label="6 · Rotation"      value={t.cRotation}   options={PALETTES.rotation}   onChange={v => setTweak('cRotation', v)} />
+                <TweakColor label="7 · Gravity"       value={t.cGravity}    options={PALETTES.gravity}    onChange={v => setTweak('cGravity', v)} />
+                <TweakColor label="8 · Oscillation"   value={t.cSprings}    options={PALETTES.springs}    onChange={v => setTweak('cSprings', v)} />
+                <TweakColor label="9 · Waves"         value={t.cWaves}      options={PALETTES.waves}      onChange={v => setTweak('cWaves', v)} />
+                <TweakColor label="10 · Thermo"       value={t.cThermo}     options={PALETTES.thermo}     onChange={v => setTweak('cThermo', v)} />
+            </TweakSection>
+            <TweakSection title="Vol. II accents">
+                <TweakColor label="II.01 · Electric"  value={t.cElectric}   options={PALETTES.electric}   onChange={v => setTweak('cElectric', v)} />
+            </TweakSection>
+        </TweaksPanel>
+    );
+}
+
+setTimeout(() => {
+    ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<PaletteApp />);
+}, 0);
+</script>
+
+<!-- Card mini-simulations -->
+<script src="cards/vectors.js"></script>
+<script src="cards/kinematics.js"></script>
+<script src="cards/dynamics.js"></script>
+<script src="cards/energy.js"></script>
+<script src="cards/systems.js"></script>
+<script src="cards/rotation.js"></script>
+<script src="cards/gravity.js"></script>
+<script src="cards/oscillation.js"></script>
+<script src="cards/waves.js"></script>
+<script src="cards/thermo.js"></script>
+<!-- Vol. II -->
+<script src="cards/electrostatics-1.js"></script>
+<script src="cards/electrostatics-2.js"></script>
+<script src="cards/circuits.js"></script>
+<script src="cards/magnetism.js"></script>
+<script src="cards/induction.js"></script>
+<script src="cards/optics.js"></script>
+<script src="cards/quantum.js"></script>
+
+<!-- KaTeX render — all [data-tex] elements across the page -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- Spring-mass decoration animation (left-margin canvas)rti -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('spring-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    // Colour tokens read at mount time
+    const s       = getComputedStyle(document.documentElement);
+    const cSpring = s.getPropertyValue('--c-springs').trim() || '#2d6e6a';
+    const cInk    = s.getPropertyValue('--ink').trim()       || '#363026';
+
+    // Physics parameters — pure SHM, no damping
+    const PERIOD = 6.0;                       // seconds (stiff spring, 2× slower)
+    const OMEGA  = (2 * Math.PI) / PERIOD;    // rad/s
+    const AMP    = 108;                       // px
+    const Y_EQ   = 290;                       // px from top of page (aligns with h1)
+
+    // Spring geometry
+    const COILS        = 10;
+    const COIL_WIDE    = 40;   // ± offset from centre line (32 × 1.25)
+    const END_STRAIGHT = 18;   // straight segment at each end (14 × 1.25)
+    const ANCHOR_Y     = 8;
+    const MASS_SIZE    = 54;   // cube 50% bigger (36 × 1.5)
+
+    let W = 0, H = 0;
+
+    function resize() {
+        W = canvas.offsetWidth;
+        H = canvas.offsetHeight;
+        canvas.width  = W * dpr;
+        canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    // Draw a zigzag spring coil between two points along a vertical line at cx.
+    function drawSpring(cx, yTop, yBottom) {
+        const innerTop    = yTop + END_STRAIGHT;
+        const innerBottom = yBottom - END_STRAIGHT;
+        const span        = innerBottom - innerTop;
+        if (span <= 0) return;
+
+        // Each coil has two segments (one to the left peak, one to the right peak).
+        const segs   = COILS * 2;
+        const segLen = span / segs;
+
+        ctx.strokeStyle = cSpring;
+        ctx.lineWidth   = 3.8;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.moveTo(cx, yTop);
+        ctx.lineTo(cx, innerTop);
+        for (let i = 0; i < segs; i++) {
+            const y = innerTop + segLen * (i + 0.5);
+            const x = cx + (i % 2 === 0 ? +COIL_WIDE : -COIL_WIDE);
+            ctx.lineTo(x, y);
+        }
+        ctx.lineTo(cx, innerBottom);
+        ctx.lineTo(cx, yBottom);
+        ctx.stroke();
+    }
+
+    function drawArrow(cx, y0, y1) {
+        // Small vertical arrow from y0 to y1; head at y1.
+        const dy = y1 - y0;
+        if (Math.abs(dy) < 1) return;
+        const dir = dy > 0 ? 1 : -1;
+        const headLen = 4;
+        const headWide = 3;
+
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+        ctx.strokeStyle = cInk;
+        ctx.fillStyle   = cInk;
+        ctx.lineWidth   = 1.25;
+        ctx.lineCap     = 'round';
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.moveTo(cx, y0);
+        ctx.lineTo(cx, y1 - dir * headLen * 0.5);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx, y1);
+        ctx.lineTo(cx - headWide, y1 - dir * headLen);
+        ctx.lineTo(cx + headWide, y1 - dir * headLen);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // Start phase so the mass begins at equilibrium moving downward:
+    //   y(t) = Y_EQ + A * cos(ω t + φ)
+    //   want y(0) = Y_EQ → cos(φ) = 0 → φ = ±π/2
+    //   want dy/dt(0) > 0 → -A ω sin(φ) > 0 → sin(φ) < 0 → φ = -π/2
+    const PHI = -Math.PI / 2;
+    const t0  = performance.now();
+
+    function frame(now) {
+        const t = (now - t0) / 1000;
+        const cx     = W / 2;
+        const yMass  = Y_EQ + AMP * Math.cos(OMEGA * t + PHI);
+        const massTop = yMass - MASS_SIZE / 2;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Spring coil: anchor → top of mass
+        drawSpring(cx, ANCHOR_Y, massTop);
+
+        // Attachment dot
+        ctx.fillStyle = cInk;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(cx, ANCHOR_Y, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Mass — filled square with ink border
+        ctx.fillStyle   = cSpring;
+        ctx.strokeStyle = cInk;
+        ctx.lineWidth   = 1;
+        ctx.beginPath();
+        ctx.rect(cx - MASS_SIZE / 2, yMass - MASS_SIZE / 2, MASS_SIZE, MASS_SIZE);
+        ctx.fill();
+        ctx.stroke();
+
+        // Force arrow — restoring force points back toward equilibrium.
+        // F = -k x, where x = yMass - Y_EQ (positive = below eq).
+        const disp = yMass - Y_EQ;
+        if (Math.abs(disp) >= 3) {
+            const maxLen = 51;
+            const len = Math.min(maxLen, Math.abs(disp) * (maxLen / AMP));
+            const dir = disp > 0 ? -1 : +1;   // restoring direction
+            const arrowX  = cx + MASS_SIZE / 2 + 10;
+            const arrowY0 = yMass;
+            const arrowY1 = yMass + dir * len;
+            drawArrow(arrowX, arrowY0, arrowY1);
+
+            // F⃗ label — italic "F" with vector arrow above it
+            const lx  = arrowX + 14;
+            const ly  = (arrowY0 + arrowY1) / 2;
+            const aly = ly - 14;   // arrow mark sits above letter
+            ctx.save();
+            ctx.globalAlpha = 0.55;
+            ctx.fillStyle   = cInk;
+            ctx.strokeStyle = cInk;
+            ctx.lineWidth   = 1;
+            ctx.lineCap     = 'round';
+            ctx.setLineDash([]);
+            // shaft of vector accent
+            ctx.beginPath();
+            ctx.moveTo(lx - 5, aly);
+            ctx.lineTo(lx + 1, aly);
+            ctx.stroke();
+            // arrowhead
+            ctx.beginPath();
+            ctx.moveTo(lx + 5, aly);
+            ctx.lineTo(lx + 1, aly - 2.5);
+            ctx.lineTo(lx + 1, aly + 2.5);
+            ctx.closePath();
+            ctx.fill();
+            // letter
+            ctx.font         = 'italic 13px "Source Serif 4", Georgia, serif';
+            ctx.textAlign    = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('F', lx, ly);
+            ctx.restore();
+        }
+
+        requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+}());
+</script>
+
+<!-- Rocket decoration animation -->
+<script>
+(function () {
+    'use strict';
+
+    // ── Rocket geometry — all px relative to rocket centre ───────────────
+    const BW   = 12;   // body half-width
+    const BH   = 30;   // body half-height
+    const NOSE = 30;   // nose cone height above body top
+    const FW   = 14;   // fin outward extension
+    const FH   = 30;   // fin vertical span
+    const NZH  = 11;   // nozzle height below body bottom
+    const NZW  = 6;    // nozzle half-width at tip
+    const WR   = 6;    // porthole radius
+
+    // ── Flight parameters ─────────────────────────────────────────────────
+    const CYCLE    = 13800;  // ms per pass
+    const ARC_OFF  = 15;     // px — gentle arc bulge at midpoint (near-straight)
+
+    function colours() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()   || '#363026',
+            paper: s.getPropertyValue('--paper').trim() || '#f5f0e8',
+        };
+    }
+
+    // Draw rocket at origin, pointing straight up. Caller handles translate+rotate.
+    function drawRocket(ctx, col) {
+        ctx.setLineDash([]);
+
+        // Body
+        ctx.fillStyle   = col.paper;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth   = 1.8;
+        ctx.beginPath();
+        ctx.rect(-BW, -BH, BW * 2, BH * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Nose cone
+        ctx.fillStyle = col.ink;
+        ctx.beginPath();
+        ctx.moveTo(-BW, -BH);
+        ctx.lineTo(BW,  -BH);
+        ctx.lineTo(0,   -BH - NOSE);
+        ctx.closePath();
+        ctx.fill();
+
+        // Left fin
+        ctx.beginPath();
+        ctx.moveTo(-BW, BH - FH);
+        ctx.lineTo(-BW - FW, BH + FH * 0.35);
+        ctx.lineTo(-BW, BH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Right fin
+        ctx.beginPath();
+        ctx.moveTo(BW, BH - FH);
+        ctx.lineTo(BW + FW, BH + FH * 0.35);
+        ctx.lineTo(BW, BH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Nozzle bell
+        ctx.beginPath();
+        ctx.moveTo(-BW + 2, BH);
+        ctx.lineTo(BW  - 2, BH);
+        ctx.lineTo(NZW,    BH + NZH);
+        ctx.lineTo(-NZW,   BH + NZH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Porthole
+        ctx.fillStyle   = '#b05a18';
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth   = 1.3;
+        ctx.beginPath();
+        ctx.arc(0, -BH * 0.38, WR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Porthole glint
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.beginPath();
+        ctx.arc(-2, -BH * 0.38 - 2, WR * 0.38, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function mount(canvas) {
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        let W = 0, H = 0, col;
+        let particles = [];
+
+        let TRAVEL = 0;
+
+        function resize() {
+            W = canvas.offsetWidth;
+            H = document.documentElement.scrollHeight;
+            canvas.style.height = H + 'px';
+            canvas.width  = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            TRAVEL = H + 180;
+        }
+        resize();
+        col = colours();
+        window.addEventListener('resize', resize);
+
+        const t0 = performance.now();
+
+        function spawnExhaust(x, y) {
+            for (let i = 0; i < 3; i++) {
+                particles.push({
+                    x, y,
+                    vx:      (Math.random() - 0.5) * 1.8,
+                    vy:      1.0 + Math.random() * 2.2,   // downward in canvas
+                    life:    0,
+                    maxLife: 26 + Math.random() * 30,
+                    r:       2.5 + Math.random() * 3,
+                });
+            }
+        }
+
+        function frame(ts) {
+            const elapsed  = (ts - t0) % CYCLE;
+            const progress = elapsed / CYCLE;   // 0 → 1
+
+            const ry    = H + 90 - TRAVEL * progress;
+            // Gentle arc: peaks ARC_OFF px at midpoint, zero at start and end
+            const drift = Math.sin(progress * Math.PI) * ARC_OFF;
+            // Tilt = slope of arc path (d drift / d progress) / TRAVEL, small angle
+            const tilt  = (Math.PI * Math.cos(progress * Math.PI) * ARC_OFF) / TRAVEL;
+            const rx    = W / 2 + drift;
+
+            // Nozzle tip position (small-angle approx)
+            const nozzleX = rx + Math.sin(tilt) * (BH + NZH);
+            const nozzleY = ry + Math.cos(tilt) * (BH + NZH);
+            spawnExhaust(nozzleX, nozzleY);
+
+            particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life++; });
+            particles = particles.filter(p => p.life < p.maxLife);
+
+            ctx.clearRect(0, 0, W, H);
+
+            // Exhaust particles — amber core fading to dark orange
+            particles.forEach(p => {
+                const frac  = p.life / p.maxLife;
+                const alpha = (1 - frac) * 0.82;
+                const rad   = Math.max(0.5, p.r * (1 - frac * 0.45));
+                const rC = Math.round(210 - frac * 110);
+                const gC = Math.round(95  - frac * 80);
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle   = `rgb(${rC},${gC},12)`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Rocket
+            ctx.save();
+            ctx.translate(rx, ry);
+            ctx.rotate(tilt);
+            drawRocket(ctx, col);
+            ctx.restore();
+
+            requestAnimationFrame(frame);
+        }
+
+        requestAnimationFrame(frame);
+    }
+
+    function init() {
+        const canvas = document.getElementById('rocket-canvas');
+        if (canvas) mount(canvas);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+}());
+</script>
+
+</body>
+</html>

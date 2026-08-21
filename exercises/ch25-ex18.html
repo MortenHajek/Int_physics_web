@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 25.18 · Three Capacitors from a Graph — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-2" data-screen-label="Ex 25.18 Three Capacitors">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 25 · Ex. 18</span><span lang="cs">Kap. 25 · Úl. 18</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 2 · Electrostatics II — Chapter 25 · Exercise 18</span><span lang="cs">2. téma · Elektrostatika II — Kapitola 25 · Úloha 18</span></div>
+        <h1><span lang="en">Three Capacitors from a Graph</span><span lang="cs">Tři kondenzátory z grafu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>18</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Curve 1 in the graph shows the charge <span data-tex="Q"></span> on capacitor
+                    <span data-tex="C_1"></span> versus its voltage <span data-tex="U"></span>. The
+                    axis scales are
+                    <span class="given" data-tex="Q_{\mathrm{s}} = 16{,}0\ \mathrm{\mu C}"></span> and
+                    <span class="given" data-tex="U_{\mathrm{s}} = 2{,}0\ \mathrm{V}"></span>.
+                    Curves 2 and 3 show the same for capacitors <span data-tex="C_2"></span>
+                    (half the slope) and <span data-tex="C_3"></span> (a quarter of the slope).
+                </p>
+                <p lang="cs">
+                    Křivka 1 v grafu ukazuje náboj <span data-tex="Q"></span> na kondenzátoru
+                    <span data-tex="C_1"></span> v závislosti na napětí <span data-tex="U"></span>.
+                    Měřítka os jsou
+                    <span class="given" data-tex="Q_{\mathrm{s}} = 16{,}0\ \mathrm{\mu C}"></span> a
+                    <span class="given" data-tex="U_{\mathrm{s}} = 2{,}0\ \mathrm{V}"></span>.
+                    Křivky 2 a 3 ukazují totéž pro kondenzátory <span data-tex="C_2"></span>
+                    (poloviční sklon) a <span data-tex="C_3"></span> (čtvrtinový sklon).
+                </p>
+                <p lang="en">
+                    These capacitors are then wired to a
+                    <span class="given" data-tex="6{,}0\ \mathrm{V}"></span> battery:
+                    <span data-tex="C_1"></span> in series with the parallel pair
+                    <span data-tex="C_2 \| C_3"></span>. What is the charge on
+                    <span data-tex="C_2"></span>?
+                </p>
+                <p lang="cs">
+                    Tyto kondenzátory jsou poté zapojeny k baterii
+                    <span class="given" data-tex="6{,}0\ \mathrm{V}"></span>:
+                    <span data-tex="C_1"></span> sériově s paralelní dvojicí
+                    <span data-tex="C_2 \| C_3"></span>. Jaký náboj je na
+                    <span data-tex="C_2"></span>?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Slopes &amp; circuit</span><span lang="cs">Sklony a obvod</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="C = \dfrac{Q}{U}"></div>
+                <div class="sim-hint"><span lang="en">the q–U slope IS the capacitance · read it, then wire it up</span><span lang="cs">sklon Q–U JE kapacita · odečtěte ji a pak zapojte obvod</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">C₁</span>
+                            <span class="sim-control-val" id="p-c1-val">8.0 µF</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-c1" min="1" max="12" step="0.1" value="8">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">C₂</span>
+                            <span class="sim-control-val" id="p-c2-val">4.0 µF</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-c2" min="1" max="12" step="0.1" value="4">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">C₃</span>
+                            <span class="sim-control-val" id="p-c3-val">2.0 µF</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-c3" min="1" max="12" step="0.1" value="2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Battery U</span><span lang="cs">Napětí baterie U</span></span>
+                            <span class="sim-control-val" id="p-u-val">6.0 V</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-u" min="1" max="12" step="0.1" value="6">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="C_{23} = C_2 + C_3"></span>
+                        <span class="readout-val" id="r-c23">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="C_{\text{eq}}"></span>
+                        <span class="readout-val" id="r-ceq">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q_1 = C_{\text{eq}} U"></span>
+                        <span class="readout-val" id="r-q1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="U_{23}"></span>
+                        <span class="readout-val" id="r-u23">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q_2"></span>
+                        <span class="readout-val" id="r-q2">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>Read the slopes.</strong> Curve 1 climbs to
+                    <span data-tex="16\ \mathrm{\mu C}"></span> at <span data-tex="2{,}0\ \mathrm{V}"></span>:
+                    <span data-tex="C_1 = 8{,}0\ \mathrm{\mu F}"></span>. Curve 2 has half that slope:
+                    <span data-tex="C_2 = 4{,}0\ \mathrm{\mu F}"></span>; curve 3 a quarter:
+                    <span data-tex="C_3 = 2{,}0\ \mathrm{\mu F}"></span>.</span>
+                    <span lang="cs"><strong>Odečtěte sklony.</strong> Křivka 1 stoupá na
+                    <span data-tex="16\ \mathrm{\mu C}"></span> při <span data-tex="2{,}0\ \mathrm{V}"></span>:
+                    <span data-tex="C_1 = 8{,}0\ \mathrm{\mu F}"></span>. Křivka 2 má poloviční sklon:
+                    <span data-tex="C_2 = 4{,}0\ \mathrm{\mu F}"></span>; křivka 3 čtvrtinový:
+                    <span data-tex="C_3 = 2{,}0\ \mathrm{\mu F}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The parallel pair gives <span data-tex="C_{23} = 6{,}0\ \mathrm{\mu F}"></span>;
+                    in series with <span data-tex="C_1"></span>:
+                    <span data-tex="C_{\text{eq}} = \dfrac{C_1 C_{23}}{C_1 + C_{23}} = \dfrac{8\cdot 6}{14} = 3{,}43\ \mathrm{\mu F}"></span>.</span>
+                    <span lang="cs">Paralelní dvojice dává <span data-tex="C_{23} = 6{,}0\ \mathrm{\mu F}"></span>;
+                    sériově s <span data-tex="C_1"></span>:
+                    <span data-tex="C_{\text{eq}} = \dfrac{C_1 C_{23}}{C_1 + C_{23}} = \dfrac{8\cdot 6}{14} = 3{,}43\ \mathrm{\mu F}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">The series charge is
+                    <span data-tex="Q = C_{\text{eq}}\,U = 3{,}43\cdot 6{,}0 = 20{,}6\ \mathrm{\mu C}"></span>;
+                    it all arrives at the parallel pair, which therefore sits at
+                    <span data-tex="U_{23} = Q/C_{23} = 3{,}43\ \mathrm{V}"></span>. Capacitor 2 takes
+                    <span data-tex="Q_2 = C_2 U_{23} = 4{,}0\cdot 3{,}43 = 13{,}7\ \mathrm{\mu C}"></span>.</span>
+                    <span lang="cs">Sériový náboj je
+                    <span data-tex="Q = C_{\text{eq}}\,U = 3{,}43\cdot 6{,}0 = 20{,}6\ \mathrm{\mu C}"></span>;
+                    celý dorazí na paralelní dvojici, která se tak ustálí na
+                    <span data-tex="U_{23} = Q/C_{23} = 3{,}43\ \mathrm{V}"></span>. Kondenzátor 2 nese
+                    <span data-tex="Q_2 = C_2 U_{23} = 4{,}0\cdot 3{,}43 = 13{,}7\ \mathrm{\mu C}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="Q_2 \approx 13{,}7\ \mathrm{\mu C}"></span><span lang="cs" data-tex="Q_2 \approx 13{,}7\ \mathrm{\mu C}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-2.html"><span lang="en">← Topic: Electrostatics II</span><span lang="cs">← Téma: Elektrostatika II</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 25 · Ex. 18</span><span lang="cs">Kap. 25 · Úl. 18</span></span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const DEFAULTS = { c1: 8.0, c2: 4.0, c3: 2.0, u: 6.0 };
+    let state = { ...DEFAULTS };
+
+    const SLIDERS = [
+        ['p-c1', 'c1', v => v.toFixed(1) + ' µF'],
+        ['p-c2', 'c2', v => v.toFixed(1) + ' µF'],
+        ['p-c3', 'c3', v => v.toFixed(1) + ' µF'],
+        ['p-u',  'u',  v => v.toFixed(1) + ' V'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+
+    function physics() {
+        const c23 = state.c2 + state.c3;
+        const ceq = state.c1 * c23 / (state.c1 + c23);
+        const q1  = ceq * state.u;
+        const u23 = q1 / c23;
+        return { c23, ceq, q1, u23, q2: state.c2 * u23, q3: state.c3 * u23 };
+    }
+
+    /* draw a capacitor symbol (two plates) at x, y vertical or horizontal */
+    function capSym(x, y, horiz, label) {
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2; ctx.lineCap = 'butt';
+        if (horiz) {
+            ctx.beginPath(); ctx.moveTo(x - 9, y - 3.5); ctx.lineTo(x + 9, y - 3.5); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x - 9, y + 3.5); ctx.lineTo(x + 9, y + 3.5); ctx.stroke();
+        } else {
+            ctx.beginPath(); ctx.moveTo(x - 3.5, y - 9); ctx.lineTo(x - 3.5, y + 9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x + 3.5, y - 9); ctx.lineTo(x + 3.5, y + 9); ctx.stroke();
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(label, x + (horiz ? 14 : 10), y + (horiz ? -14 : 0));
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        /* ── left: q–U graph ─────────────────────────────────────── */
+        const mL = 56, mT = 34;
+        const gw = W * 0.44, gh = H - mT - 48;
+        const QS = 16, US = 2;
+        const xPix = u => mL + (u / US) * gw;
+        const yPix = q => mT + gh - Math.min(q / QS, 1.04) * gh;
+
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        for (let g = 1; g <= 4; g++) {
+            ctx.beginPath(); ctx.moveTo(xPix(g * US / 4), mT); ctx.lineTo(xPix(g * US / 4), mT + gh); ctx.stroke();
+            const y = mT + gh - gh * g / 4;
+            ctx.beginPath(); ctx.moveTo(mL, y); ctx.lineTo(mL + gw, y); ctx.stroke();
+        }
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, gw, gh);
+
+        ctx.fillStyle = col.soft;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('Us', xPix(US), mT + gh + 6);
+        ctx.fillText('U', mL + gw / 2, mT + gh + 20);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('Qs', mL - 6, yPix(QS));
+        ctx.save();
+        ctx.translate(mL - 34, mT + gh / 2); ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('Q (µC)', 0, 0);
+        ctx.restore();
+
+        /* three slope lines */
+        const CURVES = [
+            [state.c1, [], '1'],
+            [state.c2, [3, 4], '2'],
+            [state.c3, [7, 5], '3'],
+        ];
+        CURVES.forEach(([c, dash, name]) => {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = name === '1' ? 2.4 : 1.7;
+            ctx.setLineDash(dash);
+            const uEnd = Math.min(US, QS / c);
+            ctx.beginPath();
+            ctx.moveTo(xPix(0), yPix(0));
+            ctx.lineTo(xPix(uEnd), yPix(c * uEnd));
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.soft;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText(name, xPix(uEnd) - 12, yPix(c * uEnd) + (name === '1' ? 2 : -2));
+        });
+
+        /* ── right: circuit ──────────────────────────────────────── */
+        const cx0 = W * 0.60, cx1 = W * 0.94;
+        const cy0 = H * 0.24, cy1 = H * 0.76;
+        const midX = (cx0 + cx1) / 2;
+
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        /* outer loop */
+        ctx.beginPath();
+        ctx.moveTo(cx0, cy0); ctx.lineTo(cx1, cy0);
+        ctx.moveTo(cx1, cy0); ctx.lineTo(cx1, cy1);
+        ctx.moveTo(cx1, cy1); ctx.lineTo(cx0, cy1);
+        ctx.moveTo(cx0, cy1); ctx.lineTo(cx0, cy0);
+        ctx.stroke();
+        /* middle branch (C2) */
+        ctx.beginPath(); ctx.moveTo(midX, cy0); ctx.lineTo(midX, cy1); ctx.stroke();
+
+        /* battery on left leg */
+        const by = (cy0 + cy1) / 2;
+        ctx.strokeStyle = col.paper; ctx.lineWidth = 8;
+        ctx.beginPath(); ctx.moveTo(cx0, by - 9); ctx.lineTo(cx0, by + 9); ctx.stroke();
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 2.6;
+        ctx.beginPath(); ctx.moveTo(cx0 - 11, by - 4); ctx.lineTo(cx0 + 11, by - 4); ctx.stroke();
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(cx0 - 6, by + 4); ctx.lineTo(cx0 + 6, by + 4); ctx.stroke();
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('U = ' + state.u.toFixed(1) + ' V', cx0 - 8, by);
+
+        /* C1 on the top rail, C2 middle branch, C3 right branch */
+        const topGap = (cx0 + midX) / 2;
+        ctx.strokeStyle = col.paper; ctx.lineWidth = 8;
+        ctx.beginPath(); ctx.moveTo(topGap - 9, cy0); ctx.lineTo(topGap + 9, cy0); ctx.stroke();
+        capSym(topGap, cy0, false, 'C₁');
+        ctx.strokeStyle = col.paper; ctx.lineWidth = 8;
+        ctx.beginPath(); ctx.moveTo(midX, (cy0 + cy1) / 2 - 9); ctx.lineTo(midX, (cy0 + cy1) / 2 + 9); ctx.stroke();
+        capSym(midX, (cy0 + cy1) / 2, true, 'C₂');
+        ctx.strokeStyle = col.paper; ctx.lineWidth = 8;
+        ctx.beginPath(); ctx.moveTo(cx1, (cy0 + cy1) / 2 - 9); ctx.lineTo(cx1, (cy0 + cy1) / 2 + 9); ctx.stroke();
+        capSym(cx1, (cy0 + cy1) / 2, true, 'C₃');
+
+        /* Q2 highlight */
+        ctx.fillStyle = col.acc;
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('Q₂ = ' + f.q2.toFixed(1) + ' µC', midX, cy1 + 10);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-c23').textContent = f.c23.toFixed(1) + ' µF';
+        $('r-ceq').textContent = f.ceq.toFixed(2) + ' µF';
+        $('r-q1').textContent  = f.q1.toFixed(1) + ' µC';
+        $('r-u23').textContent = f.u23.toFixed(2) + ' V';
+        $('r-q2').textContent  = f.q2.toFixed(1) + ' µC';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

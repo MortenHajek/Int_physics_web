@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 35.16 · Double-Slit Fringes — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="optics" data-screen-label="Ex 35.16 Double-Slit Fringes">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Optics</span><span lang="cs">Díl II · Optika</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 35 · Ex. 16</span><span lang="cs">Kap. 35 · Úl. 16</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 6 · Optics — Chapter 35 · Exercise 16</span><span lang="cs">6. téma · Optika — Kapitola 35 · Úloha 16</span></div>
+        <h1><span lang="en">Double-Slit Fringes</span><span lang="cs">Interferenční proužky u dvojštěrbiny</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>16</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    In a double-slit experiment, the slit separation equals one hundred wavelengths
+                    of the incident light:
+                    <span class="given" data-tex="d = 100\,\lambda"></span>.
+                </p>
+                <p lang="cs">
+                    U dvojštěrbinového experimentu se vzdálenost štěrbin rovná stovce vlnových délek
+                    dopadajícího světla:
+                    <span class="given" data-tex="d = 100\,\lambda"></span>.
+                </p>
+                <p lang="en">
+                    (a) What is the angular separation between the central maximum and the adjacent
+                    maximum? (b) How far apart are these maxima on a screen
+                    <span class="given" data-tex="D = 50.0\ \mathrm{cm}"></span>
+                    from the slits?
+                </p>
+                <p lang="cs">
+                    (a) Jaký je úhlový rozestup mezi centrálním maximem a nejbližším sousedním maximem?
+                    (b) Jak daleko jsou od sebe tato maxima na stínítku ve vzdálenosti
+                    <span class="given" data-tex="D = 50{,}0\ \mathrm{cm}"></span>
+                    od štěrbin?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Interference sandbox</span><span lang="cs">Sandbox: interference</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="d\sin\theta = m\lambda"></div>
+                <div class="sim-hint"><span lang="en">widen the slits · the fringes crowd together</span><span lang="cs">rozšiřte štěrbiny · proužky se přibližují k sobě</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Slit separation d/λ</span><span lang="cs">Rozestup štěrbin d/λ</span></span>
+                            <span class="sim-control-val" id="p-dl-val">100 λ</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-dl" min="50" max="500" step="5" value="100">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Screen distance D</span><span lang="cs">Vzdálenost stínítka D</span></span>
+                            <span class="sim-control-val" id="p-dd-val">50 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-dd" min="20" max="100" step="1" value="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Fringe geometry</span><span lang="cs">Geometrie proužků</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Delta\theta = \lambda/d"></span>
+                        <span class="readout-val" id="r-dth">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Delta y = D\lambda/d"></span>
+                        <span class="readout-val" id="r-dy">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">fringes in strip</span><span lang="cs">proužků v pásu</span></span>
+                        <span class="readout-val" id="r-n">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-con">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">construction lines</span><span lang="cs">konstrukční čáry</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-int">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">intensity profile</span><span lang="cs">profil intenzity</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Maxima sit where the path difference is a whole number of wavelengths:
+                    <span data-tex="d\sin\theta = m\lambda"></span>.</span>
+                    <span lang="cs">Maxima leží tam, kde je dráhový rozdíl celočíselným násobkem vlnové délky:
+                    <span data-tex="d\sin\theta = m\lambda"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">With <span data-tex="d = 100\,\lambda"></span> the angles are tiny,
+                    <span data-tex="\sin\theta \approx \theta"></span>:
+                    <span data-tex="\theta_m = m\lambda/d"></span>, so adjacent maxima are
+                    <span data-tex="\Delta\theta = \lambda/d = \tfrac{1}{100} = 0.0100\ \mathrm{rad}"></span>
+                    apart. → answer (a)</span>
+                    <span lang="cs">Při <span data-tex="d = 100\,\lambda"></span> jsou úhly velmi malé,
+                    <span data-tex="\sin\theta \approx \theta"></span>:
+                    <span data-tex="\theta_m = m\lambda/d"></span>, takže sousední maxima jsou od sebe vzdálena
+                    <span data-tex="\Delta\theta = \lambda/d = \tfrac{1}{100} = 0{,}0100\ \mathrm{rad}"></span>.
+                    → odpověď (a)</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">On a screen at <span data-tex="D"></span>, small angles map to positions
+                    <span data-tex="y = D\,\theta"></span>:
+                    <span data-tex="\Delta y = D\,\lambda/d = 0.500 \cdot 0.0100 = 5.00\cdot 10^{-3}\ \mathrm{m}"></span>.
+                    → answer (b)</span>
+                    <span lang="cs">Na stínítku ve vzdálenosti <span data-tex="D"></span> se malé úhly přepočtou na polohu
+                    <span data-tex="y = D\,\theta"></span>:
+                    <span data-tex="\Delta y = D\,\lambda/d = 0{,}500 \cdot 0{,}0100 = 5{,}00\cdot 10^{-3}\ \mathrm{m}"></span>.
+                    → odpověď (b)</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\Delta\theta = 0.010\ \mathrm{rad}\ (\approx 0.57^\circ)"></span><span lang="cs" data-tex="\Delta\theta = 0{,}010\ \mathrm{rad}\ (\approx 0{,}57^\circ)"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\Delta y = 5.0\ \mathrm{mm}"></span><span lang="cs" data-tex="\Delta y = 5{,}0\ \mathrm{mm}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/optics.html"><span lang="en">← Topic: Optics</span><span lang="cs">← Téma: Optika</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 35 · Ex. 16</span><span lang="cs">Kap. 35 · Úl. 16</span></span>
+        <span><span lang="en">Vol. II · Optics</span><span lang="cs">Díl II · Optika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#d4a418',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* accent as [r, g, b] for the alpha-painted fringe bands */
+    function hexToRgb(hex) {
+        let h = (hex || '').replace('#', '').trim();
+        if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+        if (h.length !== 6 || /[^0-9a-fA-F]/.test(h)) return [212, 164, 24];
+        return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    }
+    const accRgb = hexToRgb(col.acc);
+
+    /* dl = d/λ (dimensionless), D in cm */
+    const DEFAULTS = { dl: 100, D: 50 };
+    let state = { ...DEFAULTS };
+    const show = { con: true, prof: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtDl = v => v.toFixed(0) + ' λ';
+    const fmtD  = v => v.toFixed(0) + ' cm';
+    bindSlider('p-dl', 'dl', fmtDl);
+    bindSlider('p-dd', 'D',  fmtD);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-dl', 'dl', fmtDl], ['p-dd', 'D', fmtD]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-con', 'con');
+    wireToggle('tgl-int', 'prof');
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function line(x1, y1, x2, y2, color, lw, dash) {
+        ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.setLineDash(dash || []);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(8, len * 0.3), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function mono(text, x, y, color, align) {
+        ctx.fillStyle = color;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(text, x, y);
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        const top = 20, bottom = H - 20, cy = H / 2;
+        const barrierX = Math.max(64, W * 0.13);
+        const screenX  = W - Math.max(88, W * 0.135);
+        const sw = 14;                       /* screen strip width, px  */
+        const halfSep = 15;                  /* schematic slit half-gap */
+
+        /* fringe spacing in px — physically tracks the sliders:
+           Δy ∝ D·λ/d, mapped so the printed defaults give 40 px       */
+        const dyPx = 40 * (state.D / 50) * (100 / state.dl);
+
+        /* incident plane wave — faint arrows from the left */
+        [44, 110].forEach(off => {
+            if (cy - off > top + 8)    arrow(barrierX - 50, cy - off, barrierX - 12, cy - off, col.faint, 1.1);
+            if (cy + off < bottom - 8) arrow(barrierX - 50, cy + off, barrierX - 12, cy + off, col.faint, 1.1);
+        });
+
+        /* barrier with two slits */
+        line(barrierX, top, barrierX, cy - halfSep - 4.5, col.ink, 3);
+        line(barrierX, cy - halfSep + 4.5, barrierX, cy + halfSep - 4.5, col.ink, 3);
+        line(barrierX, cy + halfSep + 4.5, barrierX, bottom, col.ink, 3);
+        [cy - halfSep, cy + halfSep].forEach(y => {
+            ctx.beginPath(); ctx.arc(barrierX, y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+        });
+
+        /* d bracket + label at the slits */
+        line(barrierX - 6, cy - halfSep, barrierX - 6, cy + halfSep, col.soft, 1);
+        line(barrierX - 9, cy - halfSep, barrierX - 3, cy - halfSep, col.soft, 1);
+        line(barrierX - 9, cy + halfSep, barrierX - 3, cy + halfSep, col.soft, 1);
+        mono('d = ' + state.dl.toFixed(0) + ' λ', barrierX - 12, cy + 3, col.soft, 'right');
+
+        /* construction lines to m = 0 and m = ±1 */
+        if (show.con) {
+            line(barrierX, cy, screenX, cy,        col.soft, 1, [5, 4]);
+            line(barrierX, cy, screenX, cy - dyPx, col.soft, 1, [5, 4]);
+            line(barrierX, cy, screenX, cy + dyPx, col.soft, 1, [5, 4]);
+
+            /* Δθ arc between the m = 0 and m = +1 directions */
+            const alpha = Math.atan2(dyPx, screenX - barrierX);
+            const r = Math.min(150, (screenX - barrierX) * 0.45);
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(barrierX, cy, r, -alpha, 0); ctx.stroke();
+            mono('Δθ', barrierX + r + 12, cy - Math.max(6, r * Math.sin(alpha / 2)), col.soft, 'left');
+
+            mono('D = ' + state.D.toFixed(0) + ' cm', (barrierX + screenX) / 2, cy + 16, col.faint, 'center');
+
+            /* order labels beside the strip */
+            mono('m = 0', screenX + sw + 6, cy + 3, col.faint, 'left');
+            if (dyPx >= 14) {
+                if (cy - dyPx > top + 6)    mono('m = +1', screenX + sw + 6, cy - dyPx + 3, col.faint, 'left');
+                if (cy + dyPx < bottom - 4) mono('m = -1', screenX + sw + 6, cy + dyPx + 3, col.faint, 'left');
+            }
+        }
+
+        /* screen strip painted with the cos² fringes */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.25;
+        ctx.strokeRect(screenX, top, sw, bottom - top);
+        mono('screen', screenX + sw / 2, top - 7, col.faint, 'center');
+        for (let y = top + 1; y < bottom - 1; y++) {
+            const t = y - cy;
+            const I = Math.pow(Math.cos(Math.PI * t / dyPx), 2);
+            const env = Math.min(1, Math.min(y - top, bottom - y) / 26);
+            ctx.fillStyle = 'rgba(' + accRgb[0] + ',' + accRgb[1] + ',' + accRgb[2] + ',' +
+                            (I * env * 0.92).toFixed(3) + ')';
+            ctx.fillRect(screenX + 1, y, sw - 2, 1);
+        }
+
+        /* cos² intensity profile, mirrored beside the strip */
+        if (show.prof) {
+            const ampl = Math.min(56, (screenX - barrierX) * 0.2);
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.4;
+            ctx.globalAlpha = 0.85;
+            ctx.beginPath();
+            for (let y = top + 1; y < bottom - 1; y++) {
+                const t = y - cy;
+                const I = Math.pow(Math.cos(Math.PI * t / dyPx), 2);
+                const env = Math.min(1, Math.min(y - top, bottom - y) / 26);
+                const x = screenX - 8 - I * env * ampl;
+                if (y === top + 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const rad = 1 / state.dl;
+        const dyMm = 10 * state.D / state.dl;
+        const halfH = (bottom - top) / 2 - 1;
+        const n = 2 * Math.floor(halfH / dyPx) + 1;
+        if ($('r-dth')) $('r-dth').textContent =
+            rad.toFixed(4) + ' rad · ' + (rad * 180 / Math.PI).toFixed(3) + '°';
+        if ($('r-dy')) $('r-dy').textContent = dyMm.toFixed(2) + ' mm';
+        if ($('r-n'))  $('r-n').textContent  = n.toFixed(0);
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 20.32 · An Engine of Adiabats — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="thermo" data-screen-label="Ex 20.32 An Engine of Adiabats">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Thermodynamics</span><span lang="cs">Díl I · Termodynamika</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 20 · Ex. 32</span><span lang="cs">Kap. 20 · Úl. 32</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 10 · Thermodynamics — Chapter 20 · Exercise 32</span><span lang="cs">10. téma · Termodynamika — Kapitola 20 · Úloha 32</span></div>
+        <h1><span lang="en">An Engine of Adiabats</span><span lang="cs">Motor z adiabat</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>32</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    One mole of an ideal gas is the working substance of an engine whose cycle is shown
+                    in fig. 20-30. Curves <em>BC</em> and <em>DA</em> are reversible adiabats; the legs
+                    <em>AB</em> and <em>CD</em> run at constant pressures
+                    <span class="given" data-tex="p_0"></span> and
+                    <span class="given" data-tex="p_0/32"></span>, with volumes
+                    <span class="given" data-tex="V_0,\ 2V_0,\ 8V_0,\ 16V_0"></span>.
+                </p>
+                <p lang="cs">
+                    Jeden mol ideálního plynu je pracovní látkou motoru, jehož cyklus je zobrazen na
+                    obr. 20-30. Křivky <em>BC</em> a <em>DA</em> jsou vratné adiabaty; úseky
+                    <em>AB</em> a <em>CD</em> probíhají při konstantních tlacích
+                    <span class="given" data-tex="p_0"></span> a
+                    <span class="given" data-tex="p_0/32"></span>, s objemy
+                    <span class="given" data-tex="V_0,\ 2V_0,\ 8V_0,\ 16V_0"></span>.
+                </p>
+                <p lang="en">
+                    (a) Is the gas monatomic, diatomic, or polyatomic?
+                    (b) What is the engine's efficiency?
+                </p>
+                <p lang="cs">
+                    (a) Je plyn jednoatomový, dvouatomový, nebo víceatomový?
+                    (b) Jaká je účinnost motoru?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Adiabat sandbox</span><span lang="cs">Sandbox: adiabaty</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="pV^{\gamma} = \text{const}"></div>
+                <div class="sim-hint"><span lang="en">bend γ until both adiabats hit their targets</span><span lang="cs">měňte γ, dokud obě adiabaty netrefí své cíle</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset the search">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Exponent γ — find it!</span><span lang="cs">Exponent γ — najděte ho!</span></span>
+                            <span class="sim-control-val" id="p-g-val">1.400</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-g" min="1.10" max="1.90" step="0.005" value="1.40">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Where the adiabats land</span><span lang="cs">Kam adiabaty dopadnou</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="p(16V_0)\ \text{from}\ B"></span>
+                        <span class="readout-val" id="r-pc">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{target at}\ C"></span>
+                        <span class="readout-val">p₀/32</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Verdict</span><span lang="cs">Výsledek</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{status}"></span>
+                        <span class="readout-val" id="r-status">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\text{gas type}"></span>
+                        <span class="readout-val" id="r-gas">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\eta"></span>
+                        <span class="readout-val" id="r-eta">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-guides">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">dashed guides</span><span lang="cs">čárkované vodicí čáry</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> Along the adiabat <em>BC</em>:
+                    <span data-tex="p_0 (2V_0)^{\gamma} = \tfrac{p_0}{32}(16V_0)^{\gamma}"></span>, i.e.
+                    <span data-tex="8^{\gamma} = 32"></span>, so
+                    <span data-tex="\gamma = \ln 32/\ln 8 = 5/3"></span> — a
+                    <strong>monatomic</strong> ideal gas. (The adiabat <em>DA</em> gives the same γ.)</span>
+                    <span lang="cs"><strong>(a)</strong> Podél adiabaty <em>BC</em>:
+                    <span data-tex="p_0 (2V_0)^{\gamma} = \tfrac{p_0}{32}(16V_0)^{\gamma}"></span>, tedy
+                    <span data-tex="8^{\gamma} = 32"></span>, takže
+                    <span data-tex="\gamma = \ln 32/\ln 8 = 5/3"></span> — jde o
+                    <strong>jednoatomový</strong> ideální plyn. (Adiabata <em>DA</em> dává stejné γ.)</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Heat enters only along <em>AB</em> (isobaric expansion):
+                    <span data-tex="Q_{\text{in}} = nC_p\,\Delta T = \tfrac52 (p_B V_B - p_A V_A) = \tfrac52\,p_0 V_0"></span>.</span>
+                    <span lang="cs">Teplo vstupuje pouze podél <em>AB</em> (izobarická expanze):
+                    <span data-tex="Q_{\text{in}} = nC_p\,\Delta T = \tfrac52 (p_B V_B - p_A V_A) = \tfrac52\,p_0 V_0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Heat leaves only along <em>CD</em>:
+                    <span data-tex="|Q_{\text{out}}| = \tfrac52\,\tfrac{p_0}{32}(16V_0 - 8V_0) = \tfrac58\,p_0 V_0"></span>.</span>
+                    <span lang="cs">Teplo odchází pouze podél <em>CD</em>:
+                    <span data-tex="|Q_{\text{out}}| = \tfrac52\,\tfrac{p_0}{32}(16V_0 - 8V_0) = \tfrac58\,p_0 V_0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The efficiency:
+                    <span data-tex="\eta = 1 - \dfrac{|Q_{\text{out}}|}{Q_{\text{in}}} = 1 - \dfrac{5/8}{5/2} = 1 - \dfrac14 = 0{,}75"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Účinnost:
+                    <span data-tex="\eta = 1 - \dfrac{|Q_{\text{out}}|}{Q_{\text{in}}} = 1 - \dfrac{5/8}{5/2} = 1 - \dfrac14 = 0{,}75"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\gamma = 5/3\ \text{— monatomic}"></span><span lang="cs" data-tex="\gamma = 5/3\ \text{— jednoatomový}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value" data-tex="\eta = 75\ \%"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/thermodynamics.html"><span lang="en">← Topic: Thermodynamics</span><span lang="cs">← Téma: Termodynamika</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 20 · Ex. 32</span><span lang="cs">Kap. 20 · Úl. 32</span></span>
+        <span><span lang="en">Vol. I · Thermodynamics</span><span lang="cs">Díl I · Termodynamika</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b05a18',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const GAMMA_TRUE = 5 / 3;
+    const DEFAULTS = { g: 1.40 };   /* the tempting diatomic guess — wrong here */
+    let state = { ...DEFAULTS };
+    const show = { guides: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtG = v => v.toFixed(3);
+    const inp = document.getElementById('p-g');
+    const lbl = document.getElementById('p-g-val');
+    inp?.addEventListener('input', () => {
+        state.g = +inp.value;
+        if (lbl) lbl.textContent = fmtG(state.g);
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        if (inp) inp.value = state.g;
+        if (lbl) lbl.textContent = fmtG(state.g);
+    });
+
+    document.getElementById('tgl-guides')?.addEventListener('click', function () {
+        show.guides = !show.guides;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const g = state.g;
+        const matched = Math.abs(g - GAMMA_TRUE) <= 0.005;
+
+        /* plot frame — V in units of V0 (0..17), p in units of p0 (0..1.12) */
+        const mx0 = 60, mx1 = W - 30, my0 = 26, my1 = H - 54;
+        const vMax = 17, pMax = 1.12;
+        const SX = v => mx0 + v / vMax * (mx1 - mx0);
+        const SY = p => my1 - p / pMax * (my1 - my0);
+
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(mx0, my0 - 6); ctx.lineTo(mx0, my1); ctx.lineTo(mx1 + 6, my1);
+        ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        [[1, 'V₀'], [2, '2V₀'], [8, '8V₀'], [16, '16V₀']].forEach(([v, name]) => {
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(name, SX(v), my1 + 6);
+        });
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('p₀', mx0 - 7, SY(1));
+        ctx.fillText('p₀/32', mx0 - 7, SY(1 / 32));
+
+        /* corner points */
+        const A = [1, 1], B = [2, 1], C = [16, 1 / 32], D = [8, 1 / 32];
+
+        /* dashed guides like the book figure */
+        if (show.guides) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            [1, 2, 8, 16].forEach(v => {
+                ctx.beginPath();
+                ctx.moveTo(SX(v), my1);
+                ctx.lineTo(SX(v), SY(v <= 2 ? 1 : 1 / 32));
+                ctx.stroke();
+            });
+            ctx.beginPath(); ctx.moveTo(mx0, SY(1 / 32)); ctx.lineTo(SX(16), SY(1 / 32)); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(mx0, SY(1)); ctx.lineTo(SX(2), SY(1)); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        /* isobars AB and CD (fixed) */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(SX(A[0]), SY(A[1])); ctx.lineTo(SX(B[0]), SY(B[1])); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(SX(C[0]), SY(C[1])); ctx.lineTo(SX(D[0]), SY(D[1])); ctx.stroke();
+
+        /* adiabats with the trial γ */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.2;
+        /* from B (expansion) */
+        ctx.beginPath();
+        for (let i = 0; i <= 90; i++) {
+            const v = 2 + i / 90 * 14;
+            const p = Math.pow(2 / v, g);
+            i ? ctx.lineTo(SX(v), SY(p)) : ctx.moveTo(SX(v), SY(p));
+        }
+        ctx.stroke();
+        /* from D (compression, drawn up to V0) */
+        ctx.beginPath();
+        for (let i = 0; i <= 90; i++) {
+            const v = 8 - i / 90 * 7;
+            const p = (1 / 32) * Math.pow(8 / v, g);
+            i ? ctx.lineTo(SX(v), SY(Math.min(p, pMax))) : ctx.moveTo(SX(v), SY(p));
+        }
+        ctx.stroke();
+
+        /* target rings at C and A */
+        [[C, 'C'], [A, 'A']].forEach(([pt]) => {
+            ctx.beginPath(); ctx.arc(SX(pt[0]), SY(pt[1]), 9, 0, Math.PI * 2);
+            ctx.strokeStyle = matched ? col.acc : col.ink;
+            ctx.lineWidth = 1.6; ctx.setLineDash([3, 3]); ctx.stroke();
+            ctx.setLineDash([]);
+        });
+
+        /* corner dots + labels */
+        [[A, 'A', -10, -6], [B, 'B', 10, -6], [C, 'C', 10, -8], [D, 'D', -10, -8]]
+        .forEach(([pt, name, dx, dy]) => {
+            ctx.beginPath(); ctx.arc(SX(pt[0]), SY(pt[1]), 4, 0, Math.PI * 2);
+            ctx.fillStyle = col.ink; ctx.fill();
+            ctx.fillStyle = col.ink;
+            ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = dx > 0 ? 'left' : 'right';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(name, SX(pt[0]) + dx, SY(pt[1]) + dy);
+        });
+
+        if (matched) {
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('● CYCLE CLOSED — γ = 5/3', (mx0 + mx1) / 2, my0);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const pC = Math.pow(2 / 16, g);          /* in units of p0 */
+        if ($('r-pc'))     $('r-pc').textContent     = 'p₀/' + (1 / pC).toFixed(1);
+        if ($('r-status')) $('r-status').textContent = matched ? 'matched ✓' : 'adiabats miss';
+        if ($('r-gas'))    $('r-gas').textContent    = matched ? 'monatomic' : '—';
+        if ($('r-eta'))    $('r-eta').textContent    = matched ? '75 %' : '—';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

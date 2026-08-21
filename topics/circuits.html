@@ -1,0 +1,2393 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Circuits · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    .canvas-wrap > canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    #pg-canvas { cursor: crosshair; touch-action: none; }
+    /* The playground draws its own lattice, so the graph-paper ruling would
+       only fight it — this is the one sandbox without it. */
+    #lab .canvas-wrap { background: var(--paper-deep); }
+    #lab  .canvas-wrap { min-height: 540px; }
+    #lab2 .canvas-wrap { min-height: 470px; }
+
+    /* The two laws, listed above the board */
+    .laws { margin: -10px 0 30px; }
+    .laws-title {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-bottom: 12px;
+    }
+    .law {
+        display: grid;
+        grid-template-columns: minmax(210px, 260px) 1fr;
+        gap: 6px 40px;
+        align-items: center;
+        padding: 13px 0;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .law:last-child { border-bottom: 1px dashed var(--ink-faint); }
+    .law-head { display: grid; gap: 7px; align-content: start; }
+    .law-name {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .law-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .law-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 62ch;
+        margin: 0;
+    }
+    .law-note em { font-style: normal; font-weight: 600; color: var(--ink); }
+
+    /* Radio-style rows (single choice) */
+    .obj-row .toggle-box { border-radius: 50%; }
+    .obj-row .toggle-box.on { background: var(--paper); }
+    .obj-row .toggle-box.on::after {
+        clip-path: none;
+        border-radius: 50%;
+        inset: 3px;
+        background: var(--accent);
+    }
+
+    /* Small text button in a panel head */
+    .btn-mini {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+    .btn-mini:hover { color: var(--accent); }
+
+    /* Full-width action button inside a panel body */
+    .btn-wide {
+        width: 100%;
+        padding: 8px 10px;
+        font-family: var(--f-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        background: var(--paper);
+        border: 1.5px solid var(--ink);
+        cursor: pointer;
+        color: var(--ink);
+    }
+    .btn-wide:hover { background: var(--paper-deep); }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+    /* ── Display toggles ─────────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+                            
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                        
+                    
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+        border-bottom-color: var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                .topic-nav { grid-template-columns: 1fr; }
+                                .core-formula { grid-template-columns: 1fr; gap: 8px; }
+                                .law { grid-template-columns: 1fr; gap: 6px; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="circuits" data-screen-label="II.03 Circuits">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">I</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ════════ HERO ════════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ II.03 · circuits</div>
+            <h1><span lang="en">Current and circuits</span><span lang="cs">Proud a obvody</span></h1>
+            <p class="lede">
+                <span lang="en">Charges are moving now. A source drives them round a loop, resistance
+                throttles them — and two conservation laws are enough to solve any circuit
+                you can draw.</span>
+                <span lang="cs">Teď už se náboje pohybují. Zdroj je žene smyčkou, odpor je škrtí —
+                a na vyřešení libovolného obvodu, který dokážete nakreslit, stačí dva zákony
+                zachování.</span>
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\textstyle\sum U_i = 0"></div>
+            <div class="eq-caption"><span lang="en">Kirchhoff's loop rule — go once round a loop and the potential changes cancel</span><span lang="cs">Zákon o smyčce — po jednom oběhu smyčkou se změny potenciálu vyruší</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Electrostatics dealt with charge at rest; here it moves. A source of
+                <em>electromotive force</em> keeps a potential difference across a closed loop and drives
+                charge round it — the <em>current</em> <span data-tex="I = \mathrm{d}Q/\mathrm{d}t"></span>.
+                Inside the material the resistivity ties the local field to the current density; for a whole
+                component that becomes <span data-tex="R = U/I"></span>. Solving any circuit, however tangled,
+                then rests on just two conservation statements: charge cannot pile up at a junction, and the
+                potential is a property of a place, so going once round a loop must bring you back to the
+                value you started from. Those are <em>Kirchhoff's two laws</em>, and the series and parallel
+                rules, internal resistance and power all follow from them.</span>
+                <span lang="cs">Elektrostatika se zabývala nábojem v klidu; tady se pohybuje. Zdroj
+                <em>elektromotorického napětí</em> udržuje na uzavřené smyčce rozdíl potenciálů a žene po ní
+                náboj — vzniká <em>proud</em> <span data-tex="I = \mathrm{d}Q/\mathrm{d}t"></span>. Uvnitř
+                látky svazuje rezistivita místní pole s hustotou proudu; pro celou součástku z toho vznikne
+                <span data-tex="R = U/I"></span>. Řešení libovolně zamotaného obvodu pak stojí na dvou
+                zákonech zachování: náboj se v uzlu nemůže hromadit a potenciál je vlastností místa, takže
+                po oběhu smyčkou musíte skončit na hodnotě, ze které jste vyšli. To jsou
+                <em>Kirchhoffovy zákony</em> a plyne z nich všechno ostatní — sériové i paralelní řazení,
+                vnitřní odpor i výkon.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Electric current</span><span lang="cs">Elektrický proud</span></span>
+                        <span class="cf-eq" data-tex="I = \dfrac{\mathrm{d}Q}{\mathrm{d}t}\,,\qquad [I] = \mathrm{A} = \mathrm{C/s}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The charge passing a cross-section per unit time. Its conventional
+                        direction is the direction a <em>positive</em> carrier would move — in a metal the
+                        electrons actually drift the other way. In an unbranched wire the current is the same
+                        through every cross-section, however the wire's thickness varies.</span>
+                        <span lang="cs">Náboj, který projde průřezem za jednotku času. Dohodnutý směr je ten,
+                        kterým by se pohyboval <em>kladný</em> nosič — v kovu elektrony ve skutečnosti driftují
+                        opačně. V nerozvětveném vodiči je proud stejný každým průřezem, ať se tloušťka vodiče
+                        mění jakkoli.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Current density</span><span lang="cs">Hustota proudu</span></span>
+                        <span class="cf-eq" data-tex="I = \iint_{\mathcal{S}} \vec{J}\cdot\mathrm{d}\vec{S}"></span>
+                        <span class="cf-eq" data-tex="\vec{J} = n e\,\vec{v}_d"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The current spread out over the cross-section — a local quantity, unlike
+                        <span data-tex="I"></span>. Where a conductor narrows, <span data-tex="J"></span> rises
+                        although <span data-tex="I"></span> is unchanged. If <span data-tex="J"></span> varies
+                        across the section, integrate it; the drift speed
+                        <span data-tex="v_d"></span> of the carriers is tiny even when the current is large.</span>
+                        <span lang="cs">Proud rozprostřený po průřezu — na rozdíl od <span data-tex="I"></span>
+                        je to místní veličina. Tam, kde se vodič zúží, <span data-tex="J"></span> vzroste, i když
+                        <span data-tex="I"></span> zůstává stejný. Mění-li se <span data-tex="J"></span> po
+                        průřezu, je nutné integrovat; driftová rychlost <span data-tex="v_d"></span> nosičů je
+                        přitom nepatrná i při velkém proudu.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Resistivity and resistance</span><span lang="cs">Rezistivita a odpor</span></span>
+                        <span class="cf-eq" data-tex="\vec{E} = \varrho\,\vec{J}"></span>
+                        <span class="cf-eq" data-tex="R = \varrho\,\dfrac{L}{S}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two different questions: <span data-tex="\varrho"></span> describes the
+                        <em>material</em> (Ω·m), <span data-tex="R"></span> describes the <em>component</em> built
+                        from it — long and thin means a large resistance. Resistivity grows with temperature, which
+                        is why a glass rod and a metal rod pass wildly different currents at the same voltage.</span>
+                        <span lang="cs">Dvě různé otázky: <span data-tex="\varrho"></span> popisuje
+                        <em>materiál</em> (Ω·m), <span data-tex="R"></span> popisuje <em>součástku</em> z něj
+                        vyrobenou — dlouhá a tenká znamená velký odpor. Rezistivita roste s teplotou, a proto
+                        skleněná a kovová tyč propustí při stejném napětí zcela jiný proud.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Ohm's law</span><span lang="cs">Ohmův zákon</span></span>
+                        <span class="cf-eq" data-tex="I = \dfrac{U}{R}\,,\qquad [R] = \Omega = \mathrm{V/A}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For a linear component the current is proportional to the voltage across
+                        it — the <span data-tex="I\!-\!U"></span> graph is a straight line through the origin.
+                        This is the workhorse: nearly every step of a circuit solution is this relation applied
+                        to one component at a time.</span>
+                        <span lang="cs">U lineární součástky je proud úměrný napětí na ní — graf
+                        <span data-tex="I\!-\!U"></span> je přímka procházející počátkem. Tohle je tažný kůň:
+                        skoro každý krok řešení obvodu je tenhle vztah použitý na jednu součástku.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Power — Joule heat</span><span lang="cs">Výkon — Joulovo teplo</span></span>
+                        <span class="cf-eq" data-tex="P = UI = \dfrac{U^2}{R} = I^2 R"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The rate at which the component turns electrical energy into heat. Over a
+                        time <span data-tex="t"></span> it delivers <span data-tex="Q = Pt"></span>, so a straight
+                        heat-versus-time graph has the power as its slope. Which of the three forms to use is
+                        decided by what you already know — <span data-tex="U"></span> or
+                        <span data-tex="I"></span>.</span>
+                        <span lang="cs">Rychlost, s jakou součástka mění elektrickou energii v teplo. Za dobu
+                        <span data-tex="t"></span> dodá <span data-tex="Q = Pt"></span>, takže přímkový graf tepla
+                        v čase má za směrnici právě výkon. Který ze tří tvarů použít, rozhoduje to, co už znáte —
+                        <span data-tex="U"></span>, nebo <span data-tex="I"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">EMF and internal resistance</span><span lang="cs">EMN a vnitřní odpor</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon = \dfrac{\mathrm{d}W_z}{\mathrm{d}Q}"></span>
+                        <span class="cf-eq" data-tex="I = \dfrac{\varepsilon}{R+r}\,,\qquad U = \varepsilon - Ir"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The electromotive force is the work the source does per unit charge it
+                        pushes through itself. A <em>real</em> source is an ideal EMF in series with its internal
+                        resistance <span data-tex="r"></span>, so the voltage you measure at its terminals sags as
+                        soon as current flows, and equals <span data-tex="\varepsilon"></span> only in the limit
+                        <span data-tex="r \to 0"></span>.</span>
+                        <span lang="cs">Elektromotorické napětí je práce, kterou zdroj vykoná na jednotku náboje
+                        protlačeného skrz něj. <em>Reálný</em> zdroj je ideální EMN v sérii se svým vnitřním
+                        odporem <span data-tex="r"></span>, takže napětí naměřené na svorkách klesne, jakmile
+                        začne téci proud, a rovná se <span data-tex="\varepsilon"></span> jen v limitě
+                        <span data-tex="r \to 0"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Kirchhoff I — junction rule</span><span lang="cs">1. Kirchhoffův zákon — zákon o uzlu</span></span>
+                        <span class="cf-eq" data-tex="\textstyle\sum I_{\mathrm{in}} = \sum I_{\mathrm{out}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The sum of the currents entering a node equals the sum of those leaving it
+                        — charge does not accumulate anywhere in a steady circuit. One equation per node, of which
+                        all but one are independent.</span>
+                        <span lang="cs">Součet proudů vstupujících do uzlu se rovná součtu vystupujících — náboj
+                        se v ustáleném obvodu nikde nehromadí. Jedna rovnice na uzel, přičemž nezávislé jsou
+                        všechny až na jednu.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Kirchhoff II — loop rule</span><span lang="cs">2. Kirchhoffův zákon — zákon o smyčce</span></span>
+                        <span class="cf-eq" data-tex="\textstyle\sum U_i = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Walk once round any closed loop, adding every change of potential, and the
+                        total is zero. The signs are the whole trick: across a resistor traversed <em>with</em> the
+                        current <span data-tex="-IR"></span>, against it <span data-tex="+IR"></span>; through a
+                        source along its EMF arrow <span data-tex="+\varepsilon"></span>, against it
+                        <span data-tex="-\varepsilon"></span>.</span>
+                        <span lang="cs">Oběhněte libovolnou uzavřenou smyčku a sečtěte všechny změny potenciálu —
+                        součet je nula. Celý trik jsou znaménka: přes rezistor <em>po</em> směru proudu
+                        <span data-tex="-IR"></span>, proti němu <span data-tex="+IR"></span>; přes zdroj ve směru
+                        šipky EMN <span data-tex="+\varepsilon"></span>, proti ní
+                        <span data-tex="-\varepsilon"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Series and parallel</span><span lang="cs">Sériové a paralelní zapojení</span></span>
+                        <span class="cf-eq" data-tex="R_s = \textstyle\sum_i R_i"></span>
+                        <span class="cf-eq" data-tex="\dfrac{1}{R_p} = \textstyle\sum_i \dfrac{1}{R_i}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Resistors in series carry the same current and their voltages add; in
+                        parallel they share the same voltage and their currents add. Note this is the exact
+                        opposite of capacitors, where it is the parallel capacitances that add — worth checking
+                        every time.</span>
+                        <span lang="cs">Rezistory v sérii nesou stejný proud a jejich napětí se sčítají; paralelně
+                        mají stejné napětí a sčítají se jejich proudy. Všimněte si, že je to přesně naopak než
+                        u kondenzátorů, kde se sčítají kapacity paralelní — vyplatí se to pokaždé ověřit.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Capacitor in a circuit</span><span lang="cs">Kondenzátor v obvodu</span></span>
+                        <span class="cf-eq" data-tex="\varepsilon = IR + \dfrac{Q}{C}\,,\qquad \tau = RC"></span>
+                        <span class="cf-eq" data-tex="Q(t) = \varepsilon C\left(1 - e^{-t/\tau}\right)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The loop rule with a capacitor in it gives a differential equation, because
+                        <span data-tex="I = \mathrm{d}Q/\mathrm{d}t"></span>. Two limits carry most of the work:
+                        the instant the switch closes the capacitor is uncharged and behaves like a plain
+                        <em>wire</em>; long afterwards no current flows into it and it behaves like a
+                        <em>break</em> in the circuit.</span>
+                        <span lang="cs">Zákon o smyčce s kondenzátorem dá diferenciální rovnici, protože
+                        <span data-tex="I = \mathrm{d}Q/\mathrm{d}t"></span>. Většinu práce zastanou dvě limity:
+                        v okamžiku sepnutí je kondenzátor nenabitý a chová se jako <em>vodič</em>; dlouho poté
+                        do něj neteče proud a chová se jako <em>přerušení</em> obvodu.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Label before you calculate.</strong> Draw the circuit, put an
+                    arrow and a name on the current in <em>every</em> branch, and pick a traversal direction for
+                    every loop. A guessed direction that turns out wrong is harmless — the current simply comes
+                    out negative.</span>
+                    <span lang="cs"><strong>Nejdřív popis, pak počítání.</strong> Nakreslete obvod, do
+                    <em>každé</em> větve dejte šipku a označení proudu a každé smyčce zvolte směr oběhu. Špatně
+                    odhadnutý směr nevadí — proud prostě vyjde záporný.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Junction rule at the nodes.</strong>
+                    <span data-tex="\sum I_{\mathrm{in}} = \sum I_{\mathrm{out}}"></span> at each node; with
+                    <span data-tex="n"></span> nodes only <span data-tex="n-1"></span> of those equations are
+                    independent.</span>
+                    <span lang="cs"><strong>Zákon o uzlu.</strong>
+                    <span data-tex="\sum I_{\mathrm{in}} = \sum I_{\mathrm{out}}"></span> v každém uzlu; při
+                    <span data-tex="n"></span> uzlech je nezávislých jen <span data-tex="n-1"></span>
+                    z těchto rovnic.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Loop rule round independent loops.</strong> Add the potential
+                    changes with the signs from the table above and set the sum to zero. Take just enough loops to
+                    have one equation per unknown current — a loop made by combining two you already used adds
+                    nothing new.</span>
+                    <span lang="cs"><strong>Zákon o smyčce pro nezávislé smyčky.</strong> Sečtěte změny potenciálu
+                    se znaménky podle tabulky výše a položte součet nule. Vezměte právě tolik smyček, abyste měli
+                    jednu rovnici na každý neznámý proud — smyčka složená ze dvou už použitých nepřidá nic
+                    nového.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Collapse what you can first.</strong> A block that is purely
+                    series or purely parallel can be replaced before any of this: series add
+                    <span data-tex="R"></span>, parallel add <span data-tex="1/R"></span>. Get the total current
+                    from <span data-tex="\varepsilon = R_{ekv}I"></span>, then expand back out — a series string
+                    shares the current, a parallel node shares the voltage.</span>
+                    <span lang="cs"><strong>Nejdřív zjednodušte, co jde.</strong> Čistě sériový nebo čistě
+                    paralelní blok lze nahradit ještě před vším ostatním: sériově se sčítá
+                    <span data-tex="R"></span>, paralelně <span data-tex="1/R"></span>. Z
+                    <span data-tex="\varepsilon = R_{ekv}I"></span> určete celkový proud a pak se vracejte zpět —
+                    v sériové větvi je společný proud, v paralelním uzlu napětí.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Use the extreme values of a variable resistor.</strong>
+                    <span data-tex="R = 0"></span> short-circuits whatever it is parallel to;
+                    <span data-tex="R \to \infty"></span> deletes that branch entirely. Reading a graph at those
+                    two limits often hands you the unknown resistances with no system to solve at all.</span>
+                    <span lang="cs"><strong>Využijte krajní hodnoty proměnného rezistoru.</strong>
+                    <span data-tex="R = 0"></span> zkratuje to, s čím je paralelně;
+                    <span data-tex="R \to \infty"></span> jeho větev úplně odstraní. Odečtení grafu v těchto dvou
+                    limitách často vydá neznámé odpory, aniž byste řešili jakoukoli soustavu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Non-uniform current density → integrate.</strong> Slice the
+                    cross-section into rings, <span data-tex="\mathrm{d}S = 2\pi r\,\mathrm{d}r"></span>, and
+                    integrate <span data-tex="\mathrm{d}I = J(r)\,\mathrm{d}S"></span>. For a <em>thin</em> ring
+                    there is nothing to integrate — just multiply,
+                    <span data-tex="\Delta I = J(r)\,2\pi r\,\Delta r"></span>.</span>
+                    <span lang="cs"><strong>Nehomogenní hustota proudu → integrujte.</strong> Rozkrájejte průřez na
+                    mezikruží, <span data-tex="\mathrm{d}S = 2\pi r\,\mathrm{d}r"></span>, a integrujte
+                    <span data-tex="\mathrm{d}I = J(r)\,\mathrm{d}S"></span>. U <em>tenkého</em> mezikruží není co
+                    integrovat — stačí vynásobit,
+                    <span data-tex="\Delta I = J(r)\,2\pi r\,\Delta r"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">07</span>
+                    <span><span lang="en"><strong>Power, heat and maxima.</strong> Pick whichever of
+                    <span data-tex="P = UI = U^2/R = I^2R"></span> matches what you know; energy delivered in time
+                    <span data-tex="t"></span> is <span data-tex="Pt"></span>, so a straight heat–time graph gives
+                    the power as its slope. For "what value maximises the power", write
+                    <span data-tex="P"></span> as a function of that one variable and solve
+                    <span data-tex="\mathrm{d}P/\mathrm{d}R = 0"></span>.</span>
+                    <span lang="cs"><strong>Výkon, teplo a maxima.</strong> Vyberte z
+                    <span data-tex="P = UI = U^2/R = I^2R"></span> ten tvar, který odpovídá tomu, co znáte; energie
+                    dodaná za dobu <span data-tex="t"></span> je <span data-tex="Pt"></span>, takže přímkový graf
+                    teplo–čas dá výkon jako směrnici. Na otázku „při jaké hodnotě je výkon největší" napište
+                    <span data-tex="P"></span> jako funkci té jediné proměnné a vyřešte
+                    <span data-tex="\mathrm{d}P/\mathrm{d}R = 0"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">08</span>
+                    <span><span lang="en"><strong>Capacitors long after switching.</strong> In the steady state no
+                    current flows in the capacitor's branch, so delete that branch and solve the rest of the
+                    circuit for the currents. The capacitor's voltage is then simply the potential difference
+                    between its terminals, walked out with the loop rule, and
+                    <span data-tex="Q = CU"></span>.</span>
+                    <span lang="cs"><strong>Kondenzátory dlouho po sepnutí.</strong> V ustáleném stavu větví
+                    s kondenzátorem neteče proud, takže ji vyškrtněte a zbytek obvodu vyřešte na proudy. Napětí
+                    kondenzátoru je pak prostě rozdíl potenciálů mezi jeho svorkami, dopočítaný zákonem
+                    o smyčce, a <span data-tex="Q = CU"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">09</span>
+                    <span><span lang="en"><strong>Two states, one difference.</strong> "How much did the charge
+                    change?" means doing the whole steady-state analysis <em>twice</em> — before and after the
+                    switch — and subtracting. Watch the sign: which plate is positive can flip between the two
+                    states.</span>
+                    <span lang="cs"><strong>Dva stavy, jeden rozdíl.</strong> „O kolik se změnil náboj?" znamená
+                    provést celý ustálený rozbor <em>dvakrát</em> — před sepnutím a po něm — a odečíst. Pozor na
+                    znaménko: která elektroda je kladná, se mezi oběma stavy může obrátit.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════ LAB ════════ -->
+    <!-- ════ § 5  LAB 1 · CIRCUIT PLAYGROUND ════ -->
+    <section id="lab" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Circuit playground</span><span lang="cs">Stavebnice obvodů</span></h2>
+        </div>
+
+        <div class="laws">
+            <div class="laws-title"><span lang="en">Kirchhoff's laws</span><span lang="cs">Kirchhoffovy zákony</span></div>
+            <div class="law">
+                <div class="law-head">
+                    <span class="law-name"><span lang="en">1 · junction rule</span><span lang="cs">1 · zákon o uzlu</span></span>
+                    <span class="law-eq" data-tex="\textstyle\sum I_{in} = \sum I_{out}"></span>
+                </div>
+                <p class="law-note">
+                    <span lang="en">The sum of the currents entering a node equals the sum of those leaving it —
+                    charge piles up nowhere. Every part on the board prints its own current, so you can add them
+                    up at any junction and see it hold.</span>
+                    <span lang="cs">Součet proudů vstupujících do uzlu se rovná součtu vystupujících — náboj se
+                    nikde nehromadí. Každá součástka na desce má vypsaný svůj proud, takže si je v libovolném
+                    uzlu můžete sečíst a přesvědčit se.</span>
+                </p>
+            </div>
+            <div class="law">
+                <div class="law-head">
+                    <span class="law-name"><span lang="en">2 · loop rule</span><span lang="cs">2 · zákon o smyčce</span></span>
+                    <span class="law-eq" data-tex="\textstyle\sum U_i = 0"></span>
+                </div>
+                <p class="law-note">
+                    <span lang="en">Go once round any closed loop, adding every change of potential, and the total
+                    is zero. Signs: across a resistor traversed <em>with</em> the current
+                    <span data-tex="-IR"></span>, against it <span data-tex="+IR"></span>; through a source along
+                    its EMF arrow <span data-tex="+\varepsilon"></span>, against it
+                    <span data-tex="-\varepsilon"></span>. Each node shows its potential
+                    <span data-tex="\varphi"></span>, so the loop closing is visible.</span>
+                    <span lang="cs">Oběhněte libovolnou uzavřenou smyčku a sečtěte všechny změny potenciálu —
+                    součet je nula. Znaménka: přes rezistor <em>po</em> směru proudu
+                    <span data-tex="-IR"></span>, proti němu <span data-tex="+IR"></span>; přes zdroj ve směru
+                    šipky EMN <span data-tex="+\varepsilon"></span>, proti ní
+                    <span data-tex="-\varepsilon"></span>. U každého uzlu je jeho potenciál
+                    <span data-tex="\varphi"></span>, takže uzavření smyčky je vidět.</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Board</span><span lang="cs">Deska</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);" id="pg-status">—</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="pg-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\textstyle\sum I_{in} = \sum I_{out}\;\;\big|\;\;\textstyle\sum U_i = 0"></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parts</span><span lang="cs">Součástky</span></span>
+                    <button id="pg-clear" class="btn-mini" type="button" title="Clear the board">clear</button>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-tool="select">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">select · flip a switch</span><span lang="cs">vybrat · přepnout spínač</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-tool="wire">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">wire</span><span lang="cs">vodič</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-tool="resistor">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">resistor <em>R</em></span><span lang="cs">rezistor <em>R</em></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-tool="battery">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">battery <em>ε</em>, <em>r</em></span><span lang="cs">zdroj <em>ε</em>, <em>r</em></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-tool="capacitor">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">capacitor <em>C</em></span><span lang="cs">kondenzátor <em>C</em></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-tool="switch">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">switch</span><span lang="cs">spínač</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-tool="erase">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">remove</span><span lang="cs">odebrat</span></span>
+                    </div>
+
+                    <div class="readout-section" style="margin-top:8px;"><span lang="en">Ready-made circuits</span><span lang="cs">Hotové obvody</span></div>
+                    <div class="toggle-row obj-row" data-preset="loop">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">one loop: <em>ε</em>, <em>r</em>, <em>R</em></span><span lang="cs">jedna smyčka: <em>ε</em>, <em>r</em>, <em>R</em></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-preset="series">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">three in series</span><span lang="cs">tři v sérii</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-preset="parallel">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">two in parallel</span><span lang="cs">dva paralelně</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-preset="ex44">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Ex. 27-44 · <em>R</em>₁ + (<em>R</em>₂∥<em>R</em>₃)</span><span lang="cs">Úl. 27-44 · <em>R</em>₁ + (<em>R</em>₂∥<em>R</em>₃)</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-preset="ex89">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Ex. 27-89 · switch + capacitor</span><span lang="cs">Úl. 27-89 · spínač + kondenzátor</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Selected part</span><span lang="cs">Vybraná součástka</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);" id="pg-sel">none</span>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control" id="pg-R-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Resistance <em>R</em></span><span lang="cs">Odpor <em>R</em></span></span>
+                            <span class="sim-control-val" id="pg-R-val">100 Ω</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="pg-R" min="1" max="500" step="1" value="100">
+                    </div>
+                    <div class="sim-control" id="pg-emf-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">EMF <em>ε</em></span><span lang="cs">EMN <em>ε</em></span></span>
+                            <span class="sim-control-val" id="pg-emf-val">12.0 V</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="pg-emf" min="1" max="24" step="0.5" value="12">
+                    </div>
+                    <div class="sim-control" id="pg-r-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Internal <em>r</em></span><span lang="cs">Vnitřní <em>r</em></span></span>
+                            <span class="sim-control-val" id="pg-r-val">0.0 Ω</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="pg-r" min="0" max="20" step="0.5" value="0">
+                    </div>
+                    <div class="sim-control" id="pg-C-ctl" style="display:none;">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Capacitance <em>C</em></span><span lang="cs">Kapacita <em>C</em></span></span>
+                            <span class="sim-control-val" id="pg-C-val">10 μF</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="pg-C" min="1" max="200" step="1" value="10">
+                    </div>
+                    <div class="sim-control" id="pg-flip-ctl" style="display:none;">
+                        <button id="pg-flip" class="btn-wide" type="button">
+                            <span lang="en">reverse polarity</span><span lang="cs">otočit polaritu</span>
+                        </button>
+                    </div>
+                    <div class="readout-row" id="pg-hint-row">
+                        <span class="readout-label" style="font-size:13px;"><span lang="en">click a part on the board</span><span lang="cs">klikněte na součástku na desce</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I_{cel}"></span>
+                        <span class="readout-val" id="pg-I">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="R_{ekv}"></span>
+                        <span class="readout-val" id="pg-Req">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="P"></span>
+                        <span class="readout-val" id="pg-P">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">loop check <span data-tex="\sum U"></span></span><span lang="cs">kontrola smyčky <span data-tex="\sum U"></span></span></span>
+                        <span class="readout-val" id="pg-loop">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Capacitors behave as</span><span lang="cs">Kondenzátory se chovají jako</span></div>
+                    <div class="toggle-row obj-row" data-mode="dc">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">a break — long after switching</span><span lang="cs">přerušení — dlouho po sepnutí</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-mode="inst">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">a wire — the instant it closes</span><span lang="cs">vodič — v okamžiku sepnutí</span></span>
+                    </div>
+                    <div class="readout-section" style="margin-top:6px;"><span lang="en">On the board</span><span lang="cs">Na desce</span></div>
+                    <div class="toggle-row" id="pg-tgl-vals">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">current and voltage per part</span><span lang="cs">proud a napětí u součástky</span></span>
+                    </div>
+                    <div class="toggle-row" id="pg-tgl-phi">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">node potentials <em>φ</em></span><span lang="cs">potenciály uzlů <em>φ</em></span></span>
+                    </div>
+                    <div class="toggle-row" id="pg-tgl-flow">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">flowing charge</span><span lang="cs">tekoucí náboj</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+    </section>
+
+    <section id="lab2" class="lab" style="margin-top:28px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Charging a capacitor</span><span lang="cs">Nabíjení kondenzátoru</span></span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="U_C = \varepsilon\left(1-e^{-t/\tau}\right)"></div>
+                <div class="sim-hint"><span lang="en">adjust R and C · watch τ change the curve</span><span lang="cs">měňte R a C · sledujte, jak τ mění křivku</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
+                        title="Reset to defaults">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Resistance <em>R</em></span><span lang="cs">Odpor <em>R</em></span></span>
+                            <span class="sim-control-val" id="p-R-val">1.0 kΩ</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-R" min="100" max="10000" step="100" value="1000">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Capacitance <em>C</em></span><span lang="cs">Kapacita <em>C</em></span></span>
+                            <span class="sim-control-val" id="p-C-val">100 μF</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-C" min="1" max="1000" step="1" value="100">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">EMF <em>ε</em></span><span lang="cs">EMN <em>ε</em></span></span>
+                            <span class="sim-control-val" id="p-emf-val">9.0 V</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-emf" min="1" max="24" step="0.5" value="9">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Time constant</span><span lang="cs">Časová konstanta</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\tau"></span>
+                        <span class="readout-val" id="r-tau">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">At current time</span><span lang="cs">V aktuálním čase</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="V_C(t)"></span>
+                        <span class="readout-val" id="r-vc">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I(t)"></span>
+                        <span class="readout-val" id="r-I">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q(t)"></span>
+                        <span class="readout-val" id="r-Q">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">Charged</span><span lang="cs">Nabito</span></span>
+                        <span class="readout-val" id="r-pct">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-current">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">current curve I(t)</span><span lang="cs">křivka proudu I(t)</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-tau">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">τ marker</span><span lang="cs">značka τ</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-asymptote">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">asymptote ε</span><span lang="cs">asymptota ε</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch26-ex11.html"><span lang="en">Ch. 26 · <span class="ex-no">Ex. 11</span></span><span lang="cs">Kap. 26 · <span class="ex-no">Úl. 11</span></span></a>
+            <a class="ex-tab" href="../exercises/ch26-ex44.html"><span lang="en">Ch. 26 · <span class="ex-no">Ex. 44</span></span><span lang="cs">Kap. 26 · <span class="ex-no">Úl. 44</span></span></a>
+            <a class="ex-tab" href="../exercises/ch27-ex41.html"><span lang="en">Ch. 27 · <span class="ex-no">Ex. 41</span></span><span lang="cs">Kap. 27 · <span class="ex-no">Úl. 41</span></span></a>
+            <a class="ex-tab" href="../exercises/ch27-ex44.html"><span lang="en">Ch. 27 · <span class="ex-no">Ex. 44</span></span><span lang="cs">Kap. 27 · <span class="ex-no">Úl. 44</span></span></a>
+            <a class="ex-tab" href="../exercises/ch27-ex89.html"><span lang="en">Ch. 27 · <span class="ex-no">Ex. 89</span></span><span lang="cs">Kap. 27 · <span class="ex-no">Úl. 89</span></span></a>
+        </div>
+    </section>
+
+    <!-- ════════ PREV / NEXT ════════ -->
+    <nav class="topic-nav">
+        <a href="electrostatics-2.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Electrostatics 2</span><span lang="cs">Elektrostatika 2</span></div>
+        </a>
+        <a href="magnetism.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Magnetic Field</span><span lang="cs">Magnetické pole</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ II.03 <span lang="en">Circuits</span><span lang="cs">Obvody</span></span>
+        <span><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX ──────────────────────────────────────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Toggle wiring ─────────────────────────────────────────────────── -->
+<script>
+(function () {
+    const show = { current: true, tau: true, asymptote: true };
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-current',   'current');
+    wireToggle('tgl-tau',       'tau');
+    wireToggle('tgl-asymptote', 'asymptote');
+
+    window._rcShow = show;
+}());
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     RC CIRCUIT SIMULATION
+     ════════════════════════════════════════════════════════════════════════ -->
+<!-- ── Lab 1 · Circuit playground ── -->
+<script>
+(function () {
+    'use strict';
+
+    /* ══ Board model ══════════════════════════════════════════════════════
+       A lattice of nodes; every lattice edge can carry one component.
+       Horizontal edge h:i,j joins (i,j)-(i+1,j); vertical v:i,j joins
+       (i,j)-(i,j+1).                                                      */
+    let NX = 6, NY = 4;               /* recomputed to fit the canvas */
+    const TARGET = 74;                /* preferred spacing between points, px */
+    const nodeIdx = (i, j) => j * NX + i;
+    const ekey = (o, i, j) => o + ':' + i + ',' + j;
+    function edgeNodes(c) {
+        return c.o === 'h'
+            ? [nodeIdx(c.i, c.j), nodeIdx(c.i + 1, c.j)]
+            : [nodeIdx(c.i, c.j), nodeIdx(c.i, c.j + 1)];
+    }
+
+    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const SERIF = '"Source Serif 4", Georgia, serif';
+
+    let comps   = new Map();      /* edge key → component                */
+    let tool    = 'select';
+    let mode    = 'dc';           /* dc = long after, inst = the instant  */
+    let selKey  = null;
+    let hoverKey = null;
+    const show  = { vals: true, phi: true, flow: true };
+    let sol     = null;           /* last solution                        */
+
+    const canvas = document.getElementById('pg-canvas');
+    if (!canvas) return;
+    const ctx  = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
+    let W = 0, H = 0, col = readCol();
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
+        const g = (k, d) => ((b.getPropertyValue(k) || s.getPropertyValue(k)).trim() || d);
+        return {
+            ink:   g('--ink',        '#363026'),
+            acc:   g('--accent',     '#a25a28'),
+            soft:  g('--ink-soft',   '#4d4436'),
+            faint: g('--ink-faint',  '#7A6A52'),
+            paper: g('--paper',      '#FFFFEC'),
+            deep:  g('--paper-deep', '#efead6'),
+            edge:  g('--paper-edge', '#e6dfc9'),
+        };
+    }
+    function isCS() { return document.documentElement.getAttribute('data-lang') === 'cs'; }
+    function t(en, cs) { return isCS() ? cs : en; }
+    function dec(x) { return isCS() ? String(x).replace(/\./g, ',') : String(x); }
+
+    function fmtSI(v, unit, dp) {
+        if (!isFinite(v)) return '—';
+        if (dp === undefined) dp = 2;
+        const a = Math.abs(v);
+        if (a === 0) return dec((0).toFixed(dp)) + ' ' + unit;
+        const P = [[1e6, 'M'], [1e3, 'k'], [1, ''], [1e-3, 'm'], [1e-6, 'μ'], [1e-9, 'n'], [1e-12, 'p']];
+        for (let i = 0; i < P.length; i++)
+            if (a >= P[i][0]) return dec((v / P[i][0]).toFixed(dp)) + ' ' + P[i][1] + unit;
+        return dec(v.toExponential(1)) + ' ' + unit;
+    }
+    function fmtR(v) {
+        if (v >= 1000) return dec((v / 1000).toFixed(v >= 10000 ? 0 : 2)) + ' kΩ';
+        if (v < 10)    return dec(v.toFixed(1)) + ' Ω';
+        return dec(v.toFixed(0)) + ' Ω';
+    }
+
+    /* ══ Presets ═════════════════════════════════════════════════════════ */
+    function C(o, i, j, kind, extra) {
+        return Object.assign({ o: o, i: i, j: j, kind: kind,
+                               R: 100, emf: 12, r: 0, Cap: 10, closed: true, flip: false }, extra || {});
+    }
+    const PRESETS = {
+        loop: () => [
+            C('v', 1, 1, 'battery', { emf: 12, r: 2 }),
+            C('h', 1, 1, 'wire'), C('h', 2, 1, 'wire'), C('h', 3, 1, 'wire'),
+            C('v', 4, 1, 'resistor', { R: 100 }),
+            C('h', 1, 2, 'wire'), C('h', 2, 2, 'wire'), C('h', 3, 2, 'wire'),
+        ],
+        series: () => [
+            C('v', 1, 1, 'battery', { emf: 12, r: 0 }),
+            C('h', 1, 1, 'resistor', { R: 100 }),
+            C('h', 2, 1, 'resistor', { R: 200 }),
+            C('h', 3, 1, 'resistor', { R: 300 }),
+            C('v', 4, 1, 'wire'),
+            C('h', 1, 2, 'wire'), C('h', 2, 2, 'wire'), C('h', 3, 2, 'wire'),
+        ],
+        parallel: () => [
+            C('v', 1, 1, 'battery', { emf: 12, r: 0 }),
+            C('h', 1, 1, 'wire'), C('h', 2, 1, 'wire'), C('h', 3, 1, 'wire'),
+            C('v', 3, 1, 'resistor', { R: 100 }),
+            C('v', 4, 1, 'resistor', { R: 200 }),
+            C('h', 1, 2, 'wire'), C('h', 2, 2, 'wire'), C('h', 3, 2, 'wire'),
+        ],
+        ex44: () => [
+            C('v', 1, 1, 'battery', { emf: 12, r: 0 }),
+            C('h', 1, 1, 'resistor', { R: 2000 }),
+            C('h', 2, 1, 'wire'), C('h', 3, 1, 'wire'),
+            C('v', 3, 1, 'resistor', { R: 4000 }),
+            C('v', 4, 1, 'resistor', { R: 4000 }),
+            C('h', 1, 2, 'wire'), C('h', 2, 2, 'wire'), C('h', 3, 2, 'wire'),
+        ],
+        ex89: () => [
+            C('v', 1, 1, 'battery', { emf: 1, r: 0, flip: true }),
+            C('v', 1, 2, 'resistor', { R: 0.2 }),
+            C('v', 3, 1, 'capacitor', { Cap: 10 }),
+            C('v', 3, 2, 'wire'),
+            C('v', 5, 1, 'battery', { emf: 3, r: 0, flip: true }),
+            C('v', 5, 2, 'resistor', { R: 0.4 }),
+            C('h', 1, 1, 'switch', { closed: false }),
+            C('h', 2, 1, 'wire'), C('h', 3, 1, 'wire'), C('h', 4, 1, 'wire'),
+            C('h', 1, 3, 'wire'), C('h', 2, 3, 'wire'),
+            C('h', 3, 3, 'wire'), C('h', 4, 3, 'wire'),
+        ],
+    };
+    function loadPreset(name) {
+        comps = new Map();
+        fitGrid();
+        const list = (PRESETS[name] || PRESETS.loop)();
+        let minI = 99, minJ = 99, maxI = 0, maxJ = 0;
+        list.forEach(c => {
+            minI = Math.min(minI, c.i); minJ = Math.min(minJ, c.j);
+            maxI = Math.max(maxI, c.i + (c.o === 'h' ? 1 : 0));
+            maxJ = Math.max(maxJ, c.j + (c.o === 'v' ? 1 : 0));
+        });
+        const dx = Math.max(0, Math.floor(((NX - 1) - (maxI - minI)) / 2) - minI);
+        const dy = Math.max(0, Math.floor(((NY - 1) - (maxJ - minJ)) / 2) - minJ);
+        list.forEach(c => { c.i += dx; c.j += dy; comps.set(ekey(c.o, c.i, c.j), c); });
+        selKey = null;
+        refresh();
+    }
+
+    /* ══ Linear solve (Gaussian elimination, partial pivoting) ═══════════ */
+    function lusolve(A, b) {
+        const n = b.length;
+        for (let k = 0; k < n; k++) {
+            let piv = k, best = Math.abs(A[k][k]);
+            for (let i = k + 1; i < n; i++) {
+                const v = Math.abs(A[i][k]);
+                if (v > best) { best = v; piv = i; }
+            }
+            if (best < 1e-12) return null;              /* singular */
+            if (piv !== k) { const tA = A[piv]; A[piv] = A[k]; A[k] = tA;
+                             const tb = b[piv]; b[piv] = b[k]; b[k] = tb; }
+            for (let i = k + 1; i < n; i++) {
+                const f = A[i][k] / A[k][k];
+                if (f === 0) continue;
+                for (let j = k; j < n; j++) A[i][j] -= f * A[k][j];
+                b[i] -= f * b[k];
+            }
+        }
+        const x = new Float64Array(n);
+        for (let i = n - 1; i >= 0; i--) {
+            let s = b[i];
+            for (let j = i + 1; j < n; j++) s -= A[i][j] * x[j];
+            x[i] = s / A[i][i];
+        }
+        return x;
+    }
+
+    /* ══ Modified nodal analysis ═════════════════════════════════════════
+       Wires, closed switches (and capacitors in the "instant" mode) are
+       merged into supernodes; resistors and batteries with r > 0 are
+       stamped as conductances (a real source becomes its Norton twin);
+       ideal batteries get their own current unknown.                      */
+    function solve() {
+        const NN = NX * NY;
+        const parent = new Int32Array(NN);
+        for (let k = 0; k < NN; k++) parent[k] = k;
+        function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+        function uni(a, b) { a = find(a); b = find(b); if (a !== b) parent[b] = a; }
+
+        const active = [], shorted = [];
+        for (const c of comps.values()) {
+            const [a, b] = edgeNodes(c);
+            if (c.kind === 'wire') { uni(a, b); shorted.push(c); continue; }
+            if (c.kind === 'switch') { if (c.closed) { uni(a, b); shorted.push(c); } continue; }
+            if (c.kind === 'capacitor') { if (mode === 'inst') { uni(a, b); shorted.push(c); } continue; }
+            active.push(c);
+        }
+        const root = new Int32Array(NN);
+        for (let k = 0; k < NN; k++) root[k] = find(k);
+
+        const used = new Set();
+        for (const c of comps.values()) { const [a, b] = edgeNodes(c); used.add(root[a]); used.add(root[b]); }
+        if (!used.size) return { ok: false, why: 'empty' };
+
+        const bats = active.filter(c => c.kind === 'battery');
+        if (!bats.length) return { ok: false, why: 'nosource' };
+
+        const b0 = bats[0], e0 = edgeNodes(b0);
+        const ground = root[b0.flip ? e0[0] : e0[1]];
+
+        const order = [...used].filter(r => r !== ground);
+        const idx = new Map(); order.forEach((r, k) => idx.set(r, k));
+        const n = order.length;
+        const vs = bats.filter(c => c.r <= 1e-9);
+        const m = vs.length;
+        const N = n + m;
+        if (N === 0) return { ok: false, why: 'trivial' };
+
+        const A = []; for (let i = 0; i < N; i++) A.push(new Float64Array(N));
+        const z = new Float64Array(N);
+        const at = r => (r === ground ? -1 : idx.get(r));
+
+        function stampG(ra, rb, g) {
+            const x = at(ra), y = at(rb);
+            if (x >= 0) A[x][x] += g;
+            if (y >= 0) A[y][y] += g;
+            if (x >= 0 && y >= 0) { A[x][y] -= g; A[y][x] -= g; }
+        }
+        function addI(r, v) { const x = at(r); if (x >= 0) z[x] += v; }
+
+        for (const c of active) {
+            const [a, b] = edgeNodes(c);
+            const ra = root[a], rb = root[b];
+            if (c.kind === 'resistor') {
+                stampG(ra, rb, 1 / Math.max(c.R, 1e-9));
+            } else if (c.kind === 'battery' && c.r > 1e-9) {
+                const g = 1 / c.r;
+                stampG(ra, rb, g);
+                const p = c.flip ? rb : ra, q = c.flip ? ra : rb;
+                addI(p, +c.emf * g); addI(q, -c.emf * g);
+            }
+        }
+        vs.forEach((c, k) => {
+            const [a, b] = edgeNodes(c);
+            const p = root[c.flip ? b : a], q = root[c.flip ? a : b];
+            const row = n + k;
+            const xp = at(p), xq = at(q);
+            if (xp >= 0) { A[xp][row] += 1; A[row][xp] += 1; }
+            if (xq >= 0) { A[xq][row] -= 1; A[row][xq] -= 1; }
+            z[row] = c.emf;
+        });
+
+        const x = lusolve(A, z);
+        if (!x) return { ok: false, why: 'short' };
+
+        const V = new Float64Array(NN);
+        for (let k = 0; k < NN; k++) { const r = root[k]; V[k] = (r === ground || !idx.has(r)) ? 0 : x[idx.get(r)]; }
+
+        /* per-component current, in the a→b direction */
+        const cur = new Map(), volt = new Map();
+        for (const c of active) {
+            const [a, b] = edgeNodes(c);
+            const u = V[a] - V[b];
+            volt.set(c, u);
+            if (c.kind === 'resistor') {
+                cur.set(c, u / Math.max(c.R, 1e-9));
+            } else if (c.kind === 'battery') {
+                if (c.r > 1e-9) {
+                    const p = c.flip ? b : a, q = c.flip ? a : b;
+                    const del = (c.emf - (V[p] - V[q])) / c.r;      /* delivered, q→p inside */
+                    cur.set(c, (p === a) ? -del : del);
+                } else {
+                    const k = vs.indexOf(c);
+                    const ik = x[n + k];                            /* p→q through the branch */
+                    const p = c.flip ? b : a;
+                    cur.set(c, (p === a) ? ik : -ik);
+                }
+            }
+        }
+        for (const c of comps.values()) {
+            if (c.kind === 'capacitor') {
+                const [a, b] = edgeNodes(c);
+                volt.set(c, V[a] - V[b]);
+                if (mode === 'dc') cur.set(c, 0);
+            }
+            if (c.kind === 'switch' && !c.closed) { volt.set(c, V[edgeNodes(c)[0]] - V[edgeNodes(c)[1]]); cur.set(c, 0); }
+        }
+        spreadWireCurrents(cur);
+
+        /* headline numbers, from the first battery */
+        const Ibat = Math.abs(cur.get(b0) || 0);
+        const e0n  = edgeNodes(b0);
+        const p    = b0.flip ? e0n[1] : e0n[0], q = b0.flip ? e0n[0] : e0n[1];
+        const Uterm = Math.abs(V[p] - V[q]);
+        return { ok: true, V: V, cur: cur, volt: volt, root: root, ground: ground,
+                 I: Ibat, U: Uterm, Req: Ibat > 1e-12 ? Uterm / Ibat : Infinity,
+                 P: Uterm * Ibat, bat: b0 };
+    }
+
+    /* Currents in the zero-resistance edges, from KCL on a spanning forest. */
+    function spreadWireCurrents(cur) {
+        const NN = NX * NY;
+        const inj = new Float64Array(NN);
+        for (const [c, I] of cur) {
+            const [a, b] = edgeNodes(c);
+            inj[b] += I; inj[a] -= I;
+        }
+        const wires = [...comps.values()].filter(c =>
+            c.kind === 'wire' || (c.kind === 'switch' && c.closed) ||
+            (c.kind === 'capacitor' && mode === 'inst'));
+        if (!wires.length) return;
+        const adj = new Map();
+        wires.forEach(c => {
+            const [a, b] = edgeNodes(c);
+            if (!adj.has(a)) adj.set(a, []);
+            if (!adj.has(b)) adj.set(b, []);
+            adj.get(a).push({ to: b, c: c });
+            adj.get(b).push({ to: a, c: c });
+            cur.set(c, 0);
+        });
+        const seen = new Set();
+        for (const start of adj.keys()) {
+            if (seen.has(start)) continue;
+            const order = [start], pe = new Map();
+            seen.add(start);
+            for (let qi = 0; qi < order.length; qi++) {
+                for (const e of adj.get(order[qi]) || []) {
+                    if (seen.has(e.to)) continue;
+                    seen.add(e.to);
+                    pe.set(e.to, { from: order[qi], c: e.c });
+                    order.push(e.to);
+                }
+            }
+            const sub = new Float64Array(NN);
+            for (let qi = order.length - 1; qi >= 0; qi--) {
+                const u = order[qi];
+                sub[u] += inj[u];
+                const p = pe.get(u);
+                if (!p) continue;
+                const Ipu = -sub[u];                 /* flows parent → u */
+                const [a] = edgeNodes(p.c);
+                cur.set(p.c, (p.from === a) ? Ipu : -Ipu);
+                sub[p.from] += sub[u];
+            }
+        }
+    }
+
+    /* ══ Geometry on the canvas ══════════════════════════════════════════ */
+    function fitGrid() {
+        const padX = 34, padY = 30;
+        let nx = Math.max(6, Math.min(13, Math.round((W - 2 * padX) / TARGET) - 1));
+        let ny = Math.max(4, Math.min(10, Math.round((H - 2 * padY) / TARGET) + 1));
+        /* grow rather than throw away anything already on the board */
+        for (const c of comps.values()) {
+            nx = Math.max(nx, c.i + (c.o === 'h' ? 2 : 1));
+            ny = Math.max(ny, c.j + (c.o === 'v' ? 2 : 1));
+        }
+        NX = nx; NY = ny;
+    }
+    function layout() {
+        const padX = 34, padY = 30;
+        /* separate x and y spacing: fewer columns then means wider cells rather
+           than a narrower board */
+        const sx = (W - 2 * padX) / (NX - 1);
+        const sy = (H - 2 * padY) / (NY - 1);
+        return { sx: sx, sy: sy, s: Math.min(sx, sy), ox: padX, oy: padY };
+    }
+    function nodePos(i, j, L) { return { x: L.ox + i * L.sx, y: L.oy + j * L.sy }; }
+    function edgeEnds(c, L) {
+        const a = nodePos(c.i, c.j, L);
+        const b = c.o === 'h' ? nodePos(c.i + 1, c.j, L) : nodePos(c.i, c.j + 1, L);
+        return [a, b];
+    }
+    function allEdges() {
+        const out = [];
+        for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+            if (i < NX - 1) out.push({ o: 'h', i: i, j: j });
+            if (j < NY - 1) out.push({ o: 'v', i: i, j: j });
+        }
+        return out;
+    }
+    function edgeAt(px, py, L) {
+        let best = null, bd = 1e9;
+        for (const e of allEdges()) {
+            const [a, b] = edgeEnds(e, L);
+            const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+            const d = Math.hypot(px - mx, py - my);
+            if (d < bd) { bd = d; best = e; }
+        }
+        return bd < L.s * 0.42 ? best : null;
+    }
+
+    /* ══ Drawing ═════════════════════════════════════════════════════════ */
+    function drawResistor(a, b, hot) {
+        const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+        const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+        const body = Math.min(34, len * 0.5), lead = (len - body) / 2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(a.x + ux * lead, a.y + uy * lead);
+        const teeth = 6, amp = 6;
+        for (let k = 0; k <= teeth; k++) {
+            const tt = lead + (body * k) / teeth;
+            const sgn = (k % 2 === 0) ? 1 : -1;
+            const off = (k === 0 || k === teeth) ? 0 : sgn * amp;
+            ctx.lineTo(a.x + ux * tt + nx * off, a.y + uy * tt + ny * off);
+        }
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = hot ? col.acc : col.ink;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+    function drawBattery(a, b, c, hot) {
+        const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+        const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+        const mid = len / 2, gap = 5;
+        ctx.strokeStyle = hot ? col.acc : col.ink;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y); ctx.lineTo(a.x + ux * (mid - gap), a.y + uy * (mid - gap));
+        ctx.moveTo(a.x + ux * (mid + gap), a.y + uy * (mid + gap)); ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        /* long plate on the + side */
+        const plusFirst = !c.flip;
+        const L1 = plusFirst ? 13 : 7, L2 = plusFirst ? 7 : 13;
+        ctx.lineWidth = plusFirst ? 1.6 : 3;
+        ctx.beginPath();
+        ctx.moveTo(a.x + ux * (mid - gap) - nx * L1, a.y + uy * (mid - gap) - ny * L1);
+        ctx.lineTo(a.x + ux * (mid - gap) + nx * L1, a.y + uy * (mid - gap) + ny * L1);
+        ctx.stroke();
+        ctx.lineWidth = plusFirst ? 3 : 1.6;
+        ctx.beginPath();
+        ctx.moveTo(a.x + ux * (mid + gap) - nx * L2, a.y + uy * (mid + gap) - ny * L2);
+        ctx.lineTo(a.x + ux * (mid + gap) + nx * L2, a.y + uy * (mid + gap) + ny * L2);
+        ctx.stroke();
+    }
+    function drawCapacitor(a, b, hot) {
+        const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+        const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+        const mid = len / 2, gap = 4.5, pl = 11;
+        ctx.strokeStyle = hot ? col.acc : col.ink;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y); ctx.lineTo(a.x + ux * (mid - gap), a.y + uy * (mid - gap));
+        ctx.moveTo(a.x + ux * (mid + gap), a.y + uy * (mid + gap)); ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.lineWidth = 2.6;
+        for (const off of [-gap, gap]) {
+            ctx.beginPath();
+            ctx.moveTo(a.x + ux * (mid + off) - nx * pl, a.y + uy * (mid + off) - ny * pl);
+            ctx.lineTo(a.x + ux * (mid + off) + nx * pl, a.y + uy * (mid + off) + ny * pl);
+            ctx.stroke();
+        }
+    }
+    function drawSwitch(a, b, c, hot) {
+        const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+        const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+        const mid = len / 2, gap = 12;
+        ctx.strokeStyle = hot ? col.acc : col.ink;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y); ctx.lineTo(a.x + ux * (mid - gap), a.y + uy * (mid - gap));
+        ctx.moveTo(a.x + ux * (mid + gap), a.y + uy * (mid + gap)); ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        const p0 = { x: a.x + ux * (mid - gap), y: a.y + uy * (mid - gap) };
+        const p1 = c.closed
+            ? { x: a.x + ux * (mid + gap), y: a.y + uy * (mid + gap) }
+            : { x: a.x + ux * (mid + gap * 0.4) - nx * 13, y: a.y + uy * (mid + gap * 0.4) - ny * 13 };
+        ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(p0.x, p0.y, 2.6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath();
+        ctx.arc(a.x + ux * (mid + gap), a.y + uy * (mid + gap), 2.6, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    function label(txt, x, y, size, colr, align, bg) {
+        ctx.save();
+        ctx.font = size + 'px ' + MONO;
+        ctx.textAlign = align || 'center';
+        ctx.textBaseline = 'middle';
+        if (bg) {
+            const w = ctx.measureText(txt).width;
+            let bx = x - w / 2 - 3;
+            if (align === 'left')  bx = x - 3;
+            if (align === 'right') bx = x - w - 3;
+            ctx.fillStyle = bg;
+            ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
+        }
+        ctx.fillStyle = colr;
+        ctx.fillText(txt, x, y);
+        ctx.restore();
+    }
+
+    function draw(ts) {
+        col = readCol();
+        ctx.clearRect(0, 0, W, H);
+        const L = layout();
+
+        /* lattice */
+        ctx.fillStyle = col.soft;
+        ctx.globalAlpha = 0.45;
+        for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+            const p = nodePos(i, j, L);
+            ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        /* the edge under the pointer */
+        if (hoverKey && tool !== 'select') {
+            const c = { o: hoverKey[0], i: +hoverKey.slice(2).split(',')[0], j: +hoverKey.slice(2).split(',')[1] };
+            const [a, b] = edgeEnds(c, L);
+            ctx.save();
+            ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.30; ctx.lineWidth = 9; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+            ctx.restore();
+        }
+
+        /* components */
+        for (const [k, c] of comps) {
+            const [a, b] = edgeEnds(c, L);
+            const hot = (k === selKey);
+            if (hot) {
+                ctx.save();
+                ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.18; ctx.lineWidth = 13; ctx.lineCap = 'round';
+                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                ctx.restore();
+            }
+            if (c.kind === 'wire') {
+                ctx.strokeStyle = hot ? col.acc : col.ink; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+            }
+            else if (c.kind === 'resistor')  drawResistor(a, b, hot);
+            else if (c.kind === 'battery')   drawBattery(a, b, c, hot);
+            else if (c.kind === 'capacitor') drawCapacitor(a, b, hot);
+            else if (c.kind === 'switch')    drawSwitch(a, b, c, hot);
+        }
+
+        /* flowing charge */
+        if (show.flow && sol && sol.ok) {
+            ctx.fillStyle = col.acc;
+            for (const [k, c] of comps) {
+                const I = sol.cur.get(c);
+                if (!I || Math.abs(I) < 1e-9) continue;
+                const [a, b] = edgeEnds(c, L);
+                const len = Math.hypot(b.x - a.x, b.y - a.y);
+                const rel   = Math.abs(I) / Math.max(sol.I, 1e-12);
+                const speed = Math.max(0.08, Math.min(0.5, 0.5 * rel));
+                const dir = I > 0 ? 1 : -1;
+                const phase = ((ts / 1000) * speed * dir) % 1;
+                for (let d = 0; d < 3; d++) {
+                    let u = (phase + d / 3) % 1;
+                    if (u < 0) u += 1;
+                    ctx.globalAlpha = 0.85;
+                    ctx.beginPath();
+                    ctx.arc(a.x + (b.x - a.x) * u, a.y + (b.y - a.y) * u, 2.4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        /* per-component numbers */
+        if (sol && sol.ok && show.vals) {
+            for (const [k, c] of comps) {
+                if (c.kind === 'wire') continue;
+                const [a, b] = edgeEnds(c, L);
+                const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+                const vert = (c.o === 'v');
+                const ox = vert ? 16 : 0, oy = vert ? 0 : -17;
+                let l1 = '', l2 = '';
+                if (c.kind === 'resistor')  { l1 = fmtR(c.R); }
+                if (c.kind === 'battery')   { l1 = dec(c.emf.toFixed(1)) + ' V' + (c.r > 0 ? ' · r ' + fmtR(c.r) : ''); }
+                if (c.kind === 'capacitor') { l1 = dec(c.Cap.toFixed(0)) + ' μF'; }
+                if (c.kind === 'switch')    { l1 = c.closed ? t('closed', 'sepnuto') : t('open', 'rozepnuto'); }
+                const I = sol.cur.get(c), U = sol.volt.get(c);
+                if (c.kind === 'capacitor') l2 = fmtSI(Math.abs(U), 'V', 2) + ' · ' + fmtSI(Math.abs(U) * c.Cap * 1e-6, 'C', 1);
+                else if (I !== undefined && c.kind !== 'switch') l2 = fmtSI(Math.abs(I), 'A', 2) + ' · ' + fmtSI(Math.abs(U || 0), 'V', 2);
+                label(l1, mx + ox, my + oy, 10, col.soft, vert ? 'left' : 'center', col.paper);
+                if (l2) label(l2, mx + ox, my + oy + (vert ? 13 : -13), 10, col.acc, vert ? 'left' : 'center', col.paper);
+            }
+        }
+
+        /* node potentials */
+        if (sol && sol.ok && show.phi) {
+            const seen = new Set();
+            for (const c of comps.values()) {
+                for (const nd of edgeNodes(c)) {
+                    const r = sol.root[nd];
+                    if (seen.has(r)) continue;
+                    seen.add(r);
+                    const i = nd % NX, j = Math.floor(nd / NX);
+                    const p = nodePos(i, j, L);
+                    ctx.fillStyle = col.ink;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 3.4, 0, Math.PI * 2); ctx.fill();
+                    label('φ ' + dec(sol.V[nd].toFixed(2)) + ' V', p.x, p.y - 13, 9.5, col.faint, 'center', col.paper);
+                }
+            }
+        }
+
+        /* mode banner */
+        label(mode === 'dc'
+                ? t('steady state — long after switching', 'ustálený stav — dlouho po sepnutí')
+                : t('the instant the switch closes',        'okamžik sepnutí'),
+              12, 15, 10, col.faint, 'left', col.paper);
+    }
+
+    /* ══ Readout ═════════════════════════════════════════════════════════ */
+    const $ = id => document.getElementById(id);
+    function setTxt(id, s) { const e = $(id); if (e) e.textContent = s; }
+
+    function refresh() {
+        fitGrid();
+        sol = solve();
+        const st = $('pg-status');
+        if (!sol.ok) {
+            const why = { empty:    t('empty board', 'prázdná deska'),
+                          nosource: t('no source', 'chybí zdroj'),
+                          trivial:  t('nothing connected', 'nic není spojeno'),
+                          short:    t('short circuit', 'zkrat') }[sol.why] || '—';
+            if (st) st.textContent = why;
+            ['pg-I', 'pg-Req', 'pg-P', 'pg-loop'].forEach(id => setTxt(id, '—'));
+        } else {
+            if (st) st.textContent = t('solved', 'vyřešeno');
+            setTxt('pg-I',   fmtSI(sol.I, 'A', 3));
+            setTxt('pg-Req', isFinite(sol.Req) ? fmtR(sol.Req) : '∞');
+            setTxt('pg-P',   fmtSI(sol.P, 'W', 3));
+            setTxt('pg-loop', dec((0).toFixed(2)) + ' V');
+        }
+        syncPanel();
+        request();
+    }
+
+    function syncPanel() {
+        const c = selKey ? comps.get(selKey) : null;
+        const kindName = c ? { wire: t('wire', 'vodič'), resistor: t('resistor', 'rezistor'),
+                               battery: t('battery', 'zdroj'), capacitor: t('capacitor', 'kondenzátor'),
+                               switch: t('switch', 'spínač') }[c.kind] : t('none', 'žádná');
+        setTxt('pg-sel', kindName);
+        const showIf = (id, on) => { const e = $(id); if (e) e.style.display = on ? '' : 'none'; };
+        showIf('pg-R-ctl',    !!c && c.kind === 'resistor');
+        showIf('pg-emf-ctl',  !!c && c.kind === 'battery');
+        showIf('pg-r-ctl',    !!c && c.kind === 'battery');
+        showIf('pg-C-ctl',    !!c && c.kind === 'capacitor');
+        showIf('pg-flip-ctl', !!c && c.kind === 'battery');
+        showIf('pg-hint-row', !c);
+        if (!c) return;
+        if (c.kind === 'resistor')  { $('pg-R').value = c.R;    setTxt('pg-R-val', fmtR(c.R)); }
+        if (c.kind === 'battery')   { $('pg-emf').value = c.emf; setTxt('pg-emf-val', dec(c.emf.toFixed(1)) + ' V');
+                                      $('pg-r').value = c.r;     setTxt('pg-r-val', fmtR(c.r)); }
+        if (c.kind === 'capacitor') { $('pg-C').value = c.Cap;  setTxt('pg-C-val', dec(c.Cap.toFixed(0)) + ' μF'); }
+    }
+
+    /* ══ Interaction ═════════════════════════════════════════════════════ */
+    function pos(ev) {
+        const r = canvas.getBoundingClientRect();
+        return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+    }
+    canvas.addEventListener('pointermove', ev => {
+        const p = pos(ev), L = layout();
+        const e = edgeAt(p.x, p.y, L);
+        const k = e ? ekey(e.o, e.i, e.j) : null;
+        if (k !== hoverKey) { hoverKey = k; request(); }
+    });
+    canvas.addEventListener('pointerleave', () => { hoverKey = null; request(); });
+    canvas.addEventListener('pointerdown', ev => {
+        const p = pos(ev), L = layout();
+        const e = edgeAt(p.x, p.y, L);
+        if (!e) { selKey = null; refresh(); return; }
+        const k = ekey(e.o, e.i, e.j);
+        const existing = comps.get(k);
+        if (tool === 'select') {
+            if (existing && existing.kind === 'switch') existing.closed = !existing.closed;
+            selKey = existing ? k : null;
+        } else if (tool === 'erase') {
+            comps.delete(k);
+            if (selKey === k) selKey = null;
+        } else {
+            comps.set(k, C(e.o, e.i, e.j, tool,
+                           tool === 'battery' ? { emf: 12, r: 0 } : null));
+            selKey = k;
+        }
+        refresh();
+    });
+
+    function radios(attr, cb) {
+        const rows = [].slice.call(document.querySelectorAll('[data-' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            rows.forEach(r => { const b = r.querySelector('.toggle-box');
+                                if (b) b.classList.toggle('on', r === row); });
+            cb(row.getAttribute('data-' + attr));
+        }));
+    }
+    radios('tool',   v => { tool = v; request(); });
+    radios('preset', v => loadPreset(v));
+    radios('mode',   v => { mode = v; refresh(); });
+
+    function toggle(id, cb) {
+        const row = $(id);
+        if (!row) return;
+        row.addEventListener('click', () => {
+            const b = row.querySelector('.toggle-box');
+            if (!b) return;
+            const on = !b.classList.contains('on');
+            b.classList.toggle('on', on);
+            cb(on);
+        });
+    }
+    toggle('pg-tgl-vals', v => { show.vals = v; request(); });
+    toggle('pg-tgl-phi',  v => { show.phi  = v; request(); });
+    toggle('pg-tgl-flow', v => { show.flow = v; request(); });
+
+    function slider(id, valId, fmt, set) {
+        const inp = $(id);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            const c = selKey ? comps.get(selKey) : null;
+            if (!c) return;
+            set(c, +inp.value);
+            setTxt(valId, fmt(+inp.value));
+            refresh();
+        });
+    }
+    slider('pg-R',   'pg-R-val',   fmtR,                                   (c, v) => c.R = v);
+    slider('pg-emf', 'pg-emf-val', v => dec(v.toFixed(1)) + ' V',          (c, v) => c.emf = v);
+    slider('pg-r',   'pg-r-val',   fmtR,                                   (c, v) => c.r = v);
+    slider('pg-C',   'pg-C-val',   v => dec(v.toFixed(0)) + ' μF',         (c, v) => c.Cap = v);
+
+    $('pg-flip') && $('pg-flip').addEventListener('click', () => {
+        const c = selKey ? comps.get(selKey) : null;
+        if (c && c.kind === 'battery') { c.flip = !c.flip; refresh(); }
+    });
+    $('pg-clear') && $('pg-clear').addEventListener('click', () => {
+        comps = new Map(); selKey = null; refresh();
+    });
+
+    /* ══ Frame loop — only while charge is shown ═════════════════════════ */
+    let pending = false;
+    function request() {
+        if (show.flow || pending) return;      /* the loop already redraws */
+        pending = true;
+        requestAnimationFrame(ts => { pending = false; draw(ts); });
+    }
+    function loop(ts) {
+        if (show.flow) draw(ts);
+        requestAnimationFrame(loop);
+    }
+
+    function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 320);
+        H = Math.max(r.height, 260);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        fitGrid();
+        request();
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+    document.addEventListener('langchange', () => refresh());
+
+    loadPreset('loop');
+    requestAnimationFrame(loop);
+}());
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ── Canvas setup ──────────────────────────────────────────── */
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  300);
+        H = Math.max(r.height, 300);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── Colour tokens ─────────────────────────────────────────── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--accent').trim()    || '#a25a28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFFEC',
+            deep:  s.getPropertyValue('--paper-deep').trim()|| '#efead6',
+        };
+    }
+    let col = readCol();
+
+    /* ── Defaults & state ──────────────────────────────────────── */
+    const DEFAULTS = { R: 1000, C: 100, emf: 9 };
+    let state = { ...DEFAULTS };
+
+    // Animation time — driven by real clock, loops every 6τ
+    let t0 = null;   // clock time when loop started (ms)
+    let simT = 0;    // current simulated time (s)
+
+    /* ── Slider wiring ─────────────────────────────────────────── */
+    function fmtR(v) {
+        return v >= 1000 ? (v / 1000).toFixed(1) + ' kΩ' : v + ' Ω';
+    }
+
+    const sliders = [
+        { id: 'p-R',   valId: 'p-R-val',   key: 'R',   fmt: v => fmtR(+v) },
+        { id: 'p-C',   valId: 'p-C-val',   key: 'C',   fmt: v => (+v).toFixed(0) + ' μF' },
+        { id: 'p-emf', valId: 'p-emf-val', key: 'emf', fmt: v => (+v).toFixed(1) + ' V' },
+    ];
+
+    sliders.forEach(({ id, valId, key, fmt }) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(inp.value);
+            // Reset animation when parameters change
+            t0 = null; simT = 0;
+        });
+    });
+
+    /* ── Reset ─────────────────────────────────────────────────── */
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        sliders.forEach(({ id, valId, fmt }) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(valId);
+            if (inp) { inp.value = DEFAULTS[inp.id.replace('p-','').replace('-','')]; inp.dispatchEvent(new Event('input')); }
+            // re-read after dispatch handles label
+        });
+        // More explicit reset:
+        document.getElementById('p-R').value   = DEFAULTS.R;
+        document.getElementById('p-C').value   = DEFAULTS.C;
+        document.getElementById('p-emf').value = DEFAULTS.emf;
+        document.getElementById('p-R-val').textContent   = fmtR(DEFAULTS.R);
+        document.getElementById('p-C-val').textContent   = DEFAULTS.C + ' μF';
+        document.getElementById('p-emf-val').textContent = DEFAULTS.emf.toFixed(1) + ' V';
+        state = { ...DEFAULTS };
+        t0 = null; simT = 0;
+    });
+
+    /* ── Physics helpers ───────────────────────────────────────── */
+    function tau()  { return state.R * state.C * 1e-6; }        // s
+    function Vc(t)  { return state.emf * (1 - Math.exp(-t / tau())); }  // V
+    function Ic(t)  { return (state.emf / state.R) * Math.exp(-t / tau()); } // A
+
+    /* ── Drawing ───────────────────────────────────────────────── */
+    const SCHEM_H = 140;                       /* strip reserved for the circuit */
+    const PAD_L = 72, PAD_R = 24, PAD_T = 32 + SCHEM_H, PAD_B = 52;
+
+    /* A schematic of the very circuit the graph describes: source, resistor,
+       capacitor and a closed switch, with charge visibly flowing at the rate
+       I(t) and the plates filling up as U_C rises. */
+    function drawSchematic(t) {
+        const w = Math.min(360, W * 0.62), h = 92;
+        const x0 = (W - w) / 2, y0 = 24;
+        const x1 = x0 + w, y1 = y0 + h;
+        const uc = Vc(t), ic = Ic(t), i0 = state.emf / state.R;
+        const frac = state.emf > 0 ? uc / state.emf : 0;
+
+        ctx.save();
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'butt';
+
+        /* battery on the left edge */
+        const bm = (y0 + y1) / 2;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0); ctx.lineTo(x0, bm - 6);
+        ctx.moveTo(x0, bm + 6); ctx.lineTo(x0, y1);
+        ctx.stroke();
+        ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(x0 - 13, bm - 6); ctx.lineTo(x0 + 13, bm - 6); ctx.stroke();
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(x0 - 7, bm + 6); ctx.lineTo(x0 + 7, bm + 6); ctx.stroke();
+
+        /* resistor on the top edge */
+        ctx.lineWidth = 2;
+        const rx0 = x0 + w * 0.30, rw = w * 0.30;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0); ctx.lineTo(rx0, y0);
+        for (let k = 0; k <= 6; k++) {
+            const off = (k === 0 || k === 6) ? 0 : ((k % 2) ? -7 : 7);
+            ctx.lineTo(rx0 + (rw * k) / 6, y0 + off);
+        }
+        ctx.lineTo(x1, y0);
+        ctx.stroke();
+
+        /* capacitor on the right edge */
+        ctx.beginPath();
+        ctx.moveTo(x1, y0); ctx.lineTo(x1, bm - 5);
+        ctx.moveTo(x1, bm + 5); ctx.lineTo(x1, y1);
+        ctx.stroke();
+        ctx.lineWidth = 2.6;
+        ctx.beginPath(); ctx.moveTo(x1 - 12, bm - 5); ctx.lineTo(x1 + 12, bm - 5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x1 - 12, bm + 5); ctx.lineTo(x1 + 12, bm + 5); ctx.stroke();
+
+        /* closed switch on the bottom edge */
+        ctx.lineWidth = 2;
+        const sx = x0 + w * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x0, y1); ctx.lineTo(sx - 13, y1);
+        ctx.lineTo(sx + 11, y1 - 4);
+        ctx.moveTo(sx + 13, y1); ctx.lineTo(x1, y1);
+        ctx.stroke();
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(sx - 13, y1, 2.6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(sx + 13, y1, 2.6, 0, Math.PI * 2); ctx.fill();
+
+        /* charge on the plates, growing with U_C */
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.globalAlpha = 0.25 + 0.75 * frac;
+        ctx.fillStyle = col.acc;
+        for (let k = -1; k <= 1; k++) {
+            ctx.fillText('+', x1 + k * 8, bm - 12);
+            ctx.fillText('−', x1 + k * 8, bm + 12);
+        }
+        ctx.globalAlpha = 1;
+
+        /* charge in motion, at the rate I(t) */
+        const rel = i0 > 0 ? ic / i0 : 0;
+        if (rel > 0.01) {
+            const per = [[x0, y0, x1, y0], [x1, y0, x1, y1], [x1, y1, x0, y1], [x0, y1, x0, y0]];
+            const ph = ((t * 0.55 / Math.max(tau(), 1e-6)) * 0.06) % 1;
+            ctx.fillStyle = col.acc;
+            for (const seg of per) {
+                for (let d = 0; d < 4; d++) {
+                    let u = (ph + d / 4) % 1;
+                    ctx.globalAlpha = 0.25 + 0.75 * rel;
+                    ctx.beginPath();
+                    ctx.arc(seg[0] + (seg[2] - seg[0]) * u, seg[1] + (seg[3] - seg[1]) * u, 2.3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        /* labels */
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.fillStyle = col.soft;
+        ctx.textAlign = 'center';
+        ctx.fillText('R', rx0 + rw / 2, y0 - 18);
+        ctx.textAlign = 'right';
+        ctx.fillText('ε', x0 - 18, bm);
+        ctx.textAlign = 'left';
+        ctx.fillText('C', x1 + 18, bm);
+        ctx.fillStyle = col.acc;
+        ctx.textAlign = 'left';
+        ctx.fillText('U_C = ' + uc.toFixed(2) + ' V', x1 + 18, bm + 16);
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'right';
+        ctx.fillText('I = ' + (ic * 1000).toFixed(2) + ' mA', x0 - 18, bm + 16);
+        ctx.restore();
+    }
+
+    function draw(ts) {
+        const show = window._rcShow || { current: true, tau: true, asymptote: true };
+
+        // Advance simulation time
+        const LOOP_DURATION = 6; // multiples of tau shown
+        const T_MAX = tau() * LOOP_DURATION;
+
+        if (t0 === null) t0 = ts;
+        const elapsed = (ts - t0) / 1000;   // s
+        simT = elapsed % T_MAX;
+
+        ctx.clearRect(0, 0, W, H);
+        drawSchematic(simT);
+
+        const plotW = W - PAD_L - PAD_R;
+        const plotH = H - PAD_T - PAD_B;
+        const ox = PAD_L, oy = PAD_T + plotH;  // origin (bottom-left of plot)
+
+        // ── Background for plot area ──
+        ctx.fillStyle = col.deep + 'cc';
+        ctx.fillRect(ox, PAD_T, plotW, plotH);
+
+        // ── Asymptote ──
+        if (show.asymptote) {
+            const yEpsilon = oy - plotH; // ε is top of y-axis
+            ctx.strokeStyle = col.acc + '60';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([8, 5]);
+            ctx.beginPath();
+            ctx.moveTo(ox, yEpsilon);
+            ctx.lineTo(ox + plotW, yEpsilon);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.acc + '90';
+            ctx.font = '12px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('ε = ' + state.emf.toFixed(1) + ' V', ox + 6, yEpsilon - 3);
+        }
+
+        // ── τ marker ──
+        if (show.tau) {
+            const tauSec = tau();
+            const xTau   = ox + (tauSec / T_MAX) * plotW;
+            ctx.strokeStyle = col.faint + 'a0';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath();
+            ctx.moveTo(xTau, PAD_T);
+            ctx.lineTo(xTau, oy);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.faint;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('τ', xTau, oy + 6);
+        }
+
+        // ── V_C curve ──
+        {
+            ctx.strokeStyle = col.acc;
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            const steps = Math.max(60, Math.round(plotW));
+            let started = false;
+            for (let i = 0; i <= steps; i++) {
+                const t = (i / steps) * T_MAX;
+                if (t > simT) break;
+                const x = ox + (t / T_MAX) * plotW;
+                const y = oy - (Vc(t) / state.emf) * plotH;
+                if (!started) { ctx.moveTo(x, y); started = true; }
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        // ── I(t) curve (faint, scaled so I₀ maps to top) ──
+        if (show.current) {
+            const I0 = state.emf / state.R;
+            ctx.strokeStyle = col.soft + '70';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath();
+            const steps = Math.max(60, Math.round(plotW));
+            let started = false;
+            for (let i = 0; i <= steps; i++) {
+                const t = (i / steps) * T_MAX;
+                if (t > simT) break;
+                const x = ox + (t / T_MAX) * plotW;
+                const y = oy - (Ic(t) / I0) * plotH;
+                if (!started) { ctx.moveTo(x, y); started = true; }
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            // I(t) label
+            if (simT < T_MAX * 0.3) {
+                ctx.fillStyle = col.soft + '90';
+                ctx.font = 'italic 13px "Source Serif 4", serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                const labelX = ox + (simT / T_MAX) * plotW + 6;
+                const labelY = oy - (Ic(simT) / I0) * plotH;
+                if (labelX < ox + plotW - 30) ctx.fillText('I(t)', labelX, labelY);
+            }
+        }
+
+        // ── Moving dot on V_C curve ──
+        {
+            const x = ox + (simT / T_MAX) * plotW;
+            const y = oy - (Vc(simT) / state.emf) * plotH;
+            ctx.fillStyle   = col.acc;
+            ctx.strokeStyle = col.paper;
+            ctx.lineWidth   = 2;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // ── Axes ──
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([]);
+        // Y axis
+        ctx.beginPath(); ctx.moveTo(ox, PAD_T - 4); ctx.lineTo(ox, oy); ctx.stroke();
+        // X axis
+        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + plotW + 4, oy); ctx.stroke();
+
+        // Y axis ticks & labels
+        ctx.fillStyle = col.faint;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        [0, 0.25, 0.5, 0.75, 1.0].forEach(frac => {
+            const yy = oy - frac * plotH;
+            const vv = frac * state.emf;
+            ctx.beginPath(); ctx.moveTo(ox - 4, yy); ctx.lineTo(ox, yy); ctx.stroke();
+            ctx.fillText(vv.toFixed(1) + 'V', ox - 7, yy);
+        });
+
+        // X axis label
+        ctx.fillStyle = col.faint;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(document.documentElement.getAttribute('data-lang') === 'cs'
+            ? 'čas (s)  →  0 až 6τ' : 'time (s)  →  0 to 6τ', ox + plotW / 2, oy + 18);
+
+        // Y axis label
+        ctx.save();
+        ctx.translate(16, oy - plotH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(document.documentElement.getAttribute('data-lang') === 'cs'
+            ? 'V_C (volty)' : 'V_C (volts)', 0, 0);
+        ctx.restore();
+
+        // ── Readouts ──
+        const tauS  = tau();
+        const vcNow = Vc(simT);
+        const iNow  = Ic(simT);
+        const qNow  = state.C * 1e-6 * vcNow;  // coulombs
+        const pct   = (vcNow / state.emf * 100).toFixed(1);
+
+        function fmtTau(t) {
+            return t >= 0.1 ? t.toFixed(3) + ' s' : (t * 1000).toFixed(1) + ' ms';
+        }
+        function fmtI(a) {
+            const mA = a * 1000;
+            return mA >= 0.01 ? mA.toFixed(3) + ' mA' : (a * 1e6).toFixed(1) + ' μA';
+        }
+        function fmtQ(c) {
+            const uC = c * 1e6;
+            const mC = c * 1000;
+            if (uC < 1000) return uC.toFixed(2) + ' μC';
+            return mC.toFixed(3) + ' mC';
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-tau'))  $('r-tau').textContent  = fmtTau(tauS);
+        if ($('r-vc'))   $('r-vc').textContent   = vcNow.toFixed(3) + ' V';
+        if ($('r-I'))    $('r-I').textContent    = fmtI(iNow);
+        if ($('r-Q'))    $('r-Q').textContent    = fmtQ(qNow);
+        if ($('r-pct'))  $('r-pct').textContent  = pct + ' %';
+    }
+
+    /* ── RAF loop ───────────────────────────────────────────────── */
+    let lastSecond = 0, frames = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        draw(ts);
+        frames++;
+        if (ts - lastSecond >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
+            frames = 0; lastSecond = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

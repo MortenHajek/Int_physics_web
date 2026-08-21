@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 26.44 · Heat from a Resistor — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="circuits" data-screen-label="Ex 26.44 Heat from a Resistor">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Currents &amp; Circuits</span><span lang="cs">Díl II · Proudy a obvody</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 26 · Ex. 44</span><span lang="cs">Kap. 26 · Úl. 44</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 3 · Currents &amp; Circuits — Chapter 26 · Exercise 44</span><span lang="cs">3. téma · Proudy a obvody — Kapitola 26 · Úloha 44</span></div>
+        <h1><span lang="en">Heat from a Resistor</span><span lang="cs">Teplo z rezistoru</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>44</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A resistor of <span class="given" data-tex="R = 20\ \Omega"></span>
+                    is connected across a battery. The heat dissipated in the resistor
+                    grows linearly with time: after
+                    <span class="given" data-tex="t = 4.0\ \mathrm{s}"></span>
+                    it has reached
+                    <span class="given" data-tex="Q = 2.50\ \mathrm{mJ}"></span>
+                    (the printed problem gives this as a graph).
+                </p>
+                <p lang="cs">
+                    Rezistor o odporu <span class="given" data-tex="R = 20\ \Omega"></span>
+                    je připojen k baterii. Teplo uvolněné v rezistoru
+                    roste lineárně s časem: po
+                    <span class="given" data-tex="t = 4{,}0\ \mathrm{s}"></span>
+                    dosáhne hodnoty
+                    <span class="given" data-tex="Q = 2{,}50\ \mathrm{mJ}"></span>
+                    (v tištěném zadání je toto dáno grafem).
+                </p>
+                <p lang="en">
+                    What is the terminal voltage of the battery?
+                </p>
+                <p lang="cs">
+                    Jaké je svorkové napětí baterie?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Match the graph</span><span lang="cs">Trefte graf</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="P = \dfrac{U^2}{R}"></div>
+                <div class="sim-hint"><span lang="en">tune U until your line hits the target</span><span lang="cs">nastavujte U, dokud vaše přímka nezasáhne cíl</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Terminal voltage U</span><span lang="cs">Svorkové napětí U</span></span>
+                            <span class="sim-control-val" id="p-u-val">0.200 V</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-u" min="0.02" max="0.30" step="0.002" value="0.200">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Resistance R</span><span lang="cs">Odpor R</span></span>
+                            <span class="sim-control-val" id="p-r-val">20.0 Ω</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="5" max="50" step="0.5" value="20">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">At current U, R</span><span lang="cs">Při aktuálním U, R</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="P = U^2/R"></span>
+                        <span class="readout-val" id="r-p">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I = U/R"></span>
+                        <span class="readout-val" id="r-i">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="Q(4.0\,\mathrm{s}) = P \cdot t"></span>
+                        <span class="readout-val" id="r-q4">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · 2.50 mJ @ 4.0 s</span><span lang="cs">Cíl · 2,50 mJ @ 4,0 s</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"
+                              style="font-family:var(--f-mono);font-style:normal;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);"><span lang="en">match</span><span lang="cs">shoda</span></span>
+                        <span class="readout-val" id="r-match">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-target">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">target line</span><span lang="cs">cílová přímka</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-anim">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">loop animation</span><span lang="cs">smyčková animace</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">A straight <span data-tex="Q(t)"></span> line means constant power:
+                    <span data-tex="P = \dfrac{Q}{t} = \dfrac{2.50\cdot 10^{-3}\ \mathrm{J}}{4.0\ \mathrm{s}} = 6.25\cdot 10^{-4}\ \mathrm{W}"></span>.</span>
+                    <span lang="cs">Přímka <span data-tex="Q(t)"></span> znamená konstantní výkon:
+                    <span data-tex="P = \dfrac{Q}{t} = \dfrac{2{,}50\cdot 10^{-3}\ \mathrm{J}}{4{,}0\ \mathrm{s}} = 6{,}25\cdot 10^{-4}\ \mathrm{W}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The resistor dissipates <span data-tex="P = U^2/R"></span>, so
+                    <span data-tex="U = \sqrt{PR} = \sqrt{6.25\cdot 10^{-4}\cdot 20}"></span>.</span>
+                    <span lang="cs">Rezistor přeměňuje výkon <span data-tex="P = U^2/R"></span>, tedy
+                    <span data-tex="U = \sqrt{PR} = \sqrt{6{,}25\cdot 10^{-4}\cdot 20}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><span data-tex="U = \sqrt{1.25\cdot 10^{-2}} = 0.112\ \mathrm{V}"></span>.</span>
+                    <span lang="cs"><span data-tex="U = \sqrt{1{,}25\cdot 10^{-2}} = 0{,}112\ \mathrm{V}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="U \approx 0.112\ \mathrm{V}\ (\approx 112\ \mathrm{mV})"></span><span lang="cs" data-tex="U \approx 0{,}112\ \mathrm{V}\ (\approx 112\ \mathrm{mV})"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/circuits.html"><span lang="en">← Topic: Currents &amp; Circuits</span><span lang="cs">← Téma: Proudy a obvody</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 26 · Ex. 44</span><span lang="cs">Kap. 26 · Úl. 44</span></span>
+        <span><span lang="en">Vol. II · Currents &amp; Circuits</span><span lang="cs">Díl II · Proudy a obvody</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#a25a28',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    /* exercise target: Q = 2.50 mJ after t = 4.0 s */
+    const T_MAX   = 4.0;      /* s   — time axis        */
+    const Q_MAX   = 4.0;      /* mJ  — heat axis        */
+    const Q_TGT   = 2.50;     /* mJ  — target heat      */
+    const LOOP_MS = 5000;     /* one sweep + hold       */
+
+    const DEFAULTS = { u: 0.200, r: 20 };   /* deliberately off-target */
+    let state = { ...DEFAULTS };
+    const prm  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const show = { target: true, anim: !prm };
+    if (prm) document.getElementById('tgl-anim')?.querySelector('.toggle-box')?.classList.remove('on');
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const fmtU = v => v.toFixed(3) + ' V';
+    const fmtR = v => v.toFixed(1) + ' Ω';
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    bindSlider('p-u', 'u', fmtU);
+    bindSlider('p-r', 'r', fmtR);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-u', 'u', fmtU], ['p-r', 'r', fmtR]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-target', 'target');
+    wireToggle('tgl-anim',   'anim');
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function line(x1, y1, x2, y2) {
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+
+    function resistorV(x, y0, y1, amp) {
+        const n = 6, seg = (y1 - y0) / n;
+        ctx.beginPath(); ctx.moveTo(x, y0);
+        for (let i = 0; i < n; i++) {
+            const dx = (i % 2 === 0 ? 1 : -1) * amp;
+            ctx.lineTo(x + dx, y0 + seg * (i + 0.5));
+        }
+        ctx.lineTo(x, y1); ctx.stroke();
+    }
+
+    /* ── Circuit sketch (left third) ────────────────────────────── */
+    function drawCircuit() {
+        const regionW = W * 0.32;
+        const bw  = Math.max(64, Math.min(136, regionW - 84));
+        const bh  = Math.min(180, H * 0.40);
+        const cxs = Math.max(72, regionW * 0.56);
+        const cys = H * 0.44;
+        const x0 = cxs - bw / 2, x1 = cxs + bw / 2;
+        const y0 = cys - bh / 2, y1 = cys + bh / 2;
+
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+        line(x0, y0, x1, y0);                       /* top wire    */
+        line(x0, y1, x1, y1);                       /* bottom wire */
+
+        /* left side — battery */
+        line(x0, y0, x0, cys - 6);
+        line(x0, cys + 7, x0, y1);
+        ctx.lineWidth = 2;
+        line(x0 - 11, cys - 6, x0 + 11, cys - 6);   /* long plate  */
+        ctx.lineWidth = 3.4;
+        line(x0 - 5, cys + 7, x0 + 5, cys + 7);     /* short plate */
+
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('+', x0 + 16, cys - 9);
+        ctx.fillText('−', x0 + 16, cys + 10);
+
+        ctx.fillStyle = col.acc;
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('U', x0 - 24, cys + 1);
+
+        /* right side — resistor */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        line(x1, y0, x1, cys - 22);
+        resistorV(x1, cys - 22, cys + 22, 6);
+        line(x1, cys + 22, x1, y1);
+
+        ctx.fillStyle = col.ink;
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('R', x1 + 14, cys + 1);
+
+        /* current arrow on top wire */
+        ctx.fillStyle = col.soft;
+        ctx.beginPath();
+        ctx.moveTo(cxs + 10, y0);
+        ctx.lineTo(cxs + 1, y0 - 4);
+        ctx.lineTo(cxs + 1, y0 + 4);
+        ctx.closePath(); ctx.fill();
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText('I', cxs - 8, y0 - 6);
+    }
+
+    /* ── Q(t) plot (right two-thirds) ───────────────────────────── */
+    function drawPlot(ts, q4, matched) {
+        const px0 = W * 0.32 + 46;
+        const px1 = W - 26;
+        const py0 = 34;
+        const py1 = H - 48;
+        const xOf = t => px0 + (t / T_MAX) * (px1 - px0);
+        const yOf = q => py1 - (q / Q_MAX) * (py1 - py0);
+
+        /* axes */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2; ctx.lineCap = 'butt';
+        line(px0, py0, px0, py1);
+        line(px0, py1, px1, py1);
+
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        for (let t = 0; t <= T_MAX; t++) {
+            const x = xOf(t);
+            ctx.strokeStyle = col.soft;
+            line(x, py1, x, py1 + 4);
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(t.toFixed(0), x, py1 + 8);
+        }
+        for (let q = 0; q <= Q_MAX; q++) {
+            const y = yOf(q);
+            line(px0 - 4, y, px0, y);
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            ctx.fillText(q.toFixed(0), px0 - 8, y);
+        }
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('t (s)', (px0 + px1) / 2, py1 + 24);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('Q (mJ)', px0 - 4, py0 - 8);
+
+        /* target line — dashed soft ink, square end-marker */
+        if (show.target) {
+            const tc = matched ? col.acc : col.soft;
+            ctx.strokeStyle = tc; ctx.lineWidth = 1.6;
+            ctx.setLineDash([6, 5]);
+            line(xOf(0), yOf(0), xOf(T_MAX), yOf(Q_TGT));
+            ctx.setLineDash([]);
+            ctx.fillStyle = tc;
+            ctx.fillRect(xOf(T_MAX) - 3.5, yOf(Q_TGT) - 3.5, 7, 7);
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText((matched ? '✓ ' : '') + 'target: 2.50 mJ @ 4.0 s',
+                         xOf(T_MAX) - 2, yOf(Q_TGT) - 10);
+        }
+
+        /* live accent line — Q(t) = (U²/R)·t, swept head */
+        let tEnd = T_MAX;
+        if (show.anim) {
+            const cyc   = (ts % LOOP_MS) / LOOP_MS;
+            const sweep = Math.min(cyc / 0.86, 1);    /* sweep, then hold */
+            tEnd = sweep * T_MAX;
+        }
+        const slope = q4 / T_MAX;                     /* mJ per s */
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(px0, py0 - 2, px1 - px0 + 2, py1 - py0 + 4);
+        ctx.clip();
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+        line(xOf(0), yOf(0), xOf(tEnd), yOf(slope * tEnd));
+        if (show.anim && tEnd < T_MAX) {
+            ctx.beginPath();
+            ctx.arc(xOf(tEnd), yOf(slope * tEnd), 4, 0, Math.PI * 2);
+            ctx.fillStyle = col.acc; ctx.fill();
+            ctx.strokeStyle = col.paper; ctx.lineWidth = 1.5; ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+
+        const pW  = state.u * state.u / state.r;      /* W  */
+        const iA  = state.u / state.r;                /* A  */
+        const q4  = pW * T_MAX * 1000;                /* mJ */
+        const matched = Math.abs(q4 - Q_TGT) < 0.05;
+
+        drawCircuit();
+        drawPlot(ts, q4, matched);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-p'))     $('r-p').textContent     = (pW * 1000).toPrecision(3) + ' mW';
+        if ($('r-i'))     $('r-i').textContent     = (iA * 1000).toPrecision(3) + ' mA';
+        if ($('r-q4'))    $('r-q4').textContent    = q4.toFixed(2) + ' mJ';
+        if ($('r-match')) $('r-match').textContent = matched ? '✓ matched' : '—';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

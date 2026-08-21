@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 25.49 · A Capacitor with Two Fillings — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-2" data-screen-label="Ex 25.49 Two Dielectrics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 25 · Ex. 49</span><span lang="cs">Kap. 25 · Úl. 49</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 2 · Electrostatics II — Chapter 25 · Exercise 49</span><span lang="cs">2. téma · Elektrostatika II — Kapitola 25 · Úloha 49</span></div>
+        <h1><span lang="en">A Capacitor with Two Fillings</span><span lang="cs">Kondenzátor se dvěma dielektriky</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>49</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A parallel-plate capacitor with plate area
+                    <span class="given" data-tex="S = 7{,}89\ \mathrm{cm^2}"></span> and plate
+                    separation <span class="given" data-tex="d = 4{,}62\ \mathrm{mm}"></span> is
+                    filled with two dielectric layers of equal thickness, stacked as in the figure.
+                    Their relative permittivities are
+                    <span class="given" data-tex="\varepsilon_{r1} = 11{,}0"></span> and
+                    <span class="given" data-tex="\varepsilon_{r2} = 12{,}0"></span>.
+                </p>
+                <p lang="cs">
+                    Deskový kondenzátor s plochou desky
+                    <span class="given" data-tex="S = 7{,}89\ \mathrm{cm^2}"></span> a vzdáleností
+                    desek <span class="given" data-tex="d = 4{,}62\ \mathrm{mm}"></span> je vyplněn
+                    dvěma dielektrickými vrstvami stejné tloušťky, uloženými na sebe jako na obrázku.
+                    Jejich relativní permitivity jsou
+                    <span class="given" data-tex="\varepsilon_{r1} = 11{,}0"></span> a
+                    <span class="given" data-tex="\varepsilon_{r2} = 12{,}0"></span>.
+                </p>
+                <p lang="en">
+                    What is the capacitance?
+                </p>
+                <p lang="cs">
+                    Jaká je kapacita?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Two layers in series</span><span lang="cs">Dvě vrstvy sériově</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="C = \dfrac{2\varepsilon_0 S}{d}\cdot\dfrac{\varepsilon_{r1}\varepsilon_{r2}}{\varepsilon_{r1}+\varepsilon_{r2}}"></div>
+                <div class="sim-hint"><span lang="en">each layer is a capacitor · the stack is a series pair</span><span lang="cs">každá vrstva je kondenzátor · sada je sériová dvojice</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Permittivity εr1 (lower)</span><span lang="cs">Permitivita εr1 (spodní)</span></span>
+                            <span class="sim-control-val" id="p-e1-val">11.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-e1" min="1" max="20" step="0.1" value="11">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Permittivity εr2 (upper)</span><span lang="cs">Permitivita εr2 (horní)</span></span>
+                            <span class="sim-control-val" id="p-e2-val">12.0</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-e2" min="1" max="20" step="0.1" value="12">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Separation d</span><span lang="cs">Vzdálenost d</span></span>
+                            <span class="sim-control-val" id="p-d-val">4.62 mm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="1" max="10" step="0.02" value="4.62">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="C_1\ \text{(lower layer)}"></span><span lang="cs" data-tex="C_1\ \text{(spodní vrstva)}"></span></span>
+                        <span class="readout-val" id="r-ca">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="C_2\ \text{(upper layer)}"></span><span lang="cs" data-tex="C_2\ \text{(horní vrstva)}"></span></span>
+                        <span class="readout-val" id="r-cb">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="C\ \text{(series)}"></span><span lang="cs" data-tex="C\ \text{(sériově)}"></span></span>
+                        <span class="readout-val" id="r-c">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="C_{\text{vacuum}}"></span>
+                        <span class="readout-val" id="r-c0">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The boundary between the dielectrics is an equipotential plane, so the stack
+                    behaves as <strong>two capacitors in series</strong>, each with thickness
+                    <span data-tex="d/2"></span>:
+                    <span data-tex="C_i = \dfrac{\varepsilon_0\,\varepsilon_{ri}\,S}{d/2}"></span>.</span>
+                    <span lang="cs">Rozhraní mezi dielektriky je ekvipotenciální rovina, takže sada
+                    se chová jako <strong>dva kondenzátory sériově</strong>, každý o tloušťce
+                    <span data-tex="d/2"></span>:
+                    <span data-tex="C_i = \dfrac{\varepsilon_0\,\varepsilon_{ri}\,S}{d/2}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Combining in series:
+                    <span data-tex="C = \dfrac{C_1 C_2}{C_1 + C_2} = \dfrac{2\varepsilon_0 S}{d}\cdot \dfrac{\varepsilon_{r1}\varepsilon_{r2}}{\varepsilon_{r1}+\varepsilon_{r2}}"></span>.</span>
+                    <span lang="cs">Sériovou kombinací:
+                    <span data-tex="C = \dfrac{C_1 C_2}{C_1 + C_2} = \dfrac{2\varepsilon_0 S}{d}\cdot \dfrac{\varepsilon_{r1}\varepsilon_{r2}}{\varepsilon_{r1}+\varepsilon_{r2}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Numbers:
+                    <span data-tex="\dfrac{2\cdot 8{,}854\cdot 10^{-12}\cdot 7{,}89\cdot 10^{-4}}{4{,}62\cdot 10^{-3}}\cdot\dfrac{11\cdot 12}{23} = 3{,}02\ \mathrm{pF}\cdot 5{,}74 = 17{,}4\ \mathrm{pF}"></span>.</span>
+                    <span lang="cs">Dosazením:
+                    <span data-tex="\dfrac{2\cdot 8{,}854\cdot 10^{-12}\cdot 7{,}89\cdot 10^{-4}}{4{,}62\cdot 10^{-3}}\cdot\dfrac{11\cdot 12}{23} = 3{,}02\ \mathrm{pF}\cdot 5{,}74 = 17{,}4\ \mathrm{pF}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="C \approx 17\ \mathrm{pF}"></span><span lang="cs" data-tex="C \approx 17\ \mathrm{pF}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-2.html"><span lang="en">← Topic: Electrostatics II</span><span lang="cs">← Téma: Elektrostatika II</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 25 · Ex. 49</span><span lang="cs">Kap. 25 · Úl. 49</span></span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const E0 = 8.854e-12, S = 7.89e-4;
+    const DEFAULTS = { e1: 11.0, e2: 12.0, d: 4.62 };
+    let state = { ...DEFAULTS };
+
+    const SLIDERS = [
+        ['p-e1', 'e1', v => v.toFixed(1)],
+        ['p-e2', 'e2', v => v.toFixed(1)],
+        ['p-d',  'd',  v => v.toFixed(2) + ' mm'],
+    ];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            document.getElementById(id).value = state[key];
+            document.getElementById(id + '-val').textContent = fmt(state[key]);
+        });
+    });
+
+    function physics() {
+        const d = state.d * 1e-3;
+        const ca = E0 * state.e1 * S / (d / 2);
+        const cb = E0 * state.e2 * S / (d / 2);
+        return { ca, cb, c: ca * cb / (ca + cb), c0: E0 * S / d };
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        const cw = Math.min(W * 0.56, 380);
+        const cx = W * 0.5 - cw / 2;
+        const gap = Math.min(H * 0.44, 40 + state.d * 14);
+        const cy = H * 0.46;
+        const plateH = 10;
+
+        /* wires */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(W * 0.5, cy - gap / 2 - plateH); ctx.lineTo(W * 0.5, 30); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(W * 0.5, cy + gap / 2 + plateH); ctx.lineTo(W * 0.5, H - 30); ctx.stroke();
+
+        /* layers */
+        const layH = gap / 2;
+        /* lower layer εr1 */
+        ctx.fillStyle = 'rgba(122,40,104,' + (0.06 + 0.028 * state.e1) / 1.6 + ')';
+        ctx.fillRect(cx, cy, cw, layH);
+        /* upper layer εr2 */
+        ctx.fillStyle = 'rgba(61,46,138,' + (0.06 + 0.028 * state.e2) / 1.6 + ')';
+        ctx.fillRect(cx, cy - layH, cw, layH);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.strokeRect(cx, cy - layH, cw, gap);
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + cw, cy); ctx.stroke();
+
+        /* plates */
+        ctx.fillStyle = col.ink;
+        ctx.fillRect(cx - 8, cy - gap / 2 - plateH, cw + 16, plateH);
+        ctx.fillRect(cx - 8, cy + gap / 2, cw + 16, plateH);
+
+        /* labels */
+        ctx.fillStyle = col.soft;
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('εr2 = ' + state.e2.toFixed(1), W * 0.5, cy - layH / 2);
+        ctx.fillText('εr1 = ' + state.e1.toFixed(1), W * 0.5, cy + layH / 2);
+
+        /* d dimension arrow */
+        const dx = cx + cw + 26;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(dx, cy - gap / 2); ctx.lineTo(dx, cy + gap / 2); ctx.stroke();
+        [[cy - gap / 2, 1], [cy + gap / 2, -1]].forEach(([y, s]) => {
+            ctx.beginPath();
+            ctx.moveTo(dx - 3.5, y + 7 * s); ctx.lineTo(dx, y); ctx.lineTo(dx + 3.5, y + 7 * s);
+            ctx.stroke();
+        });
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText('d', dx + 8, cy);
+
+        /* series-equivalent sketch on the left */
+        const sx = cx - 66;
+        if (sx > 30) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(sx, cy - gap / 2 - 16); ctx.lineTo(sx, cy - 14); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(sx, cy - 6); ctx.lineTo(sx, cy + 14); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(sx, cy + 22); ctx.lineTo(sx, cy + gap / 2 + 16); ctx.stroke();
+            [[cy - 14, cy - 6], [cy + 14, cy + 22]].forEach(seg => {
+                ctx.beginPath(); ctx.moveTo(sx - 8, seg[0]); ctx.lineTo(sx + 8, seg[0]); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(sx - 8, seg[1]); ctx.lineTo(sx + 8, seg[1]); ctx.stroke();
+            });
+            ctx.fillStyle = col.faint;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            ctx.fillText('C₂', sx - 12, cy - 10);
+            ctx.fillText('C₁', sx - 12, cy + 18);
+        }
+
+        /* result */
+        ctx.fillStyle = col.acc;
+        ctx.font = '13px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('C = ' + (f.c * 1e12).toFixed(1) + ' pF', W * 0.5, H - 26);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-ca').textContent = (f.ca * 1e12).toFixed(1) + ' pF';
+        $('r-cb').textContent = (f.cb * 1e12).toFixed(1) + ' pF';
+        $('r-c').textContent  = (f.c  * 1e12).toFixed(2) + ' pF';
+        $('r-c0').textContent = (f.c0 * 1e12).toFixed(2) + ' pF';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 24.15 · Potential of Four Charges — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-2" data-screen-label="Ex 24.15 Potential of Four Charges">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 24 · Ex. 15</span><span lang="cs">Kap. 24 · Úl. 15</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 2 · Electrostatics II — Chapter 24 · Exercise 15</span><span lang="cs">2. téma · Elektrostatika II — Kapitola 24 · Úloha 15</span></div>
+        <h1><span lang="en">Potential of Four Charges</span><span lang="cs">Potenciál čtyř nábojů</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>15</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    Four point charges surround point <span data-tex="P"></span>:
+                    two charges <span data-tex="+Q"></span> each at distance
+                    <span data-tex="d"></span>, one charge <span data-tex="-Q"></span>
+                    at distance <span data-tex="d"></span>, and a second charge
+                    <span data-tex="-Q"></span> at distance <span data-tex="2d"></span>.
+                    Given <span class="given" data-tex="Q = 5.00\ \mathrm{fC}"></span> and
+                    <span class="given" data-tex="d = 4.00\ \mathrm{cm}"></span>.
+                </p>
+                <p lang="cs">
+                    Čtyři bodové náboje obklopují bod <span data-tex="P"></span>:
+                    dva náboje <span data-tex="+Q"></span>, každý ve vzdálenosti
+                    <span data-tex="d"></span>, jeden náboj <span data-tex="-Q"></span>
+                    ve vzdálenosti <span data-tex="d"></span> a druhý náboj
+                    <span data-tex="-Q"></span> ve vzdálenosti <span data-tex="2d"></span>.
+                    Je dáno <span class="given" data-tex="Q = 5{,}00\ \mathrm{fC}"></span> a
+                    <span class="given" data-tex="d = 4{,}00\ \mathrm{cm}"></span>.
+                </p>
+                <p lang="en">
+                    Taking <span data-tex="\varphi = 0"></span> at infinity, what is
+                    the electric potential at <span data-tex="P"></span>?
+                </p>
+                <p lang="cs">
+                    Uvažujte <span data-tex="\varphi = 0"></span> v nekonečnu. Jaký je
+                    elektrický potenciál v bodě <span data-tex="P"></span>?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Potential sandbox</span><span lang="cs">Sandbox: potenciál</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\varphi = \sum_i \dfrac{kQ_i}{r_i}"></div>
+                <div class="sim-hint"><span lang="en">potential adds as a scalar · no vectors here</span><span lang="cs">potenciál se sčítá skalárně · žádné vektory</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge Q</span><span lang="cs">Náboj Q</span></span>
+                            <span class="sim-control-val" id="p-q-val">5.00 fC</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q" min="1" max="10" step="0.05" value="5.00">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Distance d</span><span lang="cs">Vzdálenost d</span></span>
+                            <span class="sim-control-val" id="p-d-val">4.00 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="1" max="10" step="0.1" value="4.00">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Contributions at P</span><span lang="cs">Příspěvky v bodě P</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="\varphi_1\ (+Q\ \mathrm{at}\ d)"></span><span lang="cs" data-tex="\varphi_1\ (+Q\ \mathrm{v}\ d)"></span></span>
+                        <span class="readout-val" id="r-p1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="\varphi_2\ (+Q\ \mathrm{at}\ d)"></span><span lang="cs" data-tex="\varphi_2\ (+Q\ \mathrm{v}\ d)"></span></span>
+                        <span class="readout-val" id="r-p2">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="\varphi_3\ (-Q\ \mathrm{at}\ d)"></span><span lang="cs" data-tex="\varphi_3\ (-Q\ \mathrm{v}\ d)"></span></span>
+                        <span class="readout-val" id="r-p3">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="\varphi_4\ (-Q\ \mathrm{at}\ 2d)"></span><span lang="cs" data-tex="\varphi_4\ (-Q\ \mathrm{v}\ 2d)"></span></span>
+                        <span class="readout-val" id="r-p4">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Net potential</span><span lang="cs">Výsledný potenciál</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varphi = \textstyle\sum \varphi_i"></span>
+                        <span class="readout-val" id="r-tot">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-bars">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">contribution bars</span><span lang="cs">sloupce příspěvků</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-dist">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">distance guides</span><span lang="cs">vodítka vzdálenosti</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Potential is a <strong>scalar sum</strong> — signs matter, directions don't:
+                    <span data-tex="\varphi = \textstyle\sum_i kQ_i/r_i"></span>.</span>
+                    <span lang="cs">Potenciál je <strong>skalární součet</strong> — záleží na znaménkách, ne na směru:
+                    <span data-tex="\varphi = \textstyle\sum_i kQ_i/r_i"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">The two <span data-tex="+Q"></span> at distance <span data-tex="d"></span>
+                    and the <span data-tex="-Q"></span> at distance <span data-tex="d"></span>:
+                    their contributions
+                    <span data-tex="kQ/d + kQ/d - kQ/d = +kQ/d"></span>.</span>
+                    <span lang="cs">Oba náboje <span data-tex="+Q"></span> ve vzdálenosti <span data-tex="d"></span>
+                    a náboj <span data-tex="-Q"></span> ve vzdálenosti <span data-tex="d"></span>:
+                    jejich příspěvky
+                    <span data-tex="kQ/d + kQ/d - kQ/d = +kQ/d"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">The far <span data-tex="-Q"></span> contributes
+                    <span data-tex="-kQ/(2d)"></span>, so
+                    <span data-tex="\varphi = kQ/d - kQ/(2d) = kQ/(2d)"></span>.</span>
+                    <span lang="cs">Vzdálenější náboj <span data-tex="-Q"></span> přispívá
+                    <span data-tex="-kQ/(2d)"></span>, takže
+                    <span data-tex="\varphi = kQ/d - kQ/(2d) = kQ/(2d)"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en">Numbers:
+                    <span data-tex="\varphi = 8.99\cdot 10^{9} \cdot 5.00\cdot 10^{-15} / (2 \cdot 0.0400) = 5.62\cdot 10^{-4}\ \mathrm{V}"></span>.</span>
+                    <span lang="cs">Dosazením:
+                    <span data-tex="\varphi = 8{,}99\cdot 10^{9} \cdot 5{,}00\cdot 10^{-15} / (2 \cdot 0{,}0400) = 5{,}62\cdot 10^{-4}\ \mathrm{V}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\varphi \approx +0.562\ \mathrm{mV}"></span><span lang="cs" data-tex="\varphi \approx +0{,}562\ \mathrm{mV}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-2.html"><span lang="en">← Topic: Electrostatics II</span><span lang="cs">← Téma: Elektrostatika II</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 24 · Ex. 15</span><span lang="cs">Kap. 24 · Úl. 15</span></span>
+        <span><span lang="en">Vol. II · Electrostatics II</span><span lang="cs">Díl II · Elektrostatika II</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const K = 8.99e9;
+    /* q in fC, d in cm */
+    const DEFAULTS = { q: 5.00, d: 4.00 };
+    let state = { ...DEFAULTS };
+    const show = { bars: true, dist: true };
+
+    /* reference contribution at the printed values, in mV — bar scale */
+    const PHI_REF_MV = K * 5.00e-15 / 0.0400 * 1e3;
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtQ = v => v.toFixed(2) + ' fC';
+    const fmtD = v => v.toFixed(2) + ' cm';
+    bindSlider('p-q', 'q', fmtQ);
+    bindSlider('p-d', 'd', fmtD);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-q', 'q', fmtQ], ['p-d', 'd', fmtD]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-bars', 'bars');
+    wireToggle('tgl-dist', 'dist');
+
+    /* ── Physics — scalar potentials at P, in volts ─────────────── */
+    function contributions() {
+        const Q = state.q * 1e-15;
+        const d = state.d * 1e-2;
+        const p1 =  K * Q / d;          /* +Q at d       */
+        const p2 =  K * Q / d;          /* +Q at d       */
+        const p3 = -K * Q / d;          /* −Q at d       */
+        const p4 = -K * Q / (2 * d);    /* −Q at 2d      */
+        return { p1, p2, p3, p4, tot: p1 + p2 + p3 + p4 };
+    }
+
+    const fmtMv = v => (v >= 0 ? '+' : '') + v.toFixed(3) + ' mV';
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function charge(x, y, positive, label, labelDx, labelDy) {
+        ctx.beginPath(); ctx.arc(x, y, 13, 0, Math.PI * 2);
+        if (positive) { ctx.fillStyle = col.acc; ctx.fill(); }
+        else {
+            ctx.fillStyle = col.paper; ctx.fill();
+            ctx.lineWidth = 1.5; ctx.strokeStyle = col.ink; ctx.stroke();
+        }
+        ctx.strokeStyle = positive ? col.paper : col.ink;
+        ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.stroke();
+        if (positive) {
+            ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); ctx.stroke();
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(label, x + labelDx, y + labelDy);
+    }
+
+    function distLabel(text, x, y) {
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y);
+    }
+
+    /* signed contribution bar beside a charge: up = +, down = − */
+    function contribBar(x, y, phiMv) {
+        const L = Math.min(64, Math.max(4, 30 * Math.abs(phiMv) / PHI_REF_MV));
+        const up = phiMv >= 0;
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.lineCap = 'butt';
+        ctx.beginPath(); ctx.moveTo(x - 5, y + 0.5); ctx.lineTo(x + 5, y + 0.5); ctx.stroke();
+        ctx.fillStyle = up ? col.acc : col.ink;
+        if (up) ctx.fillRect(x - 2.5, y - L, 5, L);
+        else    ctx.fillRect(x - 2.5, y,     5, L);
+    }
+
+    /* waterfall ledger — stacks the four signed contributions */
+    function ledger(mv) {
+        const a = Math.abs(mv.p1);
+        const lx0 = Math.max(26, W * 0.10), lx1 = Math.min(W - 26, W * 0.90);
+        const lw = lx1 - lx0;
+        const yBase  = H - 30;
+        const rowTop = yBase - 42;
+        const sx = a > 1e-9 ? (lw * 0.86) / (2 * a) : 0;
+        const xZero = lx0 + lw * 0.05;
+
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('SCALAR LEDGER · φ = Σ kQᵢ/rᵢ', lx0, rowTop - 12);
+
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.lineCap = 'butt';
+        ctx.beginPath(); ctx.moveTo(lx0, yBase + 0.5); ctx.lineTo(lx1, yBase + 0.5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(xZero + 0.5, yBase - 4); ctx.lineTo(xZero + 0.5, yBase + 4); ctx.stroke();
+        ctx.textAlign = 'center';
+        ctx.fillText('0', xZero, yBase + 14);
+
+        const vals = [mv.p1, mv.p2, mv.p3, mv.p4];
+        const tags = ['φ₁', 'φ₂', 'φ₃', 'φ₄'];
+        let cum = 0;
+        for (let i = 0; i < 4; i++) {
+            const y  = rowTop + i * 9;
+            const xA = xZero + cum * sx;
+            cum += vals[i];
+            const xB = xZero + cum * sx;
+            ctx.strokeStyle = vals[i] >= 0 ? col.acc : col.ink;
+            ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(xA, y); ctx.lineTo(xB, y); ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = '8px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(tags[i], (xA + xB) / 2, y - 6);
+            const yNext = i < 3 ? rowTop + (i + 1) * 9 : yBase;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.setLineDash([2, 3]);
+            ctx.beginPath(); ctx.moveTo(xB + 0.5, y); ctx.lineTo(xB + 0.5, yNext); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        const xNet = xZero + mv.tot * sx;
+        ctx.fillStyle = col.acc;
+        ctx.beginPath();
+        ctx.moveTo(xNet, yBase - 1);
+        ctx.lineTo(xNet - 4, yBase - 8);
+        ctx.lineTo(xNet + 4, yBase - 8);
+        ctx.closePath(); ctx.fill();
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('φ = ' + fmtMv(mv.tot), xNet + 10, yBase - 3);
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const c  = contributions();
+        const mv = { p1: c.p1 * 1e3, p2: c.p2 * 1e3, p3: c.p3 * 1e3,
+                     p4: c.p4 * 1e3, tot: c.tot * 1e3 };
+
+        /* geometry — diagram above, ledger strip below */
+        const diagH = Math.max(H - 118, 160);
+        const minD  = Math.min(W, diagH);
+        const rpx   = minD * (0.15 + 0.013 * state.d);
+        const cx = W * 0.50, cy = 24 + diagH * 0.56;
+        const u45 = Math.SQRT1_2;
+        /* A: +Q at d (upper-left) · B1: −Q at d, B2: −Q at 2d (upper-right ray)
+           C: +Q at d (straight down) */
+        const A  = { x: cx - rpx * u45,     y: cy - rpx * u45 };
+        const B1 = { x: cx + rpx * u45,     y: cy - rpx * u45 };
+        const B2 = { x: cx + 2 * rpx * u45, y: cy - 2 * rpx * u45 };
+        const Cc = { x: cx,                 y: cy + rpx };
+
+        /* distance guides — dashed rays from P */
+        if (show.dist) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.lineCap = 'butt';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(A.x, A.y);   ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(B2.x, B2.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(Cc.x, Cc.y); ctx.stroke();
+            ctx.setLineDash([]);
+            distLabel('d',  cx - 0.55 * rpx * u45 - 11, cy - 0.55 * rpx * u45 - 3);
+            distLabel('d',  cx + 0.50 * rpx * u45 + 11, cy - 0.50 * rpx * u45 + 8);
+            distLabel('2d', cx + 1.50 * rpx * u45 + 13, cy - 1.50 * rpx * u45 + 9);
+            distLabel('d',  cx + 11,                     cy + 0.55 * rpx);
+        }
+
+        /* the scalar ledger — the lesson */
+        ledger(mv);
+
+        /* signed contribution bars */
+        if (show.bars) {
+            contribBar(A.x  - 22, A.y,  mv.p1);
+            contribBar(Cc.x + 24, Cc.y, mv.p2);
+            contribBar(B1.x + 22, B1.y, mv.p3);
+            contribBar(B2.x + 22, B2.y, mv.p4);
+        }
+
+        /* charges drawn on top */
+        charge(A.x,  A.y,  true,  '+Q', -27,   2);
+        charge(B1.x, B1.y, false, '−Q',  -4, -26);
+        charge(B2.x, B2.y, false, '−Q',  -4, -26);
+        charge(Cc.x, Cc.y, true,  '+Q', -27,   8);
+
+        /* point P */
+        ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('P', cx - 14, cy + 11);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        if ($('r-p1'))  $('r-p1').textContent  = fmtMv(mv.p1);
+        if ($('r-p2'))  $('r-p2').textContent  = fmtMv(mv.p2);
+        if ($('r-p3'))  $('r-p3').textContent  = fmtMv(mv.p3);
+        if ($('r-p4'))  $('r-p4').textContent  = fmtMv(mv.p4);
+        if ($('r-tot')) $('r-tot').textContent = fmtMv(mv.tot);
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 4.15 · The Peak of y — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="kinematics" data-screen-label="Ex 4.15 The Peak of y">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Particle Motion</span><span lang="cs">Díl I · Pohyb částice</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 4 · Ex. 15</span><span lang="cs">Kap. 4 · Úl. 15</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 2 · Particle Motion — Chapter 4 · Exercise 15</span><span lang="cs">2. téma · Pohyb částice — Kapitola 4 · Úloha 15</span></div>
+        <h1><span lang="en">The Peak of y</span><span lang="cs">Vrchol dráhy y</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>15</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A particle moves in the <em>xy</em> plane with constant acceleration
+                    <span class="given" data-tex="(4{,}0\,\vec i - 2{,}0\,\vec j)\ \mathrm{m\,s^{-2}}"></span>.
+                    At <span data-tex="t = 0"></span> it passes through the origin with velocity
+                    <span class="given" data-tex="\vec v_0 = (8{,}0\,\vec i + 12{,}0\,\vec j)\ \mathrm{m\,s^{-1}}"></span>.
+                </p>
+                <p lang="cs">
+                    Částice se pohybuje v rovině <em>xy</em> s konstantním zrychlením
+                    <span class="given" data-tex="(4{,}0\,\vec i - 2{,}0\,\vec j)\ \mathrm{m\,s^{-2}}"></span>.
+                    V čase <span data-tex="t = 0"></span> prochází počátkem s rychlostí
+                    <span class="given" data-tex="\vec v_0 = (8{,}0\,\vec i + 12{,}0\,\vec j)\ \mathrm{m\,s^{-1}}"></span>.
+                </p>
+                <p lang="en">
+                    What is the particle's velocity at the moment its
+                    <em>y</em>-coordinate reaches its largest value?
+                </p>
+                <p lang="cs">
+                    Jaká je rychlost částice v okamžiku, kdy její
+                    souřadnice <em>y</em> dosáhne své maximální hodnoty?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Trajectory sandbox</span><span lang="cs">Sandbox: trajektorie</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="v_y = v_{0y} + a_y t"></div>
+                <div class="sim-hint"><span lang="en">scrub t to the apex — watch v_y vanish</span><span lang="cs">posuňte t k vrcholu — sledujte, jak v_y mizí</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Time t</span><span lang="cs">Čas t</span></span>
+                            <span class="sim-control-val" id="p-t-val">6.0 s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-t" min="0" max="14" step="0.1" value="6.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Velocity v₀ₓ</span><span lang="cs">Rychlost v₀ₓ</span></span>
+                            <span class="sim-control-val" id="p-v0x-val">8.0 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-v0x" min="0" max="16" step="0.5" value="8.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Velocity v₀_y</span><span lang="cs">Rychlost v₀_y</span></span>
+                            <span class="sim-control-val" id="p-v0y-val">12.0 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-v0y" min="2" max="20" step="0.5" value="12.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Acceleration aₓ</span><span lang="cs">Zrychlení aₓ</span></span>
+                            <span class="sim-control-val" id="p-acx-val">4.0 m/s²</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-acx" min="-6" max="8" step="0.5" value="4.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Acceleration a_y</span><span lang="cs">Zrychlení a_y</span></span>
+                            <span class="sim-control-val" id="p-acy-val">−2.0 m/s²</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-acy" min="-6" max="-0.5" step="0.25" value="-2.0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">At the apex of y</span><span lang="cs">Ve vrcholu y</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="t^{*} = -v_{0y}/a_y"></span>
+                        <span class="readout-val" id="r-tpeak">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\vec v(t^{*})"></span>
+                        <span class="readout-val" id="r-vpeak">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="y_{\max}"></span>
+                        <span class="readout-val" id="r-ymax">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">At the scrubbed time</span><span lang="cs">V nastaveném čase</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_x,\ v_y"></span>
+                        <span class="readout-val" id="r-vnow">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-comp">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">velocity components</span><span lang="cs">složky rychlosti</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-apex">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">apex guide line</span><span lang="cs">vodicí čára vrcholu</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The <em>y</em>-coordinate is largest at the instant its rate of change vanishes:
+                    <span data-tex="v_y = v_{0y} + a_y t = 0"></span>.</span>
+                    <span lang="cs">Souřadnice <em>y</em> je největší v okamžiku, kdy se její rychlost změny vynuluje:
+                    <span data-tex="v_y = v_{0y} + a_y t = 0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Solve for the time:
+                    <span data-tex="t^{*} = -v_{0y}/a_y = -12{,}0/(-2{,}0) = 6{,}0\ \mathrm{s}"></span>.</span>
+                    <span lang="cs">Vyjádříme čas:
+                    <span data-tex="t^{*} = -v_{0y}/a_y = -12{,}0/(-2{,}0) = 6{,}0\ \mathrm{s}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">The <em>x</em>-component keeps accelerating the whole time:
+                    <span data-tex="v_x = v_{0x} + a_x t^{*} = 8{,}0 + 4{,}0\cdot 6{,}0 = 32\ \mathrm{m\,s^{-1}}"></span>,
+                    while by construction <span data-tex="v_y = 0"></span>.</span>
+                    <span lang="cs">Složka <em>x</em> se po celou dobu stále zrychluje:
+                    <span data-tex="v_x = v_{0x} + a_x t^{*} = 8{,}0 + 4{,}0\cdot 6{,}0 = 32\ \mathrm{m\,s^{-1}}"></span>,
+                    zatímco z konstrukce <span data-tex="v_y = 0"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value" data-tex="\vec v = (32\ \mathrm{m\,s^{-1}})\,\vec i \;+\; (0)\,\vec j"></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/particle-motion.html"><span lang="en">← Topic: Particle Motion</span><span lang="cs">← Téma: Pohyb částice</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 4 · Ex. 15</span><span lang="cs">Kap. 4 · Úl. 15</span></span>
+        <span><span lang="en">Vol. I · Particle Motion</span><span lang="cs">Díl I · Pohyb částice</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a3c1a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const DEFAULTS = { t: 6.0, v0x: 8.0, v0y: 12.0, acx: 4.0, acy: -2.0 };
+    let state = { ...DEFAULTS };
+    const show = { comp: true, apex: true };
+
+    const px = t => state.v0x * t + 0.5 * state.acx * t * t;
+    const py = t => state.v0y * t + 0.5 * state.acy * t * t;
+    const vx = t => state.v0x + state.acx * t;
+    const vy = t => state.v0y + state.acy * t;
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    const sgn  = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+    const fmtT = v => v.toFixed(1) + ' s';
+    const fmtV = v => sgn(v) + ' m/s';
+    const fmtA = v => sgn(v) + ' m/s²';
+    const SLIDERS = [['p-t', 't', fmtT], ['p-v0x', 'v0x', fmtV], ['p-v0y', 'v0y', fmtV],
+                     ['p-acx', 'acx', fmtA], ['p-acy', 'acy', fmtA]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-comp', 'comp');
+    wireToggle('tgl-apex', 'apex');
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, color, lw, dashed) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.28), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        if (dashed) ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const tStar = -state.v0y / state.acy;
+        const tEnd  = Math.max(tStar * 1.35, state.t, 4);
+
+        /* world bounds from sampled path */
+        let xMin = 0, xMax = 1, yMax = 1;
+        for (let i = 0; i <= 100; i++) {
+            const tt = i / 100 * tEnd;
+            xMin = Math.min(xMin, px(tt)); xMax = Math.max(xMax, px(tt));
+            yMax = Math.max(yMax, py(tt));
+        }
+        const mx0 = 56, mx1 = W - 30, my0 = 26, my1 = H - 50;
+        const SXW = (mx1 - mx0) / Math.max(xMax - xMin, 1e-6);
+        const SYW = (my1 - my0) / Math.max(yMax, 1e-6);
+        const SX = xx => mx0 + (xx - xMin) * SXW;
+        const SY = yy => my1 - yy * SYW;
+
+        /* axes */
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(SX(0), my0 - 6); ctx.lineTo(SX(0), my1);
+        ctx.moveTo(mx0 - 6, SY(0)); ctx.lineTo(mx1 + 6, SY(0));
+        ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('y', SX(0) + 6, my0 - 4);
+        ctx.textAlign = 'right';
+        ctx.fillText('x', mx1, SY(0) + 8);
+
+        /* path */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= 140; i++) {
+            const tt = i / 140 * tEnd;
+            i ? ctx.lineTo(SX(px(tt)), SY(py(tt))) : ctx.moveTo(SX(px(tt)), SY(py(tt)));
+        }
+        ctx.stroke();
+
+        /* apex guide */
+        const axp = px(tStar), ayp = py(tStar);
+        if (show.apex) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+            ctx.beginPath();
+            ctx.moveTo(mx0 - 6, SY(ayp)); ctx.lineTo(mx1 + 6, SY(ayp));
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(SX(axp), SY(ayp), 5, 0, Math.PI * 2);
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+            ctx.fillStyle = col.paper; ctx.fill(); ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('y max · t* = ' + tStar.toFixed(1) + ' s', SX(axp) + 10, SY(ayp) - 6);
+        }
+
+        /* particle + velocity arrows */
+        const cxp = SX(px(state.t)), cyp = SY(py(state.t));
+        const vScale = 34 / Math.max(Math.hypot(vx(0), vy(0)), 8);
+        if (show.comp) {
+            arrow(cxp, cyp, cxp + vx(state.t) * vScale, cyp, col.soft, 1.5, true);
+            arrow(cxp, cyp, cxp, cyp - vy(state.t) * vScale, col.soft, 1.5, true);
+        }
+        arrow(cxp, cyp, cxp + vx(state.t) * vScale, cyp - vy(state.t) * vScale, col.acc, 2.4, false);
+
+        ctx.beginPath(); ctx.arc(cxp, cyp, 5.5, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+        ctx.lineWidth = 1.8; ctx.strokeStyle = col.paper; ctx.stroke();
+
+        ctx.fillStyle = col.acc;
+        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('v', cxp + vx(state.t) * vScale + 8, cyp - vy(state.t) * vScale + 2);
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        const vxs = vx(tStar);
+        if ($('r-tpeak')) $('r-tpeak').textContent = tStar.toFixed(1) + ' s';
+        if ($('r-vpeak')) $('r-vpeak').textContent = '(' + vxs.toFixed(1) + ', 0.0) m/s';
+        if ($('r-ymax'))  $('r-ymax').textContent  = ayp.toFixed(1) + ' m';
+        if ($('r-vnow'))  $('r-vnow').textContent  =
+            vx(state.t).toFixed(1) + ', ' + vy(state.t).toFixed(1) + ' m/s';
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

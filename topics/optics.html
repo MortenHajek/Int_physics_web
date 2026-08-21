@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Optics · Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+
+    <style>
+    /* ================================================================
+       TOPIC PAGE COMPONENTS
+       Extends styles.css for the topic sandbox layout.
+       All components use --accent from the body class in styles.css.
+       ================================================================ */
+
+                                    
+    /* ── Canvas wrap & formula badge ─────────────────────────────────── */
+    .canvas-wrap {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-height: 420px;
+        background:
+            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
+            var(--paper-deep);
+    }
+    #sim-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .sim-hint {
+        position: absolute;
+        bottom: 12px;
+        right: 14px;
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-faint);
+        pointer-events: none;
+        user-select: none;
+    }
+    .canvas-formula-badge {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        display: flex;
+        align-items: center;
+        background: var(--paper);
+        border: 1px solid var(--ink-faint);
+        padding: 7px 12px;
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        pointer-events: none;
+        z-index: 2;
+        line-height: 1.15;
+    }
+    /* KaTeX is a flex item here, so its full height sizes the badge and a
+       \dfrac can no longer spill past the border. */
+    .canvas-formula-badge .katex { line-height: normal; }
+
+    /* ── Simulation parameter sliders ─────────────────────────────────── */
+    .sim-control {
+        padding: 11px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .sim-control:last-child { border-bottom: none; }
+    .sim-control-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+    }
+    .sim-control-name {
+        font-size: 14px;
+        color: var(--ink);
+    }
+    .sim-control-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        min-width: 54px;
+        text-align: right;
+    }
+    .sim-control-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 3px;
+        background: var(--paper-edge);
+        border: 1px solid var(--ink-faint);
+        border-radius: 100px;
+        outline: none;
+        cursor: pointer;
+        display: block;
+    }
+    .sim-control-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+    .sim-control-range::-moz-range-thumb {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 1.5px solid var(--ink);
+        cursor: grab;
+    }
+
+    /* ── Live readout rows ───────────────────────────────────────────── */
+    .readout-section {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        padding: 8px 0 3px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 2px;
+    }
+    .readout-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .readout-row:last-child { border-bottom: none; }
+    .readout-label {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 15px;
+        color: var(--ink-soft);
+    }
+    .readout-val {
+        font-family: var(--f-mono);
+        font-size: 12px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        min-width: 68px;
+        text-align: right;
+    }
+
+                            
+                                        
+                            
+                                                        
+    /* Sticky formula reference card */
+                        
+                                
+                    
+    /* ── Prev / next navigation ──────────────────────────────────────── */
+    .topic-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 96px;
+    }
+    .topic-nav-btn {
+        padding: 20px 24px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        border-bottom-width: 1.5px;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .topic-nav-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 var(--ink);
+        border-bottom-color: var(--ink);
+    }
+    .topic-nav-btn.next { text-align: right; }
+    .topic-nav-btn.disabled {
+        border-style: dashed;
+        border-color: var(--ink-faint);
+        color: var(--ink-faint);
+        pointer-events: none;
+    }
+    .topic-nav-dir {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink-faint);
+        margin-bottom: 6px;
+    }
+    .topic-nav-title {
+        font-family: var(--f-serif);
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    /* ── TIR label on canvas ─────────────────────────────────────────── */
+    #tir-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: var(--f-mono);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--accent);
+        background: var(--paper);
+        border: 1px solid var(--accent);
+        padding: 4px 12px;
+        pointer-events: none;
+        display: none;
+        z-index: 3;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+                                        .topic-nav { grid-template-columns: 1fr; }
+                                .core-formula { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    /* ── Core concept ─────────────────────────────────────────────────── */
+    .core-concept {
+        position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
+    }
+    .core-concept::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
+        background: var(--accent);
+    }
+    .core-concept-text {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
+        color: var(--ink);
+        max-width: 76ch;
+    }
+    .core-concept-text em { font-style: normal; font-weight: 600; }
+    .core-formulas {
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-formula {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
+    }
+    .cf-head {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+    }
+    .cf-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+    }
+    .cf-eq {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
+        white-space: nowrap;
+    }
+    .cf-note {
+        font-size: 14.5px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
+    }
+    .core-method-label {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-faint);
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
+    }
+    .core-method {
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
+    }
+    .cm-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
+        font-size: 15px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+    }
+    .cm-num {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+    }
+    .cm-step strong { color: var(--ink); }
+
+    /* ── Exercise tabs ────────────────────────────────────────────────── */
+    .ex-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+    .ex-tab {
+        display: block;
+        padding: 11px 18px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        text-decoration: none;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .ex-tab:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    </style>
+</head>
+
+<body class="optics" data-screen-label="II.06 Optics">
+
+<!-- ── Top bar ──────────────────────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">n</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
+            <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
+            <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 1  HERO
+         ════════════════════════════════════════════════════════════════════ -->
+    <section class="topic-hero">
+        <div>
+            <div class="num">§ II.06 · optics</div>
+            <h1><span lang="en">Optics</span><span lang="cs">Optika</span></h1>
+            <p class="lede">
+                <span lang="en">Big things next to a wavelength let you draw light as rays. Small ones make it
+                interfere — and then one number decides everything, the path difference.</span>
+                <span lang="cs">U předmětů mnohem větších než vlnová délka lze světlo kreslit jako paprsky.
+                U malých interferuje — a pak o všem rozhoduje jediné číslo, dráhový rozdíl.</span>
+            </p>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\Delta L = m\lambda"></div>
+            <div class="eq-caption"><span lang="en">Interference — path difference in wavelengths decides bright from dark</span><span lang="cs">Interference — o světlém a tmavém rozhoduje dráhový rozdíl ve vlnových délkách</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">Light is a wave, but whether you need to say so depends entirely on the size of
+                what it meets. When every obstacle and opening is far larger than the wavelength, the wave
+                character makes no visible difference and light can be traced as straight <em>rays</em> — that is
+                all of lens optics. When something is comparable to the wavelength — two narrow slits, a film a
+                few hundred nanometres thick — the waves from different paths arrive out of step and add or
+                cancel, and the whole picture is decided by one number: the <em>path difference</em>
+                <span data-tex="\Delta L"></span> measured in wavelengths.</span>
+                <span lang="cs">Světlo je vlnění, ale jestli to musíte říkat nahlas, závisí výhradně na velikosti
+                toho, na co narazí. Jsou-li všechny překážky a otvory mnohem větší než vlnová délka, vlnová
+                povaha se nijak neprojeví a světlo lze sledovat jako přímé <em>paprsky</em> — a to je celá optika
+                čoček. Je-li něco srovnatelné s vlnovou délkou — dvě úzké štěrbiny, vrstvička o tloušťce pár set
+                nanometrů — přijdou vlny z různých cest rozfázované a sečtou se, nebo se vyruší. O všem pak
+                rozhoduje jediné číslo: <em>dráhový rozdíl</em> <span data-tex="\Delta L"></span> měřený ve
+                vlnových délkách.</span>
+            </div>
+
+            <div class="core-formulas">
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">When rays are enough</span><span lang="cs">Kdy stačí paprsky</span></span>
+                        <span class="cf-eq" data-tex="\text{rozměry} \gg \lambda"></span>
+                        <span class="cf-eq" data-tex="n = \dfrac{c}{v}\,,\qquad c = 299\,792\,458\ \mathrm{m/s}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The first decision in any optics problem. Lenses and mirrors are enormous
+                        next to a wavelength, so the wave character can be dropped and light drawn as straight
+                        lines. In a medium light slows to <span data-tex="v = c/n"></span>, and that slowing is
+                        what bends it at a boundary.</span>
+                        <span lang="cs">První rozhodnutí každé optické úlohy. Čočky a zrcadla jsou proti vlnové
+                        délce obrovské, takže vlnovou povahu lze pustit ze zřetele a světlo kreslit jako přímky.
+                        V prostředí se světlo zpomalí na <span data-tex="v = c/n"></span> a právě to zpomalení ho
+                        na rozhraní láme.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Thin lens</span><span lang="cs">Tenká čočka</span></span>
+                        <span class="cf-eq" data-tex="\dfrac{1}{f} = \dfrac{1}{p} + \dfrac{1}{i}"></span>
+                        <span class="cf-eq" data-tex="m = -\dfrac{i}{p}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Object distance <span data-tex="p"></span>, image distance
+                        <span data-tex="i"></span>, focal length <span data-tex="f"></span>. The magnification
+                        follows immediately: its <em>size</em> is how much bigger the image is, its <em>sign</em>
+                        whether the image is upright (+) or inverted (−).</span>
+                        <span lang="cs">Předmětová vzdálenost <span data-tex="p"></span>, obrazová
+                        <span data-tex="i"></span>, ohnisková <span data-tex="f"></span>. Zvětšení plyne rovnou:
+                        jeho <em>velikost</em> říká, o kolik je obraz větší, <em>znaménko</em> jestli je
+                        vzpřímený (+), nebo převrácený (−).</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The signs decide everything</span><span lang="cs">O všem rozhodují znaménka</span></span>
+                        <span class="cf-eq" data-tex="i > 0\ \text{reálný}\,,\qquad i < 0\ \text{virtuální}"></span>
+                        <span class="cf-eq" data-tex="f > 0\ \text{spojka}\,,\qquad f < 0\ \text{rozptylka}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A positive image distance puts the image behind the lens where a screen
+                        could catch it — a <em>real</em> image; a negative one puts it on the same side as the
+                        object, seen only by looking through — a <em>virtual</em> image. A diverging lens has
+                        <span data-tex="f < 0"></span> and, on its own, can produce nothing else.</span>
+                        <span lang="cs">Kladná obrazová vzdálenost dá obraz za čočkou, kde by ho zachytilo
+                        stínítko — obraz <em>reálný</em>; záporná na téže straně jako předmět, viditelný jen
+                        pohledem skrz — obraz <em>virtuální</em>. Rozptylka má <span data-tex="f < 0"></span>
+                        a sama o sobě nic jiného vytvořit nemůže.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The three principal rays</span><span lang="cs">Tři význačné paprsky</span></span>
+                        <span class="cf-eq" data-tex="\parallel\ \to\ F_2\,,\quad F_1\ \to\ \parallel\,,\quad \text{střed} \to \text{přímo}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A ray arriving parallel to the axis leaves through the far focus; one
+                        passing through the near focus leaves parallel; one through the centre carries straight
+                        on. Any two of them locate the image, and the third is the check — which is why the
+                        drawing is worth doing even when the equation has already been solved.</span>
+                        <span lang="cs">Paprsek přicházející rovnoběžně s osou odchází přes vzdálenější ohnisko;
+                        paprsek jdoucí bližším ohniskem odchází rovnoběžně; paprsek středem pokračuje přímo.
+                        Kterékoli dva obraz najdou a třetí je kontrola — proto se náčrtek vyplatí i tehdy, když
+                        už je rovnice vyřešená.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Interference — the path difference</span><span lang="cs">Interference — dráhový rozdíl</span></span>
+                        <span class="cf-eq" data-tex="\Delta L = m\lambda \quad \text{(konstruktivní)}"></span>
+                        <span class="cf-eq" data-tex="\Delta L = \left(m+\dfrac{1}{2}\right)\lambda \quad \text{(destruktivní)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two waves that set out together and travel different distances arrive out
+                        of step by exactly that difference. A whole number of wavelengths puts them back in
+                        phase and they reinforce; a half-integer number puts them exactly opposed and they
+                        cancel. Everything else in the chapter is working out what
+                        <span data-tex="\Delta L"></span> is for a given geometry.</span>
+                        <span lang="cs">Dvě vlny, které vyrazí spolu a urazí různé dráhy, dorazí rozfázované
+                        právě o ten rozdíl. Celý počet vlnových délek je vrátí do fáze a zesílí se; poloviční
+                        počet je postaví přesně proti sobě a vyruší se. Všechno ostatní v kapitole je zjišťování,
+                        čemu se <span data-tex="\Delta L"></span> pro danou geometrii rovná.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Young's double slit</span><span lang="cs">Youngův dvojštěrbinový pokus</span></span>
+                        <span class="cf-eq" data-tex="\Delta L = d\sin\theta"></span>
+                        <span class="cf-eq" data-tex="d\sin\theta = m\lambda \quad \text{(světlé proužky)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With the screen far away the two rays are effectively parallel, and the
+                        extra distance the far one travels is <span data-tex="d\sin\theta"></span> — the one bit
+                        of geometry the whole experiment rests on. Bright fringes sit where that is a whole
+                        number of wavelengths, dark ones halfway between.</span>
+                        <span lang="cs">Je-li stínítko daleko, jsou oba paprsky prakticky rovnoběžné a dráha
+                        navíc, kterou urazí ten vzdálenější, je <span data-tex="d\sin\theta"></span> — jediný kus
+                        geometrie, na němž celý pokus stojí. Světlé proužky leží tam, kde je to celý počet
+                        vlnových délek, tmavé přesně mezi nimi.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Fringes on the screen</span><span lang="cs">Proužky na stínítku</span></span>
+                        <span class="cf-eq" data-tex="\theta_m = \arcsin\dfrac{m\lambda}{d}"></span>
+                        <span class="cf-eq" data-tex="\text{malé úhly:}\quad y \approx L\,\dfrac{m\lambda}{d}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For small angles the sine, the tangent and the angle itself are all the
+                        same number, so the fringes come out evenly spaced with a separation
+                        <span data-tex="L\lambda/d"></span>. Wider slit spacing packs the fringes closer
+                        together, which is the opposite of most people's first guess.</span>
+                        <span lang="cs">Pro malé úhly jsou sinus, tangens i úhel sám totéž číslo, takže proužky
+                        vyjdou rovnoměrně rozmístěné s roztečí <span data-tex="L\lambda/d"></span>. Větší
+                        vzdálenost štěrbin proužky stlačí k sobě — což je opak toho, co většina lidí
+                        nejdřív tipne.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Wavelength inside a medium</span><span lang="cs">Vlnová délka v prostředí</span></span>
+                        <span class="cf-eq" data-tex="\lambda_n = \dfrac{\lambda_0}{n}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The frequency of light never changes when it enters a material; the speed
+                        drops, so the wavelength shrinks by the same factor. Path differences inside a film must
+                        therefore be counted in <span data-tex="\lambda_n"></span>, never in the vacuum
+                        wavelength — the single most common slip in this chapter.</span>
+                        <span lang="cs">Frekvence světla se při vstupu do látky nikdy nemění; klesne rychlost,
+                        takže se ve stejném poměru zkrátí vlnová délka. Dráhové rozdíly uvnitř vrstvy je proto
+                        nutné počítat v <span data-tex="\lambda_n"></span>, nikdy ve vakuové vlnové délce — to je
+                        v této kapitole nejčastější chyba vůbec.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Thin film — and the half-wave jump</span><span lang="cs">Tenká vrstva — a skok o půl vlny</span></span>
+                        <span class="cf-eq" data-tex="\Delta L = 2L"></span>
+                        <span class="cf-eq" data-tex="n_1 < n_2:\ \text{posuv}\ \lambda/2\,;\qquad n_1 > n_2:\ 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Light reflected off the far surface travels an extra
+                        <span data-tex="2L"></span> through the film. On top of that, each reflection from a
+                        <em>denser</em> medium flips the wave by half a wavelength. Count those two flips first:
+                        if both reflections flip or neither does, they cancel out and the usual conditions apply;
+                        if only one flips, constructive and destructive swap places.</span>
+                        <span lang="cs">Světlo odražené od spodního rozhraní urazí ve vrstvě navíc
+                        <span data-tex="2L"></span>. K tomu každý odraz od <em>opticky hustšího</em> prostředí
+                        překlopí vlnu o půl vlnové délky. Ty dva skoky spočítejte jako první: překlopí-li se oba,
+                        nebo ani jeden, vyruší se a platí obvyklé podmínky; překlopí-li se jen jeden, prohodí si
+                        konstruktivní a destruktivní interference místo.</span>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Rays or waves?</strong> Compare the size of whatever the light
+                    meets with <span data-tex="\lambda"></span>. Centimetres of lens — rays. Micrometres of slit
+                    spacing, or a film a few hundred nanometres thick — waves, and the answer will be a path
+                    difference.</span>
+                    <span lang="cs"><strong>Paprsky, nebo vlny?</strong> Porovnejte velikost toho, na co světlo
+                    dopadá, s <span data-tex="\lambda"></span>. Centimetry čočky — paprsky. Mikrometry rozteče
+                    štěrbin nebo vrstva o tloušťce pár set nanometrů — vlny, a odpovědí bude dráhový
+                    rozdíl.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Lens: put the signs in before solving.</strong> A diverging lens
+                    carries <span data-tex="f < 0"></span> into
+                    <span data-tex="1/f = 1/p + 1/i"></span> — write it as a negative number rather than
+                    remembering to flip something later. Then read the answer's sign:
+                    <span data-tex="i < 0"></span> means a virtual image on the object's side.</span>
+                    <span lang="cs"><strong>Čočka: znaménka dosaďte dřív, než začnete řešit.</strong> Rozptylka
+                    nese do <span data-tex="1/f = 1/p + 1/i"></span> zápornou
+                    <span data-tex="f"></span> — napište ji rovnou jako záporné číslo, místo abyste si pamatovali,
+                    že se něco později otočí. Pak přečtěte znaménko výsledku:
+                    <span data-tex="i < 0"></span> znamená virtuální obraz na straně předmětu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Then the magnification, then the sketch.</strong>
+                    <span data-tex="m = -i/p"></span> gives size and orientation in one step. Draw the three
+                    principal rays afterwards as a check — if the drawing disagrees with the arithmetic, it is
+                    nearly always a sign.</span>
+                    <span lang="cs"><strong>Pak zvětšení a nakonec náčrtek.</strong>
+                    <span data-tex="m = -i/p"></span> dá velikost i orientaci naráz. Tři význačné paprsky nakreslete
+                    až potom, jako kontrolu — neshoduje-li se obrázek s výpočtem, je to skoro vždy
+                    znaménko.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Double slit: work in units of <em>λ</em>.</strong> Problems are
+                    often set as <span data-tex="d = 100\lambda"></span> rather than in metres, and the ratio
+                    <span data-tex="\lambda/d"></span> is all you need:
+                    <span data-tex="\sin\theta_m = m\lambda/d"></span>. The wavelength itself never has to be
+                    known.</span>
+                    <span lang="cs"><strong>Dvojštěrbina: počítejte v jednotkách <em>λ</em>.</strong> Zadání bývá
+                    <span data-tex="d = 100\lambda"></span> místo metrů a stačí vám poměr
+                    <span data-tex="\lambda/d"></span>: <span data-tex="\sin\theta_m = m\lambda/d"></span>. Samotnou
+                    vlnovou délku znát vůbec nemusíte.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Angle first, distance second.</strong> Get the angular
+                    separation from <span data-tex="\Delta\theta \approx \lambda/d"></span>, and only then convert
+                    to a distance on the screen with <span data-tex="\Delta y = L\,\Delta\theta"></span>. Check
+                    the small-angle assumption was fair before using it.</span>
+                    <span lang="cs"><strong>Nejdřív úhel, pak vzdálenost.</strong> Úhlovou vzdálenost určete
+                    z <span data-tex="\Delta\theta \approx \lambda/d"></span> a teprve pak ji převeďte na
+                    vzdálenost na stínítku vztahem <span data-tex="\Delta y = L\,\Delta\theta"></span>. Ověřte, že
+                    přiblížení malých úhlů bylo oprávněné.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Thin film: count the flips, then the thickness.</strong> Write
+                    down the two refractive-index steps and mark which reflection gains
+                    <span data-tex="\lambda/2"></span>. With a coating <em>between</em> air and glass both
+                    reflections flip, the flips cancel, and killing the reflection needs
+                    <span data-tex="2L = \left(m+\dfrac{1}{2}\right)\lambda_n"></span> — so the thinnest coating
+                    is <span data-tex="L = \lambda/4n"></span>.</span>
+                    <span lang="cs"><strong>Tenká vrstva: nejdřív skoky, pak tloušťka.</strong> Vypište oba
+                    přechody indexu lomu a označte, který odraz získá
+                    <span data-tex="\lambda/2"></span>. U vrstvy <em>mezi</em> vzduchem a sklem se překlopí oba
+                    odrazy, skoky se vyruší a na potlačení odrazu je potřeba
+                    <span data-tex="2L = \left(m+\dfrac{1}{2}\right)\lambda_n"></span> — nejtenčí vrstva je tedy
+                    <span data-tex="L = \lambda/4n"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">07</span>
+                    <span><span lang="en"><strong>Smallest thickness means smallest <em>m</em>.</strong> Whenever a
+                    question asks for the thinnest film or the first fringe, it is asking you to set
+                    <span data-tex="m = 0"></span> and read off the answer.</span>
+                    <span lang="cs"><strong>Nejmenší tloušťka znamená nejmenší <em>m</em>.</strong> Ptá-li se
+                    úloha na nejtenčí vrstvu nebo první proužek, žádá po vás jen dosadit
+                    <span data-tex="m = 0"></span> a výsledek odečíst.</span></span>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 5  SIMULATION LAB
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="lab" class="lab" style="margin-top:72px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Refraction &amp; TIR at a flat interface</span><span lang="cs">Lom a totální odraz na rovinném rozhraní</span></span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div id="tir-label"><span lang="en">Total Internal Reflection</span><span lang="cs">Totální odraz</span></div>
+                <div class="canvas-formula-badge" data-tex="n_1\sin\theta_1 = n_2\sin\theta_2"></div>
+                <div class="sim-hint"><span lang="en">increase θ₁ past the critical angle to see TIR</span><span lang="cs">zvyšte θ₁ nad mezní úhel a nastane totální odraz</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
+                        text-transform:uppercase;letter-spacing:0.14em;background:none;
+                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
+                        title="Reset to defaults">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Angle of incidence θ₁</span><span lang="cs">Úhel dopadu θ₁</span></span>
+                            <span class="sim-control-val" id="p-theta-val">40°</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-theta" min="0" max="89" step="1" value="40">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">n₁ (upper medium)</span><span lang="cs">n₁ (horní prostředí)</span></span>
+                            <span class="sim-control-val" id="p-n1-val">1.50</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-n1" min="1.0" max="2.5" step="0.05" value="1.5">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">n₂ (lower medium)</span><span lang="cs">n₂ (dolní prostředí)</span></span>
+                            <span class="sim-control-val" id="p-n2-val">1.00</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-n2" min="1.0" max="2.5" step="0.05" value="1.0">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Readout -->
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">θ₂ refracted</span><span lang="cs">θ₂ lomený</span></span>
+                        <span class="readout-val" id="r-theta2">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">θ<sub>c</sub> critical</span><span lang="cs">θ<sub>c</sub> mezní</span></span>
+                        <span class="readout-val" id="r-thetac">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">TIR</span>
+                        <span class="readout-val" id="r-tir">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label">n₁ / n₂</span>
+                        <span class="readout-val" id="r-ratio">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="exercises" style="margin-top:72px;">
+        <div class="section-head">
+            <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
+        </div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch34-ex112.html"><span lang="en">Ch. 34 · <span class="ex-no">Ex. 112</span></span><span lang="cs">Kap. 34 · <span class="ex-no">Úl. 112</span></span></a>
+            <a class="ex-tab" href="../exercises/ch35-ex16.html"><span lang="en">Ch. 35 · <span class="ex-no">Ex. 16</span></span><span lang="cs">Kap. 35 · <span class="ex-no">Úl. 16</span></span></a>
+            <a class="ex-tab" href="../exercises/ch35-ex39.html"><span lang="en">Ch. 35 · <span class="ex-no">Ex. 39</span></span><span lang="cs">Kap. 35 · <span class="ex-no">Úl. 39</span></span></a>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 9  PREV / NEXT NAVIGATION
+         ════════════════════════════════════════════════════════════════════ -->
+    <nav class="topic-nav">
+        <a href="induction.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title"><span lang="en">Electromagnetic Induction</span><span lang="cs">Elektromagnetická indukce</span></div>
+        </a>
+        <a href="quantum.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title"><span lang="en">Quantum Physics</span><span lang="cs">Kvantová fyzika</span></div>
+        </a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · 0.1 draft</span>
+        <span>§ II.06 <span lang="en">Optics</span><span lang="cs">Optika</span></span>
+        <span><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ──────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     SIMULATION — ray optics at a flat interface
+     ════════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    /* ── Canvas + context ──────────────────────────────────────── */
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width, 200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    /* ── Colour tokens ─────────────────────────────────────────── */
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   s.getPropertyValue('--accent').trim()    || '#d4a418',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFFEC',
+            deep:  s.getPropertyValue('--paper-deep').trim()|| '#efead6',
+        };
+    }
+    let col = readCol();
+
+    /* ── Simulation state ──────────────────────────────────────── */
+    const DEFAULTS = { theta1: 40, n1: 1.5, n2: 1.0 };
+    let state = { ...DEFAULTS };
+
+    /* ── Slider wiring ─────────────────────────────────────────── */
+    function bindSlider(inputId, valId, decimals, suffix, key) {
+        const inp = document.getElementById(inputId);
+        const lbl = document.getElementById(valId);
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = (+inp.value).toFixed(decimals) + suffix;
+        });
+    }
+    bindSlider('p-theta', 'p-theta-val', 0, '°',   'theta1');
+    bindSlider('p-n1',    'p-n1-val',    2, '',     'n1');
+    bindSlider('p-n2',    'p-n2-val',    2, '',     'n2');
+
+    /* ── Reset ─────────────────────────────────────────────────── */
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        document.getElementById('p-theta').value = DEFAULTS.theta1;
+        document.getElementById('p-theta-val').textContent = DEFAULTS.theta1 + '°';
+        document.getElementById('p-n1').value = DEFAULTS.n1;
+        document.getElementById('p-n1-val').textContent = DEFAULTS.n1.toFixed(2);
+        document.getElementById('p-n2').value = DEFAULTS.n2;
+        document.getElementById('p-n2-val').textContent = DEFAULTS.n2.toFixed(2);
+    });
+
+    /* ── Drawing helpers ───────────────────────────────────────── */
+    function drawRay(x0, y0, x1, y1, color, lw, dashed) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw || 2;
+        ctx.lineCap = 'round';
+        if (dashed) ctx.setLineDash([6, 4]);
+        else ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function drawArrowhead(x, y, angle, color, size) {
+        size = size || 10;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - size * Math.cos(angle - 0.35), y - size * Math.sin(angle - 0.35));
+        ctx.lineTo(x - size * Math.cos(angle + 0.35), y - size * Math.sin(angle + 0.35));
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawAngleArc(cx, cy, startAngle, endAngle, r, color, label) {
+        // Sweep the shorter arc
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, startAngle, endAngle);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        if (label) {
+            const midA = (startAngle + endAngle) / 2;
+            const lx = cx + (r + 14) * Math.cos(midA);
+            const ly = cy + (r + 14) * Math.sin(midA);
+            ctx.fillStyle = color;
+            ctx.font = 'italic 12px var(--f-serif, Georgia, serif)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, lx, ly);
+        }
+    }
+
+    /* ── Physics ───────────────────────────────────────────────── */
+    function calcRefraction(theta1Deg, n1, n2) {
+        const theta1 = theta1Deg * Math.PI / 180;
+        const sinTheta2 = (n1 / n2) * Math.sin(theta1);
+        const tir = Math.abs(sinTheta2) > 1.0;
+        let theta2 = null;
+        if (!tir) theta2 = Math.asin(sinTheta2);
+        const thetaC = n1 > n2 ? Math.asin(n2 / n1) : Math.PI / 2;
+        return { theta1, theta2, tir, thetaC, sinTheta2 };
+    }
+
+    /* ── Main draw ─────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        col = readCol(); // re-read in case CSS updates
+
+        const { theta1, theta2, tir, thetaC } = calcRefraction(state.theta1, state.n1, state.n2);
+
+        // Interface point at canvas centre
+        const ix = W / 2;
+        const iy = H / 2;
+
+        // Medium labels and background tint
+        const upperCol = col.acc + '10';
+        const lowerCol = col.soft + '08';
+
+        // Upper medium fill (n1)
+        ctx.fillStyle = upperCol;
+        ctx.fillRect(0, 0, W, iy);
+
+        // Lower medium fill (n2)
+        ctx.fillStyle = lowerCol;
+        ctx.fillRect(0, iy, W, H - iy);
+
+        // Interface line
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(0, iy);
+        ctx.lineTo(W, iy);
+        ctx.stroke();
+
+        // Normal (dashed vertical)
+        ctx.strokeStyle = col.faint;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(ix, 0);
+        ctx.lineTo(ix, H);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Medium labels
+        ctx.fillStyle = col.faint;
+        ctx.font = 'italic 13px var(--f-serif, Georgia, serif)';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('n₁ = ' + state.n1.toFixed(2), 12, 10);
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('n₂ = ' + state.n2.toFixed(2), 12, H - 10);
+
+        // Ray lengths
+        const rayLen = Math.min(W, H) * 0.45;
+
+        // Incident ray direction: comes from upper-left toward (ix, iy)
+        // theta1 is angle from the normal (vertical). Positive = right side of normal.
+        // Incident ray arrives going DOWN-right, so direction is (sin θ₁, cos θ₁) from source
+        const incAngle = theta1; // from normal (upward), measured clockwise
+        // Source point: upper-left of interface
+        const srcX = ix - rayLen * Math.sin(incAngle);
+        const srcY = iy - rayLen * Math.cos(incAngle);
+
+        // Draw incident ray
+        const rayColor = col.acc;
+        drawRay(srcX, srcY, ix, iy, rayColor, 2.5);
+        // Arrowhead on incident ray (pointing toward interface)
+        const incDir = Math.atan2(iy - srcY, ix - srcX);
+        drawArrowhead(ix - 6 * Math.cos(incDir), iy - 6 * Math.sin(incDir), incDir, rayColor, 9);
+
+        // Reflected ray: angle θr = θ1, other side of normal
+        const reflX = ix + rayLen * Math.sin(incAngle);
+        const reflY = iy - rayLen * Math.cos(incAngle);
+        drawRay(ix, iy, reflX, reflY, col.soft, 1.5, true);
+        const reflDir = Math.atan2(reflY - iy, reflX - ix);
+        drawArrowhead(reflX - 6 * Math.cos(reflDir), reflY - 6 * Math.sin(reflDir), reflDir, col.soft + 'cc', 8);
+
+        // Refracted ray (or TIR label)
+        const tirLabel = document.getElementById('tir-label');
+        if (tir) {
+            if (tirLabel) tirLabel.style.display = 'block';
+        } else {
+            if (tirLabel) tirLabel.style.display = 'none';
+            // Refracted ray goes downward, bent according to theta2
+            const refX = ix + rayLen * Math.sin(theta2);
+            const refY = iy + rayLen * Math.cos(theta2);
+            drawRay(ix, iy, refX, refY, rayColor, 2.5);
+            const refDir = Math.atan2(refY - iy, refX - ix);
+            drawArrowhead(refX - 6 * Math.cos(refDir), refY - 6 * Math.sin(refDir), refDir, rayColor, 9);
+
+            // Angle arc for θ₂ (below interface, between normal and refracted ray)
+            // Normal points downward from interface: angle = π/2 (down)
+            // Refracted ray direction: atan2(cos θ₂, sin θ₂) from down = ...
+            const normalDown = Math.PI / 2;
+            const refAngleFromOrigin = Math.atan2(refY - iy, refX - ix);
+            drawAngleArc(ix, iy, normalDown, refAngleFromOrigin, 44, col.acc + 'aa', 'θ₂');
+        }
+
+        // Angle arc for θ₁ (above interface, between normal and incident ray)
+        // Normal points up: angle from origin is -π/2 (up)
+        // Incident ray arrives at interface from direction (srcX, srcY)
+        // The "arrival direction" from interface outward toward source:
+        const normalUp = -Math.PI / 2; // pointing up
+        const incOutwardAngle = Math.atan2(srcY - iy, srcX - ix);
+        drawAngleArc(ix, iy, incOutwardAngle, normalUp, 44, col.acc + 'aa', 'θ₁');
+
+        // Critical angle marker (if applicable)
+        if (state.n1 > state.n2) {
+            ctx.strokeStyle = col.acc + '55';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 6]);
+            const critX = ix + rayLen * 0.7 * Math.sin(thetaC);
+            const critY = iy + rayLen * 0.7 * Math.cos(thetaC);
+            ctx.beginPath();
+            ctx.moveTo(ix, iy);
+            ctx.lineTo(critX, critY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = col.acc + '99';
+            ctx.font = '10px var(--f-mono, monospace)';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('θc', critX + 5, critY);
+        }
+
+        /* ── Readout spans ── */
+        const $ = id => document.getElementById(id);
+        const theta2Deg = tir ? null : (theta2 * 180 / Math.PI);
+        const thetaCDeg = thetaC * 180 / Math.PI;
+
+        $('r-theta2').textContent = tir ? 'TIR' : theta2Deg.toFixed(1) + '°';
+        $('r-thetac').textContent = (state.n1 > state.n2) ? thetaCDeg.toFixed(1) + '°' : 'n/a';
+        $('r-tir').textContent    = document.documentElement.getAttribute('data-lang') === 'cs'
+            ? (tir ? 'ano' : 'ne') : (tir ? 'yes' : 'no');
+        $('r-ratio').textContent  = (state.n1 / state.n2).toFixed(3);
+    }
+
+    /* ── RAF loop ───────────────────────────────────────────────── */
+    let lastT = 0, frames = 0;
+    const fpsEl = document.getElementById('sim-fps');
+
+    function frame(ts) {
+        draw();
+        frames++;
+        if (ts - lastT >= 1000) {
+            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
+            frames = 0; lastT = ts;
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+}());
+</script>
+
+</body>
+</html>

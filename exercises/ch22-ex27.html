@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 22.27 · Field of a Charged Rod — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="electrostatics-1" data-screen-label="Ex 22.27 Charged Rod">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 22 · Ex. 27</span><span lang="cs">Kap. 22 · Úl. 27</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 1 · Electrostatics I — Chapter 22 · Exercise 27</span><span lang="cs">1. téma · Elektrostatika I — Kapitola 22 · Úloha 27</span></div>
+        <h1><span lang="en">Field of a Charged Rod</span><span lang="cs">Pole nabité tyče</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>27</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A nonconducting rod of length
+                    <span class="given" data-tex="d = 8.15\ \mathrm{cm}"></span>
+                    carries a uniformly distributed charge
+                    <span data-tex="-Q"></span> with magnitude
+                    <span class="given" data-tex="Q = 4.23\ \mathrm{fC}"></span>.
+                    (a) Find the linear charge density
+                    <span data-tex="\lambda"></span> of the rod.
+                </p>
+                <p lang="cs">
+                    Nevodivá tyč délky
+                    <span class="given" data-tex="d = 8{,}15\ \mathrm{cm}"></span>
+                    je rovnoměrně nabitá nábojem
+                    <span data-tex="-Q"></span> o velikosti
+                    <span class="given" data-tex="Q = 4{,}23\ \mathrm{fC}"></span>.
+                    (a) Určete délkovou hustotu náboje
+                    <span data-tex="\lambda"></span> tyče.
+                </p>
+                <p lang="en">
+                    Point <span data-tex="P"></span> lies on the rod's axis, a distance
+                    <span class="given" data-tex="a = 12.0\ \mathrm{cm}"></span>
+                    beyond its near end. Find (b) the magnitude and (c) the direction
+                    (relative to <span data-tex="+x"></span>) of the electric field at
+                    <span data-tex="P"></span>. At
+                    <span class="given" data-tex="a = 50\ \mathrm{m}"></span>,
+                    what field is produced by (d) the rod and (e) a point charge
+                    <span data-tex="-Q"></span> placed where the rod's center was?
+                </p>
+                <p lang="cs">
+                    Bod <span data-tex="P"></span> leží na ose tyče ve vzdálenosti
+                    <span class="given" data-tex="a = 12{,}0\ \mathrm{cm}"></span>
+                    za jejím bližším koncem. Určete (b) velikost a (c) směr
+                    (vzhledem k <span data-tex="+x"></span>) elektrické intenzity v bodě
+                    <span data-tex="P"></span>. Jaká je ve vzdálenosti
+                    <span class="given" data-tex="a = 50\ \mathrm{m}"></span>
+                    intenzita buzená (d) tyčí a (e) bodovým nábojem
+                    <span data-tex="-Q"></span> umístěným do středu tyče?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Field sandbox</span><span lang="cs">Sandbox: pole</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="E = \dfrac{kQ}{a(a+d)}"></div>
+                <div class="sim-hint"><span lang="en">slide a outward · watch the two curves merge</span><span lang="cs">zvětšujte a · sledujte, jak obě křivky splývají</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Distance a</span><span lang="cs">Vzdálenost a</span></span>
+                            <span class="sim-control-val" id="p-a-val">12.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-a" min="4" max="60" step="0.5" value="12.0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Rod length d</span><span lang="cs">Délka tyče d</span></span>
+                            <span class="sim-control-val" id="p-d-val">8.15 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="2" max="15" step="0.05" value="8.15">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Charge magnitude Q</span><span lang="cs">Velikost náboje Q</span></span>
+                            <span class="sim-control-val" id="p-q-val">4.23 fC</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-q" min="1" max="10" step="0.01" value="4.23">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Rod</span><span lang="cs">Tyč</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\lambda = -Q/d"></span>
+                        <span class="readout-val" id="r-lambda">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Field at P</span><span lang="cs">Pole v bodě P</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="E_{\text{rod}}"></span><span lang="cs" data-tex="E_{\text{tyč}}"></span></span>
+                        <span class="readout-val" id="r-erod">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="E_{\text{point}} = kQ/a^2"></span><span lang="cs" data-tex="E_{\text{bod}} = kQ/a^2"></span></span>
+                        <span class="readout-val" id="r-epoint">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="E_{\text{rod}}/E_{\text{point}}"></span><span lang="cs" data-tex="E_{\text{tyč}}/E_{\text{bod}}"></span></span>
+                        <span class="readout-val" id="r-ratio">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-compare">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">point-charge comparison</span><span lang="cs">srovnání s bodovým nábojem</span></span>
+                    </div>
+                    <div class="toggle-row" id="tgl-arrow">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">field arrow</span><span lang="cs">šipka pole</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The charge is spread uniformly, so the linear density is
+                    <span data-tex="\lambda = -Q/d = -4.23\cdot 10^{-15}/0.0815 = -5.19\cdot 10^{-14}\ \mathrm{C/m}"></span>.</span>
+                    <span lang="cs">Náboj je rozložen rovnoměrně, délková hustota je tedy
+                    <span data-tex="\lambda = -Q/d = -4{,}23\cdot 10^{-15}/0{,}0815 = -5{,}19\cdot 10^{-14}\ \mathrm{C/m}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Sum the point-charge fields of the rod's elements:
+                    <span data-tex="E = \int_{a}^{a+d} \dfrac{k\lambda\,dx}{x^2} = \dfrac{kQ}{a(a+d)}"></span>.</span>
+                    <span lang="cs">Sečteme pole bodových nábojů elementů tyče:
+                    <span data-tex="E = \int_{a}^{a+d} \dfrac{k\lambda\,dx}{x^2} = \dfrac{kQ}{a(a+d)}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">Numbers:
+                    <span data-tex="E = 8.99\cdot 10^{9}\cdot 4.23\cdot 10^{-15}/(0.120\cdot 0.2015) = 1.57\cdot 10^{-3}\ \mathrm{N/C}"></span>.</span>
+                    <span lang="cs">Čísla:
+                    <span data-tex="E = 8{,}99\cdot 10^{9}\cdot 4{,}23\cdot 10^{-15}/(0{,}120\cdot 0{,}2015) = 1{,}57\cdot 10^{-3}\ \mathrm{N/C}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en">The rod is negative, so <span data-tex="\vec{E}"></span> at
+                    <span data-tex="P"></span> points <strong>toward the rod</strong>:
+                    the <span data-tex="-x"></span> direction.</span>
+                    <span lang="cs">Tyč je záporná, takže <span data-tex="\vec{E}"></span> v bodě
+                    <span data-tex="P"></span> míří <strong>k tyči</strong>:
+                    ve směru <span data-tex="-x"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">05</span>
+                <div class="sol-step-text">
+                    <span lang="en">At <span data-tex="a = 50\ \mathrm{m}"></span> both give the same field: rod
+                    <span data-tex="kQ/(a(a+d)) = 1.52\cdot 10^{-8}\ \mathrm{N/C}"></span>;
+                    point charge
+                    <span data-tex="kQ/a^2 = 1.52\cdot 10^{-8}\ \mathrm{N/C}"></span>
+                    — from far away the rod is a point charge.</span>
+                    <span lang="cs">Ve vzdálenosti <span data-tex="a = 50\ \mathrm{m}"></span> dávají obě stejné pole: tyč
+                    <span data-tex="kQ/(a(a+d)) = 1{,}52\cdot 10^{-8}\ \mathrm{N/C}"></span>;
+                    bodový náboj
+                    <span data-tex="kQ/a^2 = 1{,}52\cdot 10^{-8}\ \mathrm{N/C}"></span>
+                    — zdaleka je tyč bodovým nábojem.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\lambda \approx -51.9\ \mathrm{fC/m}"></span><span lang="cs" data-tex="\lambda \approx -51{,}9\ \mathrm{fC/m}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E \approx 1.57\ \mathrm{mN/C}"></span><span lang="cs" data-tex="E \approx 1{,}57\ \mathrm{mN/C}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="180^{\circ}\ \text{from } +x"></span><span lang="cs" data-tex="180^{\circ}\ \text{od } +x"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E_{\text{rod}} \approx 1.52\cdot 10^{-8}\ \mathrm{N/C}"></span><span lang="cs" data-tex="E_{\text{tyč}} \approx 1{,}52\cdot 10^{-8}\ \mathrm{N/C}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (e)</span><span lang="cs">Výsledek (e)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="E_{\text{point}} \approx 1.52\cdot 10^{-8}\ \mathrm{N/C}"></span><span lang="cs" data-tex="E_{\text{bod}} \approx 1{,}52\cdot 10^{-8}\ \mathrm{N/C}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/electrostatics-1.html"><span lang="en">← Topic: Electrostatics I</span><span lang="cs">← Téma: Elektrostatika I</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 22 · Ex. 27</span><span lang="cs">Kap. 22 · Úl. 27</span></span>
+        <span><span lang="en">Vol. II · Electrostatics I</span><span lang="cs">Díl II · Elektrostatika I</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#3D2E8A',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const K = 8.99e9;
+    /* a, d in cm; q in fC — the exercise's printed values */
+    const DEFAULTS = { a: 12.0, d: 8.15, q: 4.23 };
+    let state = { ...DEFAULTS };
+    const show = { compare: true, arrow: true };
+
+    /* ── Slider wiring ──────────────────────────────────────────── */
+    function bindSlider(id, key, fmt) {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    }
+    const fmtA = v => v.toFixed(1) + ' cm';
+    const fmtD = v => v.toFixed(2) + ' cm';
+    const fmtQ = v => v.toFixed(2) + ' fC';
+    bindSlider('p-a', 'a', fmtA);
+    bindSlider('p-d', 'd', fmtD);
+    bindSlider('p-q', 'q', fmtQ);
+
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        [['p-a', 'a', fmtA], ['p-d', 'd', fmtD], ['p-q', 'q', fmtQ]].forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+
+    function wireToggle(id, key) {
+        document.getElementById(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on');
+        });
+    }
+    wireToggle('tgl-compare', 'compare');
+    wireToggle('tgl-arrow',   'arrow');
+
+    /* ── Physics — on-axis field of a finite rod ────────────────── */
+    function eRod(aCm) {
+        const aM = aCm / 100, dM = state.d / 100, qC = state.q * 1e-15;
+        return K * qC / (aM * (aM + dM));
+    }
+    function ePoint(aCm) {
+        const aM = aCm / 100, qC = state.q * 1e-15;
+        return K * qC / (aM * aM);
+    }
+
+    /* ── Drawing helpers ────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(12, len * 0.25), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* ── Main draw ──────────────────────────────────────────────── */
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const a = state.a, d = state.d;
+
+        /* ---- scene: rod and point P on the x axis ---- */
+        const axisY  = Math.max(66, H * 0.20);
+        const usable = Math.max(120, W - 152);
+        const s      = Math.min(usable / (a + d), 16);   /* px per cm */
+        const total  = (a + d) * s;
+        const x0     = Math.max(40, (W - total - 70) / 2);
+        const xR     = x0 + d * s;
+        const xP     = x0 + total;
+
+        const cs = document.documentElement.getAttribute('data-lang') === 'cs';
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(cs ? 'BOČNÍ POHLED — POLE NA OSE TYČE'
+                        : 'SIDE VIEW — FIELD ON THE ROD AXIS', 24, 26);
+
+        /* axis with +x arrowhead */
+        arrow(20, axisY, W - 22, axisY, col.faint, 1);
+        ctx.fillStyle = col.faint;
+        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('x', W - 26, axisY - 8);
+
+        /* field arrow at P (under the P marker, over the axis) */
+        const eHere = eRod(a);
+        if (show.arrow) {
+            let len = 20 + 26 * Math.log10(Math.max(eHere, 1e-9) / 1e-5);
+            len = Math.max(14, Math.min(len, 110, a * s - 12));
+            arrow(xP, axisY, xP - len, axisY, col.acc, 2.4);
+            ctx.fillStyle = col.acc;
+            ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+            ctx.fillText('E', xP - len / 2, axisY - 9);
+        }
+
+        /* rod, filled with − glyphs */
+        ctx.fillStyle = col.paper;
+        ctx.strokeStyle = col.ink;
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(x0, axisY - 8, d * s, 16);
+        ctx.strokeRect(x0, axisY - 8, d * s, 16);
+        const nG = Math.max(2, Math.floor(d * s / 16));
+        ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+        for (let i = 0; i < nG; i++) {
+            const gx = x0 + d * s * (i + 0.5) / nG;
+            ctx.beginPath(); ctx.moveTo(gx - 3.2, axisY); ctx.lineTo(gx + 3.2, axisY); ctx.stroke();
+        }
+        ctx.fillStyle = col.soft;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('−Q', x0 + d * s / 2, axisY - 17);
+
+        /* P marker */
+        ctx.beginPath(); ctx.arc(xP, axisY, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = col.ink; ctx.fill();
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('P', xP, axisY - 12);
+
+        /* dashed dimension lines for d and a */
+        const dimY = axisY + 30;
+        function dim(xa, xb, label) {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath(); ctx.moveTo(xa, dimY); ctx.lineTo(xb, dimY); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(xa, dimY - 4); ctx.lineTo(xa, dimY + 4); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(xb, dimY - 4); ctx.lineTo(xb, dimY + 4); ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(label, (xa + xb) / 2, dimY + 7);
+        }
+        dim(x0, xR, 'd = ' + d.toFixed(2) + ' cm');
+        dim(xR, xP, 'a = ' + a.toFixed(1) + ' cm');
+
+        /* ---- plot: E(a), rod vs point charge, log scale ---- */
+        const px0 = 58, px1 = W - 30;
+        const py0 = Math.max(axisY + 78, H * 0.40), py1 = H - 62;
+        const A0 = 4, A1 = 60;
+        const eTop = ePoint(A0), eBot = eRod(A1);
+        const lmin = Math.log10(eBot) - 0.10;
+        const lmax = Math.log10(eTop) + 0.10;
+        const X = aa => px0 + (aa - A0) / (A1 - A0) * (px1 - px0);
+        const Y = E  => py1 - (Math.log10(E) - lmin) / (lmax - lmin) * (py1 - py0);
+
+        ctx.fillStyle = col.faint;
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(cs ? 'E(a) — TYČ VS BODOVÝ NÁBOJ · LOG. MĚŘÍTKO'
+                        : 'E(a) — ROD VS POINT CHARGE · LOG SCALE', px0, py0 - 12);
+
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px0, py0 - 4); ctx.lineTo(px0, py1); ctx.lineTo(px1, py1);
+        ctx.stroke();
+
+        ctx.fillStyle = col.faint;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        [20, 40, 60].forEach(t => {
+            ctx.beginPath(); ctx.moveTo(X(t), py1); ctx.lineTo(X(t), py1 + 4); ctx.stroke();
+            ctx.fillText(t === 60 ? '60 cm' : String(t), X(t), py1 + 7);
+        });
+
+        /* rod curve — solid accent */
+        const N = 110;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2; ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= N; i++) {
+            const aa = A0 + (A1 - A0) * i / N;
+            const y = Y(eRod(aa));
+            if (i === 0) ctx.moveTo(X(aa), y); else ctx.lineTo(X(aa), y);
+        }
+        ctx.stroke();
+
+        /* point-charge curve — dashed soft ink */
+        if (show.compare) {
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.4;
+            ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            for (let i = 0; i <= N; i++) {
+                const aa = A0 + (A1 - A0) * i / N;
+                const y = Y(ePoint(aa));
+                if (i === 0) ctx.moveTo(X(aa), y); else ctx.lineTo(X(aa), y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        /* curve tags where the gap is widest */
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = col.acc;
+        ctx.fillText(cs ? 'TYČ' : 'ROD', X(6) + 4, Y(eRod(6)) + 16);
+        if (show.compare) {
+            ctx.fillStyle = col.soft;
+            ctx.fillText(cs ? 'BODOVÝ NÁBOJ' : 'POINT CHARGE', X(6) + 4, Y(ePoint(6)) - 10);
+        }
+
+        /* marker at the current a */
+        const xm = X(a);
+        const yRodM = Y(eRod(a));
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(xm, py1); ctx.lineTo(xm, yRodM); ctx.stroke();
+        ctx.setLineDash([]);
+        if (show.compare) {
+            const yPtM = Y(ePoint(a));
+            ctx.beginPath(); ctx.arc(xm, yPtM, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = col.paper; ctx.fill();
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.4; ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(xm, yRodM, 4, 0, Math.PI * 2);
+        ctx.fillStyle = col.acc; ctx.fill();
+
+        /* ---- readouts ---- */
+        const er = eRod(a), ep = ePoint(a);
+        const roundE = v => {
+            const m = v * 1e3;                       /* mN/C */
+            return m >= 1 ? +m.toFixed(2) : +m.toFixed(3);
+        };
+        const fmtE = v => {
+            const m = v * 1e3;
+            return (m >= 1 ? m.toFixed(2) : m.toFixed(3)) + ' mN/C';
+        };
+        const lam = state.q / (state.d / 100);       /* fC per m, magnitude */
+        const $ = id => document.getElementById(id);
+        if ($('r-lambda')) $('r-lambda').textContent = '−' + lam.toFixed(1) + ' fC/m';
+        if ($('r-erod'))   $('r-erod').textContent   = fmtE(er);
+        if ($('r-epoint')) $('r-epoint').textContent = fmtE(ep);
+        if ($('r-ratio'))  $('r-ratio').textContent  = (roundE(er) / roundE(ep)).toFixed(3);
+    }
+
+    function frame() {
+        draw();
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

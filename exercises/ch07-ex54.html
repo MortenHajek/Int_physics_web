@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 7.54 · Falling onto a Spring — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="energy" data-screen-label="Ex 7.54 Falling onto a Spring">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 7 · Ex. 54</span><span lang="cs">Kap. 7 · Úl. 54</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Work &amp; Energy — Chapter 7 · Exercise 54</span><span lang="cs">4. téma · Práce a energie — Kapitola 7 · Úloha 54</span></div>
+        <h1><span lang="en">Falling onto a Spring</span><span lang="cs">Pád na pružinu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots"></span>54</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    A block of mass <span class="given" data-tex="m = 250\ \mathrm{g}"></span> falls onto
+                    a vertical spring of stiffness
+                    <span class="given" data-tex="k = 2.5\ \mathrm{N\,cm^{-1}}"></span> (fig. 7-44) and
+                    connects firmly to it; the system starts to oscillate. When the block first reaches
+                    its turning point, the spring is compressed by
+                    <span class="given" data-tex="d = 12\ \mathrm{cm}"></span>.
+                </p>
+                <p lang="cs">
+                    Klínek o hmotnosti <span class="given" data-tex="m = 250\ \mathrm{g}"></span> padá na
+                    svislou pružinu o tuhosti
+                    <span class="given" data-tex="k = 2{,}5\ \mathrm{N\,cm^{-1}}"></span> (obr. 7-44) a
+                    pevně se k ní připojí; soustava se pak rozkmitá. Když klínek poprvé dosáhne obratového
+                    bodu, je pružina stlačena o
+                    <span class="given" data-tex="d = 12\ \mathrm{cm}"></span>.
+                </p>
+                <p lang="en">
+                    Determine the work done on the block up to that moment by (a) the gravitational
+                    force and (b) the spring force. (c) How fast was the block moving just before it hit
+                    the spring? (Neglect friction and drag.) (d) What would the maximum compression be
+                    if the impact speed were doubled?
+                </p>
+                <p lang="cs">
+                    Určete práci vykonanou na klínku do tohoto okamžiku (a) tíhovou silou a (b) silou
+                    pružiny. (c) Jak rychle se klínek pohyboval těsně před dopadem na pružinu?
+                    (Zanedbejte tření a odpor prostředí.) (d) Jaké by bylo maximální stlačení, kdyby
+                    byla rychlost dopadu dvojnásobná?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Impact sandbox</span><span lang="cs">Sandbox: náraz</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"><span lang="en">slow motion</span><span lang="cs">zpomalený záběr</span></span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="W_g + W_s = \Delta E_k"></div>
+                <div class="sim-hint"><span lang="en">at the turning point ΔEk = 0 — the works cancel… almost</span><span lang="cs">v obratovém bodě ΔEk = 0 — práce se skoro vyruší</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Block mass m</span><span lang="cs">Hmotnost klínku m</span></span>
+                            <span class="sim-control-val" id="p-m-val">250 g</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m" min="100" max="600" step="10" value="250">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Stiffness k</span><span lang="cs">Tuhost k</span></span>
+                            <span class="sim-control-val" id="p-k-val">2.5 N/cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-k" min="1.0" max="5.0" step="0.1" value="2.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Observed compression d</span><span lang="cs">Pozorované stlačení d</span></span>
+                            <span class="sim-control-val" id="p-d-val">12.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-d" min="4" max="20" step="0.5" value="12">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">During the compression</span><span lang="cs">Během stlačování</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_g = mgd"></span>
+                        <span class="readout-val" id="r-wg">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_s = -\tfrac12 kd^2"></span>
+                        <span class="readout-val" id="r-ws">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Deduced</span><span lang="cs">Odvozeno</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v\ \text{at impact}"></span>
+                        <span class="readout-val" id="r-v">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="d'\ \text{at}\ 2v"></span>
+                        <span class="readout-val" id="r-d2">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-marks">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">compression marker</span><span lang="cs">značka stlačení</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(a)</strong> During the compression the block descends
+                    <span data-tex="d"></span>, so gravity does
+                    <span data-tex="W_g = mgd = 0.25\cdot 9.8\cdot 0.12 = 0.29\ \mathrm{J}"></span>.</span>
+                    <span lang="cs"><strong>(a)</strong> Během stlačování klínek klesne o
+                    <span data-tex="d"></span>, takže tíhová síla vykoná
+                    <span data-tex="W_g = mgd = 0{,}25\cdot 9{,}8\cdot 0{,}12 = 0{,}29\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(b)</strong> The spring (with
+                    <span data-tex="k = 250\ \mathrm{N\,m^{-1}}"></span>) does
+                    <span data-tex="W_s = -\tfrac12 kd^2 = -\tfrac12\cdot 250\cdot 0.12^2 = -1.8\ \mathrm{J}"></span>.</span>
+                    <span lang="cs"><strong>(b)</strong> Pružina (s
+                    <span data-tex="k = 250\ \mathrm{N\,m^{-1}}"></span>) vykoná
+                    <span data-tex="W_s = -\tfrac12 kd^2 = -\tfrac12\cdot 250\cdot 0{,}12^2 = -1{,}8\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(c)</strong> Between impact and the turning point
+                    <span data-tex="\Delta E_k = W_g + W_s"></span>, and the final kinetic energy is zero:
+                    <span data-tex="\tfrac12 mv^2 = -W_s - W_g = 1.8 - 0.29 = 1.51\ \mathrm{J}"></span>,
+                    so <span data-tex="v = 3.5\ \mathrm{m\,s^{-1}}"></span>.</span>
+                    <span lang="cs"><strong>(c)</strong> Mezi nárazem a obratovým bodem
+                    <span data-tex="\Delta E_k = W_g + W_s"></span>, a konečná kinetická energie je nulová:
+                    <span data-tex="\tfrac12 mv^2 = -W_s - W_g = 1{,}8 - 0{,}29 = 1{,}51\ \mathrm{J}"></span>,
+                    tedy <span data-tex="v = 3{,}5\ \mathrm{m\,s^{-1}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">04</span>
+                <div class="sol-step-text">
+                    <span lang="en"><strong>(d)</strong> With impact speed <span data-tex="2v"></span>, solve
+                    <span data-tex="\tfrac12 k d'^2 - mgd' - \tfrac12 m(2v)^2 = 0"></span>:
+                    the positive root gives <span data-tex="d' \approx 23\ \mathrm{cm}"></span>
+                    (not simply doubled — gravity's share does not scale with
+                    <span data-tex="v^2"></span>).</span>
+                    <span lang="cs"><strong>(d)</strong> Při rychlosti dopadu <span data-tex="2v"></span> řešíme
+                    <span data-tex="\tfrac12 k d'^2 - mgd' - \tfrac12 m(2v)^2 = 0"></span>:
+                    kladný kořen dává <span data-tex="d' \approx 23\ \mathrm{cm}"></span>
+                    (ne prostě dvojnásobek — příspěvek tíhy neroste s
+                    <span data-tex="v^2"></span>).</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (a)</span><span lang="cs">Výsledek (a)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="W_g \approx 0.29\ \mathrm{J}"></span><span lang="cs" data-tex="W_g \approx 0{,}29\ \mathrm{J}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (b)</span><span lang="cs">Výsledek (b)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="W_s = -1.8\ \mathrm{J}"></span><span lang="cs" data-tex="W_s = -1{,}8\ \mathrm{J}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (c)</span><span lang="cs">Výsledek (c)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="v \approx 3.5\ \mathrm{m\,s^{-1}}"></span><span lang="cs" data-tex="v \approx 3{,}5\ \mathrm{m\,s^{-1}}"></span></span>
+            </div>
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer (d)</span><span lang="cs">Výsledek (d)</span></span>
+                <span class="ans-value"><span lang="en" data-tex="d' \approx 23\ \mathrm{cm}"></span><span lang="cs" data-tex="d' \approx 23\ \mathrm{cm}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 7 · Ex. 54</span><span lang="cs">Kap. 7 · Úl. 54</span></span>
+        <span><span lang="en">Vol. I · Work &amp; Energy</span><span lang="cs">Díl I · Práce a energie</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const g = 9.8;
+    /* m grams, k N/cm, d cm */
+    const DEFAULTS = { m: 250, k: 2.5, d: 12 };
+    let state = { ...DEFAULTS };
+    const show = { marks: true };
+
+    const fmtG = v => v.toFixed(0) + ' g';
+    const fmtK = v => v.toFixed(1) + ' N/cm';
+    const fmtD = v => v.toFixed(1) + ' cm';
+    const SLIDERS = [['p-m', 'm', fmtG], ['p-k', 'k', fmtK], ['p-d', 'd', fmtD]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-marks')?.addEventListener('click', function () {
+        show.marks = !show.marks;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function physics() {
+        const m = state.m / 1000;
+        const k = state.k * 100;             /* N/m */
+        const d = state.d / 100;             /* m */
+        const Wg = m * g * d;
+        const Ws = -0.5 * k * d * d;
+        const ke = -Ws - Wg;
+        const v  = ke > 0 ? Math.sqrt(2 * ke / m) : 0;
+        /* doubled speed: ½k d'² − mg d' − ½m(2v)² = 0 */
+        const A = 0.5 * k, B = -m * g, C = -0.5 * m * (2 * v) ** 2;
+        const d2 = (-B + Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+        return { m, k, d, Wg, Ws, v, d2 };
+    }
+
+    function spring(x, y0, y1, coils, width) {
+        const seg = (y1 - y0) / coils;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(x, y0);
+        for (let i = 0; i < coils; i++) {
+            ctx.lineTo(x + (i % 2 ? -width : width), y0 + seg * (i + 0.5));
+        }
+        ctx.lineTo(x, y1); ctx.stroke();
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const ph = physics();
+
+        /* timeline: fall (analytic), then connected SHM about equilibrium */
+        const hDrop = ph.v * ph.v / (2 * g);          /* m above the spring top */
+        const tFall = ph.v > 0 ? Math.sqrt(2 * hDrop / g) : 0.6;
+        const om = Math.sqrt(ph.k / ph.m);
+        const xEq = ph.m * g / ph.k;                  /* equilibrium compression */
+        const SLOW = 3.2;                             /* slow-motion stretch */
+        const Tshm = 2 * Math.PI / om;
+        const period = (tFall + 2.2 * Tshm) * SLOW + 0.8;
+        const tau = (ts / 1000) % period / SLOW;
+
+        /* compression x(t) after contact (measured down from natural length) */
+        function comp(t) {
+            return xEq * (1 - Math.cos(om * t)) + ph.v / om * Math.sin(om * t);
+        }
+        let yBlock;                                   /* metres below drop start */
+        if (tau < tFall) yBlock = 0.5 * g * tau * tau;
+        else             yBlock = hDrop + Math.max(comp(tau - tFall), -hDrop * 0.2);
+
+        /* channel geometry */
+        const cx = W * 0.5;
+        const chW = 120;
+        const topY = 34, botY = H - 40;
+        const springTopY0 = botY - (botY - topY) * 0.45;   /* natural spring top */
+        const pxPerM = (springTopY0 - topY - 40) / Math.max(hDrop, 0.2);
+        const pxPerMc = 320;                               /* compression scale */
+
+        /* walls */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        [[cx - chW / 2, -1], [cx + chW / 2, 1]].forEach(([x, side]) => {
+            ctx.beginPath(); ctx.moveTo(x, springTopY0 - 60); ctx.lineTo(x, botY); ctx.stroke();
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            for (let y = springTopY0 - 54; y < botY - 2; y += 12) {
+                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 9 * side, y - 8); ctx.stroke();
+            }
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
+        });
+        /* floor of the channel */
+        ctx.beginPath(); ctx.moveTo(cx - chW / 2, botY); ctx.lineTo(cx + chW / 2, botY); ctx.stroke();
+
+        const compression = tau < tFall ? 0 : Math.max(comp(tau - tFall), 0);
+        const sTop = springTopY0 + compression * pxPerMc;
+        spring(cx, Math.min(sTop, botY - 8), botY, 8, 22);
+
+        /* compression markers */
+        if (show.marks) {
+            const dPx = springTopY0 + ph.d * pxPerMc;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(cx - chW / 2 - 26, springTopY0);
+            ctx.lineTo(cx + chW / 2 + 8, springTopY0); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx - chW / 2 - 26, dPx);
+            ctx.lineTo(cx + chW / 2 + 8, dPx); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.1;
+            ctx.beginPath(); ctx.moveTo(cx - chW / 2 - 20, springTopY0);
+            ctx.lineTo(cx - chW / 2 - 20, dPx); ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            ctx.fillText('d', cx - chW / 2 - 26, (springTopY0 + dPx) / 2);
+        }
+
+        /* block: falls, then rides the spring top */
+        const bw = 62, bh = 44;
+        let byDraw;
+        if (tau < tFall) {
+            byDraw = Math.min(topY + yBlock * pxPerM, springTopY0 - bh);
+        } else {
+            byDraw = Math.min(springTopY0 + comp(tau - tFall) * pxPerMc - bh, botY - bh - 4);
+        }
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+        ctx.fillRect(cx - bw / 2, byDraw, bw, bh);
+        ctx.strokeRect(cx - bw / 2, byDraw, bw, bh);
+        ctx.fillStyle = col.ink;
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m', cx, byDraw + bh / 2);
+
+        /* impact-speed caption */
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('impact v = ' + ph.v.toFixed(2) + ' m/s', 26, 22);
+
+        const $ = id => document.getElementById(id);
+        if ($('r-wg')) $('r-wg').textContent = ph.Wg.toFixed(2) + ' J';
+        if ($('r-ws')) $('r-ws').textContent = ph.Ws.toFixed(2) + ' J';
+        if ($('r-v'))  $('r-v').textContent  = ph.v.toFixed(2) + ' m/s';
+        if ($('r-d2')) $('r-d2').textContent = (ph.d2 * 100).toFixed(1) + ' cm';
+    }
+
+    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

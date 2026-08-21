@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 13.1 · A Feeble Attraction — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="gravity" data-screen-label="Ex 13.1 A Feeble Attraction">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. I · Gravity</span><span lang="cs">Díl I · Gravitace</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 13 · Ex. 1</span><span lang="cs">Kap. 13 · Úl. 1</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 7 · Gravity — Chapter 13 · Exercise 1</span><span lang="cs">7. téma · Gravitace — Kapitola 13 · Úloha 1</span></div>
+        <h1><span lang="en">A Feeble Attraction</span><span lang="cs">Slabounká přitažlivost</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">•</span>1</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    What must the separation between particles of masses
+                    <span class="given" data-tex="m_1 = 5.2\ \mathrm{kg}"></span> and
+                    <span class="given" data-tex="m_2 = 2.4\ \mathrm{kg}"></span> be, for their mutual
+                    gravitational attraction to have magnitude
+                    <span class="given" data-tex="F = 2.3\cdot 10^{-12}\ \mathrm{N}"></span>?
+                </p>
+                <p lang="cs">
+                    Jaká musí být vzdálenost mezi částicemi o hmotnostech
+                    <span class="given" data-tex="m_1 = 5{,}2\ \mathrm{kg}"></span> a
+                    <span class="given" data-tex="m_2 = 2{,}4\ \mathrm{kg}"></span>, aby jejich vzájemná
+                    gravitační přitažlivost měla velikost
+                    <span class="given" data-tex="F = 2{,}3\cdot 10^{-12}\ \mathrm{N}"></span>?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Attraction sandbox</span><span lang="cs">Sandbox: přitažlivost</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="F = G\,\dfrac{m_1 m_2}{r^2}"></div>
+                <div class="sim-hint"><span lang="en">slide the masses apart until F hits the target</span><span lang="cs">posouvejte hmotnosti od sebe, dokud F nezasáhne cíl</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset the search">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Separation r — find it!</span><span lang="cs">Vzdálenost r — najděte ji!</span></span>
+                            <span class="sim-control-val" id="p-r-val">10.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-r" min="2" max="30" step="0.1" value="10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m₁</span><span lang="cs">Hmotnost m₁</span></span>
+                            <span class="sim-control-val" id="p-m1-val">5.2 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m1" min="1" max="10" step="0.1" value="5.2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass m₂</span><span lang="cs">Hmotnost m₂</span></span>
+                            <span class="sim-control-val" id="p-m2-val">2.4 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-m2" min="1" max="10" step="0.1" value="2.4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-section"><span lang="en">Match the target</span><span lang="cs">Trefte cíl</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="F(r)"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="F\ \text{target}"></span><span lang="cs" data-tex="F\ \text{cíl}"></span></span>
+                        <span class="readout-val">2.30 ×10⁻¹² N</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en" data-tex="\text{status}"></span><span lang="cs" data-tex="\text{stav}"></span></span>
+                        <span class="readout-val" id="r-status">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-curve">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">F(r) curve</span><span lang="cs">křivka F(r)</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">Newton's law of gravitation, solved for the separation:
+                    <span data-tex="r = \sqrt{\dfrac{G m_1 m_2}{F}}"></span>.</span>
+                    <span lang="cs">Newtonův gravitační zákon, vyjádřený pro vzdálenost:
+                    <span data-tex="r = \sqrt{\dfrac{G m_1 m_2}{F}}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Numerically:
+                    <span data-tex="r = \sqrt{\dfrac{6.67\cdot 10^{-11}\cdot 5.2\cdot 2.4}{2.3\cdot 10^{-12}}} = \sqrt{362\ \mathrm{m^2}} = 19\ \mathrm{m}"></span>.</span>
+                    <span lang="cs">Číselně:
+                    <span data-tex="r = \sqrt{\dfrac{6{,}67\cdot 10^{-11}\cdot 5{,}2\cdot 2{,}4}{2{,}3\cdot 10^{-12}}} = \sqrt{362\ \mathrm{m^2}} = 19\ \mathrm{m}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="r \approx 19\ \mathrm{m}"></span><span lang="cs" data-tex="r \approx 19\ \mathrm{m}"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/gravity.html"><span lang="en">← Topic: Gravity</span><span lang="cs">← Téma: Gravitace</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 13 · Ex. 1</span><span lang="cs">Kap. 13 · Úl. 1</span></span>
+        <span><span lang="en">Vol. I · Gravity</span><span lang="cs">Díl I · Gravitace</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#163868',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const G = 6.67e-11, F_TARGET = 2.3;     /* target in 1e-12 N */
+    const DEFAULTS = { r: 10, m1: 5.2, m2: 2.4 };
+    let state = { ...DEFAULTS };
+    const show = { curve: true };
+
+    const fmtR = v => v.toFixed(1) + ' m';
+    const fmtM = v => v.toFixed(1) + ' kg';
+    const SLIDERS = [['p-r', 'r', fmtR], ['p-m1', 'm1', fmtM], ['p-m2', 'm2', fmtM]];
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id);
+        const lbl = document.getElementById(id + '-val');
+        if (!inp) return;
+        inp.addEventListener('input', () => {
+            state[key] = +inp.value;
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id);
+            const lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
+        });
+    });
+    document.getElementById('tgl-curve')?.addEventListener('click', function () {
+        show.curve = !show.curve;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(10, len * 0.35), hw = hl * 0.42;
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1);
+        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const Fp = (r) => G * state.m1 * state.m2 / (r * r) * 1e12;   /* in 1e-12 N */
+        const Fnow = Fp(state.r);
+        const matched = Math.abs(Fnow - F_TARGET) <= 0.025;
+
+        /* top strip: the two masses on a metre scale */
+        const ax0 = 56, ax1 = W - 40, ay = H * 0.26;
+        const R_MAX = 32;
+        const SX = r => ax0 + r / R_MAX * (ax1 - ax0);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(ax0 - 6, ay); ctx.lineTo(ax1 + 6, ay); ctx.stroke();
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        for (let r = 0; r <= 30; r += 10) {
+            ctx.beginPath(); ctx.moveTo(SX(r), ay); ctx.lineTo(SX(r), ay + 5);
+            ctx.strokeStyle = col.faint; ctx.stroke();
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText(r + ' m', SX(r), ay + 8);
+        }
+        /* spheres + mutual force arrows */
+        const r1 = 9 + state.m1, r2 = 9 + state.m2;
+        [[SX(0), r1, 'm₁'], [SX(state.r), r2, 'm₂']].forEach(([x, rr, name]) => {
+            const grd = ctx.createRadialGradient(x - 3, ay - 20 - 3, 2, x, ay - 20, rr);
+            grd.addColorStop(0, col.paper); grd.addColorStop(1, col.acc);
+            ctx.beginPath(); ctx.arc(x, ay - 20, rr, 0, Math.PI * 2);
+            ctx.fillStyle = grd; ctx.fill();
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4; ctx.stroke();
+            ctx.fillStyle = col.soft;
+            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText(name, x, ay - 22 - rr);
+        });
+        const fLen = Math.min(60, 8 + Fnow * 6);
+        arrow(SX(0) + r1 + 4, ay - 20, SX(0) + r1 + 4 + fLen, ay - 20, col.soft, 1.6);
+        arrow(SX(state.r) - r2 - 4, ay - 20, SX(state.r) - r2 - 4 - fLen, ay - 20, col.soft, 1.6);
+
+        /* lower plot: F(r) with the target line */
+        if (show.curve) {
+            const gy0 = H * 0.44, gy1 = H - 48;
+            const F_MAX = 9;
+            const SY = f => gy1 - Math.min(f, F_MAX) / F_MAX * (gy1 - gy0);
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(ax0, gy0 - 4); ctx.lineTo(ax0, gy1); ctx.lineTo(ax1 + 6, gy1);
+            ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            ctx.fillText('F (10⁻¹² N)', ax0 + 6, gy0 + 12);
+            /* curve */
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
+            ctx.beginPath();
+            let started = false;
+            for (let i = 0; i <= 150; i++) {
+                const r = 2 + i / 150 * (R_MAX - 2);
+                const f = Fp(r);
+                if (f > F_MAX) { started = false; continue; }
+                started ? ctx.lineTo(SX(r), SY(f)) : ctx.moveTo(SX(r), SY(f));
+                started = true;
+            }
+            ctx.stroke();
+            /* target line */
+            ctx.strokeStyle = matched ? col.acc : col.soft;
+            ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(ax0, SY(F_TARGET)); ctx.lineTo(ax1, SY(F_TARGET));
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = col.soft;
+            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+            ctx.fillText('target 2.3', ax1 - 4, SY(F_TARGET) - 3);
+            /* current point */
+            if (Fnow <= F_MAX) {
+                ctx.beginPath(); ctx.arc(SX(state.r), SY(Fnow), 6, 0, Math.PI * 2);
+                ctx.fillStyle = col.acc; ctx.fill();
+                ctx.lineWidth = 1.6; ctx.strokeStyle = col.paper; ctx.stroke();
+            }
+        }
+
+        if (matched) {
+            ctx.fillStyle = col.acc;
+            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('● MATCHED — read r off the slider', W / 2, 18);
+        }
+
+        const $ = id => document.getElementById(id);
+        if ($('r-f'))      $('r-f').textContent      = Fnow.toFixed(2) + ' ×10⁻¹² N';
+        if ($('r-status')) $('r-status').textContent = matched ? 'matched ✓' : 'keep sliding…';
+    }
+
+    function frame() { draw(); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>

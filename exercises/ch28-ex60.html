@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Exercise 28.60 · Turning Point of a Dipole — Physics Playground</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="exercise.css" />
+    <script src="../lang.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+
+<body class="magnetism" data-screen-label="Ex 28.60 Dipole Turning Point">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∑</span>
+            <span>Physics Playground</span>
+            <small><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></small>
+        </a>
+        <nav class="nav">
+            <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
+            <a href="#sandbox">Sandbox</a>
+            <a href="#solution"><span lang="en">Solution</span><span lang="cs">Řešení</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+    <div class="crumb">
+        <a href="../index.html">Physics Playground</a>
+        <span class="sep">/</span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+        <span class="sep">/</span>
+        <span class="here"><span lang="en">Ch. 28 · Ex. 60</span><span lang="cs">Kap. 28 · Úl. 60</span></span>
+    </div>
+
+    <section class="ex-hero">
+        <div class="num"><span lang="en">Topic 4 · Magnetic Field — Chapter 28 · Exercise 60</span><span lang="cs">4. téma · Magnetické pole — Kapitola 28 · Úloha 60</span></div>
+        <h1><span lang="en">Turning Point of a Dipole</span><span lang="cs">Bod obratu dipólu</span></h1>
+
+        <div class="assignment">
+            <div class="assignment-marker"><span class="dots">••</span>60</div>
+            <div class="assignment-text">
+                <p lang="en">
+                    The graph shows the potential energy <span data-tex="E_{\mathrm{p}}"></span> of a
+                    magnetic dipole in an external field as a function of the angle
+                    <span data-tex="\varphi"></span> between <span data-tex="\vec{B}"></span> and the
+                    dipole moment <span data-tex="\vec{\mu}"></span>. The vertical scale is set by
+                    <span class="given" data-tex="E_{\mathrm{ps}} = 2.0\cdot 10^{-4}\ \mathrm{J}"></span>
+                    (the curve peaks at <span data-tex="2E_{\mathrm{ps}}"></span>). The dipole can
+                    rotate almost without friction. Starting at <span data-tex="\varphi = 0"></span>
+                    it has rotational kinetic energy
+                    <span class="given" data-tex="6.7\cdot 10^{-4}\ \mathrm{J}"></span>, turning
+                    counterclockwise.
+                </p>
+                <p lang="cs">
+                    Graf ukazuje potenciální energii <span data-tex="E_{\mathrm{p}}"></span> magnetického
+                    dipólu ve vnějším poli jako funkci úhlu
+                    <span data-tex="\varphi"></span> mezi <span data-tex="\vec{B}"></span> a
+                    dipólovým momentem <span data-tex="\vec{\mu}"></span>. Svislé měřítko je dáno hodnotou
+                    <span class="given" data-tex="E_{\mathrm{ps}} = 2{,}0\cdot 10^{-4}\ \mathrm{J}"></span>
+                    (křivka vrcholí na <span data-tex="2E_{\mathrm{ps}}"></span>). Dipól se může
+                    otáčet téměř bez tření. Počínaje <span data-tex="\varphi = 0"></span>
+                    má rotační kinetickou energii
+                    <span class="given" data-tex="6{,}7\cdot 10^{-4}\ \mathrm{J}"></span>, otáčí se
+                    proti směru hodinových ručiček.
+                </p>
+                <p lang="en">
+                    What is the maximum angle <span data-tex="\varphi"></span> it reaches — the
+                    turning point on the potential-energy curve?
+                </p>
+                <p lang="cs">
+                    Jaký je maximální úhel <span data-tex="\varphi"></span>, kterého dosáhne — bod
+                    obratu na křivce potenciální energie?
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="lab">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Energy landscape</span><span lang="cs">Energetický profil</span></span>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="sim-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="E_{\mathrm{p}}(\varphi) = -\mu B\cos\varphi"></div>
+                <div class="sim-hint"><span lang="en">raise the launch energy · the total-energy line meets the curve at the turning point</span><span lang="cs">zvyšte počáteční energii · přímka celkové energie protne křivku v bodě obratu</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="btn-reset" class="btn-reset" title="Reset to the exercise values">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Launch KE at φ = 0</span><span lang="cs">Počáteční KE při φ = 0</span></span>
+                            <span class="sim-control-val" id="p-ke-val">6.7 ×10⁻⁴ J</span>
+                        </div>
+                        <input class="sim-control-range" type="range"
+                               id="p-ke" min="0" max="9" step="0.05" value="6.7">
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\mu B = 2E_{\mathrm{ps}}"></span>
+                        <span class="readout-val"><span lang="en">4.0 ×10⁻⁴ J</span><span lang="cs">4,0 ×10⁻⁴ J</span></span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="E_{\text{tot}} = KE_0 - \mu B"></span>
+                        <span class="readout-val" id="r-etot">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\varphi_{\max}"></span>
+                        <span class="readout-val" id="r-phi">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="tgl-anim">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">swinging dipole</span><span lang="cs">kmitající dipól</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <details id="solution" class="solution">
+        <summary>
+            <span class="accent-pip"></span>
+            <span lang="en">Show solution</span><span lang="cs">Zobrazit řešení</span>
+            <span class="sol-arrow">▾</span>
+        </summary>
+        <div class="sol-body">
+
+            <div class="sol-step">
+                <span class="sol-step-num">01</span>
+                <div class="sol-step-text">
+                    <span lang="en">The curve is <span data-tex="E_{\mathrm{p}} = -\mu B\cos\varphi"></span>. It peaks
+                    at <span data-tex="\pm 180^\circ"></span> two scale marks above zero, so
+                    <span data-tex="\mu B = 2E_{\mathrm{ps}} = 4.0\cdot 10^{-4}\ \mathrm{J}"></span>.</span>
+                    <span lang="cs">Křivka je <span data-tex="E_{\mathrm{p}} = -\mu B\cos\varphi"></span>. Vrcholí
+                    v <span data-tex="\pm 180^\circ"></span> dva dílky stupnice nad nulou, tedy
+                    <span data-tex="\mu B = 2E_{\mathrm{ps}} = 4{,}0\cdot 10^{-4}\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">02</span>
+                <div class="sol-step-text">
+                    <span lang="en">Energy conservation from <span data-tex="\varphi = 0"></span> (where
+                    <span data-tex="E_{\mathrm{p}} = -\mu B"></span>):
+                    <span data-tex="E_{\text{tot}} = KE_0 - \mu B = 6.7\cdot 10^{-4} - 4.0\cdot 10^{-4} = 2.7\cdot 10^{-4}\ \mathrm{J}"></span>.</span>
+                    <span lang="cs">Zákon zachování energie od <span data-tex="\varphi = 0"></span> (kde
+                    <span data-tex="E_{\mathrm{p}} = -\mu B"></span>):
+                    <span data-tex="E_{\text{tot}} = KE_0 - \mu B = 6{,}7\cdot 10^{-4} - 4{,}0\cdot 10^{-4} = 2{,}7\cdot 10^{-4}\ \mathrm{J}"></span>.</span>
+                </div>
+            </div>
+
+            <div class="sol-step">
+                <span class="sol-step-num">03</span>
+                <div class="sol-step-text">
+                    <span lang="en">At the turning point all energy is potential:
+                    <span data-tex="-\mu B\cos\varphi_{\max} = E_{\text{tot}}"></span>, so
+                    <span data-tex="\cos\varphi_{\max} = -\dfrac{2.7}{4.0} = -0.675"></span> and
+                    <span data-tex="\varphi_{\max} = 132.5^\circ \approx 130^\circ"></span>.
+                    (Had <span data-tex="KE_0"></span> exceeded
+                    <span data-tex="2\mu B = 8.0\cdot 10^{-4}\ \mathrm{J}"></span>, the dipole would
+                    tumble over the top and never turn back.)</span>
+                    <span lang="cs">V bodě obratu je veškerá energie potenciální:
+                    <span data-tex="-\mu B\cos\varphi_{\max} = E_{\text{tot}}"></span>, tedy
+                    <span data-tex="\cos\varphi_{\max} = -\dfrac{2{,}7}{4{,}0} = -0{,}675"></span> a
+                    <span data-tex="\varphi_{\max} = 132{,}5^\circ \approx 130^\circ"></span>.
+                    (Kdyby <span data-tex="KE_0"></span> překročila
+                    <span data-tex="2\mu B = 8{,}0\cdot 10^{-4}\ \mathrm{J}"></span>, dipól by se
+                    přehoupl přes vrchol a nikdy by se neobrátil zpět.)</span>
+                </div>
+            </div>
+
+            <div class="sol-answer">
+                <span class="ans-label"><span lang="en">Answer</span><span lang="cs">Výsledek</span></span>
+                <span class="ans-value"><span lang="en" data-tex="\varphi_{\max} \approx 130^\circ"></span><span lang="cs" data-tex="\varphi_{\max} \approx 130^\circ"></span></span>
+            </div>
+
+        </div>
+    </details>
+
+    <nav class="ex-nav">
+        <a href="../topics/magnetism.html"><span lang="en">← Topic: Magnetic Field</span><span lang="cs">← Téma: Magnetické pole</span></a>
+        <a href="vol2.html"><span lang="en">All Physics 2 exercises</span><span lang="cs">Všechny úlohy Fyziky 2</span></a>
+        <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
+    </nav>
+
+    <footer class="foot">
+        <span>Physics Playground · <span lang="en">interactive exercises</span><span lang="cs">interaktivní úlohy</span></span>
+        <span><span lang="en">Ch. 28 · Ex. 60</span><span lang="cs">Kap. 28 · Úl. 60</span></span>
+        <span><span lang="en">Vol. II · Magnetic Field</span><span lang="cs">Díl II · Magnetické pole</span></span>
+    </footer>
+
+</div><!-- /.page -->
+
+<!-- ── KaTeX: render all [data-tex] elements ─────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+
+<!-- ── Simulation ────────────────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const canvas = document.getElementById('sim-canvas');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const wrap   = canvas.parentElement;
+
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect();
+        W = Math.max(r.width,  200);
+        H = Math.max(r.height, 200);
+        canvas.width  = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    new ResizeObserver(resize).observe(wrap);
+
+    function readCol() {
+        const s = getComputedStyle(document.documentElement);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
+            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a6878',
+            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
+            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
+            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+        };
+    }
+    const col = readCol();
+
+    const EPS = 2.0e-4;                /* J, scale mark */
+    const MUB = 2 * EPS;               /* J */
+    const DEFAULTS = { ke: 6.7 };      /* ×1e-4 J */
+    let state = { ...DEFAULTS };
+    const prm  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const show = { anim: !prm };
+
+    const inp = document.getElementById('p-ke');
+    const lbl = document.getElementById('p-ke-val');
+    inp.addEventListener('input', () => {
+        state.ke = +inp.value;
+        lbl.textContent = state.ke.toFixed(1) + ' ×10⁻⁴ J';
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        inp.value = state.ke;
+        lbl.textContent = state.ke.toFixed(1) + ' ×10⁻⁴ J';
+    });
+    document.getElementById('tgl-anim')?.addEventListener('click', function () {
+        show.anim = !show.anim;
+        this.querySelector('.toggle-box')?.classList.toggle('on');
+    });
+
+    function physics() {
+        const ke0 = state.ke * 1e-4;
+        const eTot = ke0 - MUB;
+        const cosPhi = -eTot / MUB;            /* -muB cos = eTot */
+        const over = ke0 >= 2 * MUB;
+        const phiMax = over ? null : Math.acos(Math.max(-1, Math.min(1, cosPhi)));
+        return { ke0, eTot, phiMax, over };
+    }
+
+    function draw(ts) {
+        ctx.clearRect(0, 0, W, H);
+        const f = physics();
+
+        const mL = 66, mR = 26, mT = 34, mB = 46;
+        const pw = W - mL - mR, ph = H - mT - mB;
+        const EMAX = 5.2e-4;
+        const xPix = deg => mL + ((deg + 180) / 360) * pw;
+        const yPix = e => mT + ph / 2 - (e / EMAX) * (ph / 2);
+
+        /* grid */
+        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
+        [-90, 0, 90].forEach(d => {
+            ctx.beginPath(); ctx.moveTo(xPix(d), mT); ctx.lineTo(xPix(d), mT + ph); ctx.stroke();
+        });
+        [EPS, -EPS, 2 * EPS, -2 * EPS].forEach(e => {
+            ctx.beginPath(); ctx.moveTo(mL, yPix(e)); ctx.lineTo(mL + pw, yPix(e)); ctx.stroke();
+        });
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
+        ctx.strokeRect(mL, mT, pw, ph);
+        ctx.beginPath(); ctx.moveTo(mL, yPix(0)); ctx.lineTo(mL + pw, yPix(0)); ctx.stroke();
+
+        /* labels */
+        ctx.fillStyle = col.soft;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        [-180, -90, 0, 90, 180].forEach(d =>
+            ctx.fillText(d + '°', xPix(d), mT + ph + 8));
+        ctx.fillText('φ', mL + pw / 2, mT + ph + 24);
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('+Eps', mL - 8, yPix(EPS));
+        ctx.fillText('−Eps', mL - 8, yPix(-EPS));
+
+        /* potential curve */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let d = -180; d <= 180; d += 2) {
+            const e = -MUB * Math.cos(d * Math.PI / 180);
+            if (d === -180) ctx.moveTo(xPix(d), yPix(e)); else ctx.lineTo(xPix(d), yPix(e));
+        }
+        ctx.stroke();
+
+        /* total-energy line */
+        const eLineCol = f.over ? '#a03030' : col.acc;
+        ctx.strokeStyle = eLineCol; ctx.lineWidth = 1.8; ctx.setLineDash([7, 5]);
+        ctx.beginPath();
+        ctx.moveTo(mL, yPix(f.eTot)); ctx.lineTo(mL + pw, yPix(f.eTot));
+        ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = eLineCol;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        ctx.fillText('E total = ' + (f.eTot * 1e4).toFixed(1) + '·10⁻⁴ J' +
+                     (f.over ? '  — clears the top!' : ''), mL + 8, yPix(f.eTot) - 4);
+
+        /* turning points */
+        if (!f.over) {
+            const pd = f.phiMax * 180 / Math.PI;
+            [pd, -pd].forEach(d => {
+                ctx.fillStyle = col.acc;
+                ctx.beginPath(); ctx.arc(xPix(d), yPix(f.eTot), 5, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.fillStyle = col.acc;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            ctx.fillText('φmax = ' + pd.toFixed(1) + '°', xPix(pd), yPix(f.eTot) - 10);
+        }
+
+        /* swinging dipole marker on the curve */
+        if (show.anim) {
+            let d;
+            if (f.over) {
+                d = ((ts * 0.05) % 360) - 180;
+            } else {
+                const pd = f.phiMax * 180 / Math.PI;
+                d = pd * Math.sin(ts * 0.0016);
+            }
+            const e = -MUB * Math.cos(d * Math.PI / 180);
+            ctx.fillStyle = col.paper;
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.arc(xPix(d), yPix(e), 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            /* dipole arrow inset */
+            const ix = mL + pw - 64, iy = mT + 38;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(ix, iy, 26, 0, Math.PI * 2); ctx.stroke();
+            const a = -d * Math.PI / 180 - Math.PI / 2;   /* phi from B (up) */
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(ix - Math.cos(a) * 18, iy + Math.sin(a) * 18);
+            ctx.lineTo(ix + Math.cos(a) * 18, iy - Math.sin(a) * 18);
+            ctx.stroke();
+            ctx.fillStyle = col.faint;
+            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('B ↑', ix, iy + 30);
+        }
+
+        /* readouts */
+        const $ = id => document.getElementById(id);
+        $('r-etot').textContent = (f.eTot * 1e4).toFixed(1) + ' ×10⁻⁴ J';
+        $('r-phi').textContent  = f.over ? 'no turning point (full rotation)'
+                                         : (f.phiMax * 180 / Math.PI).toFixed(1) + '°';
+    }
+
+    function frame(ts) {
+        draw(ts || 0);
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}());
+</script>
+
+</body>
+</html>
