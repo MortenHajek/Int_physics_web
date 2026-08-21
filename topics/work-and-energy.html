@@ -165,95 +165,96 @@
 
     /* ── Core concept ─────────────────────────────────────────────────── */
     .core-concept {
-        position: relative;
         border: 1.5px solid var(--ink);
-        background: var(--paper-vol);
-        padding: 30px 36px 28px 34px;
-        margin-top: 28px;
+        background: var(--paper);
+        padding: 40px 44px 44px;
+        margin-top: 26px;
+        position: relative;
     }
     .core-concept::before {
         content: "";
         position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 5px;
+        top: 0; left: 0; right: 0;
+        height: 5px;
         background: var(--accent);
     }
     .core-concept-text {
         font-family: var(--f-serif);
-        font-style: italic;
-        font-size: 20px;
-        line-height: 1.55;
+        font-size: 21px;
+        line-height: 1.62;
         color: var(--ink);
-        max-width: 76ch;
+        max-width: 74ch;
+        margin-bottom: 34px;
     }
     .core-concept-text em { font-style: normal; font-weight: 600; }
     .core-formulas {
-        display: grid;
-        gap: 32px;
-        margin-top: 26px;
-        padding-top: 24px;
-        border-top: 1px dashed var(--ink-faint);
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-top: 1px solid var(--ink-faint);
+        margin-bottom: 34px;
     }
     .core-formula {
-        display: grid;
-        grid-template-columns: minmax(260px, 340px) 1fr;
-        gap: 8px 44px;
-        align-items: center;
+        padding: 16px 0 15px;
+        border-bottom: 1px dashed var(--ink-faint);
     }
     .cf-head {
-        display: grid;
-        gap: 8px;
-        align-content: start;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 10px 22px;
     }
     .cf-desc {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.16em;
-        color: var(--accent);
+        color: var(--ink-faint);
+        min-width: 152px;
     }
     .cf-eq {
-        font-family: var(--f-serif);
-        font-style: italic;
-        font-size: 18px;
+        font-size: 17px;
+        color: var(--ink);
         white-space: nowrap;
     }
     .cf-note {
-        font-size: 14.5px;
+        font-size: 14px;
+        line-height: 1.55;
         color: var(--ink-soft);
-        line-height: 1.6;
-        max-width: 60ch;
-        margin: 0;
+        margin: 8px 0 0 0;
+        max-width: 80ch;
     }
     .core-method-label {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.2em;
         color: var(--ink-faint);
-        margin-top: 36px;
-        padding-top: 26px;
-        border-top: 1px dashed var(--ink-faint);
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 4px;
     }
     .core-method {
-        margin-top: 14px;
-        display: grid;
-        gap: 9px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
     }
     .cm-step {
-        display: grid;
-        grid-template-columns: 24px 1fr;
-        gap: 0 12px;
-        align-items: baseline;
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 13px 0;
+        border-bottom: 1px dashed var(--ink-faint);
         font-size: 15px;
+        line-height: 1.6;
         color: var(--ink-soft);
-        line-height: 1.55;
     }
     .cm-num {
         font-family: var(--f-mono);
         font-size: 11px;
         color: var(--accent);
-        letter-spacing: 0.05em;
+        min-width: 20px;
+        padding-top: 3px;
     }
     .cm-step strong { color: var(--ink); }
 
@@ -281,6 +282,187 @@
         box-shadow: 3px 3px 0 var(--ink);
     }
     .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    /* ── Badge parked top-right where a sim fills the bottom of the canvas ── */
+    .canvas-formula-badge.top-right {
+        top: 14px; right: 14px;
+        bottom: auto; left: auto;
+    }
+
+    /* ── Toggle / radio rows ─────────────────────────────────────────── */
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        flex-shrink: 0;
+        position: relative;
+        transition: background 80ms;
+    }
+    .toggle-box.on { background: var(--accent); }
+    .toggle-box.on::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        background: var(--paper);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 14%, 80% 0%, 43% 62%);
+    }
+    .toggle-name { font-size: 14px; color: var(--ink); }
+
+    /* ── Radio-style rows (round box, dot when chosen) ───────────────── */
+    .obj-row .toggle-box { border-radius: 50%; }
+    .obj-row .toggle-box.on { background: var(--paper); }
+    .obj-row .toggle-box.on::after {
+        clip-path: none;
+        border-radius: 50%;
+        background: var(--accent);
+        inset: 3px;
+    }
+
+    /* ── Panel reset link ────────────────────────────────────────────── */
+    .panel-reset {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+
+    /* ── Run / rewind buttons ────────────────────────────────────────── */
+    .fam-run-row { display: flex; gap: 10px; margin-top: 16px; }
+    .fam-btn-run, .fam-btn-rewind {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        padding: 10px 14px;
+        border: 1.5px solid var(--ink);
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .fam-btn-run { flex: 1; background: var(--accent); color: var(--paper); }
+    .fam-btn-rewind { background: var(--paper); color: var(--ink-soft); }
+    .fam-btn-run:hover, .fam-btn-rewind:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .sim-note {
+        margin: 14px 0 0;
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--ink-faint);
+        min-height: 1.6em;
+    }
+
+    /* ── The ledger ──────────────────────────────────────────────────── */
+    .ledger-box {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+    }
+    .ledger-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        padding: 12px 24px;
+        border-bottom: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+    }
+    .ledger-head .accent-pip { align-self: center; }
+    .ledger-title {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink);
+    }
+    .ledger-sub {
+        font-size: 12.5px;
+        color: var(--ink-faint);
+    }
+    .ledger-body {
+        display: grid;
+        grid-template-columns: minmax(340px, 1fr) 1fr;
+        gap: 34px;
+        padding: 24px 24px 22px;
+        align-items: start;
+    }
+    .ledger-grid {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 0 26px;
+        align-items: baseline;
+    }
+    .lg-cell {
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .lg-h {
+        border-bottom: 1px solid var(--ink-faint);
+        padding-bottom: 7px;
+    }
+    .lg-lab { font-size: 15px; color: var(--ink-soft); }
+    .lg-num {
+        font-family: var(--f-mono);
+        font-size: 14px;
+        color: var(--accent);
+        text-align: right;
+        min-width: 88px;
+        letter-spacing: 0.03em;
+    }
+    .lg-state {
+        font-family: var(--f-mono);
+        font-size: 15px;
+        color: var(--ink);
+    }
+    .lg-tot {
+        border-bottom: none;
+        border-top: 1.5px solid var(--ink);
+        font-weight: 600;
+        padding-top: 11px;
+        margin-top: 2px;
+    }
+    .ledger-verdict {
+        border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 22px;
+    }
+    .lv-eq {
+        font-size: 20px;
+        color: var(--ink);
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+    .lv-num {
+        margin-top: 12px;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        color: var(--ink-soft);
+        letter-spacing: 0.02em;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .lv-note {
+        margin: 16px 0 0;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--ink-faint);
+    }
+    @media (max-width: 900px) {
+        .ledger-body { grid-template-columns: 1fr; gap: 26px; }
+        .ledger-verdict { border-left: none; border-top: 3px solid var(--accent); padding: 20px 0 0; }
+    }
     </style>
 </head>
 
@@ -311,15 +493,19 @@
     <section class="topic-hero">
         <div>
             <div class="num">§ I.04 · energy</div>
-            <h1>Work and Energy</h1>
+            <h1><span lang="en">Work and energy</span><span lang="cs">Práce a energie</span></h1>
             <p class="lede">
-                Energy is the capacity to do work. Roll a ball down a ramp and watch
-                potential energy convert to kinetic — watch the bars, feel the theorem.
+                <span lang="en">Energy is a scalar, so it needs no components — and it lets you jump straight
+                from one state to another without following the journey between them. Book what the body has
+                at the start, book what it has at the end, and set the two equal.</span>
+                <span lang="cs">Energie je skalár, nepotřebuje tedy složky — a dovolí vám skočit rovnou z jednoho
+                stavu do druhého, aniž byste sledovali cestu mezi nimi. Zapište, co má těleso na začátku,
+                zapište, co má na konci, a dejte to rovno.</span>
             </p>
         </div>
         <div class="eq-wrap">
-            <div class="eq-big" data-tex="W_{net} = \Delta KE"></div>
-            <div class="eq-caption">Work-energy theorem — net work equals the change in kinetic energy</div>
+            <div class="eq-big" data-tex="E_1 = E_2"></div>
+            <div class="eq-caption"><span lang="en">Conservation of mechanical energy — with no non-conservative force, the total is the same at both states</span><span lang="cs">Zachování mechanické energie — bez nekonzervativní síly je celek v obou stavech stejný</span></div>
         </div>
     </section>
 
@@ -487,72 +673,392 @@
         </div>
     </section>
 
-    <section id="lab" class="lab" style="margin-top:72px;">
+    <!-- ════ § 3  LAB 1 — THE ENERGY LEDGER ════ -->
+    <section id="lab" class="lab" style="margin-top:72px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Ramp energy sandbox — KE / PE exchange</span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Energy ledger — state ① to state ②</span><span lang="cs">Energetická bilance — ze stavu ① do stavu ②</span></span>
+                <span id="l1-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
             </div>
             <div class="canvas-wrap">
-                <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="\Delta KE = W_{net}"></div>
-                <div class="sim-hint">adjust height and friction · watch energy bars</div>
+                <canvas id="l1-canvas"></canvas>
+                <div class="canvas-formula-badge top-right" data-tex="E_1 = E_2 + f d"></div>
+                <div class="sim-hint"><span lang="en">the bar keeps its height until friction takes a share</span><span lang="cs">sloupec si drží výšku, dokud si tření nevezme podíl</span></div>
             </div>
         </div>
+
         <div class="side-stack">
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
-                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;background:none;border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
+                    <span><span class="accent-pip"></span><span lang="en">Scene</span><span lang="cs">Scéna</span></span>
                 </div>
                 <div class="panel-body">
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Height <em>h</em></span>
-                            <span class="sim-control-val" id="p-height-val">5.0 m</span>
-                        </div>
-                        <input class="sim-control-range" type="range" id="p-height" min="1" max="10" step="0.5" value="5">
+                    <div class="toggle-row obj-row" data-scene-pick="slope">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">Slope with a rough patch</span><span lang="cs">Svah s drsným úsekem</span></span>
                     </div>
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Mass <em>m</em></span>
-                            <span class="sim-control-val" id="p-mass-val">2.0 kg</span>
-                        </div>
-                        <input class="sim-control-range" type="range" id="p-mass" min="0.5" max="5" step="0.5" value="2">
-                    </div>
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Friction <em>μ</em></span>
-                            <span class="sim-control-val" id="p-mu-val">0.00</span>
-                        </div>
-                        <input class="sim-control-range" type="range" id="p-mu" min="0" max="0.5" step="0.05" value="0">
+                    <div class="toggle-row obj-row" data-scene-pick="spring">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Drop onto a spring</span><span lang="cs">Pád na pružinu</span></span>
                     </div>
                 </div>
             </div>
+
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="l1-reset" class="panel-reset">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control" data-scene="slope">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Speed at <em>A</em></span><span lang="cs">Rychlost v <em>A</em></span></span>
+                            <span class="sim-control-val" id="l1-v0-val">8.0 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-v0" min="3" max="12" step="0.1" value="8">
+                    </div>
+                    <div class="sim-control" data-scene="slope">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Slope <em>θ</em></span><span lang="cs">Sklon <em>θ</em></span></span>
+                            <span class="sim-control-val" id="l1-th-val">30°</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-th" min="10" max="50" step="1" value="30">
+                    </div>
+                    <div class="sim-control" data-scene="slope">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Patch starts at height <em>h</em></span><span lang="cs">Úsek začíná ve výšce <em>h</em></span></span>
+                            <span class="sim-control-val" id="l1-h-val">2.00 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-h" min="0" max="3.2" step="0.05" value="2">
+                    </div>
+                    <div class="sim-control" data-scene="slope">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Patch length <em>L</em></span><span lang="cs">Délka úseku <em>L</em></span></span>
+                            <span class="sim-control-val" id="l1-L-val">0.75 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-L" min="0" max="3" step="0.05" value="0.75">
+                    </div>
+                    <div class="sim-control" data-scene="slope">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Friction on the patch <em>μ<sub>d</sub></em></span><span lang="cs">Tření na úseku <em>μ<sub>d</sub></em></span></span>
+                            <span class="sim-control-val" id="l1-mu-val">0.40</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-mu" min="0" max="0.8" step="0.01" value="0.4">
+                    </div>
+
+                    <div class="sim-control" data-scene="spring">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Drop height <em>d</em></span><span lang="cs">Výška pádu <em>d</em></span></span>
+                            <span class="sim-control-val" id="l1-drop-val">0.61 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-drop" min="0.05" max="1.5" step="0.01" value="0.61">
+                    </div>
+                    <div class="sim-control" data-scene="spring">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Stiffness <em>k</em></span><span lang="cs">Tuhost <em>k</em></span></span>
+                            <span class="sim-control-val" id="l1-k-val">250 N/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-k" min="50" max="900" step="5" value="250">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass <em>m</em></span><span lang="cs">Hmotnost <em>m</em></span></span>
+                            <span class="sim-control-val" id="l1-m-val">0.25 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-m" min="0.1" max="5" step="0.05" value="0.25">
+                    </div>
+
+                    <div class="fam-run-row">
+                        <button id="l1-run" class="fam-btn-run">▶ <span lang="en">Run</span><span lang="cs">Spustit</span></button>
+                        <button id="l1-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">The two states</span><span lang="cs">Oba stavy</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">State ① at</span><span lang="cs">Stav ① v</span></span>
+                            <span class="sim-control-val" id="l1-s1-val">0.00 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-s1" min="0" max="1" step="0.005" value="0">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">State ② at</span><span lang="cs">Stav ② v</span></span>
+                            <span class="sim-control-val" id="l1-s2-val">0.00 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-s2" min="0" max="1" step="0.005" value="1">
+                    </div>
+                    <p class="sim-note" id="l1-snote"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 4  THE LEDGER ════ -->
+    <section id="ledger" style="margin-top:24px;">
+        <div class="ledger-box">
+            <div class="ledger-head">
+                <span class="accent-pip"></span>
+                <span class="ledger-title"><span lang="en">Energy ledger</span><span lang="cs">Energetická bilance</span></span>
+                <span class="ledger-sub"><span lang="en">book both states, then set them equal</span><span lang="cs">zapište oba stavy a dejte je rovno</span></span>
+            </div>
+            <div class="ledger-body">
+                <div class="ledger-grid">
+                    <div class="lg-cell lg-h"></div>
+                    <div class="lg-cell lg-h lg-num"><span class="lg-state">①</span></div>
+                    <div class="lg-cell lg-h lg-num"><span class="lg-state">②</span></div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="E_k = \tfrac{1}{2}mv^2"></span></div>
+                    <div class="lg-cell lg-num" id="lg-ke1">—</div>
+                    <div class="lg-cell lg-num" id="lg-ke2">—</div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="E_p = mgh"></span></div>
+                    <div class="lg-cell lg-num" id="lg-pe1">—</div>
+                    <div class="lg-cell lg-num" id="lg-pe2">—</div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="E_{pe} = \tfrac{1}{2}kx^2"></span></div>
+                    <div class="lg-cell lg-num" id="lg-el1">—</div>
+                    <div class="lg-cell lg-num" id="lg-el2">—</div>
+
+                    <div class="lg-cell lg-lab lg-tot"><span data-tex="E"></span></div>
+                    <div class="lg-cell lg-num lg-tot" id="lg-e1">—</div>
+                    <div class="lg-cell lg-num lg-tot" id="lg-e2">—</div>
+                </div>
+                <div class="ledger-verdict">
+                    <div class="lv-eq" id="lg-verdict"></div>
+                    <div class="lv-num" id="lg-verdict-num"></div>
+                    <p class="lv-note" id="lg-note"></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 5  LAB 2 — WORK IS THE AREA UNDER F(x) ════ -->
+    <section id="lab2" class="lab" style="margin-top:72px; margin-bottom:0;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Work is the area under <em>F</em>(<em>x</em>)</span><span lang="cs">Práce je plocha pod <em>F</em>(<em>x</em>)</span></span>
+                <span id="l2-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+            </div>
+            <div class="canvas-wrap" style="min-height:480px;">
+                <canvas id="l2-canvas"></canvas>
+                <div class="canvas-formula-badge top-right" data-tex="W = \int_{x_1}^{x_2} F(x)\,dx"></div>
+                <div class="sim-hint"><span lang="en">area below the axis counts negative</span><span lang="cs">plocha pod osou se počítá záporně</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Force law</span><span lang="cs">Silový zákon</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-force-pick="const">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span data-tex="F = F_0"></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-force-pick="spring">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span data-tex="F = -kx"></span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-force-pick="both">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span data-tex="F = F_0 - kx"></span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="l2-reset" class="panel-reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control" data-fp="const both">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span data-tex="F_0"></span></span>
+                            <span class="sim-control-val" id="l2-f0-val">5.0 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l2-f0" min="0" max="12" step="0.1" value="5">
+                    </div>
+                    <div class="sim-control" data-fp="spring both">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span data-tex="k"></span></span>
+                            <span class="sim-control-val" id="l2-k-val">6.0 N/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l2-k" min="1" max="12" step="0.1" value="6">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass <em>m</em></span><span lang="cs">Hmotnost <em>m</em></span></span>
+                            <span class="sim-control-val" id="l2-m-val">2.0 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l2-m" min="0.5" max="6" step="0.1" value="2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Speed at <em>x</em>₁</span><span lang="cs">Rychlost v <em>x</em>₁</span></span>
+                            <span class="sim-control-val" id="l2-v0-val">8.0 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l2-v0" min="0" max="12" step="0.1" value="8">
+                    </div>
+                    <div class="fam-run-row">
+                        <button id="l2-run" class="fam-btn-run">▶ <span lang="en">Run</span><span lang="cs">Spustit</span></button>
+                        <button id="l2-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
                     <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
-                    <div class="readout-section">Energy</div>
                     <div class="readout-row">
-                        <span class="readout-label">KE</span>
-                        <span class="readout-val" id="r-ke">— J</span>
+                        <span class="readout-label" data-tex="x"></span>
+                        <span class="readout-val" id="l2-r-x">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">PE</span>
-                        <span class="readout-val" id="r-pe">— J</span>
-                    </div>
-                    <div class="readout-section" style="margin-top:4px;">Motion</div>
-                    <div class="readout-row">
-                        <span class="readout-label">v</span>
-                        <span class="readout-val" id="r-vel">— m/s</span>
+                        <span class="readout-label" data-tex="W = \int F\,dx"></span>
+                        <span class="readout-val" id="l2-r-w">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">efficiency</span>
-                        <span class="readout-val" id="r-eff">— %</span>
+                        <span class="readout-label" data-tex="E_k = E_{k0} + W"></span>
+                        <span class="readout-val" id="l2-r-ke">—</span>
                     </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v"></span>
+                        <span class="readout-val" id="l2-r-v">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">turning point</span><span lang="cs">bod obratu</span></span>
+                        <span class="readout-val" id="l2-r-turn">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 6  LAB 3 — WHICH FORCES DO WORK? ════ -->
+    <section id="lab3" class="lab" style="margin-top:72px;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Which forces do work?</span><span lang="cs">Které síly konají práci?</span></span>
+                <span id="l3-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="l3-canvas"></canvas>
+                <div class="canvas-formula-badge top-right" data-tex="W = \int \vec F \cdot d\vec s"></div>
+                <div class="sim-hint"><span lang="en">a force at 90° to the motion does no work, ever</span><span lang="cs">síla kolmá k pohybu nekoná práci, nikdy</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Mode</span><span lang="cs">Režim</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row obj-row" data-mode-pick="push">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">Pushed sideways, slowly</span><span lang="cs">Pomalu tlačen do strany</span></span>
+                    </div>
+                    <div class="toggle-row obj-row" data-mode-pick="swing">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Released, free swing</span><span lang="cs">Puštěn, volné houpání</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="l3-reset" class="panel-reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Rope length <em>L</em></span><span lang="cs">Délka lana <em>L</em></span></span>
+                            <span class="sim-control-val" id="l3-L-val">18.0 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l3-L" min="2" max="25" step="0.5" value="18">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Weight <em>G</em></span><span lang="cs">Tíha <em>G</em></span></span>
+                            <span class="sim-control-val" id="l3-w-val">688 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l3-w" min="100" max="950" step="1" value="688">
+                    </div>
+                    <div class="sim-control" data-mode="push">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Pushed to angle <em>φ</em></span><span lang="cs">Vytlačen do úhlu <em>φ</em></span></span>
+                            <span class="sim-control-val" id="l3-ang-val">40°</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l3-ang" min="0" max="80" step="1" value="40">
+                    </div>
+                    <div class="sim-control" data-mode="swing">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Drop below the ledge <em>h</em></span><span lang="cs">Klesnutí pod římsu <em>h</em></span></span>
+                            <span class="sim-control-val" id="l3-h-val">3.20 m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l3-h" min="0.2" max="12" step="0.05" value="3.2">
+                    </div>
+                    <div class="sim-control" data-mode="swing">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Rope breaking load</span><span lang="cs">Únosnost lana</span></span>
+                            <span class="sim-control-val" id="l3-tmax-val">950 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l3-tmax" min="700" max="1600" step="10" value="950">
+                    </div>
+                    <div class="fam-run-row" data-mode="swing">
+                        <button id="l3-run" class="fam-btn-run">▶ <span lang="en">Release</span><span lang="cs">Pustit</span></button>
+                        <button id="l3-rewind" class="fam-btn-rewind">↺ <span lang="en">Reset</span><span lang="cs">Zpět</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Work done, force by force</span><span lang="cs">Vykonaná práce, síla po síle</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_T"></span>
+                        <span class="readout-val" id="l3-r-wt">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="W_G"></span>
+                        <span class="readout-val" id="l3-r-wg">—</span>
+                    </div>
+                    <div class="readout-row" data-mode="push">
+                        <span class="readout-label" data-tex="W_F"></span>
+                        <span class="readout-val" id="l3-r-wf">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\sum W"></span>
+                        <span class="readout-val" id="l3-r-wtot">—</span>
+                    </div>
+                    <div class="readout-section" style="margin-top:6px;"><span lang="en">Rope</span><span lang="cs">Lano</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T"></span>
+                        <span class="readout-val" id="l3-r-t">—</span>
+                    </div>
+                    <div class="readout-row" data-mode="swing">
+                        <span class="readout-label" data-tex="v"></span>
+                        <span class="readout-val" id="l3-r-v">—</span>
+                    </div>
+                    <p class="sim-note" id="l3-note"></p>
                 </div>
             </div>
         </div>
@@ -587,7 +1093,7 @@
 
     <footer class="foot">
         <span>Physics Playground · 0.1 draft</span>
-        <span>§ I.04 Work and Energy</span>
+        <span>§ I.04 <span lang="en">Work and energy</span><span lang="cs">Práce a energie</span></span>
         <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
     </footer>
 
@@ -603,220 +1109,1097 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   § I.04 — shared helpers for the three sandboxes on this page
+   ══════════════════════════════════════════════════════════════════════ */
+const PP4 = (function () {
     'use strict';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const texNum = (v, d) => num(v, d).replace(',', '{,}');
+    const signed = (v, d) => (v < 0 ? '− ' : '+ ') + num(Math.abs(v), d);
 
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
+    function colours() {
         const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
         return {
             ink:   s.getPropertyValue('--ink').trim()        || '#363026',
-            acc:   s.getPropertyValue('--accent').trim()     || '#2d6b3a',
             soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim()  || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()      || '#FFFFEC',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7a6a52',
+            paper: s.getPropertyValue('--paper').trim()      || '#fffdf6',
             deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            edge:  s.getPropertyValue('--paper-edge').trim() || '#e6dfc8',
+            acc:   b.getPropertyValue('--accent').trim()     || '#2d6b3a',
         };
     }
-    let col = readCol();
 
-    const DEFAULTS = { height: 5, mass: 2, mu: 0 };
-    let state = { ...DEFAULTS };
-
-    const THETA = 30 * Math.PI / 180;
-    const G = 9.8;
-
-    let simT = 0;
-    let loopDuration = 0;
-
-    function computeLoop() {
-        const L = state.height / Math.sin(THETA);
-        const frictionWork = state.mu * state.mass * G * Math.cos(THETA) * L;
-        const peTop = state.mass * G * state.height;
-        const keBot = Math.max(0, peTop - frictionWork);
-        const vBot = Math.sqrt(2 * keBot / state.mass);
-        const aDown = G * (Math.sin(THETA) - state.mu * Math.cos(THETA));
-        loopDuration = aDown > 0.001 ? vBot / aDown : 2;
-        if (loopDuration < 0.3) loopDuration = 0.3;
-        return { L, frictionWork, peTop, keBot, vBot };
+    /* dpr-correct canvas sized from its wrapper, never from itself */
+    function mount(id) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const dpr = window.devicePixelRatio || 1;
+        const o = { canvas, ctx, W: 0, H: 0 };
+        function resize() {
+            const r = wrap.getBoundingClientRect();
+            o.W = Math.max(r.width, 240);
+            o.H = Math.max(r.height, 240);
+            canvas.width = Math.round(o.W * dpr);
+            canvas.height = Math.round(o.H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize();
+        new ResizeObserver(resize).observe(wrap);
+        return o;
     }
 
-    let cached = computeLoop();
-
-    function bindSlider(inputId, valId, key, fmt) {
-        const inp = document.getElementById(inputId);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(+inp.value);
-            simT = 0;
-            cached = computeLoop();
-        });
+    function arrow(ctx, x1, y1, x2, y2, col, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 3) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(10, len * 0.34), hw = hl * 0.5;
+        ctx.strokeStyle = col; ctx.fillStyle = col;
+        ctx.lineWidth = lw || 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
     }
-    bindSlider('p-height', 'p-height-val', 'height', v => (+v).toFixed(1) + ' m');
-    bindSlider('p-mass',   'p-mass-val',   'mass',   v => (+v).toFixed(1) + ' kg');
-    bindSlider('p-mu',     'p-mu-val',     'mu',     v => (+v).toFixed(2));
 
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        simT = 0;
-        [['p-height','p-height-val','height', v => (+v).toFixed(1) + ' m'],
-         ['p-mass','p-mass-val','mass', v => (+v).toFixed(1) + ' kg'],
-         ['p-mu','p-mu-val','mu', v => (+v).toFixed(2)]].forEach(([id, vid, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(vid);
-            if (inp) inp.value = DEFAULTS[key];
-            if (lbl) lbl.textContent = fmt(DEFAULTS[key]);
-        });
-        cached = computeLoop();
-    });
+    /* paper-backed label, so figures stay legible over the graph grid */
+    function tag(ctx, c, text, x, y, col, size, italic) {
+        ctx.font = (italic === false ? '' : 'italic ') +
+                   (size || 13) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const w = ctx.measureText(text).width + 9;
+        ctx.fillStyle = c.paper;
+        ctx.fillRect(x - w / 2, y - 9, w, 18);
+        ctx.fillStyle = col;
+        ctx.fillText(text, x, y);
+    }
 
-    function ballPos(t, L) {
-        const frac = Math.min(t / loopDuration, 1);
-        const s = L * frac;
-        const rampTX = 0.12 * W;
-        const rampTY = 0.12 * H;
-        const rampBX = rampTX + L * Math.cos(THETA) * (H * 0.6) / state.height;
-        const rampBY = rampTY + L * Math.sin(THETA) * (H * 0.6) / state.height;
-        const dx = rampBX - rampTX, dy = rampBY - rampTY;
-        const len = Math.hypot(dx, dy);
+    /* KaTeX is loaded with defer, so it is NOT available while an inline
+       script first runs. Never cache a render that did not happen. */
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+
+    /* radio group built on .toggle-row/.toggle-box, one dot at a time */
+    function radios(attr, onPick) {
+        const rows = Array.from(document.querySelectorAll('[' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            rows.forEach(r => r.querySelector('.toggle-box').classList.remove('on'));
+            row.querySelector('.toggle-box').classList.add('on');
+            onPick(row.getAttribute(attr));
+        }));
+        return rows;
+    }
+
+    return { isCS, T, num, texNum, signed, colours, mount, arrow, tag,
+             katexInto, whenReady, radios, G: 9.81 };
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 1 — THE ENERGY LEDGER
+   Two scenes, one piece of bookkeeping. The body runs along a path
+   parameterised by arc length s; the run is recorded, and the two state
+   markers read the speed the body had the first time it passed them. The
+   ledger then books ½mv², mgh and ½kx² at both and sets them equal —
+   with f·d on the right whenever friction has taken a share.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP4.mount('l1-canvas');
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const G = PP4.G;
+
+    let scene = 'slope';
+    const D = {
+        slope:  { v0: 8, th: 30, h: 2, L: 0.75, mu: 0.40, m: 0.25 },
+        spring: { drop: 0.61, k: 250, m: 0.25 },
+    };
+    const P = { v0: 8, th: 30, h: 2, L: 0.75, mu: 0.40, m: 0.25, drop: 0.61, k: 250 };
+
+    const FLAT = 3.0;                    // m of level run before the slope
+    const S = { t: 0, s: 0, v: 0, wf: 0, running: false, done: '' };
+    let hist = [];                       // {s, v, wf} samples of the run
+    let s1 = 0, s2 = 0;
+
+    /* ── The path ──────────────────────────────────────────────────────
+       Height above the datum and the local slope angle, as functions of
+       arc length. Scene "spring" runs straight down onto the spring.    */
+    function pathLen() {
+        if (scene === 'spring') return P.drop + 0.9;
+        return FLAT + (3.4 / Math.sin(P.th * Math.PI / 180));
+    }
+    function heightAt(s) {
+        if (scene === 'spring') return P.drop - s;            // datum: free end
+        return s <= FLAT ? 0 : (s - FLAT) * Math.sin(P.th * Math.PI / 180);
+    }
+    function comprAt(s) {
+        return scene === 'spring' ? Math.max(0, s - P.drop) : 0;
+    }
+    function patchStart() { return FLAT + P.h / Math.sin(P.th * Math.PI / 180); }
+    function onPatch(s) {
+        if (scene !== 'slope' || P.L <= 0) return false;
+        const a = patchStart();
+        return s >= a && s <= a + P.L;
+    }
+
+    /* Acceleration along the path. Down-slope is negative s for the slope
+       scene (the body climbs); the spring scene has s pointing down. */
+    function accel(s, v) {
+        if (scene === 'spring') {
+            return G - P.k * comprAt(s) / P.m;                // s grows downwards
+        }
+        const th = P.th * Math.PI / 180;
+        const grav = s <= FLAT ? 0 : -G * Math.sin(th);
+        let fr = 0;
+        if (onPatch(s) && Math.abs(v) > 1e-4) {
+            const N = G * Math.cos(s <= FLAT ? 0 : th);
+            fr = -Math.sign(v) * P.mu * N;
+        }
+        return grav + fr;
+    }
+
+    function energy(s, v) {
+        const c = comprAt(s);
         return {
-            x: rampTX + (dx / len) * s * (H * 0.6) / state.height,
-            y: rampTY + (dy / len) * s * (H * 0.6) / state.height,
-            frac,
-            rampTX, rampTY, rampBX, rampBY,
+            ke: 0.5 * P.m * v * v,
+            pe: P.m * G * heightAt(s),
+            el: 0.5 * P.k * c * c,
         };
     }
 
-    function draw(t) {
-        ctx.clearRect(0, 0, W, H);
+    /* ── Integration: RK4 on (s, v), recording the run ─────────────── */
+    function step(dt) {
+        const h = Math.min(dt, 1 / 120);
+        const a1 = accel(S.s, S.v);
+        const a2 = accel(S.s + S.v * h / 2, S.v + a1 * h / 2);
+        const a3 = accel(S.s + (S.v + a1 * h / 2) * h / 2, S.v + a2 * h / 2);
+        const a4 = accel(S.s + (S.v + a2 * h / 2) * h, S.v + a3 * h);
+        const ds = h * (S.v + h * (a1 + a2 + a3) / 6);
+        const dv = h * (a1 + 2 * a2 + 2 * a3 + a4) / 6;
+        if (onPatch(S.s)) {
+            const th = P.th * Math.PI / 180;
+            S.wf += P.mu * P.m * G * Math.cos(S.s <= FLAT ? 0 : th) * Math.abs(ds);
+        }
+        S.s += ds; S.v += dv; S.t += h;
+        hist.push({ s: S.s, v: S.v, wf: S.wf });
 
-        const { L, frictionWork, peTop, keBot } = cached;
+        const L = pathLen();
+        if (S.s < -0.2)      { S.running = false; S.done = 'back'; }
+        else if (S.s > L)    { S.running = false; S.done = 'off'; }
+        else if (scene === 'slope' && Math.abs(S.v) < 1e-3 && S.s > FLAT) {
+            // A turning point on the slope: does it stay, or slide back?
+            const th = P.th * Math.PI / 180;
+            if (onPatch(S.s) && Math.tan(th) <= P.mu) { S.running = false; S.done = 'stuck'; }
+        }
+    }
 
-        const rampScale = (H * 0.62) / state.height;
-        const rampTX = W * 0.12;
-        const rampTY = H * 0.11;
-        const rampBX = rampTX + L * Math.cos(THETA) * rampScale;
-        const rampBY = rampTY + L * Math.sin(THETA) * rampScale;
+    /* The first time the run passed this arc length, and how fast. */
+    function sampleAt(sTarget) {
+        if (!hist.length) return null;
+        for (let i = 1; i < hist.length; i++) {
+            const a = hist[i - 1], b = hist[i];
+            if ((a.s - sTarget) * (b.s - sTarget) <= 0 && a.s !== b.s) {
+                const f = (sTarget - a.s) / (b.s - a.s);
+                return { s: sTarget, v: a.v + f * (b.v - a.v), wf: a.wf + f * (b.wf - a.wf) };
+            }
+        }
+        return null;
+    }
 
-        ctx.save();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 2.5; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(rampTX, rampTY); ctx.lineTo(rampBX, rampBY); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(rampBX, rampBY); ctx.lineTo(rampTX, rampBY); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(rampTX, rampTY); ctx.lineTo(rampTX, rampBY); ctx.stroke();
-        ctx.restore();
+    /* ── Drawing ───────────────────────────────────────────────────── */
+    const GUT = 96;                       // left gutter reserved for the bar
 
-        ctx.save();
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
-        for (let x = rampBX; x < W * 1.1; x += 12) {
-            ctx.beginPath(); ctx.moveTo(x, rampBY); ctx.lineTo(x - 10, rampBY + 10); ctx.stroke();
+    function view() {
+        const L = pathLen();
+        const pad = { l: GUT + 30, r: 30, t: 34, b: 46 };
+        if (scene === 'spring') {
+            const sc = Math.min((V.H - pad.t - pad.b) / (P.drop + 0.9), 260);
+            return { pad, sc, L };
+        }
+        const th = P.th * Math.PI / 180;
+        const wNeed = FLAT + (L - FLAT) * Math.cos(th);
+        const hNeed = (L - FLAT) * Math.sin(th) + 0.6;
+        const sc = Math.min((V.W - pad.l - pad.r) / wNeed, (V.H - pad.t - pad.b) / hNeed);
+        return { pad, sc, L, th };
+    }
+    function ptAt(vw, s) {
+        if (scene === 'spring')
+            return { x: vw.pad.l + 120, y: vw.pad.t + s * vw.sc };
+        const th = vw.th;
+        const x = s <= FLAT ? s : FLAT + (s - FLAT) * Math.cos(th);
+        return { x: vw.pad.l + x * vw.sc, y: V.H - vw.pad.b - heightAt(s) * vw.sc };
+    }
+
+    function draw() {
+        const c = PP4.colours(), ctx = V.ctx;
+        ctx.clearRect(0, 0, V.W, V.H);
+        const vw = view();
+
+        if (scene === 'slope') drawSlope(ctx, c, vw);
+        else drawSpring(ctx, c, vw);
+
+        drawBar(ctx, c);
+    }
+
+    function drawSlope(ctx, c, vw) {
+        const L = vw.L;
+        const A = ptAt(vw, 0), K = ptAt(vw, FLAT), Z = ptAt(vw, L);
+
+        // ground, with the usual hatching beneath
+        ctx.beginPath();
+        ctx.moveTo(A.x - 26, A.y); ctx.lineTo(K.x, K.y); ctx.lineTo(Z.x, Z.y);
+        ctx.lineTo(Z.x, V.H); ctx.lineTo(A.x - 26, V.H); ctx.closePath();
+        ctx.fillStyle = c.deep; ctx.fill();
+        ctx.save(); ctx.clip();
+        ctx.strokeStyle = c.faint + '44'; ctx.lineWidth = 1;
+        for (let i = -V.H; i < V.W + V.H; i += 9) {
+            ctx.beginPath(); ctx.moveTo(i, V.H); ctx.lineTo(i + V.H, 0); ctx.stroke();
         }
         ctx.restore();
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.8; ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(A.x - 26, A.y); ctx.lineTo(K.x, K.y); ctx.lineTo(Z.x, Z.y); ctx.stroke();
 
-        const frac = Math.min(t / loopDuration, 1);
-        const s = L * rampScale * frac;
-        const dx = rampBX - rampTX, dy = rampBY - rampTY;
-        const rLen = Math.hypot(dx, dy);
-        const bx = rampTX + (dx / rLen) * s;
-        const by = rampTY + (dy / rLen) * s;
+        // the rough patch, drawn as a thick toothed band on the surface
+        if (P.L > 0) {
+            const p0 = ptAt(vw, patchStart()), p1 = ptAt(vw, patchStart() + P.L);
+            ctx.strokeStyle = c.acc; ctx.lineWidth = 5; ctx.lineCap = 'butt';
+            ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+            PP4.tag(ctx, c, 'μ = ' + PP4.num(P.mu, 2),
+                    (p0.x + p1.x) / 2 + 34, (p0.y + p1.y) / 2 - 22, c.acc, 12);
+        }
 
-        const sAlong = frac * L;
-        const hRemain = Math.max(0, state.height - sAlong * Math.sin(THETA));
-        const wFrict  = state.mu * state.mass * G * Math.cos(THETA) * sAlong;
-        const peNow   = state.mass * G * hRemain;
-        const keNow   = Math.max(0, peTop - peNow - wFrict);
-        const vNow    = Math.sqrt(2 * keNow / state.mass);
+        // the two state markers
+        markers(ctx, c, vw);
 
-        const R = 12;
-        ctx.save();
-        const rg = ctx.createRadialGradient(bx - R * 0.3, by - R * 0.3, 1, bx, by, R);
-        rg.addColorStop(0, col.deep);
-        rg.addColorStop(1, col.acc + 'cc');
-        ctx.fillStyle = rg;
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(bx, by, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.restore();
+        // the body
+        const B = ptAt(vw, Math.max(0, Math.min(S.s, L)));
+        const th = vw.th, up = { x: -Math.sin(S.s <= FLAT ? 0 : th), y: -Math.cos(S.s <= FLAT ? 0 : th) };
+        ctx.beginPath(); ctx.arc(B.x + up.x * 11, B.y + up.y * 11, 11, 0, Math.PI * 2);
+        ctx.fillStyle = c.paper; ctx.fill();
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 2; ctx.stroke();
 
-        const BAR_X = W * 0.68;
-        const BAR_W = 42;
-        const BAR_MAX_H = H * 0.55;
-        const BAR_BASE = H * 0.80;
-        const BAR_GAP = 60;
+        // angle label at the foot of the slope
+        PP4.tag(ctx, c, 'θ = ' + Math.round(P.th) + '°', K.x + 42, K.y - 12, c.soft, 12);
+    }
 
-        function drawBar(x, val, total, color, label) {
-            const h = total > 0 ? (val / total) * BAR_MAX_H : 0;
+    function drawSpring(ctx, c, vw) {
+        const x = vw.pad.l + 120;
+        const free = ptAt(vw, P.drop).y;                 // spring's free end
+        const comp = comprAt(S.s);
+        const restLen = 1.0 * vw.sc;
+        const top = free + comp * vw.sc;
+
+        // floor
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(x - 70, free + restLen); ctx.lineTo(x + 70, free + restLen); ctx.stroke();
+        ctx.strokeStyle = c.faint + '66'; ctx.lineWidth = 1;
+        for (let i = -70; i < 70; i += 9) {
+            ctx.beginPath(); ctx.moveTo(x + i, free + restLen);
+            ctx.lineTo(x + i - 9, free + restLen + 9); ctx.stroke();
+        }
+
+        // coil
+        const coils = 9, len = restLen - comp * vw.sc;
+        ctx.strokeStyle = c.acc; ctx.lineWidth = 2; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x, top);
+        for (let i = 0; i <= coils * 2; i++) {
+            ctx.lineTo(x + (i % 2 ? 15 : -15), top + len * (i + 0.5) / (coils * 2 + 1));
+        }
+        ctx.lineTo(x, top + len); ctx.stroke();
+
+        // the two state markers, then the body
+        markers(ctx, c, vw);
+        const B = ptAt(vw, Math.max(0, Math.min(S.s, vw.L)));
+        ctx.fillStyle = c.paper; ctx.strokeStyle = c.ink; ctx.lineWidth = 2;
+        ctx.fillRect(x - 17, B.y - 24, 34, 24);
+        ctx.strokeRect(x - 17, B.y - 24, 34, 24);
+        ctx.fillStyle = c.soft;
+        ctx.font = 'italic 12px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m', x, B.y - 12);
+
+        // the datum the potential energy is measured from
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(x - 78, free); ctx.lineTo(x + 96, free); ctx.stroke();
+        ctx.setLineDash([]);
+        PP4.tag(ctx, c, PP4.T('h = 0', 'h = 0'), x + 74, free - 11, c.faint, 11);
+    }
+
+    function markers(ctx, c, vw) {
+        [[s1, '①'], [s2, '②']].forEach(([sm, lab]) => {
+            const p = ptAt(vw, Math.max(0, Math.min(sm, vw.L)));
+            ctx.strokeStyle = c.ink; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - 46); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(p.x, p.y - 56, 11, 0, Math.PI * 2);
+            ctx.fillStyle = c.paper; ctx.fill();
+            ctx.strokeStyle = c.ink; ctx.lineWidth = 1.4; ctx.stroke();
+            ctx.fillStyle = c.ink;
+            ctx.font = '12px "JetBrains Mono",monospace';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(lab, p.x, p.y - 55);
+        });
+    }
+
+    /* The stacked bar: total height is the energy the body started with,
+       so any shortfall is exactly what friction has taken. */
+    function drawBar(ctx, c) {
+        const e = energy(S.s, S.v);
+        const E0 = hist.length ? startEnergy() : e.ke + e.pe + e.el;
+        const total = Math.max(E0, 1e-6);
+        const x = 26, w = 44, top = 46, hgt = V.H - top - 54;
+
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+        ctx.strokeRect(x, top, w, hgt);
+        ctx.setLineDash([]);
+
+        let y = top + hgt;
+        const put = (val, col, alpha) => {
+            const hh = (val / total) * hgt;
+            if (hh <= 0.4) return;
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = col;
+            ctx.fillRect(x, y - hh, w, hh);
+            ctx.globalAlpha = 1;
+            y -= hh;
+        };
+        put(e.ke, c.acc, 1);
+        put(e.pe, c.acc, 0.45);
+        put(e.el, c.ink, 0.35);
+
+        // whatever is missing has gone to heat
+        const lost = Math.max(0, total - (e.ke + e.pe + e.el));
+        if (lost > 1e-6) {
+            const hh = (lost / total) * hgt;
             ctx.save();
-            ctx.fillStyle = col.deep;
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-            ctx.fillRect(x, BAR_BASE - BAR_MAX_H, BAR_W, BAR_MAX_H);
-            ctx.strokeRect(x, BAR_BASE - BAR_MAX_H, BAR_W, BAR_MAX_H);
-            if (h > 1) {
-                ctx.fillStyle = color + 'cc';
-                ctx.fillRect(x, BAR_BASE - h, BAR_W, h);
-                ctx.strokeStyle = color; ctx.lineWidth = 1.5;
-                ctx.strokeRect(x, BAR_BASE - h, BAR_W, h);
+            ctx.beginPath(); ctx.rect(x, top, w, hh); ctx.clip();
+            ctx.strokeStyle = c.faint + '99'; ctx.lineWidth = 1;
+            for (let i = -hh; i < w + hh; i += 6) {
+                ctx.beginPath(); ctx.moveTo(x + i, top + hh); ctx.lineTo(x + i + hh, top); ctx.stroke();
             }
-            ctx.fillStyle = col.ink;
-            ctx.font = '11px "JetBrains Mono", monospace';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText(label, x + BAR_W / 2, BAR_BASE + 5);
-            ctx.fillStyle = col.acc;
-            ctx.font = '700 10px "JetBrains Mono", monospace';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(val.toFixed(1) + ' J', x + BAR_W / 2, BAR_BASE - h - 3);
             ctx.restore();
         }
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.4; ctx.strokeRect(x, top, w, hgt);
 
-        drawBar(BAR_X,           keNow, peTop, col.acc,  'KE');
-        drawBar(BAR_X + BAR_GAP, peNow, peTop, col.soft, 'PE');
-
-        const eff = peTop > 0 ? (keBot / peTop * 100) : 100;
-        const $ = id => document.getElementById(id);
-        if ($('r-ke'))  $('r-ke').textContent  = keNow.toFixed(2)  + ' J';
-        if ($('r-pe'))  $('r-pe').textContent  = peNow.toFixed(2)  + ' J';
-        if ($('r-vel')) $('r-vel').textContent  = vNow.toFixed(2)   + ' m/s';
-        if ($('r-eff')) $('r-eff').textContent  = eff.toFixed(1)    + ' %';
+        ctx.fillStyle = c.faint;
+        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(PP4.T('ENERGY', 'ENERGIE'), x + w / 2, top - 12);
+        ctx.fillStyle = c.soft;
+        ctx.font = '11px "JetBrains Mono",monospace';
+        ctx.fillText(PP4.num(e.ke + e.pe + e.el, 1) + ' J', x + w / 2, top + hgt + 18);
+        if (lost > 1e-6) {
+            ctx.fillStyle = c.faint;
+            ctx.font = '9.5px "JetBrains Mono",monospace';
+            ctx.fillText('−' + PP4.num(lost, 1) + ' J', x + w / 2, top + hgt + 33);
+        }
     }
 
-    let lastT = 0, fpsFrames = 0, fpsTs = 0;
-    const fpsEl = document.getElementById('sim-fps');
-    let wallT = 0;
+    function startEnergy() {
+        const e = energy(0, P0v());
+        return e.ke + e.pe + e.el;
+    }
+    function P0v() { return scene === 'slope' ? P.v0 : 0; }
 
-    function frame(ts) {
-        const dt = Math.min((ts - lastT) / 1000, 0.05);
-        lastT = ts;
-        fpsFrames++;
-        if (ts - fpsTs >= 1000) {
-            if (fpsEl) fpsEl.textContent = fpsFrames + ' fps · live';
-            fpsFrames = 0; fpsTs = ts;
+    /* ── The ledger ────────────────────────────────────────────────── */
+    function ledger() {
+        const A = sampleAt(s1), B = sampleAt(s2);
+        const cell = (id, val) => { const el = $(id); if (el) el.textContent = val; };
+        const put = (n, smp) => {
+            if (!smp) {
+                ['ke', 'pe', 'el', 'e'].forEach(k =>
+                    cell('lg-' + (k === 'e' ? 'e' : k) + n, '—'));
+                return null;
+            }
+            const e = energy(smp.s, smp.v);
+            cell('lg-ke' + n, PP4.num(e.ke, 2) + ' J');
+            cell('lg-pe' + n, PP4.num(e.pe, 2) + ' J');
+            cell('lg-el' + n, PP4.num(e.el, 2) + ' J');
+            cell('lg-e' + n, PP4.num(e.ke + e.pe + e.el, 2) + ' J');
+            return { e, smp };
+        };
+        const a = put('1', A), b = put('2', B);
+
+        const vEl = $('lg-verdict'), nEl = $('lg-verdict-num'), noteEl = $('lg-note');
+        if (!a || !b) {
+            PP4.katexInto(vEl, 'E_1 = E_2 + f d');
+            if (nEl) nEl.textContent = '';
+            if (noteEl) noteEl.textContent = !hist.length
+                ? PP4.T('Press Run — the ledger fills in from the recorded pass through each marker.',
+                        'Stiskněte Spustit — bilance se doplní ze zaznamenaného průchodu každou značkou.')
+                : PP4.T('The body never reached one of the two markers on this run. That is itself an answer: find the turning point instead.',
+                        'Těleso v tomto běhu jednu ze značek nikdy nedosáhlo. To je samo o sobě odpověď: hledejte místo toho bod obratu.');
+            return;
         }
+        const E1 = a.e.ke + a.e.pe + a.e.el;
+        const E2 = b.e.ke + b.e.pe + b.e.el;
+        const fd = Math.max(0, b.smp.wf - a.smp.wf);
+        const conserved = fd < 5e-3;
 
-        simT += dt;
-        if (simT > loopDuration + 0.5) simT = 0;
+        PP4.katexInto(vEl, conserved ? 'E_1 = E_2' : 'E_1 = E_2 + f d');
+        if (nEl) nEl.textContent = conserved
+            ? PP4.num(E1, 2) + ' J  =  ' + PP4.num(E2, 2) + ' J'
+            : PP4.num(E1, 2) + ' J  =  ' + PP4.num(E2, 2) + ' J  +  ' + PP4.num(fd, 2) + ' J';
+        if (noteEl) noteEl.textContent = conserved
+            ? PP4.T('No friction between the two states, so nothing has left the ledger — the split between kinetic and potential has changed, the total has not. That is the whole of E₁ = E₂.',
+                    'Mezi oběma stavy nepůsobí tření, takže z bilance nic neodešlo — rozdělení mezi kinetickou a potenciální energií se změnilo, celek ne. To je celé E₁ = E₂.')
+            : PP4.T('Friction acted between the two states, so the mechanical total is not the same at both. It has not vanished: f·d is exactly the amount that left as heat, which is why it sits on the other side of the equation.',
+                    'Mezi oběma stavy působilo tření, takže mechanický celek není v obou stavech stejný. Nezmizel: f·d je přesně to, co odešlo jako teplo, a proto stojí na druhé straně rovnice.');
+    }
 
-        draw(simT);
+    /* ── Panels and controls ───────────────────────────────────────── */
+    function readouts() {
+        const st = $('l1-state');
+        if (st) st.textContent = S.running ? PP4.T('running', 'běží')
+            : S.done === 'stuck' ? PP4.T('stopped on the patch', 'zastavil na úseku')
+            : S.done === 'back'  ? PP4.T('slid back', 'sklouzl zpět')
+            : S.done === 'off'   ? PP4.T('left the track', 'opustil dráhu')
+            : hist.length ? PP4.T('finished', 'hotovo') : PP4.T('ready', 'připraveno');
+        const sn = $('l1-snote');
+        if (sn) sn.textContent = PP4.T(
+            'Markers are placed by arc length along the path, measured from the start.',
+            'Značky se umisťují podle délky dráhy měřené od startu.');
+    }
+
+    const FMT = {
+        v0: v => PP4.num(v, 1) + ' m/s', th: v => Math.round(v) + '°',
+        h: v => PP4.num(v, 2) + ' m',    L: v => PP4.num(v, 2) + ' m',
+        mu: v => PP4.num(v, 2),          m: v => PP4.num(v, 2) + ' kg',
+        drop: v => PP4.num(v, 2) + ' m', k: v => Math.round(v) + ' N/m',
+    };
+    const SL = [['l1-v0','v0'], ['l1-th','th'], ['l1-h','h'], ['l1-L','L'],
+                ['l1-mu','mu'], ['l1-m','m'], ['l1-drop','drop'], ['l1-k','k']];
+
+    function syncMarkerRanges() {
+        const L = pathLen();
+        [['l1-s1', 1], ['l1-s2', 2]].forEach(([id]) => {
+            const sl = $(id);
+            if (sl) sl.max = L.toFixed(3);
+        });
+        s1 = Math.min(s1, L); s2 = Math.min(s2, L);
+        const lab = v => PP4.num(v, 2) + ' m';
+        if ($('l1-s1-val')) $('l1-s1-val').textContent = lab(s1);
+        if ($('l1-s2-val')) $('l1-s2-val').textContent = lab(s2);
+    }
+
+    function defaultMarkers() {
+        if (scene === 'slope') { s1 = 0; s2 = patchStart() + P.L; }
+        else { s1 = 0; s2 = P.drop + 0.12; }
+        const a = $('l1-s1'), b = $('l1-s2');
+        if (a) a.value = s1; if (b) b.value = s2;
+    }
+
+    function rewind() {
+        S.t = 0; S.s = 0; S.v = P0v(); S.wf = 0; S.running = false; S.done = '';
+        hist = [{ s: 0, v: S.v, wf: 0 }];
+        syncMarkerRanges(); ledger(); readouts();
+    }
+
+    for (const [id, key] of SL) {
+        const sl = $(id), vl = $(id + '-val');
+        if (!sl) continue;
+        sl.addEventListener('input', () => {
+            P[key] = parseFloat(sl.value);
+            if (vl) vl.textContent = FMT[key](P[key]);
+            defaultMarkers(); rewind();
+        });
+        P[key] = parseFloat(sl.value);
+        if (vl) vl.textContent = FMT[key](P[key]);
+    }
+    [['l1-s1', v => { s1 = v; }], ['l1-s2', v => { s2 = v; }]].forEach(([id, set]) => {
+        const sl = $(id);
+        if (!sl) return;
+        sl.addEventListener('input', () => {
+            set(parseFloat(sl.value)); syncMarkerRanges(); ledger();
+        });
+    });
+
+    function applyScene() {
+        document.querySelectorAll('#lab [data-scene]').forEach(el => {
+            el.style.display = el.getAttribute('data-scene') === scene ? '' : 'none';
+        });
+        Object.assign(P, D[scene]);
+        for (const [id, key] of SL) {
+            const sl = $(id), vl = $(id + '-val');
+            if (sl && P[key] !== undefined) { sl.value = P[key]; if (vl) vl.textContent = FMT[key](P[key]); }
+        }
+        defaultMarkers(); rewind();
+    }
+    PP4.radios('data-scene-pick', k => { scene = k; applyScene(); });
+
+    function setRunLabel() {
+        const b = $('l1-run');
+        if (b) b.innerHTML = S.running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Run</span><span lang="cs">Spustit</span>';
+    }
+    $('l1-run')?.addEventListener('click', () => {
+        if (!S.running && S.done) rewind();
+        S.running = !S.running; setRunLabel();
+    });
+    $('l1-rewind')?.addEventListener('click', () => { rewind(); setRunLabel(); });
+    $('l1-reset')?.addEventListener('click', () => { applyScene(); setRunLabel(); });
+
+    document.addEventListener('langchange', () => {
+        for (const [id, key] of SL) {
+            const vl = $(id + '-val');
+            if (vl && P[key] !== undefined) vl.textContent = FMT[key](P[key]);
+        }
+        syncMarkerRanges(); setRunLabel(); ledger(); readouts();
+    });
+
+    let last = 0;
+    function frame(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 30) : 0;
+        last = ts;
+        if (S.running) {
+            let acc = dt;
+            while (acc > 0) { const h = Math.min(acc, 1 / 240); step(h); acc -= h; if (!S.running) break; }
+            ledger(); readouts();
+        }
+        draw();
         requestAnimationFrame(frame);
     }
+    applyScene(); setRunLabel();
+    PP4.whenReady(ledger);
     requestAnimationFrame(frame);
+}());
+</script>
 
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 2 — WORK IS THE AREA UNDER F(x)
+   W(x) is known in closed form for each of the three force laws, so the
+   body is driven from the energy itself: E_k(x) = E_k0 + W(x) and
+   v = ±sqrt(2E_k/m). The curve on screen is therefore not an illustration
+   of the motion — it is the motion.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP4.mount('l2-canvas');
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+
+    let law = 'spring';
+    const D = { f0: 5, k: 6, m: 2, v0: 8 };
+    const P = Object.assign({}, D);
+    const S = { x: 0, dir: 1, running: false, turn: null };
+
+    const F  = x => (law === 'const' ? P.f0
+                   : law === 'spring' ? -P.k * x
+                   : P.f0 - P.k * x);
+    const W  = x => (law === 'const' ? P.f0 * x
+                   : law === 'spring' ? -0.5 * P.k * x * x
+                   : P.f0 * x - 0.5 * P.k * x * x);
+    const KE0 = () => 0.5 * P.m * P.v0 * P.v0;
+    const KE = x => KE0() + W(x);
+
+    /* Where the kinetic energy first runs out — the turning point. */
+    function turningPoint() {
+        const e0 = KE0();
+        if (law === 'const') return P.f0 >= 0 ? null : -e0 / P.f0;
+        if (law === 'spring') return P.k > 0 ? Math.sqrt(2 * e0 / P.k) : null;
+        const a = -0.5 * P.k, b = P.f0, c = e0;         // a x^2 + b x + c = 0
+        const disc = b * b - 4 * a * c;
+        if (disc < 0 || Math.abs(a) < 1e-9) return null;
+        const r = [(-b + Math.sqrt(disc)) / (2 * a), (-b - Math.sqrt(disc)) / (2 * a)]
+            .filter(v => v > 1e-6);
+        return r.length ? Math.min.apply(null, r) : null;
+    }
+    function xMax() {
+        const t = turningPoint();
+        return Math.max(2, (t ? t * 1.25 : 5));
+    }
+
+    function step(dt) {
+        const t = turningPoint();
+        let e = KE(S.x);
+        if (e <= 0) { S.dir = -S.dir; e = Math.max(e, 0); }
+        const v = S.dir * Math.sqrt(2 * Math.max(e, 0) / P.m);
+        let nx = S.x + v * dt;
+        if (t !== null && nx > t) { nx = t; S.dir = -1; }
+        if (nx < 0) { nx = 0; S.running = false; }
+        S.x = nx;
+    }
+
+    /* ── Drawing: F(x) above, E_k(x) below, sharing one x axis ─────── */
+    function draw() {
+        const c = PP4.colours(), ctx = V.ctx;
+        ctx.clearRect(0, 0, V.W, V.H);
+        const XM = xMax();
+        const pad = { l: 62, r: 34, t: 40, b: 40 };
+        const gap = 54;
+        const hh = (V.H - pad.t - pad.b - gap) / 2;
+        const topBox = { x: pad.l, y: pad.t, w: V.W - pad.l - pad.r, h: hh };
+        const botBox = { x: pad.l, y: pad.t + hh + gap, w: V.W - pad.l - pad.r, h: hh };
+        const sx = x => topBox.x + (x / XM) * topBox.w;
+
+        // ── F(x) ──
+        let fLo = 0, fHi = 0;
+        for (let i = 0; i <= 60; i++) {
+            const f = F(XM * i / 60);
+            fLo = Math.min(fLo, f); fHi = Math.max(fHi, f);
+        }
+        const span = Math.max(fHi - fLo, 1e-6) * 1.18;
+        const fy = f => topBox.y + topBox.h * (1 - (f - (fLo - span * 0.09)) / span);
+        const zeroY = fy(0);
+
+        frameBox(ctx, c, topBox, PP4.T('force  F (N)', 'síla  F (N)'));
+
+        // the area swept so far, positive above the axis, hatched below
+        ctx.save();
+        ctx.beginPath(); ctx.rect(topBox.x, topBox.y, topBox.w, topBox.h); ctx.clip();
+        const N = 140;
+        for (let i = 0; i < N; i++) {
+            const xa = (S.x * i) / N, xb = (S.x * (i + 1)) / N;
+            if (xb <= xa) continue;
+            const f = F((xa + xb) / 2);
+            ctx.fillStyle = f >= 0 ? c.acc + '33' : c.ink + '22';
+            ctx.fillRect(sx(xa), Math.min(zeroY, fy(f)), Math.max(sx(xb) - sx(xa), 0.8),
+                         Math.abs(fy(f) - zeroY));
+        }
+        ctx.restore();
+
+        // zero line and the curve
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(topBox.x, zeroY); ctx.lineTo(topBox.x + topBox.w, zeroY); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = c.acc; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        for (let i = 0; i <= 160; i++) {
+            const x = XM * i / 160, p = { x: sx(x), y: fy(F(x)) };
+            i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y);
+        }
+        ctx.stroke();
+
+        // ── E_k(x) ──
+        let kHi = Math.max(KE0(), 1e-6);
+        for (let i = 0; i <= 60; i++) kHi = Math.max(kHi, KE(XM * i / 60));
+        const ky = e => botBox.y + botBox.h * (1 - e / (kHi * 1.16));
+        frameBox(ctx, c, botBox, PP4.T('kinetic energy  Eₖ (J)', 'kinetická energie  Eₖ (J)'));
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(botBox.x, ky(0)); ctx.lineTo(botBox.x + botBox.w, ky(0)); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i <= 160; i++) {
+            const x = XM * i / 160, e = KE(x);
+            if (e < 0) { started = false; continue; }
+            const p = { x: sx(x), y: ky(e) };
+            started ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y);
+            started = true;
+        }
+        ctx.stroke();
+
+        // the turning point, where the curve meets the axis
+        const tp = turningPoint();
+        if (tp !== null && tp <= XM) {
+            ctx.strokeStyle = c.acc; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(sx(tp), botBox.y); ctx.lineTo(sx(tp), ky(0)); ctx.stroke();
+            ctx.setLineDash([]);
+            PP4.tag(ctx, c, PP4.T('turning point', 'bod obratu'), sx(tp), botBox.y - 13, c.acc, 11, false);
+        }
+
+        // current state on both curves
+        [[fy(F(S.x)), c.acc], [ky(Math.max(KE(S.x), 0)), c.ink]].forEach(([yy, col]) => {
+            ctx.beginPath(); ctx.arc(sx(S.x), yy, 5, 0, Math.PI * 2);
+            ctx.fillStyle = col; ctx.fill();
+        });
+
+        // the body itself, on the shared axis between the plots
+        const bandY = topBox.y + topBox.h + gap / 2;
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(topBox.x, bandY); ctx.lineTo(topBox.x + topBox.w, bandY); ctx.stroke();
+        ctx.fillStyle = c.paper; ctx.strokeStyle = c.ink; ctx.lineWidth = 2;
+        ctx.fillRect(sx(S.x) - 13, bandY - 15, 26, 15);
+        ctx.strokeRect(sx(S.x) - 13, bandY - 15, 26, 15);
+        ctx.fillStyle = c.faint;
+        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText('x = ' + PP4.num(S.x, 2) + ' m', topBox.x, bandY + 6);
+        ctx.textAlign = 'right';
+        ctx.fillText('x (m)', topBox.x + topBox.w, bandY + 6);
+    }
+
+    function frameBox(ctx, c, b, label) {
+        ctx.strokeStyle = c.faint + '77'; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.strokeRect(b.x, b.y, b.w, b.h);
+        ctx.fillStyle = c.faint;
+        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(label.toUpperCase(), b.x, b.y - 9);
+    }
+
+    /* ── Panels ────────────────────────────────────────────────────── */
+    function readouts() {
+        const e = Math.max(KE(S.x), 0);
+        const v = Math.sqrt(2 * e / P.m);
+        const tp = turningPoint();
+        const set = (id, t) => { const el = $(id); if (el) el.textContent = t; };
+        set('l2-r-x', PP4.num(S.x, 2) + ' m');
+        set('l2-r-w', PP4.num(W(S.x), 2) + ' J');
+        set('l2-r-ke', PP4.num(e, 2) + ' J');
+        set('l2-r-v', PP4.num(v, 2) + ' m/s');
+        set('l2-r-turn', tp === null ? PP4.T('none', 'žádný') : PP4.num(tp, 2) + ' m');
+        const st = $('l2-state');
+        if (st) st.textContent = S.running ? PP4.T('running', 'běží') : PP4.T('ready', 'připraveno');
+    }
+
+    const FMT = { f0: v => PP4.num(v, 1) + ' N', k: v => PP4.num(v, 1) + ' N/m',
+                  m: v => PP4.num(v, 1) + ' kg', v0: v => PP4.num(v, 1) + ' m/s' };
+    const SL = [['l2-f0','f0'], ['l2-k','k'], ['l2-m','m'], ['l2-v0','v0']];
+    for (const [id, key] of SL) {
+        const sl = $(id), vl = $(id + '-val');
+        if (!sl) continue;
+        sl.addEventListener('input', () => {
+            P[key] = parseFloat(sl.value);
+            if (vl) vl.textContent = FMT[key](P[key]);
+            rewind();
+        });
+        P[key] = parseFloat(sl.value);
+        if (vl) vl.textContent = FMT[key](P[key]);
+    }
+
+    function applyLaw() {
+        document.querySelectorAll('#lab2 [data-fp]').forEach(el => {
+            el.style.display = el.getAttribute('data-fp').split(' ').indexOf(law) >= 0 ? '' : 'none';
+        });
+        rewind();
+    }
+    PP4.radios('data-force-pick', k => { law = k; applyLaw(); });
+
+    function rewind() { S.x = 0; S.dir = 1; S.running = false; setRunLabel(); readouts(); }
+    function setRunLabel() {
+        const b = $('l2-run');
+        if (b) b.innerHTML = S.running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Run</span><span lang="cs">Spustit</span>';
+    }
+    $('l2-run')?.addEventListener('click', () => { S.running = !S.running; setRunLabel(); });
+    $('l2-rewind')?.addEventListener('click', rewind);
+    $('l2-reset')?.addEventListener('click', () => {
+        for (const [id, key] of SL) {
+            const sl = $(id);
+            if (sl) { sl.value = D[key]; sl.dispatchEvent(new Event('input')); }
+        }
+    });
+    document.addEventListener('langchange', () => {
+        for (const [id, key] of SL) {
+            const vl = $(id + '-val');
+            if (vl) vl.textContent = FMT[key](P[key]);
+        }
+        setRunLabel(); readouts();
+    });
+
+    let last = 0;
+    function frame(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 30) : 0;
+        last = ts;
+        if (S.running) { step(dt); readouts(); }
+        draw();
+        requestAnimationFrame(frame);
+    }
+    applyLaw();
+    requestAnimationFrame(frame);
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 3 — WHICH FORCES DO WORK?
+   The rope's tension is always perpendicular to the motion, so its work
+   bar never leaves zero however far the crate travels. Two modes: pushed
+   sideways in equilibrium (the work of a varying force), and released to
+   swing freely (energy first, then the tension from the circle).
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP4.mount('l3-canvas');
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const G = PP4.G;
+
+    let mode = 'push';
+    const D = { L: 18, w: 688, ang: 40, h: 3.2, tmax: 950 };
+    const P = Object.assign({}, D);
+    const S = { th: 0, om: 0, running: false, th0: 0 };
+
+    const mass = () => P.w / G;
+    const theta0 = () => Math.acos(Math.max(-1, Math.min(1, 1 - P.h / P.L)));
+
+    /* ── Physics ───────────────────────────────────────────────────── */
+    function pushState() {
+        const f = P.ang * Math.PI / 180;
+        const rise = P.L * (1 - Math.cos(f));
+        return {
+            th: f,
+            T: P.w / Math.cos(f),
+            F: P.w * Math.tan(f),
+            rise,
+            wg: -P.w * rise,
+            wf: P.w * rise,          // the crate is at rest at both ends
+            wt: 0,
+            dx: P.L * Math.sin(f),
+        };
+    }
+    function swingState() {
+        const th = S.th, t0 = S.th0;
+        const v2 = Math.max(0, 2 * G * P.L * (Math.cos(th) - Math.cos(t0)));
+        return {
+            th,
+            v: Math.sqrt(v2),
+            T: P.w * (3 * Math.cos(th) - 2 * Math.cos(t0)),
+            wg: P.w * P.L * (Math.cos(th) - Math.cos(t0)),
+            wt: 0,
+            rise: P.L * (1 - Math.cos(th)),
+        };
+    }
+    /* If the rope lets go, it does so at the angle where T reaches the load. */
+    function breakAngle() {
+        const t0 = theta0();
+        const cs = (P.tmax / P.w + 2 * Math.cos(t0)) / 3;
+        return cs >= -1 && cs <= 1 ? Math.acos(Math.min(1, cs)) : null;
+    }
+    function breaks() {
+        const t0 = theta0();
+        return P.w * (3 - 2 * Math.cos(t0)) > P.tmax;
+    }
+
+    function step(dt) {
+        const acc = th => -(G / P.L) * Math.sin(th);
+        const h = Math.min(dt, 1 / 120);
+        const k1v = acc(S.th),               k1x = S.om;
+        const k2v = acc(S.th + k1x * h / 2), k2x = S.om + k1v * h / 2;
+        const k3v = acc(S.th + k2x * h / 2), k3x = S.om + k2v * h / 2;
+        const k4v = acc(S.th + k3x * h),     k4x = S.om + k3v * h;
+        S.th += h * (k1x + 2 * k2x + 2 * k3x + k4x) / 6;
+        S.om += h * (k1v + 2 * k2v + 2 * k3v + k4v) / 6;
+    }
+
+    /* ── Drawing ───────────────────────────────────────────────────── */
+    function draw() {
+        const c = PP4.colours(), ctx = V.ctx;
+        ctx.clearRect(0, 0, V.W, V.H);
+        const st = mode === 'push' ? pushState() : swingState();
+
+        const piv = { x: V.W * 0.5, y: 62 };
+        const sc = Math.min((V.H - 150) / P.L, (V.W * 0.42) / Math.max(Math.sin(st.th), 0.35));
+        const bob = { x: piv.x + P.L * sc * Math.sin(st.th),
+                      y: piv.y + P.L * sc * Math.cos(st.th) };
+
+        // ceiling
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(piv.x - 90, piv.y); ctx.lineTo(piv.x + 90, piv.y); ctx.stroke();
+        ctx.strokeStyle = c.faint + '66'; ctx.lineWidth = 1;
+        for (let i = -90; i < 90; i += 9) {
+            ctx.beginPath(); ctx.moveTo(piv.x + i, piv.y);
+            ctx.lineTo(piv.x + i - 9, piv.y - 9); ctx.stroke();
+        }
+
+        // the arc the crate travels along
+        ctx.strokeStyle = c.faint + '55'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.arc(piv.x, piv.y, P.L * sc, Math.PI / 2 - Math.abs(st.th) - 0.1,
+                Math.PI / 2 + Math.abs(st.th) + 0.1);
+        ctx.stroke(); ctx.setLineDash([]);
+
+        // rope
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(piv.x, piv.y); ctx.lineTo(bob.x, bob.y); ctx.stroke();
+
+        // crate
+        ctx.fillStyle = c.paper; ctx.strokeStyle = c.ink; ctx.lineWidth = 2;
+        ctx.fillRect(bob.x - 17, bob.y - 13, 34, 26);
+        ctx.strokeRect(bob.x - 17, bob.y - 13, 34, 26);
+
+        // force arrows, one scale for all three
+        const big = Math.max(st.T, P.w, mode === 'push' ? st.F : 0, 1);
+        const fs = 66 / big;
+        const ux = Math.sin(st.th), uy = Math.cos(st.th);           // along the rope, downward
+        PP4.arrow(ctx, bob.x, bob.y, bob.x - ux * st.T * fs, bob.y - uy * st.T * fs, c.soft, 2.2);
+        PP4.tag(ctx, c, 'T', bob.x - ux * st.T * fs - 13, bob.y - uy * st.T * fs - 9, c.soft, 14);
+        PP4.arrow(ctx, bob.x, bob.y, bob.x, bob.y + P.w * fs, c.ink, 2.2);
+        PP4.tag(ctx, c, 'G', bob.x + 15, bob.y + P.w * fs + 4, c.ink, 14);
+        if (mode === 'push') {
+            PP4.arrow(ctx, bob.x, bob.y, bob.x + st.F * fs, bob.y, c.acc, 2.2);
+            PP4.tag(ctx, c, 'F', bob.x + st.F * fs + 13, bob.y - 11, c.acc, 14);
+        }
+
+        // velocity, to make "T is perpendicular to it" visible
+        if (mode === 'swing' && Math.abs(S.om) > 1e-3) {
+            const vdir = S.om > 0 ? 1 : -1;
+            const tx = Math.cos(st.th) * vdir, ty = -Math.sin(st.th) * vdir;
+            PP4.arrow(ctx, bob.x, bob.y, bob.x + tx * 44, bob.y + ty * 44, c.acc, 1.8);
+            PP4.tag(ctx, c, 'v', bob.x + tx * 56, bob.y + ty * 56, c.acc, 13);
+        }
+
+        workBars(ctx, c, st);
+    }
+
+    function workBars(ctx, c, st) {
+        const x = 22, y = 22, w = 150, rowH = 26;
+        const wf = mode === 'push' ? st.wf : 0;
+        const rows = mode === 'push'
+            ? [['W_T', st.wt], ['W_G', st.wg], ['W_F', wf]]
+            : [['W_T', st.wt], ['W_G', st.wg]];
+        const big = Math.max.apply(null, rows.map(r => Math.abs(r[1])).concat([1]));
+
+        ctx.fillStyle = c.faint;
+        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(PP4.T('WORK DONE (J)', 'VYKONANÁ PRÁCE (J)'), x, y - 6);
+
+        rows.forEach(([lab, val], i) => {
+            const cy = y + 10 + i * rowH;
+            const mid = x + 42 + w / 2;
+            ctx.strokeStyle = c.faint + '66'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(mid, cy - 9); ctx.lineTo(mid, cy + 9); ctx.stroke();
+            const bw = (val / big) * (w / 2);
+            ctx.fillStyle = val >= 0 ? c.acc : c.ink;
+            ctx.globalAlpha = Math.abs(bw) < 0.6 ? 1 : 0.75;
+            ctx.fillRect(Math.min(mid, mid + bw), cy - 7, Math.max(Math.abs(bw), 1.6), 14);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = c.soft;
+            ctx.font = 'italic 13px "Source Serif 4",Georgia,serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText(lab.replace('_', ''), x, cy);
+            ctx.fillStyle = c.faint;
+            ctx.font = '10px "JetBrains Mono",monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(PP4.num(val, 0), x + 42 + w + 8, cy);
+        });
+    }
+
+    /* ── Panels ────────────────────────────────────────────────────── */
+    function readouts() {
+        const st = mode === 'push' ? pushState() : swingState();
+        const set = (id, t) => { const el = $(id); if (el) el.textContent = t; };
+        set('l3-r-wt', PP4.num(st.wt, 0) + ' J');
+        set('l3-r-wg', PP4.num(st.wg, 0) + ' J');
+        set('l3-r-t', PP4.num(st.T, 0) + ' N');
+        if (mode === 'push') {
+            set('l3-r-wf', PP4.num(st.wf, 0) + ' J');
+            set('l3-r-wtot', PP4.num(st.wt + st.wg + st.wf, 0) + ' J');
+        } else {
+            set('l3-r-wtot', PP4.num(st.wt + st.wg, 0) + ' J');
+            set('l3-r-v', PP4.num(st.v, 2) + ' m/s');
+        }
+        const note = $('l3-note');
+        if (note) {
+            if (mode === 'push') {
+                const s = pushState();
+                note.textContent = PP4.T(
+                    'The rope is always perpendicular to the crate’s path, so W_T stays at zero. The crate is at rest at both ends, so the three works must cancel — which is how W_F is found without integrating. Note F·d = ' +
+                    PP4.num(s.F * s.dx, 0) + ' J is not W_F = ' + PP4.num(s.wf, 0) + ' J, because F grew along the way.',
+                    'Lano je vždy kolmé k dráze bedny, takže W_T zůstává nulová. Bedna je na začátku i na konci v klidu, takže se tři práce musí vyrušit — a právě tak se W_F najde bez integrování. Všimněte si, že F·d = ' +
+                    PP4.num(s.F * s.dx, 0) + ' J není W_F = ' + PP4.num(s.wf, 0) + ' J, protože F cestou rostla.');
+            } else {
+                const t0 = theta0(), Tmaxv = P.w * (3 - 2 * Math.cos(t0)), br = breakAngle();
+                note.textContent = breaks()
+                    ? PP4.T('The rope needs ' + PP4.num(Tmaxv, 0) + ' N at the lowest point but carries only ' +
+                            PP4.num(P.tmax, 0) + ' N — it lets go at ' +
+                            (br === null ? '—' : PP4.num(br * 180 / Math.PI, 1) + '°') + ' from the vertical.',
+                            'Lano potřebuje v nejnižším bodě ' + PP4.num(Tmaxv, 0) + ' N, ale unese jen ' +
+                            PP4.num(P.tmax, 0) + ' N — přetrhne se při ' +
+                            (br === null ? '—' : PP4.num(br * 180 / Math.PI, 1) + '°') + ' od svislice.')
+                    : PP4.T('The rope holds: the most it ever carries is ' + PP4.num(Tmaxv, 0) +
+                            ' N at the lowest point, against a load of ' + PP4.num(P.tmax, 0) +
+                            ' N. Energy gives the speed there; only then does the circle give the tension.',
+                            'Lano vydrží: nejvíc nese ' + PP4.num(Tmaxv, 0) +
+                            ' N v nejnižším bodě, proti únosnosti ' + PP4.num(P.tmax, 0) +
+                            ' N. Rychlost tam dá energie; teprve pak dá kruhový pohyb tahovou sílu.');
+            }
+        }
+        const stx = $('l3-state');
+        if (stx) stx.textContent = mode === 'push'
+            ? PP4.T('quasi-static', 'kvazistaticky')
+            : (S.running ? PP4.T('swinging', 'houpe se') : PP4.T('ready', 'připraveno'));
+    }
+
+    const FMT = { L: v => PP4.num(v, 1) + ' m', w: v => Math.round(v) + ' N',
+                  ang: v => Math.round(v) + '°', h: v => PP4.num(v, 2) + ' m',
+                  tmax: v => Math.round(v) + ' N' };
+    const SL = [['l3-L','L'], ['l3-w','w'], ['l3-ang','ang'], ['l3-h','h'], ['l3-tmax','tmax']];
+    for (const [id, key] of SL) {
+        const sl = $(id), vl = $(id + '-val');
+        if (!sl) continue;
+        sl.addEventListener('input', () => {
+            P[key] = parseFloat(sl.value);
+            if (vl) vl.textContent = FMT[key](P[key]);
+            if (key === 'h' || key === 'L') resetSwing();
+            readouts();
+        });
+        P[key] = parseFloat(sl.value);
+        if (vl) vl.textContent = FMT[key](P[key]);
+    }
+
+    function resetSwing() { S.th0 = theta0(); S.th = S.th0; S.om = 0; S.running = false; setRunLabel(); }
+    function applyMode() {
+        document.querySelectorAll('#lab3 [data-mode]').forEach(el => {
+            el.style.display = el.getAttribute('data-mode') === mode ? '' : 'none';
+        });
+        resetSwing(); readouts();
+    }
+    PP4.radios('data-mode-pick', k => { mode = k; applyMode(); });
+
+    function setRunLabel() {
+        const b = $('l3-run');
+        if (b) b.innerHTML = S.running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Release</span><span lang="cs">Pustit</span>';
+    }
+    $('l3-run')?.addEventListener('click', () => { S.running = !S.running; setRunLabel(); });
+    $('l3-rewind')?.addEventListener('click', resetSwing);
+    $('l3-reset')?.addEventListener('click', () => {
+        for (const [id, key] of SL) {
+            const sl = $(id);
+            if (sl) { sl.value = D[key]; sl.dispatchEvent(new Event('input')); }
+        }
+        resetSwing(); readouts();
+    });
+    document.addEventListener('langchange', () => {
+        for (const [id, key] of SL) {
+            const vl = $(id + '-val');
+            if (vl) vl.textContent = FMT[key](P[key]);
+        }
+        setRunLabel(); readouts();
+    });
+
+    let last = 0;
+    function frame(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 30) : 0;
+        last = ts;
+        if (mode === 'swing' && S.running) { step(dt); readouts(); }
+        draw();
+        requestAnimationFrame(frame);
+    }
+    applyMode();
+    requestAnimationFrame(frame);
 }());
 </script>
 
