@@ -9,9 +9,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="lang.js"></script>
 
-    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
     <style>
     /* ── Option A: main page header — double rule at content width only ── */
     .topbar {
@@ -651,106 +648,6 @@
 
 </div>
 
-<!-- Tweaks panel root -->
-<div id="tweaks-root"></div>
-
-<script type="text/babel" src="tweaks-panel.jsx"></script>
-<script type="text/babel" data-presets="react">
-/* global React, ReactDOM, TweaksPanel, useTweaks, TweakSection, TweakColor */
-const { useEffect } = React;
-
-const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "cMechanics":  "#8b3a1d",
-  "cSprings":    "#2d6e6a",
-  "cOrbital":    "#1f3460",
-  "cCollision":  "#8c2412",
-  "cPendulum":   "#8a651e",
-  "cElectric":   "#3D2E8A",
-  "cVectors":    "#1e5080",
-  "cKinematics": "#7a3c1a",
-  "cEnergy":     "#2d6b3a",
-  "cSystems":    "#5a3578",
-  "cRotation":   "#8a2840",
-  "cGravity":    "#163868",
-  "cWaves":      "#1a6678",
-  "cThermo":     "#b05a18"
-}/*EDITMODE-END*/;
-
-const PALETTES = {
-    mechanics:  ["#b94d28", "#8b3a1d", "#d97a4d", "#7a3e22", "#a14322"],
-    springs:    ["#2d6e6a", "#1f4f4c", "#3e8e7c", "#4a7d36", "#1c6b8f"],
-    orbital:    ["#2a4a8a", "#1f3460", "#3a6abf", "#5a3d8a", "#2d5fa1"],
-    collision:  ["#b1311c", "#8c2412", "#c75539", "#9c1f2c", "#a8442d"],
-    pendulum:   ["#b3862a", "#8a651e", "#cba550", "#9c6a1d", "#a87a35"],
-    electric:   ["#3D2E8A", "#261C60", "#6858C0", "#4E40A8", "#2E2278"],
-    vectors:    ["#1e5080", "#153a60", "#2a6aaa", "#1a4070", "#3060a0"],
-    kinematics: ["#7a3c1a", "#5a2c12", "#a05028", "#8c4820", "#6a3016"],
-    energy:     ["#2d6b3a", "#1e4e2a", "#3e8a50", "#2a5e38", "#4a7a42"],
-    systems:    ["#5a3578", "#42265a", "#7a5098", "#6040a0", "#4a2868"],
-    rotation:   ["#8a2840", "#6a1e30", "#b04060", "#9c3050", "#782038"],
-    gravity:    ["#163868", "#0D2040", "#3462A0", "#1E4888", "#244870"],
-    waves:      ["#1a6678", "#125060", "#2a88a0", "#1e7080", "#308898"],
-    thermo:     ["#b05a18", "#8a4210", "#d07830", "#c06020", "#983e10"],
-};
-const NAMES = {
-    mechanics: 'terracotta', springs: 'prussian teal', orbital: 'ultramarine',
-    collision: 'venetian red', pendulum: 'yellow ochre', electric: 'indigo violet',
-};
-
-function PaletteApp() {
-    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
-
-    useEffect(() => {
-        const r = document.documentElement.style;
-        r.setProperty('--c-mechanics',  t.cMechanics);
-        r.setProperty('--c-springs',    t.cSprings);
-        r.setProperty('--c-orbital',    t.cOrbital);
-        r.setProperty('--c-collision',  t.cCollision);
-        r.setProperty('--c-pendulum',   t.cPendulum);
-        r.setProperty('--c-electric',   t.cElectric);
-        r.setProperty('--c-vectors',    t.cVectors);
-        r.setProperty('--c-kinematics', t.cKinematics);
-        r.setProperty('--c-energy',     t.cEnergy);
-        r.setProperty('--c-systems',    t.cSystems);
-        r.setProperty('--c-rotation',   t.cRotation);
-        r.setProperty('--c-gravity',    t.cGravity);
-        r.setProperty('--c-waves',      t.cWaves);
-        r.setProperty('--c-thermo',     t.cThermo);
-
-        const map = { mechanics: t.cMechanics, springs: t.cSprings, orbital: t.cOrbital, collision: t.cCollision, pendulum: t.cPendulum, electric: t.cElectric };
-        document.querySelectorAll('.card').forEach(card => {
-            const cls = Object.keys(NAMES).find(c => card.classList.contains(c));
-            if (!cls) return;
-            const meta = card.querySelector('.accent-meta');
-            if (meta) meta.innerHTML = `<span class="dot"></span>${NAMES[cls]} · ${map[cls]}`;
-        });
-    }, [t]);
-
-    return (
-        <TweaksPanel title="Tweaks" defaultPosition={{ right: 24, bottom: 24 }}>
-            <TweakSection title="Vol. I accents">
-                <TweakColor label="1 · Vectors"       value={t.cVectors}    options={PALETTES.vectors}    onChange={v => setTweak('cVectors', v)} />
-                <TweakColor label="2 · Kinematics"    value={t.cKinematics} options={PALETTES.kinematics} onChange={v => setTweak('cKinematics', v)} />
-                <TweakColor label="3 · Dynamics"      value={t.cMechanics}  options={PALETTES.mechanics}  onChange={v => setTweak('cMechanics', v)} />
-                <TweakColor label="4 · Energy"        value={t.cEnergy}     options={PALETTES.energy}     onChange={v => setTweak('cEnergy', v)} />
-                <TweakColor label="5 · Systems"       value={t.cSystems}    options={PALETTES.systems}    onChange={v => setTweak('cSystems', v)} />
-                <TweakColor label="6 · Rotation"      value={t.cRotation}   options={PALETTES.rotation}   onChange={v => setTweak('cRotation', v)} />
-                <TweakColor label="7 · Gravity"       value={t.cGravity}    options={PALETTES.gravity}    onChange={v => setTweak('cGravity', v)} />
-                <TweakColor label="8 · Oscillation"   value={t.cSprings}    options={PALETTES.springs}    onChange={v => setTweak('cSprings', v)} />
-                <TweakColor label="9 · Waves"         value={t.cWaves}      options={PALETTES.waves}      onChange={v => setTweak('cWaves', v)} />
-                <TweakColor label="10 · Thermo"       value={t.cThermo}     options={PALETTES.thermo}     onChange={v => setTweak('cThermo', v)} />
-            </TweakSection>
-            <TweakSection title="Vol. II accents">
-                <TweakColor label="II.01 · Electric"  value={t.cElectric}   options={PALETTES.electric}   onChange={v => setTweak('cElectric', v)} />
-            </TweakSection>
-        </TweaksPanel>
-    );
-}
-
-setTimeout(() => {
-    ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<PaletteApp />);
-}, 0);
-</script>
 
 <!-- Card mini-simulations -->
 <script src="cards/vectors.js"></script>
