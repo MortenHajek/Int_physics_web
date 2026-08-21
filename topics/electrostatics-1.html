@@ -1916,6 +1916,9 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(frame);
 
     setObject('point');
+    // KaTeX is loaded with defer, so it is not defined while this inline script
+    // runs and the badge would stay blank until the first slider move.
+    if (!window.katex) document.addEventListener('DOMContentLoaded', renderBadge);
 }());
 </script>
 

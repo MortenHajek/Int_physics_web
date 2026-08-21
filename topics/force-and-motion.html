@@ -345,29 +345,41 @@
         letter-spacing: 0.16em;
         color: var(--ink-faint);
     }
-    .eom-body { padding: 22px 20px 20px; }
+    .eom-body { padding: 20px 20px 18px; }
+    .eom-stage {
+        padding: 12px 0 13px;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .eom-stage:first-child { padding-top: 2px; }
+    .eom-stage-label {
+        font-family: var(--f-mono);
+        font-size: 9.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-faint);
+        margin-bottom: 9px;
+    }
     .eom-eq {
-        font-size: 17px;
+        font-size: 16px;
         color: var(--ink);
         overflow-x: auto;
         overflow-y: hidden;
         padding-bottom: 2px;
     }
     .eom-eq-num {
-        margin-top: 12px;
+        margin-top: 9px;
         font-family: var(--f-mono);
-        font-size: 12.5px;
+        font-size: 12px;
         letter-spacing: 0.02em;
         color: var(--ink-soft);
+        overflow-x: auto;
         white-space: nowrap;
     }
     .eom-vals {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 0 14px;
-        margin-top: 20px;
-        padding-top: 14px;
-        border-top: 1px solid var(--ink-faint);
+        margin-top: 16px;
     }
     .eom-val {
         display: flex;
@@ -381,15 +393,27 @@
         color: var(--accent);
         letter-spacing: 0.03em;
     }
-    .eom-note {
-        margin: 14px 0 0;
+    .eom-foot {
+        display: flex;
+        align-items: baseline;
+        gap: 22px;
+        margin: 18px 0 0;
         font-size: 12.5px;
         line-height: 1.55;
         color: var(--ink-faint);
-        min-height: 2.4em;
+    }
+    .eom-clock {
+        font-family: var(--f-mono);
+        font-size: 13px;
+        color: var(--accent);
+        white-space: nowrap;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
     }
     @media (max-width: 900px) {
         .eom-grid { grid-template-columns: 1fr; }
+        .eom-foot { flex-direction: column; gap: 8px; }
     }
     </style>
 </head>
@@ -649,10 +673,10 @@
 
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name"><span lang="en">Pulling force <em>F</em><sub>t</sub></span><span lang="cs">Tažná síla <em>F</em><sub>t</sub></span></span>
-                            <span class="sim-control-val" id="p-ft-val">0 N</span>
+                            <span class="sim-control-name"><span lang="en">Cord tension <em>T</em></span><span lang="cs">Tažná síla <em>T</em></span></span>
+                            <span class="sim-control-val" id="p-tension-val">0 N</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-ft" min="0" max="200" step="1" value="0">
+                        <input class="sim-control-range" type="range" id="p-tension" min="0" max="200" step="1" value="0">
                     </div>
 
                     <div class="sim-control">
@@ -665,10 +689,10 @@
 
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name"><span lang="en">External force <em>F</em><sub>e</sub> (horizontal)</span><span lang="cs">Vnější síla <em>F</em><sub>e</sub> (vodorovná)</span></span>
-                            <span class="sim-control-val" id="p-fe-val">0 N</span>
+                            <span class="sim-control-name"><span lang="en">External force <em>F</em> (horizontal)</span><span lang="cs">Vnější síla <em>F</em> (vodorovná)</span></span>
+                            <span class="sim-control-val" id="p-fext-val">0 N</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-fe" min="-150" max="150" step="1" value="0">
+                        <input class="sim-control-range" type="range" id="p-fext" min="-150" max="150" step="1" value="0">
                     </div>
 
                     <div class="sim-control">
@@ -722,6 +746,7 @@
     </section>
 
     <!-- ════ § 4  EQUATIONS OF MOTION ════ -->
+    <!-- ════ § 4  EQUATIONS OF MOTION ════ -->
     <section id="eom" style="margin-top:24px;">
         <div class="eom-grid">
 
@@ -732,8 +757,19 @@
                     <span class="eom-desc"><span lang="en">along the slope, positive up</span><span lang="cs">podél svahu, kladně nahoru</span></span>
                 </div>
                 <div class="eom-body">
-                    <div class="eom-eq" id="eq-x"></div>
-                    <div class="eom-eq eom-eq-num" id="eq-x-num"></div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Newton's second law</span><span lang="cs">Druhý Newtonův zákon</span></div>
+                        <div class="eom-eq" id="eq-x"></div>
+                        <div class="eom-eq-num" id="eq-x-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Integrate once — velocity</span><span lang="cs">První integrace — rychlost</span></div>
+                        <div class="eom-eq" id="eq-vx"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Integrate again — position</span><span lang="cs">Druhá integrace — poloha</span></div>
+                        <div class="eom-eq" id="eq-xx"></div>
+                    </div>
                     <div class="eom-vals">
                         <div class="eom-val"><span class="eom-sym" data-tex="a_x"></span><span class="eom-num" id="v-ax">—</span></div>
                         <div class="eom-val"><span class="eom-sym" data-tex="v_x"></span><span class="eom-num" id="v-vx">—</span></div>
@@ -749,18 +785,32 @@
                     <span class="eom-desc"><span lang="en">across the slope, positive away from it</span><span lang="cs">napříč svahem, kladně od něj</span></span>
                 </div>
                 <div class="eom-body">
-                    <div class="eom-eq" id="eq-y"></div>
-                    <div class="eom-eq eom-eq-num" id="eq-y-num"></div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Newton's second law</span><span lang="cs">Druhý Newtonův zákon</span></div>
+                        <div class="eom-eq" id="eq-y"></div>
+                        <div class="eom-eq-num" id="eq-y-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Integrate once — velocity</span><span lang="cs">První integrace — rychlost</span></div>
+                        <div class="eom-eq" id="eq-vy"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Integrate again — position</span><span lang="cs">Druhá integrace — poloha</span></div>
+                        <div class="eom-eq" id="eq-yy"></div>
+                    </div>
                     <div class="eom-vals">
                         <div class="eom-val"><span class="eom-sym" data-tex="a_y"></span><span class="eom-num" id="v-ay">—</span></div>
                         <div class="eom-val"><span class="eom-sym" data-tex="v_y"></span><span class="eom-num" id="v-vy">—</span></div>
                         <div class="eom-val"><span class="eom-sym" data-tex="y"></span><span class="eom-num" id="v-y">—</span></div>
                     </div>
-                    <p class="eom-note" id="eom-y-note"></p>
                 </div>
             </div>
 
         </div>
+        <p class="eom-foot">
+            <span class="eom-clock"><span data-tex="t ="></span> <span id="v-t">0,00 s</span></span>
+            <span id="eom-note"></span>
+        </p>
     </section>
 
     <section id="exercises" style="margin-top:72px;">
@@ -810,8 +860,14 @@ document.addEventListener('DOMContentLoaded', () => {
    § I.03 — BOX ON A SLOPE
    The axes follow the surface: x runs along the slope (positive up), y
    runs across it (positive away from it). Gravity is always present and
-   is the only force that has to be resolved; the pull is given in the
-   tilted frame already, the external force is resolved from horizontal.
+   is the only force that has to be resolved; the tension T is given in
+   the tilted frame already, the external force F comes from horizontal.
+
+   The equation panel shows the whole chain: Newton's second law gives a
+   constant acceleration, integrating it once gives v(t) and once more
+   gives the position. Those closed forms are anchored at the last change
+   of acceleration — a slider move, or the box breaking away — because
+   that is exactly when the acceleration stops being the same constant.
    ══════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
@@ -831,21 +887,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const PAD   = { l: 64, r: 30, t: 40, b: 62 };
 
     const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
-    const T = (en, cs) => (isCS() ? cs : en);
+    const T_ = (en, cs) => (isCS() ? cs : en);
     /* Czech writes a decimal comma, so format numbers where they are shown
        rather than once at the source. */
     const num = (v, d) => {
         const s = (Math.abs(v) < 5e-3 ? 0 : v).toFixed(d === undefined ? 1 : d);
         return isCS() ? s.replace('.', ',') : s;
     };
+    // KaTeX puts thin space after a bare comma, so brace it.
+    const texNum = (v, d) => num(v, d).replace(',', '{,}');
     const signed = (v, d) => (v < 0 ? '− ' : '+ ') + num(Math.abs(v), d);
 
-    const DEFAULTS = { alpha: 20, mass: 5, ft: 0, beta: 0, fe: 0, mus: 0.5, mud: 0.3 };
+    const DEFAULTS = { alpha: 20, mass: 5, tens: 0, beta: 0, fext: 0, mus: 0.5, mud: 0.3 };
     const P = Object.assign({}, DEFAULTS);
 
     /* Motion state, in the tilted frame. y = 0 means "in contact". */
-    const S = { x: X0, y: 0, vx: 0, vy: 0, ax: 0, ay: 0, N: 0, f: 0,
+    const S = { t: 0, x: X0, y: 0, vx: 0, vy: 0, ax: 0, ay: 0, N: 0, f: 0,
                 contact: true, running: false, mode: 'static' };
+    /* Anchor for the closed forms: the state when the acceleration last
+       changed, so x(t) and v(t) are honest between those moments. */
+    const A = { t0: 0, x0: X0, vx0: 0, y0: 0, vy0: 0, ax: 0, ay: 0, mode: '' };
 
     let W = 0, H = 0;
     function resize() {
@@ -901,26 +962,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const mg = P.mass * G_ACC;
 
         const t = {
-            ftx:  P.ft * Math.cos(b),     // pull, along the slope
-            fty:  P.ft * Math.sin(b),     // pull, across it
-            fex:  P.fe * g.ca,            // horizontal external force
-            fey: -P.fe * g.sa,
-            gx:  -mg * g.sa,              // weight, always present
-            gy:  -mg * g.ca,
-            mg:  mg,
+            tx:  P.tens * Math.cos(b),     // cord tension, along the slope
+            ty:  P.tens * Math.sin(b),     // cord tension, across it
+            fx:  P.fext * g.ca,            // horizontal external force
+            fy: -P.fext * g.sa,
+            gx: -mg * g.sa,                // weight, always present
+            gy: -mg * g.ca,
+            mg: mg,
         };
 
         // The perpendicular axis first: it gives N, and friction needs N.
-        let N = -(t.gy + t.fty + t.fey);
+        let N = -(t.gy + t.ty + t.fy);
         const contact = S.y <= 1e-6 && N >= 0;
         if (!contact) N = 0;
 
-        const drive = t.ftx + t.fex + t.gx;      // everything except friction
+        const drive = t.tx + t.fx + t.gx;      // everything except friction
         let f = 0, mode;
         if (contact) {
             const fmax = P.mus * N;
             if (Math.abs(S.vx) < VEPS) {
-                if (Math.abs(drive) <= fmax) { f = -drive;                      mode = 'static'; }
+                if (Math.abs(drive) <= fmax) { f = -drive;                        mode = 'static'; }
                 else                         { f = -Math.sign(drive) * P.mud * N; mode = 'slip'; }
             } else {
                 f = -Math.sign(S.vx) * P.mud * N;
@@ -934,30 +995,59 @@ document.addEventListener('DOMContentLoaded', () => {
             g, t, N, f, contact, mode, drive,
             fmax: P.mus * N,
             ax: (drive + f) / P.mass,
-            ay: contact ? 0 : (t.fty + t.fey + t.gy) / P.mass,
+            ay: contact ? 0 : (t.ty + t.fy + t.gy) / P.mass,
         };
     }
 
-    /* ── Integration ───────────────────────────────────────────────── */
+    /* ── Integration ───────────────────────────────────────────────────
+       Within a phase the acceleration is constant, so the motion is the
+       closed form the panel prints — evaluate it instead of stepping, and
+       the equation on screen is exactly what the box does. Only two things
+       end a phase on their own: a sliding box reaching rest, and a box in
+       flight landing. Both are solved for exactly.                        */
+    function evalAt(tau) {
+        return {
+            vx: A.vx0 + A.ax * tau,
+            x:  A.x0 + A.vx0 * tau + 0.5 * A.ax * tau * tau,
+            vy: A.vy0 + A.ay * tau,
+            y:  A.y0 + A.vy0 * tau + 0.5 * A.ay * tau * tau,
+        };
+    }
+
     function step(dt) {
-        const SUB = 4, h = dt / SUB;
-        for (let i = 0; i < SUB; i++) {
-            const F = forces();
-            S.ax = F.ax; S.ay = F.ay; S.N = F.N; S.f = F.f;
-            S.contact = F.contact; S.mode = F.mode;
+        let tau = (S.t + dt) - A.t0;
 
-            // Static friction holds the box exactly still — do not let
-            // rounding walk it down the slope.
-            if (F.contact && F.mode === 'static') { S.vx = 0; S.ax = 0; }
-            else S.vx += S.ax * h;
-
-            if (F.contact) { S.vy = 0; S.y = 0; }
-            else S.vy += S.ay * h;
-
-            S.x += S.vx * h;
-            S.y += S.vy * h;
-            if (S.y < 0) { S.y = 0; S.vy = 0; }      // landed back on the surface
+        // A sliding box decelerating to rest stops exactly here.
+        if (A.mode === 'slide' && Math.abs(A.ax) > 1e-9) {
+            const tStop = -A.vx0 / A.ax;
+            if (tStop > 0 && tStop < tau) tau = tStop;
         }
+        // A box in flight lands when y comes back to zero.
+        if (A.mode === 'air' && A.ay < -1e-9) {
+            const disc = A.vy0 * A.vy0 - 2 * A.ay * A.y0;
+            if (disc >= 0) {
+                const r = Math.sqrt(disc);
+                const roots = [(-A.vy0 + r) / A.ay, (-A.vy0 - r) / A.ay]
+                    .filter(v => v > 1e-9);
+                if (roots.length) {
+                    const tLand = Math.min.apply(null, roots);
+                    if (tLand < tau) tau = tLand;
+                }
+            }
+        }
+
+        const st = evalAt(tau);
+        S.t  = A.t0 + tau;
+        S.x  = st.x;  S.vx = st.vx;
+        S.y  = st.y;  S.vy = st.vy;
+        if (S.y <= 0) { S.y = 0; if (S.vy < 0) S.vy = 0; }
+
+        settle();
+        // A new phase begins whenever the acceleration stops being the same
+        // constant — that is precisely when the closed forms above expire.
+        if (S.mode !== A.mode ||
+            Math.abs(S.ax - A.ax) > 1e-9 || Math.abs(S.ay - A.ay) > 1e-9) anchor();
+
         const g = geom();
         if (S.x < -8 || S.x > g.L + 8 || S.y > 40) S.running = false;
     }
@@ -970,6 +1060,12 @@ document.addEventListener('DOMContentLoaded', () => {
         S.contact = F.contact; S.mode = F.mode;
         if (F.contact && F.mode === 'static') S.vx = 0;
         return F;
+    }
+
+    function anchor() {
+        A.t0 = S.t; A.x0 = S.x; A.vx0 = S.vx; A.y0 = S.y; A.vy0 = S.vy;
+        A.ax = S.ax; A.ay = S.ay; A.mode = S.mode;
+        renderEq();
     }
 
     /* ── Drawing ───────────────────────────────────────────────────── */
@@ -990,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function tag(c, text, x, y, col) {
-        ctx.font = 'italic 14px "Source Serif 4",Georgia,serif';
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         const w = ctx.measureText(text).width + 9;
         ctx.fillStyle = c.paper;
@@ -1075,10 +1171,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText('y', ctr.x + g.n.x * (AX + 11), ctr.y + g.n.y * (AX + 11));
 
         // Force arrows, all to one scale so their lengths compare directly.
-        const mag = Math.max(F.t.mg, F.N, Math.abs(F.f), P.ft, Math.abs(P.fe), 1);
+        const mag = Math.max(F.t.mg, F.N, Math.abs(F.f), P.tens, Math.abs(P.fext), 1);
         const FS  = 74 / mag;
         const put = (fx, fy, col, label) => {
-            if (Math.hypot(fx, fy) * FS < 7) return;
+            const len = Math.hypot(fx, fy) * FS;
+            if (len < 7) return;
             const dx = (g.u.x * fx + g.n.x * fy) * FS;
             const dy = (g.u.y * fx + g.n.y * fy) * FS;
             arrow(ctr.x, ctr.y, ctr.x + dx, ctr.y + dy, col, 2.2);
@@ -1088,8 +1185,8 @@ document.addEventListener('DOMContentLoaded', () => {
         put(F.t.gx, F.t.gy, c.ink, 'G');
         if (F.contact)                          put(0, F.N, c.soft, 'N');
         if (F.contact && Math.abs(F.f) > 0.05)  put(F.f, 0, c.faint, 'f');
-        if (P.ft > 0.5)                         put(F.t.ftx, F.t.fty, c.acc, 'Ft');
-        if (Math.abs(P.fe) > 0.5)               put(F.t.fex, F.t.fey, c.acc, 'Fe');
+        if (P.tens > 0.5)                       put(F.t.tx, F.t.ty, c.acc, 'T');
+        if (Math.abs(P.fext) > 0.5)             put(F.t.fx, F.t.fy, c.acc, 'F');
     }
 
     /* ── Equation panel ────────────────────────────────────────────────
@@ -1099,8 +1196,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function termsX() {
         const out = [];
-        if (P.ft > 0.5)           out.push({ tex: 'F_\\mathrm{t}\\cos\\beta',   neg: false });
-        if (Math.abs(P.fe) > 0.5) out.push({ tex: '|F_\\mathrm{e}|\\cos\\alpha', neg: P.fe < 0 });
+        if (P.tens > 0.5)           out.push({ tex: 'T\\cos\\beta',  neg: false });
+        if (Math.abs(P.fext) > 0.5) out.push({ tex: 'F\\cos\\alpha', neg: P.fext < 0 });
         out.push({ tex: 'mg\\sin\\alpha', neg: true });
         if (S.contact && S.N > 0 && (P.mus > 0 || P.mud > 0))
             out.push({ tex: 'f', neg: false });
@@ -1108,8 +1205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function termsY() {
         const out = [{ tex: 'N', neg: false }];
-        if (P.ft > 0.5)           out.push({ tex: 'F_\\mathrm{t}\\sin\\beta',   neg: false });
-        if (Math.abs(P.fe) > 0.5) out.push({ tex: '|F_\\mathrm{e}|\\sin\\alpha', neg: P.fe > 0 });
+        if (P.tens > 0.5)           out.push({ tex: 'T\\sin\\beta',  neg: false });
+        if (Math.abs(P.fext) > 0.5) out.push({ tex: 'F\\sin\\alpha', neg: P.fext > 0 });
         out.push({ tex: 'mg\\cos\\alpha', neg: true });
         return out;
     }
@@ -1122,15 +1219,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         return s;
     }
-
-    let sigX = '', sigY = '';
-    function katexInto(el, tex) {
-        if (!el) return;
-        if (window.katex) katex.render(tex, el, { throwOnError: false, displayMode: false });
-        else el.textContent = tex;
+    /* A polynomial in t with the zero terms dropped, so the shape of the
+       motion is readable: uniform, uniformly accelerated, or at rest. */
+    function poly(c0, c1, c2, unit) {
+        const bits = [];
+        const push = (v, sym) => {
+            if (Math.abs(v) < 5e-3) return;
+            const sign = bits.length === 0 ? (v < 0 ? '-' : '') : (v < 0 ? ' - ' : ' + ');
+            bits.push(sign + texNum(Math.abs(v), 2) + sym);
+        };
+        push(c0, '');
+        push(c1, '\\,t');
+        push(c2, '\\,t^2');
+        if (!bits.length) bits.push('0');
+        return bits.join('') + '\\ \\mathrm{' + unit + '}';
     }
 
-    function panels() {
+    /* KaTeX arrives on a deferred script, so it is NOT available while this
+       inline script first runs — render once it is there, and never cache a
+       failed attempt. */
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+
+    function renderEq() {
+        katexInto($('eq-x'), assemble('m\\,a_x', termsX()));
+        katexInto($('eq-y'), assemble('m\\,a_y', termsY()));
+        katexInto($('eq-vx'),
+            'v_x(t) = v_{0x} + a_x t = ' + poly(A.vx0, A.ax, 0, 'm/s'));
+        katexInto($('eq-xx'),
+            'x(t) = x_0 + v_{0x}t + \\tfrac{1}{2}a_x t^2 = ' + poly(A.x0, A.vx0, A.ax / 2, 'm'));
+        katexInto($('eq-vy'),
+            'v_y(t) = v_{0y} + a_y t = ' + poly(A.vy0, A.ay, 0, 'm/s'));
+        katexInto($('eq-yy'),
+            'y(t) = y_0 + v_{0y}t + \\tfrac{1}{2}a_y t^2 = ' + poly(A.y0, A.vy0, A.ay / 2, 'm'));
+    }
+
+    /* Everything that changes every frame is plain text — no typesetting
+       cost per frame, and the signs stay readable. */
+    function updateLive() {
         const F = forces();
         const t = F.t;
 
@@ -1139,27 +1269,17 @@ document.addEventListener('DOMContentLoaded', () => {
         $('r-f').textContent    = num(F.f) + ' N';
         $('r-fmax').textContent = num(F.fmax) + ' N';
 
-        /* The symbolic lines only change when a force is switched on or off,
-           so re-render them then — not on every animation frame. */
-        const tx = termsX(), ty = termsY();
-        const kx = tx.map(o => (o.neg ? '-' : '+') + o.tex).join('|');
-        const ky = ty.map(o => (o.neg ? '-' : '+') + o.tex).join('|');
-        if (kx !== sigX) { sigX = kx; katexInto($('eq-x'), assemble('m\\,a_x', tx)); }
-        if (ky !== sigY) { sigY = ky; katexInto($('eq-y'), assemble('m\\,a_y', ty)); }
-
-        /* The numeric line is plain text: signs stay readable and there is
-           no typesetting cost per frame. */
         const nx = [];
-        if (P.ft > 0.5)           nx.push(signed(t.ftx));
-        if (Math.abs(P.fe) > 0.5) nx.push(signed(t.fex));
+        if (P.tens > 0.5)           nx.push(signed(t.tx));
+        if (Math.abs(P.fext) > 0.5) nx.push(signed(t.fx));
         nx.push(signed(t.gx));
-        if (F.contact && F.N > 0) nx.push(signed(F.f));
+        if (F.contact && F.N > 0)   nx.push(signed(F.f));
         $('eq-x-num').textContent =
             nx.join(' ').replace(/^\+ /, '') + ' = ' + num(F.ax * P.mass) + ' N';
 
         const ny = [signed(F.N)];
-        if (P.ft > 0.5)           ny.push(signed(t.fty));
-        if (Math.abs(P.fe) > 0.5) ny.push(signed(t.fey));
+        if (P.tens > 0.5)           ny.push(signed(t.ty));
+        if (Math.abs(P.fext) > 0.5) ny.push(signed(t.fy));
         ny.push(signed(t.gy));
         $('eq-y-num').textContent =
             ny.join(' ').replace(/^\+ /, '') + ' = ' + num(F.ay * P.mass) + ' N';
@@ -1170,22 +1290,23 @@ document.addEventListener('DOMContentLoaded', () => {
         $('v-ay').textContent = num(S.ay, 2) + ' m/s²';
         $('v-vy').textContent = num(S.vy, 2) + ' m/s';
         $('v-y').textContent  = num(S.y, 2)  + ' m';
+        $('v-t').textContent  = num(S.t - A.t0, 2) + ' s';
 
-        const note = $('eom-y-note');
+        const note = $('eom-note');
         if (note) {
             note.textContent = F.contact
-                ? T('In contact the box cannot accelerate across the surface, so a_y = 0 and this equation is what gives N. The surface can only push — the moment N would come out negative, the box leaves it.',
-                    'Při kontaktu se kvádr nemůže zrychlovat napříč podložkou, takže a_y = 0 a tahle rovnice určuje N. Podložka umí jen tlačit — jakmile by N vyšlo záporné, kvádr se odlepí.')
-                : T('N = 0 — the box has left the surface, so the perpendicular equation now describes real motion and friction is gone.',
-                    'N = 0 — kvádr opustil podložku, kolmá rovnice teď popisuje skutečný pohyb a tření zmizelo.');
+                ? T_('In contact the box cannot accelerate across the surface, so a_y = 0 and the y equation is what gives N — the surface can only push, and the moment N would come out negative the box leaves it. The clock restarts whenever the acceleration changes, because that is when these closed forms stop applying.',
+                     'Při kontaktu se kvádr nemůže zrychlovat napříč podložkou, takže a_y = 0 a rovnice pro y určuje N — podložka umí jen tlačit a jakmile by N vyšlo záporné, kvádr se odlepí. Hodiny se restartují při každé změně zrychlení, protože právě tehdy přestávají tyto vzorce platit.')
+                : T_('N = 0 — the box has left the surface, so the y equation now describes real motion and friction is gone. The clock restarts whenever the acceleration changes, because that is when these closed forms stop applying.',
+                     'N = 0 — kvádr opustil podložku, rovnice pro y teď popisuje skutečný pohyb a tření zmizelo. Hodiny se restartují při každé změně zrychlení, protože právě tehdy přestávají tyto vzorce platit.');
         }
 
         const st = $('sim-state');
         if (st) st.textContent =
-              F.mode === 'air'    ? T('airborne', 've vzduchu')
-            : F.mode === 'static' ? T('static · holds', 'statické · drží')
-            : F.mode === 'slip'   ? T('breaks away', 'utrhne se')
-            :                       T('sliding', 'klouže');
+              F.mode === 'air'    ? T_('airborne', 've vzduchu')
+            : F.mode === 'static' ? T_('static · holds', 'statické · drží')
+            : F.mode === 'slip'   ? T_('breaks away', 'utrhne se')
+            :                       T_('sliding', 'klouže');
     }
 
     /* ── Controls ──────────────────────────────────────────────────── */
@@ -1193,13 +1314,13 @@ document.addEventListener('DOMContentLoaded', () => {
         alpha: v => Math.round(v) + '°',
         beta:  v => Math.round(v) + '°',
         mass:  v => num(v) + ' kg',
-        ft:    v => Math.round(v) + ' N',
-        fe:    v => Math.round(v) + ' N',
+        tens:  v => Math.round(v) + ' N',
+        fext:  v => Math.round(v) + ' N',
         mus:   v => num(v, 2),
         mud:   v => num(v, 2),
     };
-    const SLIDERS = [['p-alpha','alpha'], ['p-mass','mass'], ['p-ft','ft'],
-                     ['p-beta','beta'], ['p-fe','fe'], ['p-mus','mus'], ['p-mud','mud']];
+    const SLIDERS = [['p-alpha','alpha'], ['p-mass','mass'], ['p-tension','tens'],
+                     ['p-beta','beta'], ['p-fext','fext'], ['p-mus','mus'], ['p-mud','mud']];
 
     for (const [id, key] of SLIDERS) {
         const sl = $(id), vl = $(id + '-val');
@@ -1207,13 +1328,16 @@ document.addEventListener('DOMContentLoaded', () => {
         sl.addEventListener('input', () => {
             P[key] = parseFloat(sl.value);
             if (vl) vl.textContent = FMT[key](P[key]);
-            settle(); panels();
+            settle(); anchor(); updateLive();
         });
         P[key] = parseFloat(sl.value);
         if (vl) vl.textContent = FMT[key](P[key]);
     }
 
-    function rewind() { S.x = X0; S.y = 0; S.vx = 0; S.vy = 0; settle(); panels(); }
+    function rewind() {
+        S.t = 0; S.x = X0; S.y = 0; S.vx = 0; S.vy = 0;
+        settle(); anchor(); updateLive();
+    }
     function setRunLabel() {
         const b = $('btn-run');
         if (b) b.innerHTML = S.running
@@ -1236,7 +1360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const vl = $(id + '-val');
             if (vl) vl.textContent = FMT[key](P[key]);
         }
-        setRunLabel(); panels();
+        setRunLabel(); renderEq(); updateLive();
     });
 
     /* ── Loop ──────────────────────────────────────────────────────── */
@@ -1244,11 +1368,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function frame(ts) {
         const dt = last ? Math.min((ts - last) / 1000, 1 / 30) : 0;
         last = ts;
-        if (S.running) { step(dt); panels(); }
+        if (S.running) { step(dt); updateLive(); }
         draw();
         requestAnimationFrame(frame);
     }
-    settle(); setRunLabel(); panels();
+    settle();
+    A.t0 = 0; A.x0 = S.x; A.vx0 = S.vx; A.y0 = S.y; A.vy0 = S.vy;
+    A.ax = S.ax; A.ay = S.ay; A.mode = S.mode;
+    setRunLabel(); updateLive();
+    // KaTeX is loaded with defer, so it is not here yet — typeset once it is.
+    if (window.katex) renderEq();
+    else document.addEventListener('DOMContentLoaded', renderEq);
     requestAnimationFrame(frame);
 }());
 </script>
