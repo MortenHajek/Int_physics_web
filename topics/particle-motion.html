@@ -56,6 +56,14 @@
         line-height: 1.15;
     }
     .canvas-formula-badge .katex { line-height: normal; }
+    /* Both sims on this page draw their scene along the bottom of the canvas —
+       ground line, cannon, cliff, the d and R dimension labels — so the default
+       bottom-left badge would sit on permanent furniture. Park it top-right,
+       which carries nothing but grid lines. */
+    .canvas-formula-badge.top-right {
+        top: 14px; right: 14px;
+        bottom: auto; left: auto;
+    }
 
     /* ── Sliders ────────────────────────────────────────────────────── */
     .sim-control { padding: 11px 0; border-bottom: 1px dashed var(--ink-faint); }
@@ -257,55 +265,18 @@
     }
 
     /* ── Interactive challenge ──────────────────────────────────────── */
-    .challenge-layout {
-        display: grid;
-        grid-template-columns: 296px 1fr;
-        gap: 24px;
-        align-items: start;
-    }
-    .challenge-info-col { display: flex; flex-direction: column; gap: 12px; }
-    .challenge-given, .challenge-find, .challenge-method {
-        border: 1.5px solid var(--ink);
-        background: var(--paper);
-    }
-    .cg-head {
-        padding: 8px 14px;
-        border-bottom: 1px solid var(--ink-faint);
-        background: var(--paper-deep);
-        font-family: var(--f-mono);
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        color: var(--ink-soft);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
     .cg-row {
         display: grid;
-        grid-template-columns: 26px 74px 1fr;
+        grid-template-columns: 24px 72px 1fr;
         align-items: baseline;
         gap: 0 10px;
-        padding: 8px 14px;
+        padding: 8px 0;
         border-bottom: 1px dashed var(--ink-faint);
     }
     .cg-row:last-child { border-bottom: none; }
     .cg-label { font-family: var(--f-serif); font-style: italic; font-size: 15px; }
     .cg-val { font-family: var(--f-mono); font-size: 13px; color: var(--accent); }
     .cg-desc { font-size: 12px; color: var(--ink-faint); }
-    .ch-method-steps {
-        margin: 0; padding: 12px 14px 12px 30px;
-        font-size: 13px; color: var(--ink-soft); line-height: 1.8;
-        display: flex; flex-direction: column; gap: 4px;
-    }
-    .ch-method-steps li { padding: 2px 0; }
-    .ch-eq {
-        display: inline-block;
-        margin: 4px 0;
-        font-family: var(--f-serif);
-        font-style: italic;
-        font-size: 15px;
-    }
     .ch-hint-box {
         margin: 8px 14px 12px;
         padding: 7px 11px;
@@ -315,15 +286,6 @@
         font-size: 11px;
         color: var(--ink-faint);
         letter-spacing: 0.04em;
-    }
-    .challenge-canvas-wrap {
-        position: relative;
-        min-height: 320px;
-        overflow: hidden;
-        background:
-            linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
-            linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
-            var(--paper-deep);
     }
     #challenge-canvas, #confetti-canvas {
         position: absolute; inset: 0; width: 100%; height: 100%; display: block;
@@ -372,99 +334,99 @@
     }
     .ch-verdict.hit { background: var(--paper-deep); color: var(--accent); border-top-color: var(--accent); }
     .ch-verdict.miss { color: var(--ink-soft); }
-    @media (max-width: 900px) { .challenge-layout { grid-template-columns: 1fr; } }
 
     /* ── Core concept ─────────────────────────────────────────────────── */
     .core-concept {
-        position: relative;
         border: 1.5px solid var(--ink);
-        background: var(--paper-vol);
-        padding: 30px 36px 28px 34px;
-        margin-top: 28px;
+        background: var(--paper);
+        padding: 40px 44px 44px;
+        margin-top: 26px;
+        position: relative;
     }
     .core-concept::before {
         content: "";
         position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 5px;
+        top: 0; left: 0; right: 0;
+        height: 5px;
         background: var(--accent);
     }
     .core-concept-text {
         font-family: var(--f-serif);
-        font-style: italic;
-        font-size: 20px;
-        line-height: 1.55;
+        font-size: 21px;
+        line-height: 1.62;
         color: var(--ink);
-        max-width: 76ch;
+        max-width: 74ch;
+        margin-bottom: 34px;
     }
     .core-concept-text em { font-style: normal; font-weight: 600; }
     .core-formulas {
-        display: grid;
-        gap: 32px;
-        margin-top: 26px;
-        padding-top: 24px;
-        border-top: 1px dashed var(--ink-faint);
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-top: 1px solid var(--ink-faint);
+        margin-bottom: 34px;
     }
     .core-formula {
-        display: grid;
-        grid-template-columns: minmax(260px, 340px) 1fr;
-        gap: 8px 44px;
-        align-items: center;
+        padding: 16px 0 15px;
+        border-bottom: 1px dashed var(--ink-faint);
     }
     .cf-head {
-        display: grid;
-        gap: 8px;
-        align-content: start;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 10px 22px;
     }
     .cf-desc {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.16em;
-        color: var(--accent);
+        color: var(--ink-faint);
+        min-width: 152px;
     }
     .cf-eq {
-        font-family: var(--f-serif);
-        font-style: italic;
-        font-size: 18px;
+        font-size: 17px;
+        color: var(--ink);
         white-space: nowrap;
     }
     .cf-note {
-        font-size: 14.5px;
+        font-size: 14px;
+        line-height: 1.55;
         color: var(--ink-soft);
-        line-height: 1.6;
-        max-width: 60ch;
-        margin: 0;
+        margin: 8px 0 0 0;
+        max-width: 80ch;
     }
     .core-method-label {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.2em;
         color: var(--ink-faint);
-        margin-top: 36px;
-        padding-top: 26px;
-        border-top: 1px dashed var(--ink-faint);
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 4px;
     }
     .core-method {
-        margin-top: 14px;
-        display: grid;
-        gap: 9px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
     }
     .cm-step {
-        display: grid;
-        grid-template-columns: 24px 1fr;
-        gap: 0 12px;
-        align-items: baseline;
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 13px 0;
+        border-bottom: 1px dashed var(--ink-faint);
         font-size: 15px;
+        line-height: 1.6;
         color: var(--ink-soft);
-        line-height: 1.55;
     }
     .cm-num {
         font-family: var(--f-mono);
         font-size: 11px;
         color: var(--accent);
-        letter-spacing: 0.05em;
+        min-width: 20px;
+        padding-top: 3px;
     }
     .cm-step strong { color: var(--ink); }
 
@@ -509,7 +471,6 @@
             <a href="../index.html"><span lang="en">All topics</span><span lang="cs">Všechna témata</span></a>
             <a href="#concept"><span lang="en">Concept</span><span lang="cs">Koncept</span></a>
             <a href="#lab"><span lang="en">Lab</span><span lang="cs">Laboratoř</span></a>
-            <a href="#challenge"><span lang="en">Challenge</span><span lang="cs">Výzva</span></a>
             <a href="#exercises"><span lang="en">Exercises</span><span lang="cs">Úlohy</span></a>
             <div class="lang-switch" role="group" aria-label="Language / Jazyk">
                 <button type="button" data-lang-btn="en">EN</button>
@@ -521,22 +482,21 @@
 
 <div class="page">
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         § 1  HERO
-         ═══════════════════════════════════════════════════════════════ -->
+    <!-- ════ § 1  HERO ════ -->
     <section class="topic-hero">
         <div>
             <div class="num">§ I.02 · particle motion</div>
-            <h1>Particle motion</h1>
+            <h1><span lang="en">Particle motion</span><span lang="cs">Pohyb hmotného bodu</span></h1>
             <p class="lede">
-                Track a particle through space and time. Two coupled coordinates,
-                two independent stories &mdash; and a parabola that emerges as soon as
-                gravity enters the picture.
+                <span lang="en">Track a particle through space and time. Two coupled coordinates, two independent
+                stories — and a parabola that emerges as soon as gravity enters the picture.</span>
+                <span lang="cs">Sledujte hmotný bod prostorem a časem. Dvě svázané souřadnice, dva nezávislé
+                příběhy — a parabola, která se objeví, jakmile do hry vstoupí tíže.</span>
             </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="\vec{r}(t) = \bigl(x(t),\, y(t)\bigr)"></div>
-            <div class="eq-caption">The position vector — one symbol carrying both <em>where</em> and <em>when</em></div>
+            <div class="eq-caption"><span lang="en">The position vector — one symbol carrying both <em>where</em> and <em>when</em></span><span lang="cs">Polohový vektor — jeden symbol nese <em>kde</em> i <em>kdy</em></span></div>
         </div>
     </section>
 
@@ -711,38 +671,37 @@
     <!-- ═══════════════════════════════════════════════════════════════
          § 7  SIMULATION LAB — cannon shooting
          ═══════════════════════════════════════════════════════════════ -->
-    <section id="lab" class="lab">
+    <!-- ════ § 3  LAB 1 — CANNON SANDBOX ════ -->
+    <section id="lab" class="lab" style="margin-top:72px;">
 
-        <!-- Canvas -->
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Cannon sandbox</span>
+                <span><span class="accent-pip"></span><span lang="en">Cannon sandbox</span><span lang="cs">Sandbox: dělo</span></span>
                 <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="y = h + v_{0y}\,t - \dfrac{1}{2}g t^2"></div>
-                <div class="sim-hint">adjust θ · v<sub>0</sub> · h · press <strong style="color:var(--ink);">fire</strong></div>
+                <div class="canvas-formula-badge top-right" data-tex="y = h + v_{0y}\,t - \dfrac{1}{2}g t^2"></div>
+                <div class="sim-hint"><span lang="en">set θ · v<sub>0</sub> · h, then press fire</span><span lang="cs">nastavte θ · v<sub>0</sub> · h a stiskněte pal</span></div>
             </div>
         </div>
 
-        <!-- Side panels -->
         <div class="side-stack">
 
             <!-- Parameters + Fire -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Cannon</span>
+                    <span><span class="accent-pip"></span><span lang="en">Cannon</span><span lang="cs">Dělo</span></span>
                     <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
                         text-transform:uppercase;letter-spacing:0.14em;background:none;
                         border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
-                        title="Reset cannon">reset</button>
+                        title="Reset">reset</button>
                 </div>
                 <div class="panel-body">
 
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Elevation θ</span>
+                            <span class="sim-control-name"><span lang="en">Elevation <em>θ</em></span><span lang="cs">Elevace <em>θ</em></span></span>
                             <span class="sim-control-val" id="p-ang-val">45°</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -751,7 +710,7 @@
 
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Initial speed |v<sub>0</sub>|</span>
+                            <span class="sim-control-name"><span lang="en">Initial speed <em>|v<sub>0</sub>|</em></span><span lang="cs">Počáteční rychlost <em>|v<sub>0</sub>|</em></span></span>
                             <span class="sim-control-val" id="p-v0-val">22 m/s</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -760,7 +719,7 @@
 
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Initial height h = y<sub>0</sub></span>
+                            <span class="sim-control-name"><span lang="en">Initial height <em>h = y<sub>0</sub></em></span><span lang="cs">Počáteční výška <em>h = y<sub>0</sub></em></span></span>
                             <span class="sim-control-val" id="p-h-val">0 m</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -768,8 +727,8 @@
                     </div>
 
                     <div class="fire-row">
-                        <button id="btn-fire" class="btn-fire">▲ Fire</button>
-                        <button id="btn-clear" class="btn-clear">clear</button>
+                        <button id="btn-fire" class="btn-fire">▲ <span lang="en">Fire</span><span lang="cs">Pal</span></button>
+                        <button id="btn-clear" class="btn-clear"><span lang="en">clear</span><span lang="cs">smazat</span></button>
                     </div>
                 </div>
             </div>
@@ -777,11 +736,11 @@
             <!-- Predicted readout -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Trajectory</span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">predicted</span>
+                    <span><span class="accent-pip"></span><span lang="en">Trajectory</span><span lang="cs">Trajektorie</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);"><span lang="en">predicted</span><span lang="cs">předpověď</span></span>
                 </div>
                 <div class="panel-body">
-                    <div class="readout-section">Initial velocity · components</div>
+                    <div class="readout-section"><span lang="en">Initial velocity · components</span><span lang="cs">Počáteční rychlost · složky</span></div>
                     <div class="readout-row">
                         <span class="readout-label" data-tex="v_{0x} = v_0\cos\theta"></span>
                         <span class="readout-val" id="r-v0x">—</span>
@@ -790,17 +749,17 @@
                         <span class="readout-label" data-tex="v_{0y} = v_0\sin\theta"></span>
                         <span class="readout-val" id="r-v0y">—</span>
                     </div>
-                    <div class="readout-section" style="margin-top:4px;">Outcome</div>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">Outcome</span><span lang="cs">Výsledek</span></div>
                     <div class="readout-row">
-                        <span class="readout-label">Range R</span>
+                        <span class="readout-label"><span lang="en">Range <em>R</em></span><span lang="cs">Dostřel <em>R</em></span></span>
                         <span class="readout-val" id="r-range">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">Max height h<sub>max</sub></span>
+                        <span class="readout-label"><span lang="en">Max height <em>h<sub>max</sub></em></span><span lang="cs">Max. výška <em>h<sub>max</sub></em></span></span>
                         <span class="readout-val" id="r-hmax">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">Time of flight T</span>
+                        <span class="readout-label"><span lang="en">Time of flight <em>T</em></span><span lang="cs">Doba letu <em>T</em></span></span>
                         <span class="readout-val" id="r-tflight">—</span>
                     </div>
                 </div>
@@ -809,24 +768,24 @@
             <!-- Display toggles -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Display</span>
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
                 </div>
                 <div class="panel-body">
                     <div class="toggle-row" id="tgl-ghost">
                         <div class="toggle-box on"></div>
-                        <span class="toggle-name">predicted trajectory</span>
+                        <span class="toggle-name"><span lang="en">predicted trajectory</span><span lang="cs">předpovězená dráha</span></span>
                     </div>
                     <div class="toggle-row" id="tgl-components">
                         <div class="toggle-box on"></div>
-                        <span class="toggle-name">v<sub>x</sub> / v<sub>y</sub> components</span>
+                        <span class="toggle-name"><span lang="en">v<sub>x</sub> / v<sub>y</sub> components</span><span lang="cs">složky v<sub>x</sub> / v<sub>y</sub></span></span>
                     </div>
                     <div class="toggle-row" id="tgl-apex">
                         <div class="toggle-box on"></div>
-                        <span class="toggle-name">apex marker</span>
+                        <span class="toggle-name"><span lang="en">apex marker</span><span lang="cs">značka vrcholu</span></span>
                     </div>
                     <div class="toggle-row" id="tgl-grid">
                         <div class="toggle-box on"></div>
-                        <span class="toggle-name">distance grid</span>
+                        <span class="toggle-name"><span lang="en">distance grid</span><span lang="cs">vzdálenostní mřížka</span></span>
                     </div>
                 </div>
             </div>
@@ -837,95 +796,115 @@
     <!-- ═══════════════════════════════════════════════════════════════
          § 9  CHALLENGE — Hit the target
          ═══════════════════════════════════════════════════════════════ -->
-    <section id="challenge" style="margin-top:72px;">
+    <!-- ════ § 4  LAB 2 — CHALLENGE: HIT THE TARGET ════ -->
+    <section id="lab2" style="margin-top:72px;">
         <div class="section-head">
-            <h2>Challenge · Hit the Target</h2>
+            <h2><span lang="en">Challenge · Hit the target</span><span lang="cs">Výzva · Zasáhni cíl</span></h2>
         </div>
 
-        <p style="font-size:15px;color:var(--ink-soft);line-height:1.7;max-width:62ch;margin:0 0 28px;">
-            A cannon sits at ground level on the left. A flag marks the edge of a cliff downrange.
-            The muzzle speed is fixed — your job is to calculate the exact launch angle
-            that puts the ball on the target. Set up the equations, solve, then fire.
+        <p style="font-size:15px;color:var(--ink-soft);line-height:1.7;max-width:62ch;margin:0 0 26px;">
+            <span lang="en">A cannon sits at ground level on the left. A flag marks the edge of a cliff downrange.
+            The muzzle speed is fixed — your job is to calculate the exact launch angle that puts the ball
+            on the target. Set up the equations, solve, then fire.</span>
+            <span lang="cs">Vlevo na zemi stojí dělo. Praporek značí hranu útesu po směru střelby. Úsťová
+            rychlost je pevně daná — vaším úkolem je spočítat přesný elevační úhel, který pošle kouli na cíl.
+            Sestavte rovnice, vyřešte je a vystřelte.</span>
         </p>
 
-        <div class="challenge-layout">
+        <div class="lab" style="margin-bottom:0;">
 
-            <!-- Left column: given values + method -->
-            <div class="challenge-info-col">
+            <div class="canvas-panel">
+                <div class="canvas-head">
+                    <span><span class="accent-pip"></span><span lang="en">Shooting range</span><span lang="cs">Střelnice</span></span>
+                    <span id="ch-status" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">ready</span>
+                </div>
+                <div class="canvas-wrap">
+                    <canvas id="challenge-canvas"></canvas>
+                    <canvas id="confetti-canvas"></canvas>
+                    <div class="canvas-formula-badge top-right" data-tex="H = d\tan\theta - \dfrac{g d^2}{2 v_0^2\cos^2\theta}"></div>
+                </div>
+            </div>
 
-                <div class="challenge-given">
-                    <div class="cg-head"><span class="accent-pip"></span>Given</div>
-                    <div class="cg-row">
-                        <span class="cg-label" data-tex="v_0"></span>
-                        <span class="cg-val">20 m/s</span>
-                        <span class="cg-desc">muzzle speed (fixed)</span>
+            <div class="side-stack">
+
+                <!-- Given -->
+                <div class="side-panel">
+                    <div class="panel-head">
+                        <span><span class="accent-pip"></span><span lang="en">Given</span><span lang="cs">Zadáno</span></span>
                     </div>
-                    <div class="cg-row">
-                        <span class="cg-label" data-tex="d"></span>
-                        <span class="cg-val">30 m</span>
-                        <span class="cg-desc">horizontal dist. to cliff</span>
-                    </div>
-                    <div class="cg-row">
-                        <span class="cg-label" data-tex="H"></span>
-                        <span class="cg-val">6 m</span>
-                        <span class="cg-desc">cliff height</span>
-                    </div>
-                    <div class="cg-row">
-                        <span class="cg-label" data-tex="g"></span>
-                        <span class="cg-val">9.81 m/s²</span>
-                        <span class="cg-desc">gravitational acceleration</span>
+                    <div class="panel-body">
+                        <div class="cg-row">
+                            <span class="cg-label" data-tex="v_0"></span>
+                            <span class="cg-val">20 m/s</span>
+                            <span class="cg-desc"><span lang="en">muzzle speed (fixed)</span><span lang="cs">úsťová rychlost (pevná)</span></span>
+                        </div>
+                        <div class="cg-row">
+                            <span class="cg-label" data-tex="d"></span>
+                            <span class="cg-val">30 m</span>
+                            <span class="cg-desc"><span lang="en">horizontal distance to the cliff</span><span lang="cs">vodorovná vzdálenost k útesu</span></span>
+                        </div>
+                        <div class="cg-row">
+                            <span class="cg-label" data-tex="H"></span>
+                            <span class="cg-val">6 m</span>
+                            <span class="cg-desc"><span lang="en">cliff height</span><span lang="cs">výška útesu</span></span>
+                        </div>
+                        <div class="cg-row">
+                            <span class="cg-label" data-tex="g"></span>
+                            <span class="cg-val">9.81 m/s²</span>
+                            <span class="cg-desc"><span lang="en">gravitational acceleration</span><span lang="cs">tíhové zrychlení</span></span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="challenge-given" style="margin-top:4px;">
-                    <div class="cg-head"><span class="accent-pip"></span>Key identity</div>
-                    <div style="padding:12px 14px 14px;">
+                <!-- Key identity -->
+                <div class="side-panel">
+                    <div class="panel-head">
+                        <span><span class="accent-pip"></span><span lang="en">Key identity</span><span lang="cs">Klíčová identita</span></span>
+                    </div>
+                    <div class="panel-body">
                         <p style="font-size:12px;color:var(--ink-faint);line-height:1.6;margin:0 0 10px;">
-                            The trajectory equation contains <span data-tex="\cos^2\theta"></span> in the denominator.
-                            Use this Pythagorean identity to convert it into a <em style="color:var(--ink-soft);">quadratic in <span data-tex="\tan\theta"></span></em>:
+                            <span lang="en">The trajectory equation carries <span data-tex="\cos^2\theta"></span> in the
+                            denominator. This Pythagorean identity turns it into a <em style="color:var(--ink-soft);">quadratic
+                            in <span data-tex="\tan\theta"></span></em>:</span>
+                            <span lang="cs">Rovnice trajektorie má ve jmenovateli <span data-tex="\cos^2\theta"></span>.
+                            Tahle Pythagorova identita z ní udělá <em style="color:var(--ink-soft);">kvadratickou rovnici
+                            pro <span data-tex="\tan\theta"></span></em>:</span>
                         </p>
                         <div style="font-family:var(--f-serif);font-style:italic;font-size:17px;
                             padding:9px 12px;background:var(--paper-deep);border-left:3px solid var(--accent);text-align:center;">
                             <span data-tex="\sec^2\theta = 1 + \tan^2\theta"></span>
                         </div>
                         <p style="font-size:12px;color:var(--ink-faint);line-height:1.6;margin:10px 0 0;">
-                            Substitute <span data-tex="u = \tan\theta"></span> and solve the resulting quadratic — two solutions, two valid angles.
+                            <span lang="en">Substitute <span data-tex="u = \tan\theta"></span> and solve the quadratic —
+                            two roots, two valid angles.</span>
+                            <span lang="cs">Dosaďte <span data-tex="u = \tan\theta"></span> a vyřešte kvadratickou rovnici —
+                            dva kořeny, dva platné úhly.</span>
                         </p>
+                        <div class="ch-hint-box" style="margin:12px 0 0;">
+                            <span lang="en">Two valid angles exist — try both.</span><span lang="cs">Existují dva platné úhly — zkuste oba.</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="ch-hint-box" style="margin-top:4px;">Two valid angles exist — try both!</div>
-
-            </div>
-
-            <!-- Right column: canvas + controls -->
-            <div class="challenge-sim-col">
-                <div class="canvas-panel">
-                    <div class="canvas-head">
-                        <span><span class="accent-pip"></span>Shooting range</span>
-                        <span id="ch-status" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">ready</span>
+                <!-- Your answer -->
+                <div class="side-panel">
+                    <div class="panel-head">
+                        <span><span class="accent-pip"></span><span lang="en">Your answer</span><span lang="cs">Vaše odpověď</span></span>
                     </div>
-                    <div class="challenge-canvas-wrap">
-                        <canvas id="challenge-canvas"></canvas>
-                        <canvas id="confetti-canvas"></canvas>
-                    </div>
-                </div>
-
-                <div class="ch-controls">
                     <div class="ch-angle-row">
-                        <span class="ch-angle-label">Launch angle</span>
+                        <span class="ch-angle-label"><span lang="en">Launch angle</span><span lang="cs">Elevační úhel</span></span>
                         <div class="ch-angle-input-wrap">
                             <input type="number" id="ch-angle-input" class="ch-angle-input"
                                    min="1" max="89" step="0.1" placeholder="45">
                             <span class="ch-angle-unit">°</span>
                         </div>
-                        <button id="ch-fire-btn" class="btn-fire">▲ Fire</button>
-                        <button id="ch-retry-btn" class="btn-clear" style="display:none;">↺ Repeat</button>
+                        <button id="ch-fire-btn" class="btn-fire">▲ <span lang="en">Fire</span><span lang="cs">Pal</span></button>
+                        <button id="ch-retry-btn" class="btn-clear" style="display:none;">↺ <span lang="en">Repeat</span><span lang="cs">Znovu</span></button>
                     </div>
                     <div id="ch-verdict" class="ch-verdict" style="display:none;"></div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </section>
 
@@ -946,18 +925,18 @@
          ═══════════════════════════════════════════════════════════════ -->
     <nav class="topic-nav">
         <a href="vectors.html" class="topic-nav-btn prev">
-            <div class="topic-nav-dir">← Previous · § I.01</div>
+            <div class="topic-nav-dir"><span lang="en">← Previous · § I.01</span><span lang="cs">← Předchozí · § I.01</span></div>
             <div class="topic-nav-title"><span lang="en">Vectors</span><span lang="cs">Vektory</span></div>
         </a>
         <a href="force-and-motion.html" class="topic-nav-btn next">
-            <div class="topic-nav-dir">Next · § I.03</div>
-            <div class="topic-nav-title"><span lang="en">Force &amp; motion</span><span lang="cs">Force &amp; motion</span></div>
+            <div class="topic-nav-dir"><span lang="en">Next → § I.03</span><span lang="cs">Další → § I.03</span></div>
+            <div class="topic-nav-title"><span lang="en">Force and motion</span><span lang="cs">Síla a pohyb</span></div>
         </a>
     </nav>
 
     <footer class="foot">
         <span>Physics Playground · 0.1 draft</span>
-        <span>§ I.02 Particle motion</span>
+        <span>§ I.02 <span lang="en">Particle motion</span><span lang="cs">Pohyb hmotného bodu</span></span>
         <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
     </footer>
 
@@ -1565,6 +1544,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const canvas    = document.getElementById('challenge-canvas');
     const confCv    = document.getElementById('confetti-canvas');
+    // Canvas labels and status strings follow the page language; the sim runs a
+    // permanent RAF loop, so a toggle takes effect on the next frame.
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
     if (!canvas || !confCv) return;
     const ctx       = canvas.getContext('2d');
     const confCtx   = confCv.getContext('2d');
@@ -1745,7 +1728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.globalAlpha = 1;
         ctx.font = 'bold 13px "JetBrains Mono",monospace';
         ctx.fillStyle = col.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('TARGET', tp.x+8, tp.y-27);
+        ctx.fillText(T('TARGET', 'CÍL'), tp.x+8, tp.y-27);
     }
 
     /* ── Cannon ─────────────────────────────────────────────────── */
@@ -1846,7 +1829,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.font = '10px "JetBrains Mono",monospace';
         ctx.fillStyle = col.faint; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         const O = w2s(CANNON_X, 0);
-        ctx.fillText('cannon', O.x, O.y+8);
+        ctx.fillText(T('cannon', 'dělo'), O.x, O.y+8);
         // d arrow
         const cannonS = w2s(CANNON_X, 0), cliffS = w2s(CLIFF_X, 0);
         ctx.strokeStyle = col.faint; ctx.lineWidth = 0.8; ctx.setLineDash([3,3]);
@@ -1886,12 +1869,14 @@ document.addEventListener('DOMContentLoaded', () => {
         v.style.display = 'block';
         if (result === 'hit') {
             v.className = 'ch-verdict hit';
-            v.innerHTML = '✓ &nbsp;Hit! Well done — your angle was spot-on.';
-            if (stat) stat.textContent = 'hit!';
+            v.innerHTML = T('✓ &nbsp;Hit! Well done — your angle was spot-on.',
+                            '✓ &nbsp;Zásah! Výborně — úhel seděl přesně.');
+            if (stat) stat.textContent = T('hit!', 'zásah!');
         } else {
             v.className = 'ch-verdict miss';
-            v.innerHTML = '✗ &nbsp;Missed. Check your working and try a different angle.';
-            if (stat) stat.textContent = 'missed';
+            v.innerHTML = T('✗ &nbsp;Missed. Check your working and try a different angle.',
+                            '✗ &nbsp;Mimo. Zkontrolujte výpočet a zkuste jiný úhel.');
+            if (stat) stat.textContent = T('missed', 'mimo');
         }
         if (retry) retry.style.display = 'inline-block';
         if (fire) fire.disabled = true;
@@ -1995,7 +1980,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fire = document.getElementById('ch-fire-btn');
         if (fire) fire.disabled = false;
         const stat = document.getElementById('ch-status');
-        if (stat) stat.textContent = 'firing…';
+        if (stat) stat.textContent = T('firing…', 'střelba…');
         confCtx.clearRect(0, 0, W, SH);
     });
 
@@ -2010,8 +1995,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const fire = document.getElementById('ch-fire-btn');
         if (fire) fire.disabled = false;
         const stat = document.getElementById('ch-status');
-        if (stat) stat.textContent = 'ready';
+        if (stat) stat.textContent = T('ready', 'připraveno');
         lastTs = null;
+    });
+
+    // The status chip and the verdict are plain strings set by JS, so they do not
+    // follow the CS/EN switch on their own — re-stamp them when the language changes.
+    document.addEventListener('langchange', () => {
+        const stat = document.getElementById('ch-status');
+        if (stat && !sim.firing) {
+            stat.textContent = sim.result === 'hit'  ? T('hit!', 'zásah!')
+                             : sim.result === 'miss' ? T('missed', 'mimo')
+                             : T('ready', 'připraveno');
+        }
+        const v = document.getElementById('ch-verdict');
+        if (v && v.style.display !== 'none' && sim.result) showVerdict(sim.result);
     });
 
 }());

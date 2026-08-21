@@ -165,95 +165,96 @@
 
     /* ── Core concept ─────────────────────────────────────────────────── */
     .core-concept {
-        position: relative;
         border: 1.5px solid var(--ink);
-        background: var(--paper-vol);
-        padding: 30px 36px 28px 34px;
-        margin-top: 28px;
+        background: var(--paper);
+        padding: 40px 44px 44px;
+        margin-top: 26px;
+        position: relative;
     }
     .core-concept::before {
         content: "";
         position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 5px;
+        top: 0; left: 0; right: 0;
+        height: 5px;
         background: var(--accent);
     }
     .core-concept-text {
         font-family: var(--f-serif);
-        font-style: italic;
-        font-size: 20px;
-        line-height: 1.55;
+        font-size: 21px;
+        line-height: 1.62;
         color: var(--ink);
-        max-width: 76ch;
+        max-width: 74ch;
+        margin-bottom: 34px;
     }
     .core-concept-text em { font-style: normal; font-weight: 600; }
     .core-formulas {
-        display: grid;
-        gap: 32px;
-        margin-top: 26px;
-        padding-top: 24px;
-        border-top: 1px dashed var(--ink-faint);
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-top: 1px solid var(--ink-faint);
+        margin-bottom: 34px;
     }
     .core-formula {
-        display: grid;
-        grid-template-columns: minmax(260px, 340px) 1fr;
-        gap: 8px 44px;
-        align-items: center;
+        padding: 16px 0 15px;
+        border-bottom: 1px dashed var(--ink-faint);
     }
     .cf-head {
-        display: grid;
-        gap: 8px;
-        align-content: start;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 10px 22px;
     }
     .cf-desc {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.16em;
-        color: var(--accent);
+        color: var(--ink-faint);
+        min-width: 152px;
     }
     .cf-eq {
-        font-family: var(--f-serif);
-        font-style: italic;
-        font-size: 18px;
+        font-size: 17px;
+        color: var(--ink);
         white-space: nowrap;
     }
     .cf-note {
-        font-size: 14.5px;
+        font-size: 14px;
+        line-height: 1.55;
         color: var(--ink-soft);
-        line-height: 1.6;
-        max-width: 60ch;
-        margin: 0;
+        margin: 8px 0 0 0;
+        max-width: 80ch;
     }
     .core-method-label {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.2em;
         color: var(--ink-faint);
-        margin-top: 36px;
-        padding-top: 26px;
-        border-top: 1px dashed var(--ink-faint);
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--ink-faint);
+        margin-bottom: 4px;
     }
     .core-method {
-        margin-top: 14px;
-        display: grid;
-        gap: 9px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
     }
     .cm-step {
-        display: grid;
-        grid-template-columns: 24px 1fr;
-        gap: 0 12px;
-        align-items: baseline;
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 13px 0;
+        border-bottom: 1px dashed var(--ink-faint);
         font-size: 15px;
+        line-height: 1.6;
         color: var(--ink-soft);
-        line-height: 1.55;
     }
     .cm-num {
         font-family: var(--f-mono);
         font-size: 11px;
         color: var(--accent);
-        letter-spacing: 0.05em;
+        min-width: 20px;
+        padding-top: 3px;
     }
     .cm-step strong { color: var(--ink); }
 
@@ -281,6 +282,115 @@
         box-shadow: 3px 3px 0 var(--ink);
     }
     .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+    /* ── Run / rewind buttons ────────────────────────────────────────── */
+    .fam-run-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+    }
+    .fam-btn-run, .fam-btn-rewind {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        padding: 10px 14px;
+        border: 1.5px solid var(--ink);
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .fam-btn-run {
+        flex: 1;
+        background: var(--accent);
+        color: var(--paper);
+    }
+    .fam-btn-rewind {
+        background: var(--paper);
+        color: var(--ink-soft);
+    }
+    .fam-btn-run:hover, .fam-btn-rewind:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    /* ── Equations of motion, one column per axis ────────────────────── */
+    .eom-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    .eom-col {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+    }
+    .eom-head {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 11px 20px;
+        border-bottom: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+    }
+    .eom-head .accent-pip { align-self: center; }
+    .eom-axis {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 20px;
+        color: var(--accent);
+        line-height: 1;
+    }
+    .eom-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-faint);
+    }
+    .eom-body { padding: 22px 20px 20px; }
+    .eom-eq {
+        font-size: 17px;
+        color: var(--ink);
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 2px;
+    }
+    .eom-eq-num {
+        margin-top: 12px;
+        font-family: var(--f-mono);
+        font-size: 12.5px;
+        letter-spacing: 0.02em;
+        color: var(--ink-soft);
+        white-space: nowrap;
+    }
+    .eom-vals {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0 14px;
+        margin-top: 20px;
+        padding-top: 14px;
+        border-top: 1px solid var(--ink-faint);
+    }
+    .eom-val {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .eom-sym { font-size: 15px; color: var(--ink-soft); }
+    .eom-num {
+        font-family: var(--f-mono);
+        font-size: 15px;
+        color: var(--accent);
+        letter-spacing: 0.03em;
+    }
+    .eom-note {
+        margin: 14px 0 0;
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: var(--ink-faint);
+        min-height: 2.4em;
+    }
+    @media (max-width: 900px) {
+        .eom-grid { grid-template-columns: 1fr; }
+    }
     </style>
 </head>
 
@@ -311,16 +421,19 @@
     <section class="topic-hero">
         <div>
             <div class="num">§ I.03 · dynamics</div>
-            <h1>Force and Motion</h1>
+            <h1><span lang="en">Force and motion</span><span lang="cs">Síla a pohyb</span></h1>
             <p class="lede">
-                A force is any push or pull. Newton's second law tells us that forces
-                don't produce velocity — they produce <em>change</em> in velocity. Slide the
-                parameters and watch friction and applied force battle for the block.
+                <span lang="en">A force is any push or pull. Newton's second law says that forces do not produce
+                velocity — they produce <em>change</em> in velocity. Isolate one body, draw what acts on it,
+                and the rest is algebra.</span>
+                <span lang="cs">Síla je jakýkoli tlak nebo tah. Druhý Newtonův zákon říká, že síly nevytvářejí
+                rychlost — vytvářejí její <em>změnu</em>. Izolujte jedno těleso, nakreslete, co na ně působí,
+                a zbytek je algebra.</span>
             </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="\sum \vec{F} = m\vec{a}"></div>
-            <div class="eq-caption">Newton's second law — net force equals mass times acceleration</div>
+            <div class="eq-caption"><span lang="en">Newton's second law — net force equals mass times acceleration</span><span lang="cs">Druhý Newtonův zákon — výslednice sil se rovná hmotnosti krát zrychlení</span></div>
         </div>
     </section>
 
@@ -367,7 +480,7 @@
                     <div class="cf-head">
                         <span class="cf-desc"><span lang="en">Weight and the normal force</span><span lang="cs">Tíha a normálová síla</span></span>
                         <span class="cf-eq" data-tex="F_G = mg"></span>
-                        <span class="cf-eq" data-tex="N\ \text{— z rovnic, ne ze vzorce}"></span>
+                        <span lang="en" class="cf-eq" data-tex="N\ \text{— from the equations, not a formula}"></span><span lang="cs" class="cf-eq" data-tex="N\ \text{— z rovnic, ne ze vzorce}"></span>
                     </div>
                     <p class="cf-note">
                         <span lang="en">Weight always points straight down and always equals <span data-tex="mg"></span>. The normal force does
@@ -411,7 +524,7 @@
                     <div class="cf-head">
                         <span class="cf-desc"><span lang="en">Connected bodies</span><span lang="cs">Spojená tělesa</span></span>
                         <span class="cf-eq" data-tex="a_1 = a_2 = \ldots = a"></span>
-                        <span class="cf-eq" data-tex="T\ \text{— vnitřní, ruší se v součtu}"></span>
+                        <span lang="en" class="cf-eq" data-tex="T\ \text{— internal, cancels in the sum}"></span><span lang="cs" class="cf-eq" data-tex="T\ \text{— vnitřní, ruší se v součtu}"></span>
                     </div>
                     <p class="cf-note">
                         <span lang="en">Bodies joined by an inextensible cord share one acceleration — that constraint is the extra equation
@@ -497,74 +610,156 @@
         </div>
     </section>
 
-    <section id="lab" class="lab" style="margin-top:72px;">
+    <!-- ════ § 3  LAB — BOX ON A SLOPE ════ -->
+    <section id="lab" class="lab" style="margin-top:72px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Block on surface — kinetic friction sandbox</span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Box on a slope</span><span lang="cs">Kvádr na nakloněné rovině</span></span>
+                <span id="sim-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="\sum F = ma"></div>
-                <div class="sim-hint">adjust force and friction with sliders</div>
+                <div class="sim-hint"><span lang="en">axes follow the slope · x along it, y across it</span><span lang="cs">osy sledují svah · x podél, y napříč</span></div>
             </div>
         </div>
+
         <div class="side-stack">
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
                     <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;background:none;border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
                 </div>
                 <div class="panel-body">
+
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Mass <em>m</em></span>
+                            <span class="sim-control-name"><span lang="en">Slope <em>α</em></span><span lang="cs">Sklon <em>α</em></span></span>
+                            <span class="sim-control-val" id="p-alpha-val">20°</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-alpha" min="0" max="60" step="1" value="20">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass <em>m</em></span><span lang="cs">Hmotnost <em>m</em></span></span>
                             <span class="sim-control-val" id="p-mass-val">5 kg</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-mass" min="1" max="20" step="1" value="5">
+                        <input class="sim-control-range" type="range" id="p-mass" min="1" max="20" step="0.5" value="5">
                     </div>
+
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Applied force <em>F</em></span>
-                            <span class="sim-control-val" id="p-force-val">30 N</span>
+                            <span class="sim-control-name"><span lang="en">Pulling force <em>F</em><sub>t</sub></span><span lang="cs">Tažná síla <em>F</em><sub>t</sub></span></span>
+                            <span class="sim-control-val" id="p-ft-val">0 N</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-force" min="0" max="100" step="1" value="30">
+                        <input class="sim-control-range" type="range" id="p-ft" min="0" max="200" step="1" value="0">
                     </div>
+
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Friction <em>μ<sub>k</sub></em></span>
-                            <span class="sim-control-val" id="p-mu-val">0.30</span>
+                            <span class="sim-control-name"><span lang="en">…at angle <em>β</em> to the slope</span><span lang="cs">…pod úhlem <em>β</em> ke svahu</span></span>
+                            <span class="sim-control-val" id="p-beta-val">0°</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-mu" min="0" max="0.8" step="0.05" value="0.3">
+                        <input class="sim-control-range" type="range" id="p-beta" min="0" max="90" step="1" value="0">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">External force <em>F</em><sub>e</sub> (horizontal)</span><span lang="cs">Vnější síla <em>F</em><sub>e</sub> (vodorovná)</span></span>
+                            <span class="sim-control-val" id="p-fe-val">0 N</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-fe" min="-150" max="150" step="1" value="0">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Static friction <em>μ<sub>s</sub></em></span><span lang="cs">Statické tření <em>μ<sub>s</sub></em></span></span>
+                            <span class="sim-control-val" id="p-mus-val">0.50</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-mus" min="0" max="1" step="0.01" value="0.5">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Kinetic friction <em>μ<sub>d</sub></em></span><span lang="cs">Dynamické tření <em>μ<sub>d</sub></em></span></span>
+                            <span class="sim-control-val" id="p-mud-val">0.30</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p-mud" min="0" max="1" step="0.01" value="0.3">
+                    </div>
+
+                    <div class="fam-run-row">
+                        <button id="btn-run" class="fam-btn-run">▶ <span lang="en">Run</span><span lang="cs">Spustit</span></button>
+                        <button id="btn-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
                     </div>
                 </div>
             </div>
+
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
+                    <span><span class="accent-pip"></span><span lang="en">Forces on the box</span><span lang="cs">Síly na kvádr</span></span>
                     <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
-                    <div class="readout-section">Forces</div>
                     <div class="readout-row">
-                        <span class="readout-label">F<sub>net</sub></span>
-                        <span class="readout-val" id="r-fnet">— N</span>
+                        <span class="readout-label" data-tex="G = mg"></span>
+                        <span class="readout-val" id="r-g">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">f<sub>friction</sub></span>
-                        <span class="readout-val" id="r-ff">— N</span>
-                    </div>
-                    <div class="readout-section" style="margin-top:4px;">Motion</div>
-                    <div class="readout-row">
-                        <span class="readout-label">a</span>
-                        <span class="readout-val" id="r-acc">— m/s²</span>
+                        <span class="readout-label" data-tex="N"></span>
+                        <span class="readout-val" id="r-n">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">v</span>
-                        <span class="readout-val" id="r-vel">— m/s</span>
+                        <span class="readout-label" data-tex="f"></span>
+                        <span class="readout-val" id="r-f">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\mu_s N"></span>
+                        <span class="readout-val" id="r-fmax">—</span>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- ════ § 4  EQUATIONS OF MOTION ════ -->
+    <section id="eom" style="margin-top:24px;">
+        <div class="eom-grid">
+
+            <div class="eom-col">
+                <div class="eom-head">
+                    <span class="accent-pip"></span>
+                    <span class="eom-axis">x</span>
+                    <span class="eom-desc"><span lang="en">along the slope, positive up</span><span lang="cs">podél svahu, kladně nahoru</span></span>
+                </div>
+                <div class="eom-body">
+                    <div class="eom-eq" id="eq-x"></div>
+                    <div class="eom-eq eom-eq-num" id="eq-x-num"></div>
+                    <div class="eom-vals">
+                        <div class="eom-val"><span class="eom-sym" data-tex="a_x"></span><span class="eom-num" id="v-ax">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="v_x"></span><span class="eom-num" id="v-vx">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="x"></span><span class="eom-num" id="v-x">—</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eom-col">
+                <div class="eom-head">
+                    <span class="accent-pip"></span>
+                    <span class="eom-axis">y</span>
+                    <span class="eom-desc"><span lang="en">across the slope, positive away from it</span><span lang="cs">napříč svahem, kladně od něj</span></span>
+                </div>
+                <div class="eom-body">
+                    <div class="eom-eq" id="eq-y"></div>
+                    <div class="eom-eq eom-eq-num" id="eq-y-num"></div>
+                    <div class="eom-vals">
+                        <div class="eom-val"><span class="eom-sym" data-tex="a_y"></span><span class="eom-num" id="v-ay">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="v_y"></span><span class="eom-num" id="v-vy">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="y"></span><span class="eom-num" id="v-y">—</span></div>
+                    </div>
+                    <p class="eom-note" id="eom-y-note"></p>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -595,7 +790,7 @@
 
     <footer class="foot">
         <span>Physics Playground · 0.1 draft</span>
-        <span>§ I.03 Force and Motion</span>
+        <span>§ I.03 <span lang="en">Force and motion</span><span lang="cs">Síla a pohyb</span></span>
         <span><span lang="en">Vol. I · Mechanics</span><span lang="cs">Díl I · Mechanika</span></span>
     </footer>
 
@@ -611,20 +806,52 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* ══════════════════════════════════════════════════════════════════════
+   § I.03 — BOX ON A SLOPE
+   The axes follow the surface: x runs along the slope (positive up), y
+   runs across it (positive away from it). Gravity is always present and
+   is the only force that has to be resolved; the pull is given in the
+   tilted frame already, the external force is resolved from horizontal.
+   ══════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
 
     const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
+    if (!canvas) return;
+    const ctx  = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
+    const dpr  = window.devicePixelRatio || 1;
+
+    const G_ACC = 9.81;
+    const SCALE = 24;      // px per metre
+    const BOX_W = 1.0;     // m
+    const BOX_H = 0.7;     // m
+    const X0    = 3.0;     // m — start position along the slope
+    const VEPS  = 1e-3;    // m/s below which the box counts as at rest
+    const PAD   = { l: 64, r: 30, t: 40, b: 62 };
+
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    /* Czech writes a decimal comma, so format numbers where they are shown
+       rather than once at the source. */
+    const num = (v, d) => {
+        const s = (Math.abs(v) < 5e-3 ? 0 : v).toFixed(d === undefined ? 1 : d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const signed = (v, d) => (v < 0 ? '− ' : '+ ') + num(Math.abs(v), d);
+
+    const DEFAULTS = { alpha: 20, mass: 5, ft: 0, beta: 0, fe: 0, mus: 0.5, mud: 0.3 };
+    const P = Object.assign({}, DEFAULTS);
+
+    /* Motion state, in the tilted frame. y = 0 means "in contact". */
+    const S = { x: X0, y: 0, vx: 0, vy: 0, ax: 0, ay: 0, N: 0, f: 0,
+                contact: true, running: false, mode: 'static' };
 
     let W = 0, H = 0;
-
     function resize() {
         const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
+        W = Math.max(r.width, 240);
+        H = Math.max(r.height, 240);
         canvas.width  = Math.round(W * dpr);
         canvas.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -632,186 +859,397 @@ document.addEventListener('DOMContentLoaded', () => {
     resize();
     new ResizeObserver(resize).observe(wrap);
 
-    function readCol() {
+    function colours() {
         const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   s.getPropertyValue('--accent').trim()    || '#b94d28',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFFEC',
-            deep:  s.getPropertyValue('--paper-deep').trim()|| '#efead6',
+            ink:   s.getPropertyValue('--ink').trim()        || '#363026',
+            soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7a6a52',
+            paper: s.getPropertyValue('--paper').trim()      || '#fffdf6',
+            deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            acc:   b.getPropertyValue('--accent').trim()     || '#b94d28',
         };
     }
-    let col = readCol();
 
-    const DEFAULTS = { mass: 5, force: 30, mu: 0.3 };
-    let state = { ...DEFAULTS };
-    let velX = 0, posX = 0;
-
-    const BLOCK_W = 64, BLOCK_H = 44;
-    const PIXELS_PER_METER = 60;
-
-    function physics(dt) {
-        const g = 9.8;
-        const ff = state.mu * state.mass * g;
-        const fnet = Math.max(0, state.force - ff);
-        const a = fnet / state.mass;
-        velX += a * dt;
-        posX += velX * dt;
-        return { fnet, ff, a };
+    /* ── Geometry ──────────────────────────────────────────────────────
+       The ramp rises to the right from a base corner near the bottom left.
+       û points up the slope, n̂ is the outward normal; screen y grows
+       downwards, so both carry a negative y for "up the page".           */
+    function geom() {
+        const a  = P.alpha * Math.PI / 180;
+        const ca = Math.cos(a), sa = Math.sin(a);
+        const base = { x: PAD.l, y: H - PAD.b };
+        const u = { x:  ca, y: -sa };
+        const n = { x: -sa, y: -ca };
+        const byW = (W - PAD.l - PAD.r) / Math.max(ca, 1e-6);
+        const byH = sa > 1e-6 ? (H - PAD.t - PAD.b) / sa : Infinity;
+        const L = Math.min(byW, byH) / SCALE;      // visible slope length, m
+        return { a, ca, sa, base, u, n, L };
     }
-
-    function bindSlider(inputId, valId, key, fmt) {
-        const inp = document.getElementById(inputId);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(+inp.value);
-            velX = 0;
-        });
-    }
-    bindSlider('p-mass',  'p-mass-val',  'mass',  v => v + ' kg');
-    bindSlider('p-force', 'p-force-val', 'force', v => v + ' N');
-    bindSlider('p-mu',    'p-mu-val',    'mu',    v => v.toFixed(2));
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        velX = 0; posX = 0;
-        [['p-mass','p-mass-val','mass', v => v + ' kg'],
-         ['p-force','p-force-val','force', v => v + ' N'],
-         ['p-mu','p-mu-val','mu', v => (+v).toFixed(2)]].forEach(([id, vid, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(vid);
-            if (inp) inp.value = DEFAULTS[key];
-            if (lbl) lbl.textContent = fmt(DEFAULTS[key]);
-        });
+    const toScreen = (g, x, y) => ({
+        x: g.base.x + (g.u.x * x + g.n.x * y) * SCALE,
+        y: g.base.y + (g.u.y * x + g.n.y * y) * SCALE,
     });
 
-    function drawArrow(x1, y1, x2, y2, color, lw) {
+    /* ── Forces, resolved in the tilted frame ──────────────────────────
+       Each term is kept separately so the equation panel can print exactly
+       the terms that are switched on.                                    */
+    function forces() {
+        const g  = geom();
+        const b  = P.beta * Math.PI / 180;
+        const mg = P.mass * G_ACC;
+
+        const t = {
+            ftx:  P.ft * Math.cos(b),     // pull, along the slope
+            fty:  P.ft * Math.sin(b),     // pull, across it
+            fex:  P.fe * g.ca,            // horizontal external force
+            fey: -P.fe * g.sa,
+            gx:  -mg * g.sa,              // weight, always present
+            gy:  -mg * g.ca,
+            mg:  mg,
+        };
+
+        // The perpendicular axis first: it gives N, and friction needs N.
+        let N = -(t.gy + t.fty + t.fey);
+        const contact = S.y <= 1e-6 && N >= 0;
+        if (!contact) N = 0;
+
+        const drive = t.ftx + t.fex + t.gx;      // everything except friction
+        let f = 0, mode;
+        if (contact) {
+            const fmax = P.mus * N;
+            if (Math.abs(S.vx) < VEPS) {
+                if (Math.abs(drive) <= fmax) { f = -drive;                      mode = 'static'; }
+                else                         { f = -Math.sign(drive) * P.mud * N; mode = 'slip'; }
+            } else {
+                f = -Math.sign(S.vx) * P.mud * N;
+                mode = 'slide';
+            }
+        } else {
+            mode = 'air';
+        }
+
+        return {
+            g, t, N, f, contact, mode, drive,
+            fmax: P.mus * N,
+            ax: (drive + f) / P.mass,
+            ay: contact ? 0 : (t.fty + t.fey + t.gy) / P.mass,
+        };
+    }
+
+    /* ── Integration ───────────────────────────────────────────────── */
+    function step(dt) {
+        const SUB = 4, h = dt / SUB;
+        for (let i = 0; i < SUB; i++) {
+            const F = forces();
+            S.ax = F.ax; S.ay = F.ay; S.N = F.N; S.f = F.f;
+            S.contact = F.contact; S.mode = F.mode;
+
+            // Static friction holds the box exactly still — do not let
+            // rounding walk it down the slope.
+            if (F.contact && F.mode === 'static') { S.vx = 0; S.ax = 0; }
+            else S.vx += S.ax * h;
+
+            if (F.contact) { S.vy = 0; S.y = 0; }
+            else S.vy += S.ay * h;
+
+            S.x += S.vx * h;
+            S.y += S.vy * h;
+            if (S.y < 0) { S.y = 0; S.vy = 0; }      // landed back on the surface
+        }
+        const g = geom();
+        if (S.x < -8 || S.x > g.L + 8 || S.y > 40) S.running = false;
+    }
+
+    /* Recompute derived quantities without advancing time, so the panels
+       are right the moment a slider moves. */
+    function settle() {
+        const F = forces();
+        S.ax = F.ax; S.ay = F.ay; S.N = F.N; S.f = F.f;
+        S.contact = F.contact; S.mode = F.mode;
+        if (F.contact && F.mode === 'static') S.vx = 0;
+        return F;
+    }
+
+    /* ── Drawing ───────────────────────────────────────────────────── */
+    function arrow(x1, y1, x2, y2, col, lw) {
         const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
-        if (len < 2) return;
+        if (len < 3) return;
         const ux = dx / len, uy = dy / len;
-        const hl = Math.min(14, len * 0.25), hw = hl * 0.45;
-        ctx.save();
-        ctx.strokeStyle = color; ctx.fillStyle = color;
-        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        const hl = Math.min(10, len * 0.34), hw = hl * 0.5;
+        ctx.strokeStyle = col; ctx.fillStyle = col;
+        ctx.lineWidth = lw || 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6);
-        ctx.stroke();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
         ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
     }
 
-    function drawGround(gY) {
-        ctx.save();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 2; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(0, gY); ctx.lineTo(W, gY); ctx.stroke();
-        const hatchStep = 14;
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
-        for (let x = 0; x < W + 40; x += hatchStep) {
-            ctx.beginPath();
-            ctx.moveTo(x, gY);
-            ctx.lineTo(x - 18, gY + 18);
-            ctx.stroke();
-        }
-        ctx.restore();
-    }
-
-    function drawBlock(bx, by) {
-        ctx.save();
-        ctx.fillStyle = col.deep;
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([]);
-        ctx.fillRect(bx, by, BLOCK_W, BLOCK_H);
-        ctx.strokeRect(bx, by, BLOCK_W, BLOCK_H);
-        ctx.fillStyle = col.soft;
-        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
+    function tag(c, text, x, y, col) {
+        ctx.font = 'italic 14px "Source Serif 4",Georgia,serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('m', bx + BLOCK_W / 2, by + BLOCK_H / 2);
-        ctx.restore();
+        const w = ctx.measureText(text).width + 9;
+        ctx.fillStyle = c.paper;
+        ctx.fillRect(x - w / 2, y - 9, w, 18);
+        ctx.fillStyle = col;
+        ctx.fillText(text, x, y);
     }
 
-    function draw(fnet, ff, a) {
+    function draw() {
+        const c = colours();
+        const g = geom();
+        const F = forces();
         ctx.clearRect(0, 0, W, H);
 
-        const gY = H * 0.68;
-        const bY = gY - BLOCK_H;
+        const top = toScreen(g, g.L, 0);
 
-        const wrapPx = (posX * PIXELS_PER_METER) % (W + BLOCK_W + 40);
-        let bX = (wrapPx + W * 0.15) % (W + BLOCK_W + 40) - BLOCK_W;
+        /* The ramp: flat run-up to the base corner, the slope itself, then
+           a flat continuation — filled down to the bottom edge so it still
+           reads as solid ground when α = 0. */
+        ctx.beginPath();
+        ctx.moveTo(0, g.base.y);
+        ctx.lineTo(g.base.x, g.base.y);
+        ctx.lineTo(top.x, top.y);
+        ctx.lineTo(W, top.y);
+        ctx.lineTo(W, H);
+        ctx.lineTo(0, H);
+        ctx.closePath();
+        ctx.fillStyle = c.deep; ctx.fill();
+        ctx.save(); ctx.clip();
+        ctx.strokeStyle = c.faint + '44'; ctx.lineWidth = 1;
+        for (let i = -H; i < W + H; i += 9) {
+            ctx.beginPath(); ctx.moveTo(i, H); ctx.lineTo(i + H, 0); ctx.stroke();
+        }
+        ctx.restore();
 
-        drawGround(gY);
-        drawBlock(bX, bY);
+        // The surface line on its own, drawn over the hatching.
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.8; ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(0, g.base.y);
+        ctx.lineTo(g.base.x, g.base.y);
+        ctx.lineTo(top.x, top.y);
+        ctx.lineTo(W, top.y);
+        ctx.stroke();
 
-        const bCX = bX + BLOCK_W / 2;
-        const bMY = bY + BLOCK_H / 2;
-
-        const forceScale = Math.min(2.5, 160 / Math.max(state.force, 1));
-        const fArrowLen = state.force * forceScale;
-        if (fArrowLen > 4) {
-            drawArrow(bX + BLOCK_W, bMY, bX + BLOCK_W + fArrowLen, bMY, col.acc, 2.5);
-            ctx.save();
-            ctx.fillStyle = col.acc;
-            ctx.font = '11px "JetBrains Mono", monospace';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText('F', bX + BLOCK_W + fArrowLen + 4, bMY - 2);
-            ctx.restore();
+        // Angle arc at the base corner.
+        if (P.alpha > 0.5) {
+            const r = 36;
+            ctx.strokeStyle = c.faint; ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(g.base.x, g.base.y); ctx.lineTo(g.base.x + r + 26, g.base.y);
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(g.base.x, g.base.y, r, -g.a, 0); ctx.stroke();
+            ctx.fillStyle = c.soft;
+            ctx.font = 'italic 13px "Source Serif 4",Georgia,serif';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('α = ' + Math.round(P.alpha) + '°',
+                         g.base.x + r + 6, g.base.y - r * 0.40);
         }
 
-        const ffArrowLen = ff * forceScale;
-        if (ffArrowLen > 4 && velX > 0.01) {
-            drawArrow(bX, bMY, bX - ffArrowLen, bMY, col.soft, 2);
-            ctx.save();
-            ctx.fillStyle = col.soft;
-            ctx.font = '11px "JetBrains Mono", monospace';
-            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-            ctx.fillText('f', bX - ffArrowLen - 4, bMY - 2);
-            ctx.restore();
-        }
+        // The box, sitting on the surface and tilted with it.
+        const ctr = toScreen(g, S.x, S.y + BOX_H / 2);
+        ctx.save();
+        ctx.translate(ctr.x, ctr.y);
+        ctx.rotate(-g.a);
+        ctx.fillStyle = c.paper; ctx.strokeStyle = c.ink; ctx.lineWidth = 2;
+        ctx.fillRect(-BOX_W * SCALE / 2, -BOX_H * SCALE / 2, BOX_W * SCALE, BOX_H * SCALE);
+        ctx.strokeRect(-BOX_W * SCALE / 2, -BOX_H * SCALE / 2, BOX_W * SCALE, BOX_H * SCALE);
+        ctx.fillStyle = c.soft;
+        ctx.font = 'italic 13px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('m', 0, 0);
+        ctx.restore();
 
-        if (velX > 0.05) {
-            const speedPx = Math.min(velX * 18, 90);
-            ctx.save();
-            ctx.fillStyle = col.acc + 'c0';
-            ctx.font = '700 12px "JetBrains Mono", monospace';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            ctx.fillText('v = ' + velX.toFixed(2) + ' m/s', bCX, bY - 6);
-            ctx.restore();
-        }
+        // The tilted axes, drawn from the box so the frame is never in doubt.
+        const AX = 38;
+        arrow(ctr.x, ctr.y, ctr.x + g.u.x * AX, ctr.y + g.u.y * AX, c.acc + '99', 1.3);
+        arrow(ctr.x, ctr.y, ctr.x + g.n.x * AX, ctr.y + g.n.y * AX, c.acc + '99', 1.3);
+        ctx.fillStyle = c.acc;
+        ctx.font = 'italic 12px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('x', ctr.x + g.u.x * (AX + 11), ctr.y + g.u.y * (AX + 11));
+        ctx.fillText('y', ctr.x + g.n.x * (AX + 11), ctr.y + g.n.y * (AX + 11));
 
-        const $ = id => document.getElementById(id);
-        if ($('r-fnet')) $('r-fnet').textContent = fnet.toFixed(2) + ' N';
-        if ($('r-ff'))   $('r-ff').textContent   = ff.toFixed(2)   + ' N';
-        if ($('r-acc'))  $('r-acc').textContent  = a.toFixed(3)    + ' m/s²';
-        if ($('r-vel'))  $('r-vel').textContent  = velX.toFixed(2) + ' m/s';
+        // Force arrows, all to one scale so their lengths compare directly.
+        const mag = Math.max(F.t.mg, F.N, Math.abs(F.f), P.ft, Math.abs(P.fe), 1);
+        const FS  = 74 / mag;
+        const put = (fx, fy, col, label) => {
+            if (Math.hypot(fx, fy) * FS < 7) return;
+            const dx = (g.u.x * fx + g.n.x * fy) * FS;
+            const dy = (g.u.y * fx + g.n.y * fy) * FS;
+            arrow(ctr.x, ctr.y, ctr.x + dx, ctr.y + dy, col, 2.2);
+            const off = 13 / Math.hypot(dx, dy);
+            tag(c, label, ctr.x + dx * (1 + off), ctr.y + dy * (1 + off), col);
+        };
+        put(F.t.gx, F.t.gy, c.ink, 'G');
+        if (F.contact)                          put(0, F.N, c.soft, 'N');
+        if (F.contact && Math.abs(F.f) > 0.05)  put(F.f, 0, c.faint, 'f');
+        if (P.ft > 0.5)                         put(F.t.ftx, F.t.fty, c.acc, 'Ft');
+        if (Math.abs(P.fe) > 0.5)               put(F.t.fex, F.t.fey, c.acc, 'Fe');
     }
 
-    let lastT = 0, fpsFrames = 0, fpsTs = 0;
-    const fpsEl = document.getElementById('sim-fps');
+    /* ── Equation panel ────────────────────────────────────────────────
+       Σ F = ma is assembled from only the terms that are switched on, so
+       adding a force adds its term exactly as it would on paper.         */
+    const $ = id => document.getElementById(id);
 
-    function frame(ts) {
-        const dt = Math.min((ts - lastT) / 1000, 0.033);
-        lastT = ts;
-        fpsFrames++;
-        if (ts - fpsTs >= 1000) {
-            if (fpsEl) fpsEl.textContent = fpsFrames + ' fps · live';
-            fpsFrames = 0; fpsTs = ts;
+    function termsX() {
+        const out = [];
+        if (P.ft > 0.5)           out.push({ tex: 'F_\\mathrm{t}\\cos\\beta',   neg: false });
+        if (Math.abs(P.fe) > 0.5) out.push({ tex: '|F_\\mathrm{e}|\\cos\\alpha', neg: P.fe < 0 });
+        out.push({ tex: 'mg\\sin\\alpha', neg: true });
+        if (S.contact && S.N > 0 && (P.mus > 0 || P.mud > 0))
+            out.push({ tex: 'f', neg: false });
+        return out;
+    }
+    function termsY() {
+        const out = [{ tex: 'N', neg: false }];
+        if (P.ft > 0.5)           out.push({ tex: 'F_\\mathrm{t}\\sin\\beta',   neg: false });
+        if (Math.abs(P.fe) > 0.5) out.push({ tex: '|F_\\mathrm{e}|\\sin\\alpha', neg: P.fe > 0 });
+        out.push({ tex: 'mg\\cos\\alpha', neg: true });
+        return out;
+    }
+    /* Assemble with one sign between terms — never "+ -". */
+    function assemble(lhs, list) {
+        let s = lhs + ' = ';
+        list.forEach((t, i) => {
+            if (i === 0) s += (t.neg ? '-\\,' : '') + t.tex;
+            else         s += (t.neg ? ' - ' : ' + ') + t.tex;
+        });
+        return s;
+    }
+
+    let sigX = '', sigY = '';
+    function katexInto(el, tex) {
+        if (!el) return;
+        if (window.katex) katex.render(tex, el, { throwOnError: false, displayMode: false });
+        else el.textContent = tex;
+    }
+
+    function panels() {
+        const F = forces();
+        const t = F.t;
+
+        $('r-g').textContent    = num(t.mg) + ' N';
+        $('r-n').textContent    = num(F.N) + ' N';
+        $('r-f').textContent    = num(F.f) + ' N';
+        $('r-fmax').textContent = num(F.fmax) + ' N';
+
+        /* The symbolic lines only change when a force is switched on or off,
+           so re-render them then — not on every animation frame. */
+        const tx = termsX(), ty = termsY();
+        const kx = tx.map(o => (o.neg ? '-' : '+') + o.tex).join('|');
+        const ky = ty.map(o => (o.neg ? '-' : '+') + o.tex).join('|');
+        if (kx !== sigX) { sigX = kx; katexInto($('eq-x'), assemble('m\\,a_x', tx)); }
+        if (ky !== sigY) { sigY = ky; katexInto($('eq-y'), assemble('m\\,a_y', ty)); }
+
+        /* The numeric line is plain text: signs stay readable and there is
+           no typesetting cost per frame. */
+        const nx = [];
+        if (P.ft > 0.5)           nx.push(signed(t.ftx));
+        if (Math.abs(P.fe) > 0.5) nx.push(signed(t.fex));
+        nx.push(signed(t.gx));
+        if (F.contact && F.N > 0) nx.push(signed(F.f));
+        $('eq-x-num').textContent =
+            nx.join(' ').replace(/^\+ /, '') + ' = ' + num(F.ax * P.mass) + ' N';
+
+        const ny = [signed(F.N)];
+        if (P.ft > 0.5)           ny.push(signed(t.fty));
+        if (Math.abs(P.fe) > 0.5) ny.push(signed(t.fey));
+        ny.push(signed(t.gy));
+        $('eq-y-num').textContent =
+            ny.join(' ').replace(/^\+ /, '') + ' = ' + num(F.ay * P.mass) + ' N';
+
+        $('v-ax').textContent = num(S.ax, 2) + ' m/s²';
+        $('v-vx').textContent = num(S.vx, 2) + ' m/s';
+        $('v-x').textContent  = num(S.x, 2)  + ' m';
+        $('v-ay').textContent = num(S.ay, 2) + ' m/s²';
+        $('v-vy').textContent = num(S.vy, 2) + ' m/s';
+        $('v-y').textContent  = num(S.y, 2)  + ' m';
+
+        const note = $('eom-y-note');
+        if (note) {
+            note.textContent = F.contact
+                ? T('In contact the box cannot accelerate across the surface, so a_y = 0 and this equation is what gives N. The surface can only push — the moment N would come out negative, the box leaves it.',
+                    'Při kontaktu se kvádr nemůže zrychlovat napříč podložkou, takže a_y = 0 a tahle rovnice určuje N. Podložka umí jen tlačit — jakmile by N vyšlo záporné, kvádr se odlepí.')
+                : T('N = 0 — the box has left the surface, so the perpendicular equation now describes real motion and friction is gone.',
+                    'N = 0 — kvádr opustil podložku, kolmá rovnice teď popisuje skutečný pohyb a tření zmizelo.');
         }
-        const { fnet, ff, a } = physics(dt);
-        draw(fnet, ff, a);
+
+        const st = $('sim-state');
+        if (st) st.textContent =
+              F.mode === 'air'    ? T('airborne', 've vzduchu')
+            : F.mode === 'static' ? T('static · holds', 'statické · drží')
+            : F.mode === 'slip'   ? T('breaks away', 'utrhne se')
+            :                       T('sliding', 'klouže');
+    }
+
+    /* ── Controls ──────────────────────────────────────────────────── */
+    const FMT = {
+        alpha: v => Math.round(v) + '°',
+        beta:  v => Math.round(v) + '°',
+        mass:  v => num(v) + ' kg',
+        ft:    v => Math.round(v) + ' N',
+        fe:    v => Math.round(v) + ' N',
+        mus:   v => num(v, 2),
+        mud:   v => num(v, 2),
+    };
+    const SLIDERS = [['p-alpha','alpha'], ['p-mass','mass'], ['p-ft','ft'],
+                     ['p-beta','beta'], ['p-fe','fe'], ['p-mus','mus'], ['p-mud','mud']];
+
+    for (const [id, key] of SLIDERS) {
+        const sl = $(id), vl = $(id + '-val');
+        if (!sl) continue;
+        sl.addEventListener('input', () => {
+            P[key] = parseFloat(sl.value);
+            if (vl) vl.textContent = FMT[key](P[key]);
+            settle(); panels();
+        });
+        P[key] = parseFloat(sl.value);
+        if (vl) vl.textContent = FMT[key](P[key]);
+    }
+
+    function rewind() { S.x = X0; S.y = 0; S.vx = 0; S.vy = 0; settle(); panels(); }
+    function setRunLabel() {
+        const b = $('btn-run');
+        if (b) b.innerHTML = S.running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Run</span><span lang="cs">Spustit</span>';
+    }
+    $('btn-run')?.addEventListener('click', () => { S.running = !S.running; setRunLabel(); });
+    $('btn-rewind')?.addEventListener('click', () => { S.running = false; setRunLabel(); rewind(); });
+    $('btn-reset')?.addEventListener('click', () => {
+        for (const [id, key] of SLIDERS) {
+            const sl = $(id);
+            if (sl) { sl.value = DEFAULTS[key]; sl.dispatchEvent(new Event('input')); }
+        }
+        S.running = false; setRunLabel(); rewind();
+    });
+
+    // Numbers, notes, the state chip and the run label all follow CS/EN.
+    document.addEventListener('langchange', () => {
+        for (const [id, key] of SLIDERS) {
+            const vl = $(id + '-val');
+            if (vl) vl.textContent = FMT[key](P[key]);
+        }
+        setRunLabel(); panels();
+    });
+
+    /* ── Loop ──────────────────────────────────────────────────────── */
+    let last = 0;
+    function frame(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 30) : 0;
+        last = ts;
+        if (S.running) { step(dt); panels(); }
+        draw();
         requestAnimationFrame(frame);
     }
+    settle(); setRunLabel(); panels();
     requestAnimationFrame(frame);
-
 }());
 </script>
 
