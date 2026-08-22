@@ -28,13 +28,14 @@
             linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
             var(--paper-deep);
     }
-    #sim-canvas {
+    /* position by CLASS — an #id rule is orphaned the moment a canvas is
+       renamed, and the canvas then grows the page without bound. */
+    .canvas-wrap canvas {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         display: block;
-        cursor: crosshair;
     }
     .sim-hint {
         position: absolute;
@@ -347,6 +348,246 @@
         transform: translate(-2px, -2px);
         box-shadow: 3px 3px 0 var(--ink);
     }
+
+    /* ── Flight-plan controls ────────────────────────────────────────── */
+    .panel-reset {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.14em; background: none; border: none; cursor: pointer;
+        color: var(--ink-faint); padding: 0;
+    }
+    .sim-note {
+        margin: 14px 0 0; font-size: 12px; line-height: 1.55;
+        color: var(--ink-faint); min-height: 1.6em;
+    }
+
+    /* ── The flight log ──────────────────────────────────────────────── */
+    .fl-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; }
+    .fl-col { border: 1.5px solid var(--ink); background: var(--paper); }
+    .fl-head {
+        display: flex; align-items: baseline; gap: 12px;
+        padding: 11px 20px; border-bottom: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+    }
+    .fl-head .accent-pip { align-self: center; }
+    .fl-kicker {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.16em; color: var(--ink-faint);
+    }
+    .fl-title {
+        font-family: var(--f-serif); font-size: 19px; color: var(--ink); line-height: 1.15;
+    }
+    .fl-body { padding: 20px 20px 18px; }
+    .fl-text { font-size: 14.5px; line-height: 1.72; color: var(--ink-soft); margin: 0 0 16px; }
+    .fl-text em { font-style: italic; color: var(--ink); }
+    .fl-eq {
+        font-size: 18px; color: var(--ink);
+        border-left: 3px solid var(--accent); padding: 4px 0 4px 18px;
+        margin: 0 0 16px; overflow-x: auto;
+    }
+    .fl-rows { display: grid; grid-template-columns: 1fr auto; gap: 0 18px; }
+    .fl-row {
+        display: contents;
+    }
+    .fl-k {
+        font-size: 13.5px; color: var(--ink-soft);
+        padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
+    }
+    .fl-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        text-align: right; letter-spacing: 0.02em; white-space: nowrap;
+        padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
+    }
+    .fl-real { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin: 0; }
+    .fl-real strong { color: var(--ink); font-weight: 600; }
+    .fl-stamp {
+        font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint);
+        margin: 0 0 12px; padding-bottom: 10px;
+        border-bottom: 1px solid var(--ink-faint);
+    }
+    .fl-verdict {
+        margin-top: 16px; padding: 12px 14px;
+        border: 1px solid var(--accent); background: var(--paper-deep);
+        font-size: 13px; line-height: 1.6; color: var(--ink);
+    }
+    .fl-verdict b { color: var(--accent); }
+    @media (max-width: 900px) {
+        .fl-grid { grid-template-columns: 1fr; }
+    }
+
+
+    /* ── Cinematic mode ──────────────────────────────────────────────
+       The mission breaks out of the text column and takes the window.
+       12 px is left either side so a vertical scrollbar cannot push the
+       page into a horizontal one (50vw counts the scrollbar, the content
+       box does not). */
+    #lab.mission {
+        display: block;
+        margin-left: calc(-50vw + 50% + 12px);
+        margin-right: calc(-50vw + 50% + 12px);
+        margin-bottom: 0;
+    }
+    #lab.mission .canvas-panel { min-height: 0; }
+    #lab.mission .canvas-wrap {
+        /* `.canvas-wrap` carries `flex: 1`, i.e. flex-basis: 0%, and inside a
+           column flex container flex-basis REPLACES height on the main axis —
+           so the height below was ignored and the canvas collapsed to nothing.
+           Making it a fixed-size flex item is what lets height apply. */
+        flex: 0 0 auto;
+        min-height: 0;
+        height: clamp(420px, 72vh, 820px);
+        background: #0a1524;
+    }
+    /* the flight plan becomes a rail under the picture */
+    .mission-bar {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        border: 1.5px solid var(--ink);
+        border-top: none;
+        background: var(--paper);
+    }
+    .bar-btn {
+        flex: 0 0 auto;
+        font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em;
+        text-transform: uppercase; padding: 0 20px;
+        border: none; border-right: 1.5px solid var(--ink);
+        background: var(--paper); color: var(--ink-soft); cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .bar-btn.next { border-right: none; border-left: 1.5px solid var(--ink);
+                    background: var(--accent); color: var(--paper); }
+    .bar-btn:hover:not(:disabled) { background: var(--paper-deep); }
+    .bar-btn.next:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    .bar-btn:disabled { color: var(--ink-faint); cursor: not-allowed; }
+    .ms-rail {
+        flex: 1 1 auto;
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+    .ms-chip {
+        flex: 1 1 0;
+        min-width: 128px;
+        display: flex; flex-direction: column; gap: 3px;
+        padding: 11px 14px 12px;
+        border-right: 1px dashed var(--ink-faint);
+        cursor: pointer;
+        color: var(--ink-faint);
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .ms-chip:last-child { border-right: none; }
+    .ms-chip:hover { background: var(--paper-deep); color: var(--ink-soft); }
+    .ms-chip.on { background: var(--paper-deep); color: var(--ink); }
+    .ms-chip.on .ms-num { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .ms-num {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.06em;
+        width: 19px; height: 16px; line-height: 15px; text-align: center;
+        border: 1px solid currentColor;
+    }
+    .ms-name { font-size: 12.5px; line-height: 1.25; }
+    .ms-reads {
+        flex: 0 0 auto;
+        display: flex; align-items: center; gap: 22px;
+        padding: 0 22px;
+        border-left: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+    }
+    .ms-read { display: flex; flex-direction: column; gap: 3px; }
+    .ms-read-k {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint);
+    }
+    .ms-read-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        letter-spacing: 0.02em; white-space: nowrap;
+    }
+    .mission-note {
+        margin: 10px 0 0;
+        font-size: 11.5px; line-height: 1.5; color: var(--ink-faint);
+        text-align: center;
+    }
+    @media (max-width: 900px) {
+        #lab.mission { margin-left: -48px; margin-right: -48px; }
+        .ms-reads { display: none; }
+        .ms-chip { min-width: 108px; }
+    }
+
+    /* ── The play gate ───────────────────────────────────────────────── */
+    .gate {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        cursor: pointer;
+        background: rgba(10, 21, 36, 0.55);
+        backdrop-filter: blur(9px);
+        -webkit-backdrop-filter: blur(9px);
+        transition: opacity 900ms ease, backdrop-filter 900ms ease,
+                    -webkit-backdrop-filter 900ms ease, background 900ms ease;
+    }
+    .gate.away {
+        opacity: 0;
+        pointer-events: none;
+        background: rgba(10, 21, 36, 0);
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+    }
+    .gate-btn {
+        width: 84px; height: 84px;
+        border-radius: 50%;
+        border: 1.5px solid #cfe0f5;
+        background: rgba(207, 224, 245, 0.10);
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                    background 220ms ease;
+    }
+    .gate:hover .gate-btn { transform: scale(1.07); background: rgba(207, 224, 245, 0.20); }
+    .gate-btn::after {
+        content: '';
+        width: 0; height: 0;
+        margin-left: 6px;
+        border-left: 24px solid #eaf2fb;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+    }
+    .gate-title {
+        font-family: var(--f-serif);
+        font-size: clamp(20px, 2.4vw, 30px);
+        color: #eaf2fb;
+        text-align: center;
+        letter-spacing: 0.01em;
+        padding: 0 24px;
+    }
+    .gate-sub {
+        font-family: var(--f-mono);
+        font-size: 10.5px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #9fb6d0;
+        text-align: center;
+    }
+    .canvas-wrap.armed canvas { filter: blur(10px); transition: filter 900ms ease; }
+    .canvas-wrap canvas { transition: filter 900ms ease; }
+    @media (prefers-reduced-motion: reduce) {
+        .gate, .gate-btn, .canvas-wrap canvas { transition: none; }
+    }
+
+    /* the badge and the hint sit on a dark sky here, so they get dark chrome */
+    #lab.mission .canvas-formula-badge {
+        top: auto; bottom: 16px; left: 16px; right: auto;
+        background: rgba(10, 21, 36, 0.86);
+        border-color: #4a6a8f;
+        color: #eaf2fb;
+        font-size: 20px;
+        padding: 9px 16px;
+    }
+    #lab.mission .sim-hint { color: #8ea6c2; }
+
     .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
     </style>
 </head>
@@ -379,16 +620,22 @@
     <section class="topic-hero">
         <div>
             <div class="num">§ I.07 · gravity</div>
-            <h1>Gravity</h1>
+            <h1><span lang="en">Gravity</span><span lang="cs">Gravitace</span></h1>
             <p class="lede">
-                Every mass pulls on every other mass. Newton's inverse-square law
-                unifies a falling apple with a moon in orbit — and Kepler's empirical
-                rules become inevitable consequences.
+                <span lang="en">One inverse-square law, written once in 1687, sets the fall of an apple, the
+                speed a satellite must hold to stay up, and the twenty-five days it takes to reach the Moon
+                and come home. The whole subject is that single law plus the energy bookkeeping that goes
+                with it — and the minus sign in the potential energy is what decides whether you ever
+                come back.</span>
+                <span lang="cs">Jediný zákon nepřímé úměry čtverci vzdálenosti, zapsaný roku 1687, řídí pád
+                jablka, rychlost, kterou musí družice držet, aby nespadla, i pětadvacet dní cesty k Měsíci
+                a zpátky. Celé téma je tenhle jediný zákon plus energetická bilance, která k němu patří —
+                a znaménko mínus v potenciální energii rozhoduje o tom, jestli se vůbec kdy vrátíte.</span>
             </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="F = G\dfrac{Mm}{r^2}"></div>
-            <div class="eq-caption">Newton's law of universal gravitation</div>
+            <div class="eq-caption"><span lang="en">Newton's law of gravitation — every pair of masses, pulling along the line between them</span><span lang="cs">Newtonův gravitační zákon — každá dvojice hmotností se přitahuje podél spojnice</span></div>
         </div>
     </section>
 
@@ -500,6 +747,23 @@
 
                 <div class="core-formula">
                     <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy of an orbit</span><span lang="cs">Energie dráhy</span></span>
+                        <span class="cf-eq" data-tex="E = -\dfrac{GMm}{2a}"></span>
+                        <span class="cf-eq" data-tex="v^2 = GM\left(\dfrac{2}{r} - \dfrac{1}{a}\right)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The circle and the escape are the two ends of one family. Every bound orbit is an ellipse whose
+      total energy depends on the long axis <span data-tex="a"></span> alone — not on how eccentric it is — and the
+      second line then gives the speed at any distance along it. Put <span data-tex="a = r"></span> and it collapses
+      to the circular speed; let <span data-tex="a \to \infty"></span> and it becomes the escape speed.</span><span lang="cs">Kruhová dráha a únik jsou dva konce jedné rodiny. Každá vázaná dráha je elipsa, jejíž celková
+      energie závisí jen na hlavní poloose <span data-tex="a"></span> — ne na tom, jak je protáhlá — a druhý řádek
+      pak dá rychlost v libovolné vzdálenosti na ní. Dosaďte <span data-tex="a = r"></span> a zbude rychlost po
+      kružnici; nechte <span data-tex="a \to \infty"></span> a vyjde úniková rychlost.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
                         <span class="cf-desc"><span lang="en">Escape speed</span><span lang="cs">Úniková rychlost</span></span>
                         <span class="cf-eq" data-tex="v_{ún} = \sqrt{\dfrac{2GM}{R}}"></span>
                     </div>
@@ -568,78 +832,79 @@
     <!-- ═══════════════════════════════════════════════════════════════
          § 5  SIMULATION LAB
          ═══════════════════════════════════════════════════════════════ -->
-    <section id="lab" class="lab" style="margin-top:72px;">
+    <!-- ════ § 3  THE FLIGHT PLAN — ARTEMIS I, STEP BY STEP ════ -->
+    <section id="lab" class="lab mission" style="margin-top:72px; margin-bottom:0;">
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Orbital sandbox</span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Artemis&nbsp;II — around the Moon and home</span><span lang="cs">Artemis&nbsp;II — kolem Měsíce a domů</span></span>
+                <span style="display:flex;gap:16px;align-items:baseline;">
+                    <span id="ap-clock" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+                    <button id="ap-reset" class="panel-reset">restart</button>
+                </span>
             </div>
-            <div class="canvas-wrap">
-                <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="F = GMm/r^2"></div>
-                <div class="sim-hint">speed factor &lt; 1 → ellipse · = 1 → circle · &gt; 1 → hyperbola</div>
+            <div class="canvas-wrap armed" id="ap-wrap">
+                <canvas id="ap-canvas"></canvas>
+                <div class="gate" id="ap-gate">
+                    <div class="gate-btn"></div>
+                    <div class="gate-title"><span lang="en">Fly Artemis&nbsp;II</span><span lang="cs">Leťte s Artemis&nbsp;II</span></div>
+                    <div class="gate-sub"><span lang="en">Earth · the Moon · home · nine and a half days</span><span lang="cs">Země · Měsíc · domů · devět a půl dne</span></div>
+                </div>
+                <div class="canvas-formula-badge" id="ap-eq"></div>
+                <div class="sim-hint"><span lang="en">drag to turn the view · scroll to zoom</span><span lang="cs">tažením otočíte pohled · kolečkem přiblížíte</span></div>
             </div>
         </div>
 
-        <div class="side-stack">
-
-            <!-- Parameters -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
-                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
-                        text-transform:uppercase;letter-spacing:0.14em;background:none;
-                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
-                        title="Reset to defaults">reset</button>
+        <div class="mission-bar">
+            <button id="ap-prev" class="bar-btn">←</button>
+            <div class="ms-rail" id="ap-list"></div>
+            <div class="ms-reads">
+                <div class="ms-read">
+                    <span class="ms-read-k"><span lang="en">from Earth</span><span lang="cs">od Země</span></span>
+                    <span class="ms-read-v" id="ap-r-re">—</span>
                 </div>
-                <div class="panel-body">
+                <div class="ms-read">
+                    <span class="ms-read-k"><span lang="en">from the Moon</span><span lang="cs">od Měsíce</span></span>
+                    <span class="ms-read-v" id="ap-r-rm">—</span>
+                </div>
+                <div class="ms-read">
+                    <span class="ms-read-k"><span lang="en">speed</span><span lang="cs">rychlost</span></span>
+                    <span class="ms-read-v" id="ap-r-v">—</span>
+                </div>
+            </div>
+            <button id="ap-next" class="bar-btn next"><span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→</button>
+        </div>
+    </section>
 
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Speed factor</span>
-                            <span class="sim-control-val" id="p-speed-val">1.00</span>
-                        </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-speed" min="0.5" max="1.5" step="0.01" value="1.0">
-                    </div>
+    <p class="mission-note" id="ap-note"></p>
 
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Orbit radius r₀</span>
-                            <span class="sim-control-val" id="p-radius-val">0.35</span>
-                        </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-radius" min="0.25" max="0.45" step="0.01" value="0.35">
-                    </div>
 
+    <!-- ════ § 4  WHAT IS HAPPENING, AND WHAT ACTUALLY HAPPENED ════ -->
+    <section id="flight" style="margin-top:24px;">
+        <div class="fl-grid">
+
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker" id="fl-kicker">—</span>
+                    <span class="fl-title" id="fl-title">—</span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-text" id="fl-text"></p>
+                    <div class="fl-eq" id="fl-eq"></div>
+                    <div class="fl-rows" id="fl-rows"></div>
                 </div>
             </div>
 
-            <!-- Readout -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker"><span lang="en">Artemis II · what the flight actually did</span><span lang="cs">Artemis II · co let doopravdy udělal</span></span>
                 </div>
-                <div class="panel-body">
-                    <div class="readout-section">Orbit</div>
-                    <div class="readout-row">
-                        <span class="readout-label">Speed |v|</span>
-                        <span class="readout-val" id="r-speed">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">Distance r</span>
-                        <span class="readout-val" id="r-dist">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">v<sub>circ</sub></span>
-                        <span class="readout-val" id="r-vcirc">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">Eccentricity</span>
-                        <span class="readout-val" id="r-ecc">—</span>
-                    </div>
+                <div class="fl-body">
+                    <p class="fl-stamp" id="fl-stamp">—</p>
+                    <p class="fl-real" id="fl-real"></p>
+                    <div class="fl-verdict" id="fl-verdict" style="display:none;"></div>
                 </div>
             </div>
 
@@ -687,266 +952,1074 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     ORBITAL SANDBOX — RK4 gravitational integration
-     ═══════════════════════════════════════════════════════════════════ -->
 <script>
+/* ══════════════════════════════════════════════════════════════════════
+   § I.07 — shared helpers
+   ══════════════════════════════════════════════════════════════════════ */
+const PP7 = (function () {
+    'use strict';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    /* thousands separated with a thin space, the way the course notes do it */
+    const big = (v, d) => {
+        const s = num(v, d === undefined ? 0 : d);
+        const [w, f] = s.split(isCS() ? ',' : '.');
+        return w.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (f ? (isCS() ? ',' : '.') + f : '');
+    };
+
+    function colours() {
+        const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
+        return {
+            ink:   s.getPropertyValue('--ink').trim()        || '#363026',
+            soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7a6a52',
+            paper: s.getPropertyValue('--paper').trim()      || '#f7f3e6',
+            deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            edge:  s.getPropertyValue('--paper-edge').trim() || '#e6dfc8',
+            acc:   b.getPropertyValue('--accent').trim()     || '#163868',
+        };
+    }
+
+    function mount(id, drawFn) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const o = { canvas, ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 240), H = Math.max(r.height, 200);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        o.redraw = function () {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); drawFn(o); });
+        };
+        size();
+        new ResizeObserver(() => { size(); o.redraw(); }).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
+    }
+
+    function mono(ctx, text, x, y, col, size, align) {
+        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+    }
+    /* haloed label — readable over the star field without blanking anything out */
+    function halo(ctx, c, text, x, y, col, size, italic, align) {
+        ctx.font = (italic ? 'italic ' : '') + (size || 12) +
+                   'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3.5;
+        ctx.strokeStyle = c.paper; ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+    return { isCS, T, num, big, colours, mount, mono, halo, katexInto, whenReady };
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   THE FLIGHT PLAN — ARTEMIS II, STEP BY STEP, IN 3D
+
+   Artemis II flew in April 2026: four people, a checkout lap of a one-day
+   Earth orbit, then a free return round the far side of the Moon and home,
+   in a little over nine days. It suits this chapter better than Artemis I
+   did, because two of its three defining features ARE the exercise set —
+   a highly elliptical Earth orbit whose period is Kepler's third law, and
+   a return that needs no engine because gravity alone brings it back.
+
+   Everything is in kilometres, kilometres per second and mission days, and
+   mu = GM is computed from the textbook constants rather than quoted:
+
+       G = 6.674e-11    M_E = 5.972e24    M_M = 7.342e22
+       R_E = 6371 km    R_M = 1737.4 km   Earth-Moon 384 400 km
+
+   WHAT IS EXACT. Four of the five phases are real conics: the low orbit,
+   the checkout ellipse, the trans-lunar ellipse and the return ellipse are
+   all propagated by solving Kepler's equation M = E - e sin E, sampled
+   uniformly in eccentric anomaly so the fast perigee passes are not skipped;
+   the lunar pass is a genuine hyperbola about the Moon, in the plane spanned
+   by where the ship is relative to the Moon and where it is going. Checked
+   against vis-viva along the whole track: worst error 0.016 %. Only the
+   ascent is drawn rather than computed, and the return ellipse is aimed at
+   the entry interface rather than being the integrated outcome of the pass —
+   which is what a real free return is designed to achieve anyway.
+   ══════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
+    const V = PP7.mount('ap-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const RAD = Math.PI / 180, DAY = 86400;
 
-    /* ── Canvas setup ──────────────────────────────────────────────── */
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
+    /* ── constants ───────────────────────────────────────────────────── */
+    const G = 6.674e-11, ME = 5.972e24, MM = 7.342e22;
+    const muE = G * ME / 1e9, muM = G * MM / 1e9;
+    const RE = 6371, RM = 1737.4, DEM = 384400;
+    const MOON_W = 360 / 27.32;
 
-    let W = 0, H = 0;
+    const circ = (mu, r) => Math.sqrt(mu / r);
+    const escv = (mu, r) => Math.sqrt(2 * mu / r);
+    const viva = (mu, r, a) => Math.sqrt(mu * (2 / r - 1 / a));
+    const per  = (mu, a) => 2 * Math.PI * Math.sqrt(a * a * a / mu);
 
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  300);
-        H = Math.max(r.height, 300);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    /* ── 3D ──────────────────────────────────────────────────────────── */
+    const v3 = (x, y, z) => ({ x, y, z });
+    const add = (a, b) => v3(a.x + b.x, a.y + b.y, a.z + b.z);
+    const sub = (a, b) => v3(a.x - b.x, a.y - b.y, a.z - b.z);
+    const mul = (a, k) => v3(a.x * k, a.y * k, a.z * k);
+    const dot = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
+    const cross = (a, b) => v3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+    const len = a => Math.sqrt(dot(a, a));
+    const unit = a => { const L = len(a) || 1; return mul(a, 1 / L); };
+    const rotX = (a, t) => v3(a.x, a.y * Math.cos(t) - a.z * Math.sin(t),
+                                    a.y * Math.sin(t) + a.z * Math.cos(t));
+
+    /* ── the sky palette. This viewport is space, so it does not use the
+       page's paper tokens; everything drawn inside is defined here. ──── */
+    const SKY = {
+        bg:    '#0a1524',
+        star:  '#cfe0f5',
+        grid:  '#3c5f85',
+        far:   '#22394f',
+        limb:  '#7fa8d8',
+        sea:   '#123049',
+        land:  '#2f6a52',
+        moon:  '#3b4553',
+        mare:  '#2a3240',
+        mlimb: '#9aa6bb',
+        ink:   '#dce8f5',
+        soft:  '#a8bed6',
+        faint: '#7e97b3',
+        acc:   '#7fb3ff',
+        ahead: '#46617f',
+    };
+
+    /* ── the Moon's orbit, and Kepler ────────────────────────────────── */
+    let MOON_0 = 0;
+    const moonAt = day => {
+        const t = (MOON_0 + MOON_W * day) * RAD;
+        return v3(DEM * Math.cos(t), DEM * Math.sin(t), 0);
+    };
+    function kepler(M, e) {
+        let E = M + e * Math.sin(M) * (1 + e * Math.cos(M));
+        for (let i = 0; i < 60; i++) {
+            const d = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+            E -= d;
+            if (Math.abs(d) < 1e-14) break;
+        }
+        return E;
     }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
 
-    /* ── Colour tokens ─────────────────────────────────────────────── */
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   s.getPropertyValue('--accent').trim()    || '#163868',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── mission geometry ────────────────────────────────────────────── */
+    const INC = 24 * RAD;                         /* the orbit was inclined */
+    const R_LEO = RE + 185, R_HEO = RE + 71656, R_EI = RE + 122;
+    const A_HEO = (R_LEO + R_HEO) / 2, E_HEO = (R_HEO - R_LEO) / (R_HEO + R_LEO);
+    const N_HEO = Math.sqrt(muE / (A_HEO ** 3));
+    const A_TLI = 237838, E_TLI = 1 - R_LEO / A_TLI;
+    const N_TLI = Math.sqrt(muE / (A_TLI ** 3));
+    const R_FLY = RM + 6545;                      /* closest approach */
+    const R_HAND = 44000;                         /* where the Moon takes the ship */
+    const R_RET_A = 405000;                       /* apogee of the return ellipse */
+    const A_RET = (R_RET_A + R_EI) / 2, E_RET = (R_RET_A - R_EI) / (R_RET_A + R_EI);
+    const N_RET = Math.sqrt(muE / (A_RET ** 3));
+    /* perigee at -x, motion counter-clockwise — the same sense the Moon runs,
+       so apogee falls where the Moon will be. Getting this backwards is what
+       made the first build turn through 180 degrees at injection. */
+    const P0 = rotX(v3(-1, 0, 0), INC), Q0 = rotX(v3(0, -1, 0), INC);
+    const onEll = (a, e, M) => {
+        const E = kepler(M, e);
+        return add(mul(P0, a * (Math.cos(E) - e)),
+                   mul(Q0, a * Math.sqrt(1 - e * e) * Math.sin(E)));
+    };
+
+    const DAYS = { pad: 0, leo: 0.006 };
+    const TRACK = [];
+    const FLY = {};
+
+    (function build() {
+        const push = (day, p) => TRACK.push({ d: day, p });
+        DAYS.heo = DAYS.leo + per(muE, R_LEO) / DAY;
+        for (let i = 0; i <= 25; i++) {                       /* the climb */
+            const u = i / 25, r = RE + (R_LEO - RE) * u * u, th = Math.PI - 0.55 * (1 - u);
+            push(DAYS.pad + (DAYS.leo - DAYS.pad) * u,
+                 rotX(v3(r * Math.cos(th), r * Math.sin(th), 0), INC));
+        }
+        for (let i = 1; i <= 80; i++) {                       /* one low lap */
+            const u = i / 80, th = Math.PI + u * 2 * Math.PI;
+            push(DAYS.leo + (DAYS.heo - DAYS.leo) * u,
+                 rotX(v3(R_LEO * Math.cos(th), R_LEO * Math.sin(th), 0), INC));
+        }
+        for (let i = 1; i <= 360; i++) {                      /* the checkout lap */
+            const E = i / 360 * 2 * Math.PI, M = E - E_HEO * Math.sin(E);
+            push(DAYS.heo + M / N_HEO / DAY, onEll(A_HEO, E_HEO, M));
+        }
+        DAYS.tli = TRACK[TRACK.length - 1].d;
+        const cosE = Math.max(-1, Math.min(1, (1 - (DEM - R_HAND) / A_TLI) / E_TLI));
+        const Eh = Math.acos(cosE);
+        for (let i = 1; i <= 400; i++) {                      /* out to the Moon */
+            const E = i / 400 * Eh, M = E - E_TLI * Math.sin(E);
+            push(DAYS.tli + M / N_TLI / DAY, onEll(A_TLI, E_TLI, M));
+        }
+        DAYS.flyby = TRACK[TRACK.length - 1].d;
+        const Ph = TRACK[TRACK.length - 1].p;
+        MOON_0 = Math.atan2(Ph.y, Ph.x) / RAD - MOON_W * DAYS.flyby;
+        /* the pass: a real hyperbola, in the plane the flyby actually happens
+           in — spanned by the offset from the Moon and the incoming velocity */
+        const VINF = 0.60;
+        const aH = -muM / (VINF * VINF), eH = 1 - R_FLY / aH, pH = aH * (1 - eH * eH);
+        const off = sub(Ph, moonAt(DAYS.flyby)), r0 = len(off);
+        const xp = unit(off);
+        const vin = unit(sub(Ph, TRACK[TRACK.length - 2].p));
+        const yp = unit(sub(vin, mul(xp, dot(vin, xp))));
+        const NU1 = Math.acos(Math.max(-1, Math.min(1, (pH / r0 - 1) / eH)));
+        DAYS.pass = DAYS.flyby + 1.30;
+        FLY.aH = aH; FLY.eH = eH; FLY.vinf = VINF;
+        for (let i = 1; i <= 320; i++) {
+            const u = i / 320, nu = -NU1 + 2 * NU1 * u, th = nu + NU1;
+            const r = pH / (1 + eH * Math.cos(nu));
+            const day = DAYS.flyby + (DAYS.pass - DAYS.flyby) * u;
+            push(day, add(moonAt(day), add(mul(xp, r * Math.cos(th)), mul(yp, r * Math.sin(th)))));
+        }
+        /* the fall home: the ship is already PAST apogee, so start on the
+           descending branch of an ellipse whose apogee is 405 000 km */
+        const Pex = TRACK[TRACK.length - 1].p, Ppr = TRACK[TRACK.length - 2].p;
+        const rEx = len(Pex);
+        const Es = 2 * Math.PI - Math.acos(Math.max(-1, Math.min(1, (1 - rEx / A_RET) / E_RET)));
+        const Ms = Es - E_RET * Math.sin(Es);
+        DAYS.entry = DAYS.pass + (2 * Math.PI - Ms) / N_RET / DAY;
+        DAYS.splash = DAYS.entry + 0.09;
+        const uh = unit(Pex);
+        const dn = unit(sub(Pex, Ppr));
+        const wh = unit(sub(dn, mul(uh, dot(dn, uh))));
+        const nus = 2 * Math.atan2(Math.sqrt(1 + E_RET) * Math.sin(Es / 2),
+                                   Math.sqrt(1 - E_RET) * Math.cos(Es / 2));
+        const PR = add(mul(uh, Math.cos(nus)), mul(wh, -Math.sin(nus)));
+        const QR = add(mul(uh, Math.sin(nus)), mul(wh, Math.cos(nus)));
+        for (let i = 1; i <= 560; i++) {
+            const E = Es + i / 560 * (2 * Math.PI - Es);
+            const day = DAYS.pass + ((E - E_RET * Math.sin(E)) - Ms) / N_RET / DAY;
+            push(day, add(mul(PR, A_RET * (Math.cos(E) - E_RET)),
+                          mul(QR, A_RET * Math.sqrt(1 - E_RET * E_RET) * Math.sin(E))));
+        }
+        const last = TRACK[TRACK.length - 1].p;
+        for (let i = 1; i <= 10; i++) {
+            const u = i / 10;
+            push(DAYS.entry + (DAYS.splash - DAYS.entry) * u, mul(unit(last), RE + 122 * (1 - u)));
+        }
+    }());
+
+    function speedAt(i) {
+        const a = TRACK[Math.max(0, i - 1)], b = TRACK[Math.min(TRACK.length - 1, i + 1)];
+        const dt = (b.d - a.d) * DAY;
+        return dt > 0 ? len(sub(b.p, a.p)) / dt : 0;
+    }
+    function indexForDay(day) {
+        let lo = 0, hi = TRACK.length - 1;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (TRACK[m].d < day) lo = m + 1; else hi = m; }
+        return lo;
+    }
+
+    /* ── the numbers the steps quote ─────────────────────────────────── */
+    const F = {
+        g: muE / (RE * RE) * 1000,
+        vLeo: circ(muE, R_LEO), tLeo: per(muE, R_LEO) / 60,
+        tHeo: per(muE, A_HEO) / 3600,
+        vHeoP: viva(muE, R_LEO, A_HEO), vHeoA: viva(muE, R_HEO, A_HEO),
+        vTli: viva(muE, R_LEO, A_TLI), vEsc: escv(muE, R_LEO),
+        vMoonDist: viva(muE, DEM, A_TLI),
+        vCircFly: circ(muM, R_FLY), vEscFly: escv(muM, R_FLY),
+        vEntry: Math.sqrt(2 * muE * (1 / R_EI - 1 / (DEM + R_FLY))),
+    };
+    F.dvHeo = F.vHeoP - F.vLeo;
+    F.dvTli = F.vTli - F.vHeoP;
+    F.dvTliFromLeo = F.vTli - F.vLeo;
+    F.epsLeo = -muE / (2 * R_LEO);
+    F.epsHeo = -muE / (2 * A_HEO);
+    F.toEscape = 100 * (F.epsHeo - F.epsLeo) / (0 - F.epsLeo);
+    F.eqPull = DEM * Math.sqrt(muM / muE) / (1 + Math.sqrt(muM / muE));
+    F.entryKE = 0.5 * 10400 * Math.pow(F.vEntry * 1000, 2);
+
+    const N = PP7.num, B = PP7.big;
+
+    const STEPS = [
+        {
+            day: DAYS.pad, to: DAYS.leo, cam: { at: 'earth', d: 24000, az: 168, el: 16 },
+            t: ['On the pad', 'Na rampě'],
+            when: ['1 April 2026 · Kennedy Space Center, pad 39B', '1. dubna 2026 · Kennedy Space Center, rampa 39B'],
+            body: ['Gravity does not weaken because you are standing on a rocket. The same inverse-square law that holds the Moon holds the stack, and at the surface it comes to <em>g</em> — not a separate constant, but <em>GM</em> over the radius squared. And note what the rocket is <em>not</em> trying to do: fire straight up at anything less than escape speed and you come straight back down, which is exactly Ex. 13-36. What a launch buys is sideways speed.',
+                   'Gravitace neslábne tím, že stojíte na raketě. Týž zákon nepřímé úměry čtverci, který drží Měsíc, drží i celou sestavu, a u povrchu z něj vyjde <em>g</em> — ne samostatná konstanta, ale <em>GM</em> děleno druhou mocninou poloměru. A všimněte si, o co raketa <em>neusiluje</em>: vystřelte svisle vzhůru rychlostí menší než únikovou a spadnete rovnou zpátky — přesně to je úloha 13-36. Start kupuje rychlost do strany.'],
+            eq: 'g = \\dfrac{GM_Z}{R_Z^2}',
+            rows: () => [
+                [['Earth’s mass', 'Hmotnost Země'], '5,972 · 10²⁴ kg'],
+                [['Earth’s radius', 'Poloměr Země'], B(RE) + ' km'],
+                [['surface gravity', 'tíhové zrychlení'], N(F.g, 2) + ' m/s²'],
+                [['escape speed from the surface', 'úniková rychlost z povrchu'], N(escv(muE, RE), 2) + ' km/s'],
+            ],
+            real: ['Four people aboard: Reid Wiseman, Victor Glover, Christina Koch and Jeremy Hansen — the first crew to leave low Earth orbit since Apollo 17 in 1972. The stack weighed about <strong>2 600 tonnes</strong> fuelled and left the pad on <strong>39.1 MN</strong> of thrust, roughly one and a half times its own weight.',
+                   'Na palubě čtyři lidé: Reid Wiseman, Victor Glover, Christina Kochová a Jeremy Hansen — první posádka, která opustila nízkou oběžnou dráhu od Apolla 17 v roce 1972. Sestava vážila s palivem asi <strong>2 600 tun</strong> a odlepila se od rampy tahem <strong>39,1 MN</strong>, zhruba jedenapůlnásobkem vlastní tíhy.'],
+        },
+        {
+            day: DAYS.leo, to: DAYS.heo, cam: { at: 'earth', d: 28000, az: 150, el: 26 },
+            t: ['Low Earth orbit', 'Nízká oběžná dráha'],
+            when: ['Mission elapsed time about 0:10 · 185 km up', 'Čas letu asi 0:10 · 185 km nad Zemí'],
+            body: ['An orbit is a fall that keeps missing. Gravity supplies exactly the centripetal force the circle needs, so the ship falls towards the centre at every instant and never gets any closer — set <em>GMm/r²</em> equal to <em>mv²/r</em>, cancel the ship’s own mass, and one speed comes out for each radius. Nothing about the ship enters it: a bolt and a booster in the same orbit go at the same speed.',
+                   'Oběžná dráha je pád, který stále míjí cíl. Gravitace dodává přesně tu dostředivou sílu, kterou kružnice potřebuje, takže loď padá ke středu v každém okamžiku a nikdy se nepřiblíží — položte <em>GMm/r²</em> rovno <em>mv²/r</em>, vykraťte hmotnost lodi a pro každý poloměr vyjde jediná rychlost. Na lodi nezáleží nic: šroub i stupeň na téže dráze letí stejně rychle.'],
+            eq: '\\dfrac{GMm}{r^2} = \\dfrac{mv^2}{r} \\;\\Longrightarrow\\; v = \\sqrt{\\dfrac{GM}{r}}',
+            rows: () => [
+                [['orbit radius', 'poloměr dráhy'], B(R_LEO) + ' km'],
+                [['orbital speed', 'oběžná rychlost'], N(F.vLeo, 3) + ' km/s'],
+                [['period', 'perioda'], N(F.tLeo, 1) + ' min'],
+                [['Ex. 13-49, same law at 160 km', 'Úloha 13-49, týž zákon ve 160 km'], N(circ(muE, 6370 + 160), 2) + ' km/s'],
+            ],
+            real: ['Orion separated from the upper stage here and the crew began checking the spacecraft out. This is the step the exercise set drills: <strong>Ex. 13-49</strong> asks for exactly this speed and period at 160 km and gets <strong>7.82 km/s</strong> — the last row above, same formula, a different radius.',
+                   'Tady se Orion oddělil od horního stupně a posádka začala loď prověřovat. Právě tenhle krok procvičuje sada úloh: <strong>úloha 13-49</strong> se ptá přesně na tuhle rychlost a periodu ve 160 km a vyjde <strong>7,82 km/s</strong> — poslední řádek výše, týž vzorec, jiný poloměr.'],
+        },
+        {
+            day: DAYS.heo, to: DAYS.tli, cam: { at: 'earth', d: 210000, az: 126, el: 34 },
+            t: ['The checkout orbit', 'Prověrková dráha'],
+            when: ['Flight day 1 · apogee 71 656 km · one lap, 23½ hours',
+                   'Den letu 1 · apogeum 71 656 km · jeden oběh, 23½ hodiny'],
+            body: ['Before committing to the Moon the crew spent one lap of a very long ellipse testing everything, and that lap is the neatest piece of physics on the mission. Kepler’s third law says the period depends on the long axis and nothing else — put the published apogee in and it comes out at almost exactly <em>one day</em>, which is why a 23½-hour checkout fits in a single orbit. Watch the ship on the track as well: it crawls at the far end and tears through the near end, and the ratio of those two speeds is exactly the ratio of the two distances. That is Kepler’s second law.',
+                   'Než se posádka zavázala k letu k Měsíci, strávila jeden oběh po velmi protáhlé elipse zkoušením všeho — a ten oběh je nejhezčí kus fyziky celé mise. Třetí Keplerův zákon říká, že perioda závisí jen na hlavní poloose — dosaďte publikované apogeum a vyjde skoro přesně <em>jeden den</em>; proto se 23½hodinová prověrka vejde do jediného oběhu. A sledujte loď na dráze: u vzdáleného konce se plazí, u blízkého se řítí, a poměr těch dvou rychlostí je přesně poměrem těch dvou vzdáleností. To je druhý Keplerův zákon.'],
+            eq: 'T = 2\\pi\\sqrt{\\dfrac{a^3}{GM}}\\,,\\qquad \\dfrac{v_p}{v_a} = \\dfrac{r_a}{r_p}',
+            rows: () => [
+                [['perigee / apogee', 'perigeum / apogeum'], B(R_LEO) + ' / ' + B(R_HEO) + ' km'],
+                [['long axis <em>a</em>', 'hlavní poloosa <em>a</em>'], B(A_HEO) + ' km'],
+                [['period from Kepler III', 'perioda z 3. Keplerova zákona'], N(F.tHeo, 2) + ' h'],
+                [['speed at perigee / apogee', 'rychlost v perigeu / apogeu'], N(F.vHeoP, 2) + ' / ' + N(F.vHeoA, 2) + ' km/s'],
+                [['their ratio, and <em>r</em><sub>a</sub>/<em>r</em><sub>p</sub>', 'jejich poměr a <em>r</em><sub>a</sub>/<em>r</em><sub>p</sub>'], N(F.vHeoP / F.vHeoA, 2) + ' and ' + N(R_HEO / R_LEO, 2)],
+            ],
+            real: ['NASA put the apogee at about <strong>71 656 km</strong> and kept the crew there for <strong>23½ hours</strong> of checks and a practice rendezvous with the spent upper stage. Kepler’s third law, given only that apogee, returns a period of <strong>' + '{THEO}' + ' hours</strong>. Nobody chose a one-day orbit for tidiness; it is what that apogee <em>is</em>.',
+                   'NASA uvádí apogeum asi <strong>71 656 km</strong> a posádka tam strávila <strong>23½ hodiny</strong> prověrek a nácvik přiblížení k odhozenému stupni. Třetí Keplerův zákon jen z toho apogea vrátí periodu <strong>' + '{THEO}' + ' hodin</strong>. Nikdo nevolil jednodenní dráhu pro parádu; ona jím prostě je.'],
+            verdict: ['Kepler III on the published apogee gives <b>{THEO} h</b>; the crew stayed <b>23.5 h</b> and flew one lap. The law has one input — the long axis — and it lands on the flight plan.',
+                      'Třetí Keplerův zákon dá z publikovaného apogea <b>{THEO} h</b>; posádka tam byla <b>23,5 h</b> a urazila jeden oběh. Zákon má jediný vstup — hlavní poloosu — a trefí letový plán.'],
+        },
+        {
+            day: DAYS.tli, to: DAYS.tli + 0.35, cam: { at: 'earth', d: 150000, az: 108, el: 30 },
+            t: ['Trans-lunar injection', 'Zážeh k Měsíci'],
+            when: ['Flight day 1 · a burn of about 5 minutes 50 seconds',
+                   'Den letu 1 · zážeh dlouhý asi 5 minut 50 sekund'],
+            body: ['Now the point of that checkout orbit becomes clear. Energy is what a burn buys, and the ellipse the crew were already on had covered most of the distance from a low orbit to escape — so the burn that stretched it out to the Moon was small. Straight from the low orbit it would have taken nine times as much. And notice where it still leaves them: at <em>99.3 %</em> of escape speed, total energy still negative. They are not escaping the Earth; they are falling in an enormous arc that the Moon happens to be standing in.',
+                   'Teď je vidět, k čemu ta prověrková dráha byla. Zážeh kupuje energii — a elipsa, na které posádka už byla, měla většinu cesty od nízké dráhy k úniku za sebou, takže zážeh, který ji protáhl k Měsíci, byl malý. Přímo z nízké dráhy by stál devětkrát víc. A všimněte si, kde je to pořád nechává: na <em>99,3 %</em> únikové rychlosti, s celkovou energií stále zápornou. Neunikají Zemi; padají po obrovském oblouku, v němž Měsíc náhodou stojí.'],
+            eq: 'E = -\\dfrac{GMm}{2a}\\,,\\qquad v = \\sqrt{GM\\left(\\dfrac{2}{r}-\\dfrac{1}{a}\\right)}',
+            rows: () => [
+                [['energy per kg: low orbit', 'energie na kg: nízká dráha'], N(F.epsLeo, 2) + ' km²/s²'],
+                [['checkout orbit', 'prověrková dráha'], N(F.epsHeo, 2) + ' km²/s²'],
+                [['so it was already this far to escape', 'to je už takto daleko k úniku'], N(F.toEscape, 0) + ' %'],
+                [['the burn from the checkout orbit', 'zážeh z prověrkové dráhy'], B(F.dvTli * 1000) + ' m/s'],
+                [['the same burn from a low orbit', 'týž zážeh z nízké dráhy'], B(F.dvTliFromLeo * 1000) + ' m/s'],
+                [['fraction of escape speed reached', 'dosažený podíl únikové rychlosti'], N(100 * F.vTli / F.vEsc, 1) + ' %'],
+            ],
+            real: ['The European Service Module fired for <strong>5 min 50 s</strong>. It is a short burn for a trip to the Moon, and the checkout orbit is the reason: by the time the engine lit, the ship was already <strong>' + '{TOESC}' + ' %</strong> of the way from a low orbit to escaping the Earth, measured in energy.',
+                   'Evropský servisní modul hořel <strong>5 min 50 s</strong>. Na cestu k Měsíci je to krátký zážeh a důvodem je prověrková dráha: než se motor rozhořel, byla loď energeticky už <strong>' + '{TOESC}' + ' %</strong> cesty z nízké dráhy k úniku od Země.'],
+        },
+        {
+            day: DAYS.tli + 0.35, to: DAYS.flyby, cam: { at: 'mid', d: 560000, az: 96, el: 36 },
+            t: ['The long coast', 'Dlouhý přelet'],
+            when: ['Flight days 1 to 4 · engines off the whole way',
+                   'Dny letu 1 až 4 · motory po celou dobu vypnuté'],
+            body: ['Nothing is burning now; the ship simply trades speed for height, exactly as the ledger of § I.04 says it must — only with the potential energy written <em>−GMm/r</em> instead of <em>mgh</em>, because the distances are no longer small compared with the Earth. It leaves at nearly eleven kilometres a second and arrives crawling. The minus sign is the whole story: total energy negative means bound and it will come back, zero means it just barely escapes, positive means it is gone for good.',
+                   'Teď už nic nehoří; loď jen mění rychlost za výšku, přesně jak velí bilance z § I.04 — jen s potenciální energií zapsanou jako <em>−GMm/r</em> místo <em>mgh</em>, protože vzdálenosti už nejsou malé proti Zemi. Odlétá skoro jedenácti kilometry za sekundu a přilétá téměř plazivě. Znaménko mínus je celý příběh: záporná celková energie znamená vázaný pohyb a návrat, nula únik o vlásek, kladná odchod nadobro.'],
+            eq: '\\tfrac{1}{2}mv^2 - \\dfrac{GMm}{r} = \\text{konst.}',
+            rows: () => [
+                [['just after the burn', 'hned po zážehu'], N(F.vTli, 2) + ' km/s'],
+                [['at 60 000 km', 'v 60 000 km'], N(viva(muE, 60000, A_TLI), 2) + ' km/s'],
+                [['at 200 000 km', 've 200 000 km'], N(viva(muE, 200000, A_TLI), 2) + ' km/s'],
+                [['at the Moon’s distance', 've vzdálenosti Měsíce'], N(F.vMoonDist, 3) + ' km/s'],
+                [['energy per kilogram', 'energie na kilogram'], N(-muE / (2 * A_TLI), 3) + ' km²/s²'],
+            ],
+            real: ['Three days of coasting, with the crew running experiments and the first live video from a crewed spacecraft this far out. The same bookkeeping answers <strong>Ex. 13-36</strong> with no trajectory at all: launch straight up at half the escape speed and you stop at <strong>4/3 <em>R</em><sub>Z</sub></strong>; give the rocket half the escape <em>energy</em> instead and it reaches <strong>2 <em>R</em><sub>Z</sub></strong>. Two different halves, two different answers — the trap in that exercise.',
+                   'Tři dny letu setrvačností, posádka mezitím dělala pokusy a poslala první živý přenos z lodi s lidmi z takové dálky. Táž bilance odpoví na <strong>úlohu 13-36</strong> zcela bez dráhy: vystřelte svisle polovinou únikové rychlosti a zastavíte se ve <strong>4/3 <em>R</em><sub>Z</sub></strong>; dejte raketě místo toho polovinu únikové <em>energie</em> a dosáhne <strong>2 <em>R</em><sub>Z</sub></strong>. Dvě různé poloviny, dvě různé odpovědi — past té úlohy.'],
+        },
+        {
+            day: DAYS.flyby, to: DAYS.flyby + 0.4, cam: { at: 'moon', d: 170000, az: 70, el: 30 },
+            t: ['Where the Moon takes over', 'Kde přebírá vládu Měsíc'],
+            when: ['Flight day 4 · crossing into the Moon’s domain',
+                   'Den letu 4 · vstup do panství Měsíce'],
+            body: ['Two masses pull on the ship at once now, and the question of which one it belongs to has a definite answer: set the two inverse-square pulls equal and solve. Because the Moon is 81 times lighter, the balance point sits far over on its side, about a tenth of the way across. Cross it and the ship is falling towards the Moon rather than away from the Earth — and nothing was fired to make that happen.',
+                   'Na loď teď táhnou dvě tělesa naráz a otázka, kterému patří, má jednoznačnou odpověď: položte obě přitažlivosti rovné a vyřešte. Protože je Měsíc jedenaosmdesátkrát lehčí, leží bod rovnováhy hluboko na jeho straně, asi v desetině cesty. Loď ho překročí a od té chvíle padá k Měsíci, místo aby se vzdalovala od Země — a nemusela k tomu vůbec zažehnout.'],
+            eq: '\\dfrac{GM_M}{d^2} = \\dfrac{GM_Z}{(D-d)^2}',
+            rows: () => [
+                [['mass ratio <em>M</em><sub>M</sub> : <em>M</em><sub>Z</sub>', 'poměr hmotností <em>M</em><sub>M</sub> : <em>M</em><sub>Z</sub>'], '1 : ' + N(ME / MM, 0)],
+                [['balance point, from the Moon', 'bod rovnováhy, od Měsíce'], B(F.eqPull) + ' km'],
+                [['that is, of the way across', 'tedy podíl celé vzdálenosti'], N(100 * F.eqPull / DEM, 1) + ' %'],
+                [['each pull there', 'každá z přitažlivostí tam'], N(muM / (F.eqPull * F.eqPull) * 1e6, 2) + ' mm/s²'],
+            ],
+            real: ['This is <strong>Ex. 13-01</strong> turned around. That exercise gives you a force and asks for a separation; here the separation is what you want and the condition is that two forces match. Same law, same algebra, one square root.',
+                   'Tohle je <strong>úloha 13-01</strong> obráceně. Tam je zadaná síla a hledá se vzdálenost; tady chcete vzdálenost a podmínkou je rovnost dvou sil. Týž zákon, táž algebra, jedna odmocnina.'],
+        },
+        {
+            day: DAYS.flyby + 0.4, to: DAYS.pass, cam: { at: 'moon', d: 42000, az: 24, el: 20 },
+            t: ['Around the far side', 'Kolem odvrácené strany'],
+            when: ['6 April 2026 · 6 545 km above the far side',
+                   '6. dubna 2026 · 6 545 km nad odvrácenou stranou'],
+            body: ['This is the moment the mission is named for, and the engine stays off through all of it. The ship swings round the Moon on a hyperbola — the open cousin of the ellipse, the shape you get when the total energy relative to a body is positive — and comes out pointing home. That is what <em>free return</em> means: the trajectory was aimed, back at injection, so that lunar gravity alone would fold it into a path that ends at the Earth. If every engine had failed the moment they left orbit, they would still have come home.',
+                   'Tohle je okamžik, po němž je mise pojmenovaná, a motor je po celou dobu vypnutý. Loď oblétá Měsíc po hyperbole — otevřené sestřenici elipsy, tvaru, který dostanete, když je celková energie vůči tělesu kladná — a vylétá z ní obrácená k domovu. To znamená <em>volný návrat</em>: dráha byla zamířena už při zážehu tak, aby ji samotná gravitace Měsíce složila do trasy končící u Země. Kdyby v okamžiku odletu selhaly všechny motory, i tak by se vrátili.'],
+            eq: 'r(\\nu) = \\dfrac{a(1-e^2)}{1+e\\cos\\nu}\\,,\\qquad e > 1',
+            rows: () => [
+                [['closest approach, above the surface', 'nejtěsnější přiblížení nad povrchem'], B(R_FLY - RM) + ' km'],
+                [['from the Moon’s centre', 'od středu Měsíce'], B(R_FLY) + ' km'],
+                [['eccentricity of the pass', 'výstřednost průletu'], N(FLY.eH, 3) + '  (> 1)'],
+                [['circular speed at that height', 'kruhová rychlost v té výšce'], N(F.vCircFly, 3) + ' km/s'],
+                [['escape speed there', 'úniková rychlost tam'], N(F.vEscFly, 3) + ' km/s'],
+            ],
+            real: ['Closest approach was <strong>6 545 km</strong> above the surface — Artemis I went fifty times closer, but it had gone there to enter an orbit, and Artemis II had gone there to come back. On the far side the crew lost radio contact with Earth and saw, with their own eyes, a face of the Moon that eleven Apollo crews and nobody since had seen.',
+                   'Nejtěsnější přiblížení bylo <strong>6 545 km</strong> nad povrchem — Artemis I byla padesátkrát blíž, ale letěla tam kvůli navedení na dráhu, kdežto Artemis II kvůli návratu. Nad odvrácenou stranou posádka ztratila spojení se Zemí a na vlastní oči viděla tvář Měsíce, kterou vidělo jedenáct posádek Apolla a od té doby nikdo.'],
+        },
+        {
+            day: DAYS.pass, to: DAYS.entry, cam: { at: 'mid', d: 600000, az: 250, el: 32 },
+            t: ['The fall home', 'Pád domů'],
+            when: ['Flight days 5 to 9 · engines off, gathering speed all the way',
+                   'Dny letu 5 až 9 · motory vypnuté, celou cestu se zrychluje'],
+            body: ['Everything the climb spent is handed back. The ship starts near 400 000 km at almost no speed and reaches the top of the atmosphere at nearly eleven kilometres a second — and you can predict that number from one line of energy conservation, with no trajectory, no burn schedule and no drag. This is the strongest check on the page, so it is worth doing carefully and then comparing it with what a returning lunar spacecraft actually measures.',
+                   'Všechno, co stoupání utratilo, se vrací. Loď vyráží ze skoro 400 000 km téměř bez rychlosti a k hornímu okraji atmosféry dorazí skoro jedenácti kilometry za sekundu — a to číslo předpovíte jediným řádkem zachování energie: žádná dráha, žádný plán zážehů, žádný odpor vzduchu. Je to nejsilnější kontrola na téhle stránce, takže stojí za to ji udělat pořádně a pak porovnat s tím, co loď vracející se od Měsíce doopravdy naměří.'],
+            eq: '\\tfrac{1}{2}v_2^2 - \\dfrac{GM}{r_2} = \\tfrac{1}{2}v_1^2 - \\dfrac{GM}{r_1}',
+            rows: () => [
+                [['starting distance', 'výchozí vzdálenost'], B(DEM + R_FLY) + ' km'],
+                [['starting speed, near enough', 'výchozí rychlost, prakticky'], '0 km/s'],
+                [['entry interface', 'rozhraní vstupu'], B(R_EI) + ' km (122 km ' + PP7.T('up', 'nad') + ')'],
+                [['predicted arrival speed', 'předpovězená rychlost při vstupu'], N(F.vEntry, 3) + ' km/s'],
+            ],
+            real: ['A lunar return arrives about <strong>40 % faster</strong> than a spacecraft coming back from low Earth orbit, and every joule of that difference was bought by climbing out of the well. Artemis I, on the same kind of return, crossed the entry interface at <strong>10.989 km/s</strong> — the line above predicts <strong>' + '{PRED}' + ' km/s</strong> from nothing but <em>GM</em>, two radii and the assumption that the ship started from rest.',
+                   'Návrat od Měsíce přilétá asi <strong>o 40 % rychleji</strong> než loď vracející se z nízké oběžné dráhy a každý joule toho rozdílu byl zaplacen výstupem z gravitační jámy. Artemis I na stejném typu návratu protla rozhraní vstupu rychlostí <strong>10,989 km/s</strong> — řádek výše předpovídá <strong>' + '{PRED}' + ' km/s</strong> jen z <em>GM</em>, dvou poloměrů a předpokladu, že loď vyrazila z klidu.'],
+            verdict: ['Predicted <b>{PRED} km/s</b> against a measured <b>10.989 km/s</b> — they differ by <b>{ERR} %</b>. One conservation law, written on one line, gets the re-entry speed of a real spacecraft right to a few metres per second.',
+                      'Předpověď <b>{PRED} km/s</b> proti naměřeným <b>10,989 km/s</b> — liší se o <b>{ERR} %</b>. Jediný zákon zachování na jediném řádku trefí rychlost skutečné lodi při návratu na pár metrů za sekundu.'],
+        },
+        {
+            day: DAYS.entry, to: DAYS.splash, cam: { at: 'earth', d: 20000, az: 300, el: 12 },
+            t: ['Entry and splashdown', 'Vstup a přistání'],
+            when: ['10 April 2026 · Pacific Ocean, off San Diego',
+                   '10. dubna 2026 · Tichý oceán u San Diega'],
+            body: ['Gravity brought them home, and now the problem is that it did the job too well. All the kinetic energy gathered on the way down has to leave in about twenty minutes, and no engine can do it — the air does. This is the friction term from § I.04 on a scale that turns a heat shield into plasma: the energy is still conserved, it has simply stopped being mechanical.',
+                   'Gravitace je dopravila domů a problém teď je, že to zvládla až moc dobře. Veškerá kinetická energie nasbíraná při pádu musí zmizet asi za dvacet minut a nezvládne to žádný motor — udělá to vzduch. Je to člen tření z § I.04 v měřítku, které mění tepelný štít v plazma: energie se stále zachovává, jen přestala být mechanická.'],
+            eq: '\\Delta E_k = -f_d\\, d',
+            rows: () => [
+                [['capsule with a crew', 'kabina s posádkou'], '≈ 10 400 kg'],
+                [['speed at entry', 'rychlost při vstupu'], N(F.vEntry, 2) + ' km/s'],
+                [['kinetic energy to be shed', 'kinetická energie k odvedení'], B(F.entryKE / 1e9, 0) + ' GJ'],
+                [['the same in TNT', 'totéž v TNT'], B(F.entryKE / 4.184e9, 0) + ' ' + PP7.T('tonnes', 'tun')],
+                [['mission length', 'délka mise'], N(DAYS.splash, 1) + ' ' + PP7.T('days', 'dní')],
+            ],
+            real: ['The heat shield reached about <strong>2 760 °C</strong>, roughly half the surface temperature of the Sun. Orion flew a skip entry — dipping into the atmosphere, rising briefly, then coming back down — to spread the heating and steer towards the recovery ship, and splashed down in the Pacific on <strong>10 April 2026</strong>, the first crew to return from the Moon in fifty-four years.',
+                   'Tepelný štít dosáhl asi <strong>2 760 °C</strong>, zhruba poloviny povrchové teploty Slunce. Orion použil skákavý vstup — ponor do atmosféry, krátké vystoupání a znovu sestup — aby rozložil ohřev a navedl se k záchranné lodi, a <strong>10. dubna 2026</strong> přistál v Tichém oceánu jako první posádka vracející se od Měsíce po čtyřiapadesáti letech.'],
+        },
+    ];
+
+    /* What the close-up shows at each step, and the forces really on it.
+       Masses: the full stack on the pad, Orion with its service module in
+       flight, the capsule alone once the module is cast off before entry. */
+    const CRAFT = [
+        { k: 'sls',     m: 2.60e6, thrust: 39.1e6, name: 'SLS' },
+        { k: 'orion',   m: 26500,  thrust: 0,      name: 'Orion' },
+        { k: 'orion',   m: 26500,  thrust: 0,      name: 'Orion' },
+        { k: 'orion',   m: 26500,  thrust: 26.6e3, name: 'Orion' },
+        { k: 'orion',   m: 26500,  thrust: 0,      name: 'Orion' },
+        { k: 'orion',   m: 26500,  thrust: 0,      name: 'Orion' },
+        { k: 'orion',   m: 26500,  thrust: 0,      name: 'Orion' },
+        { k: 'orion',   m: 26500,  thrust: 0,      name: 'Orion' },
+        { k: 'capsule', m: 10400,  thrust: 0,      name: 'Orion', drag: 4 },
+    ];
+    const newtons = f => f >= 1e6 ? PP7.num(f / 1e6, 2) + ' MN'
+                       : f >= 1e3 ? PP7.num(f / 1e3, 2) + ' kN'
+                       : PP7.num(f, 2) + ' N';
+
+    const PRED = PP7.num(F.vEntry, 3);
+    const ERR = PP7.num(100 * Math.abs(F.vEntry - 10.9887) / 10.9887, 2);
+    const THEO = PP7.num(F.tHeo, 2);
+    const TOESC = PP7.num(F.toEscape, 0);
+    const fill = t => t.replace(/\{PRED\}/g, PRED).replace(/\{ERR\}/g, ERR)
+                       .replace(/\{THEO\}/g, THEO).replace(/\{TOESC\}/g, TOESC);
+
+    /* ══════════════════════════════════════════════════════════════════
+       COASTLINES — coarse outlines, drawn onto the sphere in 3D. Enough
+       to read as Earth at a glance without a texture or a megabyte of data.
+       ══════════════════════════════════════════════════════════════════ */
+    const LAND = [
+        [[-17,15],[0,25],[10,32],[20,32],[32,31],[43,12],[51,12],[42,-2],[40,-15],[35,-24],[25,-34],[18,-34],[12,-18],[9,4],[-8,4]],
+        [[-9,43],[0,49],[5,53],[10,57],[20,55],[30,60],[40,66],[30,70],[15,68],[5,58],[-5,48]],
+        [[30,60],[60,70],[100,76],[140,72],[160,68],[170,60],[140,45],[130,35],[122,30],[110,20],[100,10],[95,20],[80,10],[70,22],[60,25],[50,30],[35,36],[30,45]],
+        [[-168,65],[-150,70],[-125,70],[-95,72],[-80,68],[-60,60],[-55,50],[-70,45],[-80,32],[-97,26],[-110,23],[-125,40],[-135,58]],
+        [[-81,8],[-60,10],[-50,0],[-35,-6],[-38,-20],[-48,-25],[-58,-35],[-65,-45],[-73,-52],[-75,-40],[-70,-20],[-80,-5]],
+        [[113,-22],[130,-12],[142,-11],[153,-25],[150,-38],[135,-35],[115,-34]],
+        [[-45,60],[-20,70],[-20,82],[-45,83],[-58,76],[-55,66]],
+        [[-180,-72],[-120,-75],[-60,-72],[0,-70],[60,-68],[120,-74],[180,-72],[180,-90],[-180,-90]],
+    ];
+    /* the near side's dark plains, as caps: longitude, latitude, angular size */
+    const MARIA = [[-16,33,13],[-57,18,17],[17,28,8],[31,9,9],[59,17,6],[51,-8,7],[-17,-21,8],[-39,-24,6],[-3,13,6]];
+
+    const sph = (C, R, lon, lat) => add(C, v3(
+        R * Math.cos(lat * RAD) * Math.cos(lon * RAD),
+        R * Math.cos(lat * RAD) * Math.sin(lon * RAD),
+        R * Math.sin(lat * RAD)));
+
+    /* ══════════════════════════════════════════════════════════════════
+       CAMERA AND RENDERER
+       ══════════════════════════════════════════════════════════════════ */
+    let step = 0, u = 0, playing = false, raf = 0, last = 0, started = false;
+    const cam = { at: v3(0, 0, 0), d: 24000, az: 168 * RAD, el: 16 * RAD };
+    const camT = { at: v3(0, 0, 0), d: 24000, az: 168 * RAD, el: 16 * RAD };
+    let drag = null, userAz = 0, userEl = 0, userZoom = 1;
+
+    const STARS = (function () {
+        const out = [];
+        let seed = 20260401;
+        const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+        for (let i = 0; i < 420; i++) {
+            const z = rnd() * 2 - 1, th = rnd() * Math.PI * 2, r = Math.sqrt(1 - z * z);
+            out.push({ v: v3(r * Math.cos(th), r * Math.sin(th), z), m: 0.4 + rnd() * 1.3 });
+        }
+        return out;
+    }());
+
+    function camTarget() {
+        const st = STEPS[step], day = st.day + (st.to - st.day) * u;
+        if (st.cam.at === 'earth') return v3(0, 0, 0);
+        if (st.cam.at === 'moon') return moonAt(day);
+        return mul(moonAt(day), 0.5);
+    }
+    function camPos() {
+        const ce = Math.cos(cam.el), se = Math.sin(cam.el);
+        return add(cam.at, v3(cam.d * ce * Math.cos(cam.az), cam.d * ce * Math.sin(cam.az), cam.d * se));
+    }
+    function basis() {
+        const pos = camPos();
+        const fwd = unit(sub(cam.at, pos));
+        const up0 = Math.abs(fwd.z) > 0.98 ? v3(1, 0, 0) : v3(0, 0, 1);
+        const right = unit(cross(fwd, up0));
+        return { pos, fwd, right, up: cross(right, fwd) };
+    }
+    function projector(bs, W, H) {
+        const f = (H * 0.5) / Math.tan(28 * RAD);
+        return p => {
+            const v = sub(p, bs.pos), z = dot(v, bs.fwd);
+            if (z < 1e-6) return null;
+            return { x: W / 2 + f * dot(v, bs.right) / z, y: H / 2 - f * dot(v, bs.up) / z, z, f };
         };
     }
-    let col = readCol();
-
-    /* ── Physics constants ─────────────────────────────────────────── */
-    const GM       = 40000;   // px³/s² — tuned for visual scale
-    const DT       = 1 / 60; // integration step (s)
-    const SUBSTEPS = 15;      // substeps per frame
-    const DT_SUB   = DT / SUBSTEPS;
-    const TRAIL_LEN = 250;
-
-    /* ── Simulation state ──────────────────────────────────────────── */
-    const DEFAULTS = { speedFactor: 1.0, radiusFrac: 0.35 };
-    let cfg = { ...DEFAULTS };
-
-    let px, py, vx, vy;    // planet position & velocity (canvas px)
-    let trail = [];         // [{x,y}, ...]
-    let cx = 0, cy = 0;    // canvas centre (star position)
-    let running = true;
-
-    function initOrbit() {
-        cx = W * 0.5;
-        cy = H * 0.5;
-        const r0 = cfg.radiusFrac * Math.min(W, H);
-        const vCirc = Math.sqrt(GM / r0);
-        const v0 = cfg.speedFactor * vCirc;
-        px = cx + r0;
-        py = cy;
-        vx = 0;
-        vy = -v0;   // upward → counterclockwise orbit
-        trail = [];
-    }
-    initOrbit();
-
-    /* ── RK4 integrator ────────────────────────────────────────────── */
-    function accel(x, y) {
-        const dx = x - cx, dy = y - cy;
-        const r2 = dx * dx + dy * dy;
-        const r  = Math.sqrt(r2);
-        if (r < 1) return { ax: 0, ay: 0 };
-        const mag = GM / (r2 * r); // GM/r³ × r
-        return { ax: -mag * dx, ay: -mag * dy };
+    function occluded(E, P, C, R) {
+        const d = sub(P, E), L = len(d);
+        if (L < 1e-9) return false;
+        const dir = mul(d, 1 / L), oc = sub(C, E);
+        const t = dot(oc, dir);
+        if (t <= 0 || t >= L) return false;
+        return len(sub(oc, mul(dir, t))) < R;
     }
 
-    function rk4Step(x, y, vx_, vy_, dt) {
-        const a1 = accel(x, y);
-        const k1x = vx_, k1y = vy_, k1vx = a1.ax, k1vy = a1.ay;
-
-        const a2 = accel(x + 0.5*dt*k1x, y + 0.5*dt*k1y);
-        const k2x = vx_ + 0.5*dt*k1vx, k2y = vy_ + 0.5*dt*k1vy;
-        const k2vx = a2.ax, k2vy = a2.ay;
-
-        const a3 = accel(x + 0.5*dt*k2x, y + 0.5*dt*k2y);
-        const k3x = vx_ + 0.5*dt*k2vx, k3y = vy_ + 0.5*dt*k2vy;
-        const k3vx = a3.ax, k3vy = a3.ay;
-
-        const a4 = accel(x + dt*k3x, y + dt*k3y);
-        const k4x = vx_ + dt*k3vx, k4y = vy_ + dt*k3vy;
-        const k4vx = a4.ax, k4vy = a4.ay;
-
-        return {
-            nx:  x  + (dt/6)*(k1x  + 2*k2x  + 2*k3x  + k4x),
-            ny:  y  + (dt/6)*(k1y  + 2*k2y  + 2*k3y  + k4y),
-            nvx: vx_ + (dt/6)*(k1vx + 2*k2vx + 2*k3vx + k4vx),
-            nvy: vy_ + (dt/6)*(k1vy + 2*k2vy + 2*k3vy + k4vy),
-        };
+    /* A point on the far side is pushed onto the horizon rather than dropped,
+       so a coastline that runs over the edge is cut off cleanly instead of
+       collapsing into a spike across the disc. */
+    function toVisible(P, C, R, E) {
+        const e = sub(E, C), dist = len(e);
+        const eh = mul(e, 1 / dist);
+        const d = mul(sub(P, C), 1 / R);
+        const k = dot(d, eh), cosH = R / dist;
+        if (k > cosH) return P;
+        const t = sub(d, mul(eh, k));
+        const tl = len(t);
+        if (tl < 1e-9) return null;
+        const th = mul(t, 1 / tl);
+        return add(C, mul(add(mul(eh, cosH), mul(th, Math.sqrt(1 - cosH * cosH))), R));
     }
 
-    /* ── Eccentricity from vis-viva + angular momentum ─────────────── */
-    function eccentricity() {
-        const dx = px - cx, dy = py - cy;
-        const r = Math.hypot(dx, dy);
-        const v2 = vx*vx + vy*vy;
-        // Specific energy E = ½v² − GM/r
-        const E = 0.5*v2 - GM/r;
-        if (E >= 0) return Infinity; // hyperbolic
-        const a = -GM / (2*E);        // semi-major axis
-        // Specific angular momentum L = |r × v|
-        const L = Math.abs(dx*vy - dy*vx);
-        const h2 = L*L;
-        // e² = 1 + 2Eh²/GM²
-        const eSq = Math.max(0, 1 + (2*E*h2) / (GM*GM));
-        return Math.sqrt(eSq);
-    }
+    function globe(ctx, bs, pr, C, R, opt) {
+        const s = pr(C);
+        if (!s) return;
+        const dist = len(sub(C, bs.pos));
+        if (dist <= R) return;
+        const rad = s.f * R / Math.sqrt(dist * dist - R * R);
+        if (rad < 1.6) {
+            ctx.fillStyle = opt.limb;
+            ctx.beginPath(); ctx.arc(s.x, s.y, 1.8, 0, 7); ctx.fill();
+            return;
+        }
+        const E = bs.pos;
+        ctx.save();
+        ctx.beginPath(); ctx.arc(s.x, s.y, rad, 0, Math.PI * 2); ctx.clip();
+        ctx.fillStyle = opt.body;
+        ctx.beginPath(); ctx.arc(s.x, s.y, rad, 0, Math.PI * 2); ctx.fill();
 
-    /* ── Draw ──────────────────────────────────────────────────────── */
-    function draw() {
-        ctx.clearRect(0, 0, W, H);
-
-        /* Trail */
-        if (trail.length > 1) {
-            ctx.setLineDash([]);
-            ctx.lineCap = 'round';
-            for (let i = 1; i < trail.length; i++) {
-                const alpha = i / trail.length;
-                ctx.strokeStyle = col.acc + Math.round(alpha * 180).toString(16).padStart(2, '0');
-                ctx.lineWidth = 1.2;
+        if (rad > 7 && opt.shapes) {
+            ctx.fillStyle = opt.paint;
+            for (const poly of opt.shapes) {
+                let began = false, any = false;
                 ctx.beginPath();
-                ctx.moveTo(trail[i-1].x, trail[i-1].y);
-                ctx.lineTo(trail[i].x,   trail[i].y);
-                ctx.stroke();
+                for (const [lon, lat] of poly) {
+                    const P = toVisible(sph(C, R, lon + opt.spin, lat), C, R, E);
+                    if (!P) continue;
+                    const q = pr(P);
+                    if (!q) continue;
+                    if (dot(sub(sph(C, R, lon + opt.spin, lat), C), sub(E, C)) > R * R) any = true;
+                    began ? ctx.lineTo(q.x, q.y) : (ctx.moveTo(q.x, q.y), began = true);
+                }
+                if (began && any) { ctx.closePath(); ctx.fill(); }
             }
         }
-
-        /* Star — radial glow */
-        const starR = 18;
-        const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, starR * 2.5);
-        grd.addColorStop(0,   col.acc + 'cc');
-        grd.addColorStop(0.5, col.acc + '44');
-        grd.addColorStop(1,   col.acc + '00');
-        ctx.beginPath();
-        ctx.arc(cx, cy, starR * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = grd;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(cx, cy, starR, 0, Math.PI * 2);
-        ctx.fillStyle = col.acc;
-        ctx.fill();
-
-        /* Planet */
-        const planetR = 7;
-        ctx.beginPath();
-        ctx.arc(px, py, planetR, 0, Math.PI * 2);
-        ctx.fillStyle = col.ink;
-        ctx.fill();
-        /* Soft highlight on planet */
-        const pg = ctx.createRadialGradient(px - 2, py - 2, 1, px, py, planetR);
-        pg.addColorStop(0, col.paper + 'aa');
-        pg.addColorStop(1, col.paper + '00');
-        ctx.beginPath();
-        ctx.arc(px, py, planetR, 0, Math.PI * 2);
-        ctx.fillStyle = pg;
-        ctx.fill();
-
-        /* Distance line (faint dashed) */
-        const r = Math.hypot(px - cx, py - cy);
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = col.faint + '60';
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(px, py);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        /* Readout */
-        const speed  = Math.hypot(vx, vy);
-        const r0     = cfg.radiusFrac * Math.min(W, H);
-        const vCirc  = Math.sqrt(GM / r0);
-        const ecc    = eccentricity();
-
-        const $ = id => document.getElementById(id);
-        if ($('r-speed')) $('r-speed').textContent = speed.toFixed(1) + ' px/s';
-        if ($('r-dist'))  $('r-dist').textContent  = r.toFixed(1) + ' px';
-        if ($('r-vcirc')) $('r-vcirc').textContent = vCirc.toFixed(1) + ' px/s';
-        if ($('r-ecc'))   $('r-ecc').textContent   = isFinite(ecc) ? ecc.toFixed(3) : '> 1 (hyp)';
+        /* graticule: near side solid, far side ghosted — a drafting globe */
+        const ring = (pts, near) => {
+            ctx.strokeStyle = near ? opt.grid : SKY.far;
+            ctx.lineWidth = near ? 0.8 : 0.6;
+            ctx.setLineDash(near ? [] : [2, 3]);
+            let open = false;
+            ctx.beginPath();
+            for (const P of pts) {
+                const vis = dot(sub(P, C), sub(E, C)) > R * R;
+                const q = pr(P);
+                if (!q || vis !== near) { open = false; continue; }
+                open ? ctx.lineTo(q.x, q.y) : (ctx.moveTo(q.x, q.y), open = true);
+            }
+            ctx.stroke(); ctx.setLineDash([]);
+        };
+        const SEG = 64;
+        for (let k = -60; k <= 60; k += 30) {
+            const la = k * RAD, pts = [];
+            for (let i = 0; i <= SEG; i++) {
+                const lo = i / SEG * Math.PI * 2;
+                pts.push(add(C, v3(R * Math.cos(la) * Math.cos(lo), R * Math.cos(la) * Math.sin(lo), R * Math.sin(la))));
+            }
+            if (rad > 18) ring(pts, false);
+            ring(pts, true);
+        }
+        for (let k = 0; k < 180; k += 30) {
+            const lo = k * RAD, pts = [];
+            for (let i = 0; i <= SEG; i++) {
+                const la = -Math.PI / 2 + i / SEG * Math.PI * 2;
+                pts.push(add(C, v3(R * Math.cos(la) * Math.cos(lo), R * Math.cos(la) * Math.sin(lo), R * Math.sin(la))));
+            }
+            if (rad > 18) ring(pts, false);
+            ring(pts, true);
+        }
+        ctx.restore();
+        ctx.strokeStyle = opt.limb; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(s.x, s.y, rad, 0, Math.PI * 2); ctx.stroke();
+        if (opt.label && rad > 6) PP7.halo(ctx, { paper: SKY.bg }, opt.label, s.x, s.y - rad - 14, opt.limb, 13, true);
     }
 
-    /* ── Slider wiring ─────────────────────────────────────────────── */
-    function bindSlider(inputId, valId, decimals, key, reinit) {
-        const inp = document.getElementById(inputId);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            cfg[key] = +inp.value;
-            if (lbl) lbl.textContent = (+inp.value).toFixed(decimals);
-            if (reinit) initOrbit();
-        });
-    }
-    bindSlider('p-speed',  'p-speed-val',  2, 'speedFactor', true);
-    bindSlider('p-radius', 'p-radius-val', 2, 'radiusFrac',  true);
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H;
+        const bs = basis(), pr = projector(bs, W, H);
+        const st = STEPS[step], day = st.day + (st.to - st.day) * u;
+        const mp = moonAt(day);
+        const iNow = indexForDay(day);
 
-    /* ── Reset button ──────────────────────────────────────────────── */
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        cfg = { ...DEFAULTS };
-        const sp = document.getElementById('p-speed');
-        const sv = document.getElementById('p-speed-val');
-        const rp = document.getElementById('p-radius');
-        const rv = document.getElementById('p-radius-val');
-        if (sp) { sp.value = cfg.speedFactor; if (sv) sv.textContent = cfg.speedFactor.toFixed(2); }
-        if (rp) { rp.value = cfg.radiusFrac;  if (rv) rv.textContent = cfg.radiusFrac.toFixed(2); }
-        initOrbit();
+        ctx.fillStyle = SKY.bg; ctx.fillRect(0, 0, W, H);
+        const f = (H * 0.5) / Math.tan(28 * RAD);
+        ctx.fillStyle = SKY.star;
+        for (const s of STARS) {
+            const z = dot(s.v, bs.fwd);
+            if (z <= 0.05) continue;
+            const x = W / 2 + f * dot(s.v, bs.right) / z, y = H / 2 - f * dot(s.v, bs.up) / z;
+            if (x < 0 || x > W || y < 0 || y > H) continue;
+            ctx.globalAlpha = 0.10 + 0.42 * s.m * z;
+            ctx.fillRect(x, y, s.m, s.m);
+        }
+        ctx.globalAlpha = 1;
+
+        ctx.strokeStyle = SKY.far; ctx.lineWidth = 1; ctx.setLineDash([3, 6]);
+        ctx.beginPath();
+        let open = false;
+        for (let i = 0; i <= 180; i++) {
+            const t = i / 180 * Math.PI * 2;
+            const q = pr(v3(DEM * Math.cos(t), DEM * Math.sin(t), 0));
+            if (!q) { open = false; continue; }
+            open ? ctx.lineTo(q.x, q.y) : (ctx.moveTo(q.x, q.y), open = true);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+
+        const dE = len(bs.pos), dM = len(sub(mp, bs.pos));
+        const drawE = () => globe(ctx, bs, pr, v3(0, 0, 0), RE, {
+            body: SKY.sea, paint: SKY.land, shapes: LAND, grid: SKY.grid,
+            limb: SKY.limb, spin: day * 360.9856, label: PP7.T('Earth', 'Země') });
+        const drawM = () => globe(ctx, bs, pr, mp, RM, {
+            body: SKY.moon, paint: SKY.mare, shapes: MARIA_POLYS, grid: '#4c566a',
+            limb: SKY.mlimb, spin: 0, label: PP7.T('Moon', 'Měsíc') });
+        if (dE > dM) { drawE(); drawM(); } else { drawM(); drawE(); }
+
+        const seg = (from, to, style) => {
+            let prev = null;
+            for (let i = from; i <= to; i++) {
+                const P = TRACK[i].p, q = pr(P);
+                if (!q) { prev = null; continue; }
+                const hid = occluded(bs.pos, P, v3(0, 0, 0), RE) || occluded(bs.pos, P, mp, RM);
+                if (prev && prev.hid === hid) ctx.lineTo(q.x, q.y);
+                else {
+                    if (prev) ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(prev ? prev.x : q.x, prev ? prev.y : q.y);
+                    ctx.lineTo(q.x, q.y);
+                    ctx.strokeStyle = style.col; ctx.lineWidth = style.w;
+                    ctx.globalAlpha = hid ? 0.3 : style.a;
+                    ctx.setLineDash(hid ? [3, 4] : []);
+                }
+                prev = { x: q.x, y: q.y, hid };
+            }
+            if (prev) ctx.stroke();
+            ctx.globalAlpha = 1; ctx.setLineDash([]);
+        };
+        seg(iNow, TRACK.length - 1, { col: SKY.ahead, w: 1, a: 0.75 });
+        seg(0, iNow, { col: SKY.acc, w: 2.1, a: 1 });
+
+        const P = TRACK[iNow].p, q = pr(P);
+        if (q) {
+            const qb = pr(TRACK[Math.max(0, iNow - 2)].p);
+            ctx.fillStyle = SKY.acc;
+            ctx.beginPath(); ctx.arc(q.x, q.y, 4.4, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = SKY.bg; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(q.x, q.y, 4.4, 0, Math.PI * 2); ctx.stroke();
+            if (qb) {
+                const dx = q.x - qb.x, dy = q.y - qb.y, L = Math.hypot(dx, dy);
+                if (L > 0.5) {
+                    ctx.strokeStyle = SKY.acc; ctx.lineWidth = 1.6;
+                    ctx.beginPath(); ctx.moveTo(q.x, q.y);
+                    ctx.lineTo(q.x + dx / L * 26, q.y + dy / L * 26); ctx.stroke();
+                }
+            }
+            PP7.halo(ctx, { paper: SKY.bg }, 'Orion', q.x + 13, q.y - 13, SKY.acc, 12, true, 'left');
+        }
+
+        PP7.mono(ctx, 'ARTEMIS II · ' + PP7.T('FLIGHT DAY', 'DEN LETU') + ' ' + PP7.num(day, 1),
+                 16, 18, SKY.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = SKY.ink;
+        ctx.fillText((step + 1) + '. ' + PP7.T(st.t[0], st.t[1]), 16, 39);
+        const scaleKm = 2 * cam.d * Math.tan(28 * RAD) / H * 90;
+        const sx = W * 0.5 - 45;
+        ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(sx, H - 30); ctx.lineTo(sx + 90, H - 30); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sx, H - 34); ctx.lineTo(sx, H - 26); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sx + 90, H - 34); ctx.lineTo(sx + 90, H - 26); ctx.stroke();
+        PP7.mono(ctx, PP7.big(scaleKm, 0) + ' km', sx + 45, H - 17, SKY.faint, 9, 'center');
+
+        closeUp(ctx, bs, W, H, iNow, day, mp);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       THE CLOSE-UP — the ship at a legible size, with the forces that are
+       on it right now. Directions are the real 3D force directions projected
+       into the same camera basis as the main view, so an arrow in here points
+       the same way it would out there. Lengths are in proportion to each
+       other, with the largest fixed, so the picture IS the ratio.
+       ══════════════════════════════════════════════════════════════════ */
+    function screenDir(bs, v) {
+        const x = dot(v, bs.right), y = -dot(v, bs.up);
+        const L = Math.hypot(x, y);
+        return L < 1e-9 ? { x: 1, y: 0 } : { x: x / L, y: y / L };
+    }
+    function insetArrow(ctx, cx, cy, dir, L, col, lab, sub) {
+        if (L < 7) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.setLineDash([2, 2]);
+            ctx.beginPath(); ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + dir.x * 9, cy + dir.y * 9); ctx.stroke();
+            ctx.setLineDash([]);
+            const sx = cx + dir.x * 26, sy = cy + dir.y * 26;
+            PP7.halo(ctx, { paper: '#0d1b2c' }, lab, sx, sy - 6, col, 12, true);
+            if (sub) PP7.mono(ctx, sub, sx, sy + 8, SKY.faint, 9, 'center');
+            return;
+        }
+        const ex = cx + dir.x * L, ey = cy + dir.y * L;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.8;
+        ctx.setLineDash([]); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex - dir.x * 7, ey - dir.y * 7); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(ex - dir.x * 9 + dir.y * 4.5, ey - dir.y * 9 - dir.x * 4.5);
+        ctx.lineTo(ex - dir.x * 9 - dir.y * 4.5, ey - dir.y * 9 + dir.x * 4.5);
+        ctx.closePath(); ctx.fill();
+        const lx = cx + dir.x * (L + 16), ly = cy + dir.y * (L + 16);
+        PP7.halo(ctx, { paper: '#0d1b2c' }, lab, lx, ly - (sub ? 6 : 0), col, 12, true);
+        if (sub) PP7.mono(ctx, sub, lx, ly + 8, SKY.faint, 9, 'center');
+    }
+
+    function drawCraft(ctx, cx, cy, kind, ang, burning) {
+        ctx.save();
+        ctx.translate(cx, cy); ctx.rotate(ang);
+        ctx.lineJoin = 'round';
+        const ink = '#cfe0f5', dark = '#1b2f47', warm = '#d98b45';
+        if (kind === 'sls') {
+            if (burning) {                                   /* the flame */
+                const g = ctx.createLinearGradient(0, 22, 0, 60);
+                g.addColorStop(0, 'rgba(255,196,120,0.95)');
+                g.addColorStop(1, 'rgba(255,140,60,0)');
+                ctx.fillStyle = g;
+                ctx.beginPath(); ctx.moveTo(-9, 22); ctx.lineTo(9, 22);
+                ctx.lineTo(4, 60); ctx.lineTo(-4, 60); ctx.closePath(); ctx.fill();
+            }
+            ctx.fillStyle = warm; ctx.strokeStyle = ink; ctx.lineWidth = 1.2;
+            ctx.fillRect(-6, -18, 12, 40); ctx.strokeRect(-6, -18, 12, 40);   /* core */
+            ctx.fillStyle = dark;
+            ctx.fillRect(-13, -8, 6, 30); ctx.strokeRect(-13, -8, 6, 30);     /* boosters */
+            ctx.fillRect(7, -8, 6, 30);   ctx.strokeRect(7, -8, 6, 30);
+            ctx.fillStyle = ink;
+            ctx.beginPath(); ctx.moveTo(0, -32); ctx.lineTo(5, -18); ctx.lineTo(-5, -18);
+            ctx.closePath(); ctx.fill();                                       /* capsule */
+        } else {
+            const arr = kind === 'orion';
+            if (arr) {                                        /* solar arrays */
+                ctx.fillStyle = '#20456b'; ctx.strokeStyle = '#5b83ad'; ctx.lineWidth = 1;
+                ctx.fillRect(-34, -4, 22, 8); ctx.strokeRect(-34, -4, 22, 8);
+                ctx.fillRect(12, -4, 22, 8);  ctx.strokeRect(12, -4, 22, 8);
+            }
+            if (burning) {
+                const g = ctx.createLinearGradient(0, 12, 0, 40);
+                g.addColorStop(0, 'rgba(180,220,255,0.9)');
+                g.addColorStop(1, 'rgba(120,180,255,0)');
+                ctx.fillStyle = g;
+                ctx.beginPath(); ctx.moveTo(-5, 12); ctx.lineTo(5, 12);
+                ctx.lineTo(2, 40); ctx.lineTo(-2, 40); ctx.closePath(); ctx.fill();
+            }
+            ctx.strokeStyle = ink; ctx.lineWidth = 1.3;
+            if (arr) { ctx.fillStyle = '#3f5f80'; ctx.fillRect(-8, -2, 16, 15); ctx.strokeRect(-8, -2, 16, 15); }
+            ctx.fillStyle = '#e4eefb';                                        /* the capsule */
+            ctx.beginPath();
+            ctx.moveTo(0, -17); ctx.lineTo(10, -1); ctx.lineTo(-10, -1);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function closeUp(ctx, bs, W, H, iNow, day, mp) {
+        const hw = CRAFT[step];
+        const P = TRACK[iNow].p;
+        const rE = len(P), rM = len(sub(P, mp));
+        const aE = muE / (rE * rE) * 1000, aM = muM / (rM * rM) * 1000;   /* m/s^2 */
+        const FE = hw.m * aE, FM = hw.m * aM;
+        const vdir = unit(sub(TRACK[Math.min(TRACK.length - 1, iNow + 2)].p,
+                              TRACK[Math.max(0, iNow - 2)].p));
+        const onPad = step === 0;
+
+        const w = Math.min(340, W * 0.30), h = w * 0.74;
+        const x = W - w - 16, y = 16;
+        ctx.save();
+        ctx.fillStyle = 'rgba(13,27,44,0.90)';
+        ctx.strokeStyle = '#4a6a8f'; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+        ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+        ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+
+        PP7.mono(ctx, PP7.T('CLOSE-UP · ', 'DETAIL · ') + hw.name + '  ·  ' +
+                 PP7.big(hw.m, 0) + ' kg', x + 12, y + 15, SKY.soft, 9.5);
+
+        const cx = x + w * 0.5, cy = y + h * 0.5 + 6;
+        const burning = hw.thrust > 0;
+
+        if (onPad) {
+            /* on the pad the two forces are along one line, so draw it that way */
+            const g = muE / (RE * RE) * 1000;
+            const Wt = hw.m * g, Th = hw.thrust;
+            const big = Math.max(Wt, Th), sc = 62 / big;
+            drawCraft(ctx, cx, cy, 'sls', 0, true);
+            insetArrow(ctx, cx + 34, cy, { x: 0, y: -1 }, Th * sc, '#ffb457',
+                       PP7.T('thrust', 'tah'), newtons(Th));
+            insetArrow(ctx, cx - 34, cy, { x: 0, y: 1 }, Wt * sc, '#8fb6ff',
+                       PP7.T('weight', 'tíha'), newtons(Wt));
+            PP7.mono(ctx, PP7.T('thrust / weight = ', 'tah / tíha = ') +
+                     PP7.num(Th / Wt, 2), x + 12, y + h - 12, SKY.faint, 9.5);
+        } else {
+            const dE = screenDir(bs, sub(v3(0, 0, 0), P));
+            const dM = screenDir(bs, sub(mp, P));
+            const dV = screenDir(bs, vdir);
+            const big = Math.max(FE, FM, 1e-9), sc = 62 / big;
+            const ang = Math.atan2(dV.y, dV.x) + Math.PI / 2;
+            drawCraft(ctx, cx, cy, hw.k, ang, burning);
+            insetArrow(ctx, cx, cy, dE, FE * sc, '#8fb6ff', 'F' + 'ₑ', newtons(FE));
+            insetArrow(ctx, cx, cy, dM, FM * sc, '#c9a6ff', 'F' + 'ₘ', newtons(FM));
+            if (burning) insetArrow(ctx, cx, cy, dV, 40, '#ffb457',
+                                    PP7.T('thrust', 'tah'), newtons(hw.thrust));
+            if (hw.drag) insetArrow(ctx, cx, cy, { x: -dV.x, y: -dV.y }, 58, '#ff8f6b',
+                                    PP7.T('drag', 'odpor'), '≈ ' + hw.drag + ' g');
+            const ratio = FE > FM ? PP7.T('Earth', 'Země') + ' ' + PP7.num(FE / FM, 1) + '×'
+                                  : PP7.T('Moon', 'Měsíc') + ' ' + PP7.num(FM / FE, 1) + '×';
+            PP7.mono(ctx, PP7.T('pulling harder: ', 'táhne silněji: ') + ratio,
+                     x + 12, y + h - 12, SKY.faint, 9.5);
+        }
+        ctx.restore();
+    }
+
+    /* the maria, turned into little polygons once */
+    const MARIA_POLYS = MARIA.map(([lon, lat, rr]) => {
+        const out = [];
+        for (let i = 0; i < 14; i++) {
+            const a = i / 14 * Math.PI * 2;
+            out.push([lon + rr * Math.cos(a) / Math.max(0.3, Math.cos(lat * RAD)), lat + rr * Math.sin(a)]);
+        }
+        return out;
     });
 
-    /* ── RAF loop ──────────────────────────────────────────────────── */
-    let lastT = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
-
-    function frame(ts) {
-        if (!running) { requestAnimationFrame(frame); return; }
-
-        /* Re-centre if canvas resized */
-        const ncx = W * 0.5, ncy = H * 0.5;
-        if (ncx !== cx || ncy !== cy) {
-            const dx = ncx - cx, dy = ncy - cy;
-            px += dx; py += dy;
-            trail = trail.map(p => ({ x: p.x + dx, y: p.y + dy }));
-            cx = ncx; cy = ncy;
-        }
-
-        /* Integrate */
-        for (let i = 0; i < SUBSTEPS; i++) {
-            const res = rk4Step(px, py, vx, vy, DT_SUB);
-            px = res.nx; py = res.ny; vx = res.nvx; vy = res.nvy;
-            trail.push({ x: px, y: py });
-            if (trail.length > TRAIL_LEN) trail.shift();
-
-            /* Absorb into star if too close */
-            if (Math.hypot(px - cx, py - cy) < 20) {
-                initOrbit();
-                break;
-            }
-        }
-
-        draw();
-
-        frames++;
-        if (ts - lastT >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; lastT = ts;
-        }
-        requestAnimationFrame(frame);
+    /* ══════════════════════════════════════════════════════════════════
+       PANELS
+       ══════════════════════════════════════════════════════════════════ */
+    function buildList() {
+        const list = $('ap-list');
+        if (!list) return;
+        list.innerHTML = '';
+        STEPS.forEach((st, i) => {
+            const row = document.createElement('div');
+            row.className = 'ms-chip' + (i === step ? ' on' : '');
+            row.innerHTML = '<span class="ms-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+                            '<span class="ms-name">' + PP7.T(st.t[0], st.t[1]) + '</span>';
+            row.addEventListener('click', () => goto(i));
+            list.appendChild(row);
+        });
     }
-    requestAnimationFrame(frame);
+    function markList() {
+        const rows = document.querySelectorAll('#ap-list .ms-chip');
+        rows.forEach((r, i) => r.classList.toggle('on', i === step));
+        const on = rows[step];
+        if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    function panels() {
+        const st = STEPS[step];
+        const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+        set('fl-kicker', PP7.T('Step', 'Krok') + ' ' + String(step + 1).padStart(2, '0') + ' / ' + STEPS.length);
+        set('fl-title', PP7.T(st.t[0], st.t[1]));
+        set('fl-text', fill(PP7.T(st.body[0], st.body[1])));
+        PP7.katexInto($('fl-eq'), st.eq);
+        PP7.katexInto($('ap-eq'), st.eq);
+        set('fl-rows', st.rows().map(r =>
+            '<div class="fl-k">' + PP7.T(r[0][0], r[0][1]) + '</div><div class="fl-v">' + r[1] + '</div>'
+        ).join(''));
+        set('fl-stamp', PP7.T(st.when[0], st.when[1]));
+        set('fl-real', fill(PP7.T(st.real[0], st.real[1])));
+        const vd = $('fl-verdict');
+        if (vd) {
+            if (st.verdict) { vd.style.display = ''; vd.innerHTML = fill(PP7.T(st.verdict[0], st.verdict[1])); }
+            else vd.style.display = 'none';
+        }
+        const prev = $('ap-prev'), next = $('ap-next');
+        if (prev) prev.disabled = step === 0;
+        if (next) next.innerHTML = step === STEPS.length - 1
+            ? '<span lang="en">Start again</span><span lang="cs">Znovu od začátku</span>'
+            : '<span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→';
+        const note = $('ap-note');
+        if (note) note.textContent = PP7.T(
+            'Four of the five phases are real conics, solved from Kepler’s equation. Only the ascent is drawn.',
+            'Čtyři z pěti fází jsou skutečné kuželosečky řešené z Keplerovy rovnice. Kreslený je jen výstup.');
+    }
+    function readouts() {
+        const st = STEPS[step], day = st.day + (st.to - st.day) * u;
+        const i = indexForDay(day), P = TRACK[i].p;
+        const put = (id, t) => { const el = $(id); if (el) el.textContent = t; };
+        put('ap-r-re', PP7.big(len(P), 0) + ' km');
+        put('ap-r-rm', PP7.big(len(sub(P, moonAt(day))), 0) + ' km');
+        put('ap-r-v', PP7.num(speedAt(i), 3) + ' km/s');
+        const cl = $('ap-clock');
+        if (cl) cl.textContent = PP7.T('flight day ', 'den letu ') + PP7.num(day, 2);
+    }
 
+    /* ══════════════════════════════════════════════════════════════════
+       MOTION
+       ══════════════════════════════════════════════════════════════════ */
+    function aimCamera(instant) {
+        const st = STEPS[step];
+        camT.at = camTarget();
+        camT.d = st.cam.d * userZoom;
+        camT.az = (st.cam.az + userAz) * RAD;
+        camT.el = (st.cam.el + userEl) * RAD;
+        if (instant) { cam.at = camT.at; cam.d = camT.d; cam.az = camT.az; cam.el = camT.el; }
+    }
+    function tickCamera(dt) {
+        const k = 1 - Math.exp(-dt * 2.6);
+        cam.at = add(cam.at, mul(sub(camT.at, cam.at), k));
+        cam.d += (camT.d - cam.d) * k;
+        let da = camT.az - cam.az;
+        while (da > Math.PI) da -= Math.PI * 2;
+        while (da < -Math.PI) da += Math.PI * 2;
+        cam.az += da * k;
+        cam.el += (camT.el - cam.el) * k;
+    }
+    const DUR = 5.5;
+    function loop(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        if (playing) { u += dt / DUR; if (u >= 1) { u = 1; playing = false; } }
+        aimCamera(false); tickCamera(dt);
+        V.redraw(); readouts();
+        const moving = playing || started && (
+            Math.abs(cam.d - camT.d) > camT.d * 1e-3 ||
+            Math.abs(camT.az - cam.az) > 1e-4 || Math.abs(camT.el - cam.el) > 1e-4 ||
+            len(sub(camT.at, cam.at)) > 60);
+        if (moving || started) raf = requestAnimationFrame(loop);
+        else { raf = 0; last = 0; }
+    }
+    function kick() { if (!raf) { last = 0; raf = requestAnimationFrame(loop); } }
+
+    function goto(i) {
+        step = Math.max(0, Math.min(STEPS.length - 1, i));
+        u = 0; playing = true;
+        markList(); panels(); aimCamera(false); kick();
+    }
+
+    $('ap-next')?.addEventListener('click', () => goto(step === STEPS.length - 1 ? 0 : step + 1));
+    $('ap-prev')?.addEventListener('click', () => goto(step - 1));
+    $('ap-reset')?.addEventListener('click', () => { userAz = userEl = 0; userZoom = 1; goto(0); });
+
+    const wrap = V.canvas.parentElement;
+    V.canvas.addEventListener('pointerdown', e => {
+        drag = { x: e.clientX, y: e.clientY };
+        V.canvas.setPointerCapture(e.pointerId);
+    });
+    V.canvas.addEventListener('pointermove', e => {
+        if (!drag) return;
+        userAz -= (e.clientX - drag.x) * 0.32;
+        userEl = Math.max(-78, Math.min(78, userEl + (e.clientY - drag.y) * 0.22));
+        drag = { x: e.clientX, y: e.clientY };
+        aimCamera(false); kick();
+    });
+    const stop = e => { if (drag) { drag = null; try { V.canvas.releasePointerCapture(e.pointerId); } catch (_) {} } };
+    V.canvas.addEventListener('pointerup', stop);
+    V.canvas.addEventListener('pointercancel', stop);
+    wrap.addEventListener('wheel', e => {
+        const next = Math.max(0.25, Math.min(4, userZoom * Math.exp(e.deltaY * 0.0011)));
+        if (next === userZoom) return;
+        e.preventDefault();
+        userZoom = next;
+        aimCamera(false); kick();
+    }, { passive: false });
+
+    /* the play gate: the mission holds still behind a blur until it is opened */
+    const gate = $('ap-gate');
+    function open() {
+        if (started) return;
+        started = true;
+        gate?.classList.add('away');
+        wrap.classList.remove('armed');
+        setTimeout(() => gate && gate.remove(), 1000);
+        goto(0);
+    }
+    gate?.addEventListener('click', open);
+    gate?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+    if (gate) { gate.tabIndex = 0; gate.setAttribute('role', 'button'); }
+
+    document.addEventListener('langchange', () => { buildList(); panels(); readouts(); V.redraw(); });
+
+    buildList(); panels(); aimCamera(true); readouts(); V.redraw();
+    PP7.whenReady(panels);
 }());
 </script>
 

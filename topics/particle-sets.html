@@ -28,7 +28,10 @@
             linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
             var(--paper-deep);
     }
-    #sim-canvas {
+    /* position by CLASS — an #id rule is orphaned the moment a canvas is
+       renamed, and the canvas then grows the page without bound. */
+    .canvas-wrap canvas,
+    .bars-wrap canvas {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -352,6 +355,164 @@
         transform: translate(-2px, -2px);
         box-shadow: 3px 3px 0 var(--ink);
     }
+
+    /* ── Panel buttons ───────────────────────────────────────────────── */
+    .panel-reset {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+    .fam-run-row { display: flex; gap: 10px; margin-top: 16px; }
+    .fam-btn-run, .fam-btn-rewind {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        padding: 10px 14px;
+        border: 1.5px solid var(--ink);
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .fam-btn-run { flex: 1; background: var(--accent); color: var(--paper); }
+    .fam-btn-rewind { background: var(--paper); color: var(--ink-soft); }
+    .fam-btn-run:hover, .fam-btn-rewind:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .fam-btn-run:disabled {
+        background: var(--paper-edge);
+        color: var(--ink-faint);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    .sim-note {
+        margin: 14px 0 0;
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--ink-faint);
+        min-height: 1.6em;
+    }
+    .sim-note.warn { color: var(--accent); }
+
+    /* ── The ledger ──────────────────────────────────────────────────── */
+    .ledger-box {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+    }
+    .ledger-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        padding: 12px 24px;
+        border-bottom: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+    }
+    .ledger-head .accent-pip { align-self: center; }
+    .ledger-title {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--ink);
+    }
+    .ledger-sub {
+        font-size: 12.5px;
+        color: var(--ink-faint);
+    }
+    .ledger-body {
+        display: grid;
+        grid-template-columns: minmax(340px, 1fr) 1fr;
+        gap: 34px;
+        padding: 24px 24px 22px;
+        align-items: start;
+    }
+    .ledger-grid {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 0 26px;
+        align-items: baseline;
+    }
+    .lg-cell {
+        padding: 9px 0;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .lg-h {
+        border-bottom: 1px solid var(--ink-faint);
+        padding-bottom: 7px;
+    }
+    .lg-lab { font-size: 15px; color: var(--ink-soft); }
+    .lg-num {
+        font-family: var(--f-mono);
+        font-size: 14px;
+        color: var(--accent);
+        text-align: right;
+        min-width: 96px;
+        letter-spacing: 0.03em;
+    }
+    .lg-state {
+        font-family: var(--f-mono);
+        font-size: 15px;
+        color: var(--ink);
+    }
+    .lg-tot {
+        border-bottom: none;
+        border-top: 1.5px solid var(--ink);
+        font-weight: 600;
+        padding-top: 11px;
+        margin-top: 2px;
+    }
+    .lg-gap { height: 18px; border: none; padding: 0; }
+    .ledger-verdict {
+        border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 22px;
+    }
+    .lv-eq {
+        font-size: 20px;
+        color: var(--ink);
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+    .lv-num {
+        margin-top: 10px;
+        font-family: var(--f-mono);
+        font-size: 13px;
+        color: var(--ink-soft);
+        letter-spacing: 0.02em;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .lv-split { margin-top: 22px; }
+    .lv-note {
+        margin: 16px 0 0;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--ink-faint);
+    }
+    /* the bars span the whole ledger, under both columns */
+    .ledger-bars {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+        border-top: 1px dashed var(--ink-faint);
+        padding-top: 18px;
+    }
+    .bars-wrap {
+        position: relative;
+        height: 208px;
+        width: 100%;
+    }
+    @media (max-width: 900px) {
+        .ledger-body { grid-template-columns: 1fr; gap: 26px; }
+        .ledger-verdict { border-left: none; border-top: 3px solid var(--accent); padding: 20px 0 0; }
+        .bars-wrap { height: 250px; }
+    }
+
     .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
     </style>
 </head>
@@ -386,17 +547,20 @@
          ════════════════════════════════════════════════════════════════════ -->
     <section class="topic-hero">
         <div>
-            <div class="num">§ I.05 · particle sets</div>
-            <h1>Particle Sets</h1>
+            <div class="num">§ I.05 · momentum</div>
+            <h1><span lang="en">Particle sets</span><span lang="cs">Soustavy částic</span></h1>
             <p class="lede">
-                Momentum is the most conserved quantity in physics — collisions
-                are just momentum flowing between objects via the contact force.
-                Tune the elasticity and watch how the bookkeeping always balances.
+                <span lang="en">Momentum is a vector, so it is booked axis by axis — but unlike energy it
+                survives every collision, even the ones that destroy energy. Book the system before the
+                event, book it after, set the two equal; the forces in between never have to be known.</span>
+                <span lang="cs">Hybnost je vektor, účtuje se tedy po osách — na rozdíl od energie ale přežije
+                každou srážku, i tu, která energii zničí. Zapište soustavu před dějem, zapište ji po něm
+                a dejte to rovno; síly, které mezitím působily, nemusíte vůbec znát.</span>
             </p>
         </div>
         <div class="eq-wrap">
-            <div class="eq-big" data-tex="\sum \vec{p} = \text{const}"></div>
-            <div class="eq-caption">Total momentum of an isolated system is conserved in every collision</div>
+            <div class="eq-big" data-tex="\sum \vec p_1 = \sum \vec p_2"></div>
+            <div class="eq-caption"><span lang="en">Conservation of momentum — with no external force, the system’s total is the same before and after</span><span lang="cs">Zákon zachování hybnosti — bez vnější síly je celek soustavy před dějem i po něm stejný</span></div>
         </div>
     </section>
 
@@ -457,11 +621,28 @@
                         <span class="cf-eq" data-tex="\textstyle\sum p = \text{konst.}\,,\qquad \textstyle\sum E_k = \text{konst.}"></span>
                     </div>
                     <p class="cf-note">
-                        <span lang="en">Both conserved, which gives two equations for two unknown final velocities. For a head-on collision
-      between two bodies this has a closed solution, and a light body bouncing off a heavy one comes back
-      almost as fast as it arrived — with a reversed sign.</span><span lang="cs">Zachovává se obojí, což dá dvě rovnice pro dvě neznámé koncové rychlosti. Pro přímou srážku dvou těles
-      má tahle soustava uzavřené řešení a lehké těleso odražené od těžkého se vrací skoro stejně rychle, jak
-      přiletělo — se obráceným znaménkem.</span>
+                        <span lang="en">Both conserved, which gives two equations for the two unknown final velocities. Which kind of
+      collision you have is therefore the first thing to settle: <em>elastic</em>, <em>steel on steel</em>,
+      <em>bounces off</em> — both laws apply, and you never need the contact force itself.</span><span lang="cs">Zachovává se obojí, což dá dvě rovnice pro dvě neznámé koncové rychlosti. První, co je tedy třeba
+      rozhodnout, je druh srážky: <em>pružná</em>, <em>ocel o ocel</em>, <em>odrazí se</em> — platí oba
+      zákony a samotnou kontaktní sílu nikdy nepotřebujete.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Elastic, head-on, target at rest</span><span lang="cs">Pružná přímá srážka s nehybným terčem</span></span>
+                        <span class="cf-eq" data-tex="v_1' = \dfrac{m_1-m_2}{m_1+m_2}\,v_1"></span>
+                        <span class="cf-eq" data-tex="v_2' = \dfrac{2m_1}{m_1+m_2}\,v_1"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The closed solution of the pair above when the target starts at rest — worth memorising, because
+      it turns a two-equation system into one substitution. Read the signs: a light body striking a heavier one
+      gets <span data-tex="v_1' &lt; 0"></span> and comes straight back, equal masses swap velocities exactly, and a
+      heavy body barely notices the light one.</span><span lang="cs">Uzavřené řešení předchozí dvojice pro terč, který je na počátku v klidu — vyplatí se ho umět, protože
+      mění soustavu dvou rovnic v jedno dosazení. Čtěte znaménka: lehké těleso narážející do těžšího vyjde
+      <span data-tex="v_1' &lt; 0"></span> a vrací se zpět, stejné hmotnosti si rychlosti přesně vymění a těžké
+      těleso to lehké skoro nezaznamená.</span>
                     </p>
                 </div>
 
@@ -554,111 +735,185 @@
     <!-- ════════════════════════════════════════════════════════════════════
          § 5  SIMULATION LAB
          ════════════════════════════════════════════════════════════════════ -->
-    <section id="lab" class="lab" style="margin-top:72px;">
+    <!-- ════ § 3  LAB 1 — THE BEFORE / AFTER LEDGER ════ -->
+    <section id="lab" class="lab" style="margin-top:72px; margin-bottom:0;">
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Collision sandbox</span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Before and after — one line, two bodies</span><span lang="cs">Před a po — jedna přímka, dvě tělesa</span></span>
+                <span id="l1-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
             </div>
-            <div class="canvas-wrap" style="flex:1;position:relative;overflow:hidden;">
-                <canvas id="sim-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-                <div class="canvas-formula-badge" data-tex="\sum p = \text{const}"></div>
-                <div class="sim-hint">watch momentum transfer · adjust elasticity</div>
+            <div class="canvas-wrap">
+                <canvas id="l1-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\sum \vec p_1 = \sum \vec p_2"></div>
+                <div class="sim-hint"><span lang="en">momentum always balances · energy only sometimes</span><span lang="cs">hybnost vyjde vždy · energie jen někdy</span></div>
             </div>
         </div>
 
         <div class="side-stack">
 
-            <!-- Parameters -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
-                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
-                        text-transform:uppercase;letter-spacing:0.14em;background:none;
-                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
+                    <span><span class="accent-pip"></span><span lang="en">What happens at contact</span><span lang="cs">Co se stane při kontaktu</span></span>
                 </div>
                 <div class="panel-body">
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Mass m₁ (ball 1)</span>
-                            <span class="sim-control-val" id="p-m1-val">2.0 kg</span>
-                        </div>
-                        <input class="sim-control-range" type="range" id="p-m1" min="0.5" max="5" step="0.5" value="2">
-                    </div>
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Mass m₂ (ball 2)</span>
-                            <span class="sim-control-val" id="p-m2-val">2.0 kg</span>
-                        </div>
-                        <input class="sim-control-range" type="range" id="p-m2" min="0.5" max="5" step="0.5" value="2">
-                    </div>
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Initial speed v₁</span>
-                            <span class="sim-control-val" id="p-v1-val">5 m/s</span>
-                        </div>
-                        <input class="sim-control-range" type="range" id="p-v1" min="1" max="10" step="1" value="5">
-                    </div>
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Elasticity e</span>
-                            <span class="sim-control-val" id="p-e-val">1.0</span>
-                        </div>
-                        <input class="sim-control-range" type="range" id="p-e" min="0" max="1" step="0.1" value="1">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Readout -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
-                </div>
-                <div class="panel-body">
-                    <div class="readout-section">Momentum</div>
-                    <div class="readout-row">
-                        <span class="readout-label">p before</span>
-                        <span class="readout-val" id="r-pbefore">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">p after</span>
-                        <span class="readout-val" id="r-pafter">—</span>
-                    </div>
-                    <div class="readout-section" style="margin-top:4px;">Kinetic Energy</div>
-                    <div class="readout-row">
-                        <span class="readout-label">KE before</span>
-                        <span class="readout-val" id="r-kebefore">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">KE after</span>
-                        <span class="readout-val" id="r-keafter">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">ΔKE</span>
-                        <span class="readout-val" id="r-dke">—</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Display -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Display</span>
-                </div>
-                <div class="panel-body">
-                    <div class="toggle-row" id="tgl-arrows">
+                    <div class="toggle-row" data-type-pick="elastic">
                         <div class="toggle-box on"></div>
-                        <span class="toggle-name">velocity arrows</span>
+                        <span class="toggle-name"><span lang="en">Elastic — bounces off</span><span lang="cs">Pružná — odrazí se</span></span>
                     </div>
-                    <div class="toggle-row" id="tgl-labels">
-                        <div class="toggle-box on"></div>
-                        <span class="toggle-name">speed labels</span>
+                    <div class="toggle-row" data-type-pick="inelastic">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Perfectly inelastic — sticks</span><span lang="cs">Dokonale nepružná — spojí se</span></span>
+                    </div>
+                    <div class="toggle-row" data-type-pick="explosion">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">Explosion — one body splits</span><span lang="cs">Výbuch — těleso se rozdělí</span></span>
+                    </div>
+                    <p class="sim-note" id="l1-modenote"></p>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="l1-reset" class="panel-reset">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass <em>m</em><sub>1</sub></span><span lang="cs">Hmotnost <em>m</em><sub>1</sub></span></span>
+                            <span class="sim-control-val" id="l1-m1-val">0.50 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-m1" min="0.1" max="5" step="0.05" value="0.5">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Mass <em>m</em><sub>2</sub></span><span lang="cs">Hmotnost <em>m</em><sub>2</sub></span></span>
+                            <span class="sim-control-val" id="l1-m2-val">2.50 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-m2" min="0.1" max="5" step="0.05" value="2.5">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name">
+                                <span data-hit="collision"><span lang="en">Velocity <em>v</em><sub>1</sub> before</span><span lang="cs">Rychlost <em>v</em><sub>1</sub> před</span></span>
+                                <span data-hit="explosion"><span lang="en">Common velocity <em>v</em> before</span><span lang="cs">Společná rychlost <em>v</em> před</span></span>
+                            </span>
+                            <span class="sim-control-val" id="l1-v1-val">3.70 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-v1" min="-8" max="8" step="0.05" value="3.7">
+                    </div>
+
+                    <div class="sim-control" data-hit="collision">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Velocity <em>v</em><sub>2</sub> before</span><span lang="cs">Rychlost <em>v</em><sub>2</sub> před</span></span>
+                            <span class="sim-control-val" id="l1-v2-val">0.00 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-v2" min="-8" max="8" step="0.05" value="0">
+                    </div>
+
+                    <div class="sim-control" data-hit="explosion">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Energy released <em>ΔE</em></span><span lang="cs">Uvolněná energie <em>ΔE</em></span></span>
+                            <span class="sim-control-val" id="l1-dE-val">20 J</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="l1-dE" min="1" max="120" step="1" value="20">
+                    </div>
+
+                    <div class="fam-run-row">
+                        <button id="l1-run" class="fam-btn-run">▶ <span lang="en">Run</span><span lang="cs">Spustit</span></button>
+                        <button id="l1-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
+                    </div>
+                    <p class="sim-note" id="l1-warn"></p>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečet</span></span>
+                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">after</span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_1'"></span>
+                        <span class="readout-val" id="l1-r-v1">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v_2'"></span>
+                        <span class="readout-val" id="l1-r-v2">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\sum p"></span>
+                        <span class="readout-val" id="l1-r-p">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\Delta E_k"></span>
+                        <span class="readout-val" id="l1-r-dke">—</span>
                     </div>
                 </div>
             </div>
 
+        </div>
+    </section>
+
+    <!-- ════ § 4  THE LEDGER ════ -->
+    <section id="ledger" style="margin-top:24px;">
+        <div class="ledger-box">
+            <div class="ledger-head">
+                <span class="accent-pip"></span>
+                <span class="ledger-title"><span lang="en">Momentum ledger</span><span lang="cs">Bilance hybnosti</span></span>
+                <span class="ledger-sub"><span lang="en">book both states, then set them equal</span><span lang="cs">zapište oba stavy a dejte je rovno</span></span>
+            </div>
+            <div class="ledger-body">
+
+                <div class="ledger-grid">
+                    <div class="lg-cell lg-h"></div>
+                    <div class="lg-cell lg-h lg-num"><span class="lg-state" id="lg-h1">①</span></div>
+                    <div class="lg-cell lg-h lg-num"><span class="lg-state" id="lg-h2">②</span></div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="p_1 = m_1 v_1"></span></div>
+                    <div class="lg-cell lg-num" id="lg-p1a">—</div>
+                    <div class="lg-cell lg-num" id="lg-p1b">—</div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="p_2 = m_2 v_2"></span></div>
+                    <div class="lg-cell lg-num" id="lg-p2a">—</div>
+                    <div class="lg-cell lg-num" id="lg-p2b">—</div>
+
+                    <div class="lg-cell lg-lab lg-tot"><span data-tex="\sum p"></span></div>
+                    <div class="lg-cell lg-num lg-tot" id="lg-pta">—</div>
+                    <div class="lg-cell lg-num lg-tot" id="lg-ptb">—</div>
+
+                    <div class="lg-gap"></div><div class="lg-gap"></div><div class="lg-gap"></div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="E_{k1} = \tfrac{1}{2}m_1 v_1^2"></span></div>
+                    <div class="lg-cell lg-num" id="lg-e1a">—</div>
+                    <div class="lg-cell lg-num" id="lg-e1b">—</div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="E_{k2} = \tfrac{1}{2}m_2 v_2^2"></span></div>
+                    <div class="lg-cell lg-num" id="lg-e2a">—</div>
+                    <div class="lg-cell lg-num" id="lg-e2b">—</div>
+
+                    <div class="lg-cell lg-lab lg-tot"><span data-tex="\sum E_k"></span></div>
+                    <div class="lg-cell lg-num lg-tot" id="lg-eta">—</div>
+                    <div class="lg-cell lg-num lg-tot" id="lg-etb">—</div>
+                </div>
+
+                <div class="ledger-verdict">
+                    <div class="lv-eq" id="lg-vp"></div>
+                    <div class="lv-num" id="lg-vp-num"></div>
+                    <div class="lv-eq lv-split" id="lg-ve"></div>
+                    <div class="lv-num" id="lg-ve-num"></div>
+                    <p class="lv-note" id="lg-note"></p>
+                </div>
+
+                <div class="ledger-bars">
+                    <div class="bars-wrap"><canvas id="l1-bars"></canvas></div>
+                </div>
+
+            </div>
         </div>
     </section>
 
@@ -705,313 +960,592 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- ════════════════════════════════════════════════════════════════════
-     SIMULATION — 1D Collision with coefficient of restitution
-     ════════════════════════════════════════════════════════════════════ -->
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   § I.05 — shared helpers for the sandboxes on this page
+   ══════════════════════════════════════════════════════════════════════ */
+const PP5 = (function () {
     'use strict';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const texNum = (v, d) => num(v, d).replace(',', '{,}');
 
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    /* ── CSS colour tokens ───────────────────────────────────────────── */
-    function readCol() {
+    function colours() {
         const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
         return {
-            ink:    s.getPropertyValue('--ink').trim()        || '#363026',
-            acc:    s.getPropertyValue('--accent').trim()     || '#5a3578',
-            soft:   s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
-            faint:  s.getPropertyValue('--ink-faint').trim()  || '#7A6A52',
-            paper:  s.getPropertyValue('--paper').trim()      || '#FFFDF6',
-            paperD: s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            ink:   s.getPropertyValue('--ink').trim()        || '#363026',
+            soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7a6a52',
+            paper: s.getPropertyValue('--paper').trim()      || '#f7f3e6',
+            deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            edge:  s.getPropertyValue('--paper-edge').trim() || '#e6dfc8',
+            acc:   b.getPropertyValue('--accent').trim()     || '#5a3578',
         };
     }
-    const col = readCol();
 
-    /* ── Simulation parameters ───────────────────────────────────────── */
-    const DEFAULTS = { m1: 2, m2: 2, v1: 5, e: 1.0 };
-    const p = { ...DEFAULTS };
-
-    /* ── Simulation state ────────────────────────────────────────────── */
-    /* Phase: 'approach' | 'collided' | 'separate' | 'reset' */
-    const SCALE = 40;       // px per m/s for velocity arrows
-    let phase       = 'approach';
-    let x1          = 0;    // px from left (ball 1 centre)
-    let x2          = 0;    // px from left (ball 2 centre)
-    let v1px        = 0;    // current screen velocity ball 1 px/frame
-    let v2px        = 0;    // current screen velocity ball 2 px/frame
-    let v1_post     = 0;    // m/s post-collision ball 1
-    let v2_post     = 0;    // m/s post-collision ball 2
-    let collisionX  = 0;    // x coordinate where collision happened
-    let flashTimer  = 0;    // frames for collision flash
-    let pauseTimer  = 0;    // frames pause before reset
-    let resetTimer  = 0;    // frames to delay reset
-    const SPEED_PX  = 1.4;  // base pixels per frame at 1 m/s
-
-    const show = { arrows: true, labels: true };
-
-    function radius(mass) { return 10 + mass * 4; }
-
-    function initPhase() {
-        const r1 = radius(p.m1), r2 = radius(p.m2);
-        x1 = r1 + 20;
-        x2 = W - r2 - 20;
-        v1px = p.v1 * SPEED_PX;
-        v2px = 0;
-
-        // Pre-compute post-collision velocities using coefficient of restitution
-        // v1' = (m1*v1 + m2*0 - m2*e*(v1-0)) / (m1+m2) = (m1 - m2*e)*v1 / (m1+m2)
-        // v2' = (m1*v1 + m2*0 + m1*e*(v1-0)) / (m1+m2) = m1*(1+e)*v1 / (m1+m2)
-        v1_post = ((p.m1 - p.m2 * p.e) * p.v1) / (p.m1 + p.m2);
-        v2_post = (p.m1 * (1 + p.e) * p.v1) / (p.m1 + p.m2);
-
-        phase = 'approach';
-        flashTimer = 0;
-        pauseTimer = 0;
-        resetTimer = 0;
-        collisionX = 0;
-    }
-
-    /* ── Slider wiring ───────────────────────────────────────────────── */
-    function bindSlider(id, valId, fmt, key) {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.value = p[key];
-        inp.addEventListener('input', () => {
-            p[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(+inp.value);
-            initPhase();
-        });
-        if (lbl) lbl.textContent = fmt(p[key]);
-    }
-    bindSlider('p-m1', 'p-m1-val', v => v.toFixed(1) + ' kg', 'm1');
-    bindSlider('p-m2', 'p-m2-val', v => v.toFixed(1) + ' kg', 'm2');
-    bindSlider('p-v1', 'p-v1-val', v => v.toFixed(0) + ' m/s', 'v1');
-    bindSlider('p-e',  'p-e-val',  v => v.toFixed(1), 'e');
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        Object.assign(p, DEFAULTS);
-        ['m1','m2','v1','e'].forEach(k => {
-            const inp = document.getElementById('p-' + k);
-            if (inp) inp.value = p[k];
-        });
-        document.getElementById('p-m1-val').textContent = p.m1.toFixed(1) + ' kg';
-        document.getElementById('p-m2-val').textContent = p.m2.toFixed(1) + ' kg';
-        document.getElementById('p-v1-val').textContent = p.v1.toFixed(0) + ' m/s';
-        document.getElementById('p-e-val').textContent  = p.e.toFixed(1);
-        initPhase();
-    });
-
-    /* ── Toggle wiring ───────────────────────────────────────────────── */
-    function wireToggle(id, key) {
-        document.getElementById(id)?.addEventListener('click', function () {
-            show[key] = !show[key];
-            this.querySelector('.toggle-box')?.classList.toggle('on');
-        });
-    }
-    wireToggle('tgl-arrows', 'arrows');
-    wireToggle('tgl-labels', 'labels');
-
-    /* ── Drawing helpers ─────────────────────────────────────────────── */
-    function drawBall(x, y, r, col1, col2, label) {
-        // Filled circle with soft radial highlight
-        const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
-        grad.addColorStop(0, col1);
-        grad.addColorStop(1, col2);
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        if (label) {
-            ctx.font = 'bold 13px "JetBrains Mono", monospace';
-            ctx.fillStyle = col.paper;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(label, x, y);
+    /* dpr-correct canvas sized from its wrapper, never from itself.
+       Returns a redraw() that coalesces into a single animation frame, so a
+       sim with no continuous motion never holds a permanent RAF loop. */
+    function mount(id, drawFn) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const o = { canvas, ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 240), H = Math.max(r.height, 160);
+            if (W === o.W && H === o.H) return false;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return true;
         }
+        o.redraw = function () {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); drawFn(o); });
+        };
+        size();
+        new ResizeObserver(() => { size(); o.redraw(); }).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
     }
 
-    function drawArrow(x, y, vx, color) {
-        const len = vx * SCALE;
-        if (Math.abs(len) < 4) return;
-        const ex = x + len;
-        const hl = 10, hw = 5;
-        const dir = Math.sign(len);
-        ctx.strokeStyle = color;
-        ctx.fillStyle   = color;
-        ctx.lineWidth   = 2;
-        ctx.lineCap     = 'round';
-        ctx.setLineDash([]);
+    function arrow(ctx, x1, y1, x2, y2, col, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 3) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(11, len * 0.36), hw = hl * 0.52;
+        ctx.strokeStyle = col; ctx.fillStyle = col;
+        ctx.lineWidth = lw || 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(ex - dir * hl * 0.5, y);
-        ctx.stroke();
+        ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(ex, y);
-        ctx.lineTo(ex - dir * hl - hw, y - hw);
-        ctx.lineTo(ex - dir * hl + hw * 0, y);
-        ctx.lineTo(ex - dir * hl - hw, y + hw);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
     }
 
-    /* ── Main draw ───────────────────────────────────────────────────── */
-    function draw() {
-        ctx.clearRect(0, 0, W, H);
+    /* paper-backed label, so figures stay legible over the graph grid */
+    function tag(ctx, c, text, x, y, col, size, italic) {
+        ctx.font = (italic === false ? '' : 'italic ') +
+                   (size || 13) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const w = ctx.measureText(text).width + 9;
+        ctx.fillStyle = c.paper;
+        ctx.fillRect(x - w / 2, y - 9, w, 18);
+        ctx.fillStyle = col;
+        ctx.fillText(text, x, y);
+    }
 
-        const trackY = H * 0.58;
-        const r1 = radius(p.m1), r2 = radius(p.m2);
+    function mono(ctx, text, x, y, col, size, align) {
+        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col;
+        ctx.fillText(text, x, y);
+    }
 
-        /* Track line */
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(0, trackY + r1 + 1);
-        ctx.lineTo(W, trackY + r1 + 1);
-        ctx.stroke();
-
-        /* Ground hatching */
-        ctx.globalAlpha = 0.4;
-        ctx.strokeStyle = col.soft;
-        ctx.lineWidth = 0.8;
-        for (let xx = 4; xx < W; xx += 10) {
-            ctx.beginPath();
-            ctx.moveTo(xx, trackY + r1 + 1);
-            ctx.lineTo(xx - 6, trackY + r1 + 7);
-            ctx.stroke();
+    /* diagonal hatching clipped to a rect — the site's "this is missing" mark */
+    function hatch(ctx, x, y, w, h, col, gap) {
+        if (w <= 0 || h <= 0) return;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+        ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+        const g = gap || 7;
+        for (let i = -h; i < w + h; i += g) {
+            ctx.beginPath(); ctx.moveTo(x + i, y + h); ctx.lineTo(x + i + h, y); ctx.stroke();
         }
-        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
 
-        /* Collision flash */
-        if (flashTimer > 0) {
-            ctx.globalAlpha = flashTimer / 12 * 0.4;
-            ctx.fillStyle = col.acc;
-            ctx.beginPath();
-            ctx.arc(collisionX, trackY, r1 + r2 + 10, 0, Math.PI * 2);
-            ctx.fill();
+    /* KaTeX is loaded with defer, so it is NOT available while an inline
+       script first runs. Never cache a render that did not happen. */
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+
+    /* radio group built on .toggle-row/.toggle-box, one dot at a time */
+    function radios(attr, onPick) {
+        const rows = Array.from(document.querySelectorAll('[' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            rows.forEach(r => r.querySelector('.toggle-box').classList.remove('on'));
+            row.querySelector('.toggle-box').classList.add('on');
+            onPick(row.getAttribute(attr));
+        }));
+        return rows;
+    }
+
+    return { isCS, T, num, texNum, colours, mount, arrow, tag, mono, hatch,
+             katexInto, whenReady, radios, G: 9.81 };
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 1 — THE BEFORE / AFTER LEDGER
+
+   Two bodies on one frictionless line. The contact is not integrated —
+   there is no contact force to integrate, which is the entire point of
+   the topic. The after-state comes from the conservation laws in closed
+   form, and the animation simply carries the bodies in at the before
+   velocities and out at the after ones.
+
+     elastic     v1' = ((m1-m2)v1 + 2 m2 v2)/M ,  v2' = ((m2-m1)v2 + 2 m1 v1)/M
+     inelastic   v'  = (m1 v1 + m2 v2)/M            (one body leaves)
+     explosion   u   = sqrt(2 dE / mu),  mu = m1 m2/M
+                 v1' = v - (m2/M)u ,  v2' = v + (m1/M)u
+
+   The explosion takes ONE free parameter (the energy released) and gets
+   both fragment velocities from it — a sandbox that let you set both
+   would draw scenes that violate the law the page is teaching.
+
+   Defaults reproduce Ex. 9-66: 0.500 kg at 3.70 m/s into 2.5 kg at rest,
+   elastic  ->  v1' = -2.47 m/s, v2' = 1.23 m/s, 3.42 J on both sides.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP5.mount('l1-canvas', draw);
+    const B = PP5.mount('l1-bars', drawBars);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+
+    const D = { m1: 0.5, m2: 2.5, v1: 3.70, v2: 0, dE: 20 };
+    const P = Object.assign({}, D);
+    let mode = 'elastic';
+
+    /* ── the physics ─────────────────────────────────────────────────── */
+    function state() {
+        const m1 = P.m1, m2 = P.m2, M = m1 + m2;
+        let a = { v1: P.v1, v2: P.v2 }, b;
+        if (mode === 'explosion') {
+            a = { v1: P.v1, v2: P.v1 };
+            const u = Math.sqrt(2 * P.dE / (m1 * m2 / M));
+            b = { v1: P.v1 - (m2 / M) * u, v2: P.v1 + (m1 / M) * u };
+        } else if (mode === 'inelastic') {
+            const v = (m1 * P.v1 + m2 * P.v2) / M;
+            b = { v1: v, v2: v };
+        } else {
+            b = { v1: ((m1 - m2) * P.v1 + 2 * m2 * P.v2) / M,
+                  v2: ((m2 - m1) * P.v2 + 2 * m1 * P.v1) / M };
+        }
+        const bk = st => ({
+            p1: m1 * st.v1, p2: m2 * st.v2, p: m1 * st.v1 + m2 * st.v2,
+            e1: 0.5 * m1 * st.v1 * st.v1, e2: 0.5 * m2 * st.v2 * st.v2,
+            e: 0.5 * m1 * st.v1 * st.v1 + 0.5 * m2 * st.v2 * st.v2,
+            v1: st.v1, v2: st.v2,
+        });
+        return { a: bk(a), b: bk(b) };
+    }
+    /* a collision needs body 1 to be closing on body 2 */
+    const meets = () => mode === 'explosion' || P.v1 - P.v2 > 1e-6;
+
+    /* ── animation clock ──────────────────────────────────────────────
+       t = 0 is the instant of contact. The simulated span either side is
+       chosen from the speeds so that neither body can travel further than
+       the half-world, whatever the sliders say — a small charge and two
+       light fragments would otherwise leave the canvas in a frame. The
+       run itself always takes the same wall time, so a violent event is
+       simply shown in slow motion; the arrows and readouts stay true.  */
+    const REACH = 3.5;                      /* metres a body may cover */
+    const DUR = 2.4;                        /* seconds of wall time per run */
+    let t = 0, tau = 0, running = false, raf = 0;
+    const boxW = m => Math.min(0.80, Math.max(0.28, 0.40 * Math.cbrt(m)));
+    function span() {
+        const S = state();
+        /* the fastest body in each state bounds how long that state may run */
+        const fastIn = Math.max(Math.abs(P.v1), Math.abs(P.v2), Math.abs(P.v1 - P.v2), 0.2);
+        const fastOut = Math.max(Math.abs(S.b.v1), Math.abs(S.b.v2), 0.2);
+        return { pre: Math.min(1.4, REACH / fastIn),
+                 post: Math.min(1.9, REACH / fastOut) };
+    }
+    function setTau(x) {
+        tau = Math.max(0, Math.min(1, x));
+        const sp = span();
+        t = -sp.pre + tau * (sp.pre + sp.post);
+    }
+    function rewind() { setTau(0); running = false; stopLoop(); paint(); }
+    function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+    function startLoop() {
+        if (raf) return;
+        let last = 0;
+        const step = ts => {
+            const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+            last = ts;
+            setTau(tau + dt / DUR);
+            if (tau >= 1) running = false;
+            paint();
+            if (running) raf = requestAnimationFrame(step); else { raf = 0; setRunLabel(); }
+        };
+        raf = requestAnimationFrame(step);
+    }
+
+    /* ── the scene ───────────────────────────────────────────────────── */
+    const WORLD = 9;                        /* metres across the canvas */
+    function draw(v) {
+        const c = PP5.colours(), ctx = v.ctx, W = v.W, H = v.H;
+        const S = state(), sp = span();
+        const sc = (W - 56) / WORLD, x0 = W / 2;
+        const X = xm => x0 + xm * sc;
+        const y0 = Math.min(H * 0.62, H - 118);   /* clear of the badge strip */
+
+        /* the track, hatched underneath */
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(W, y0); ctx.stroke();
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1;
+        for (let x = -10; x < W + 20; x += 11) {
+            ctx.beginPath(); ctx.moveTo(x, y0 + 13); ctx.lineTo(x + 11, y0); ctx.stroke();
+        }
+        PP5.mono(ctx, PP5.T('frictionless', 'bez tření'), W - 14, y0 + 26, c.faint, 10, 'right');
+
+        /* contact line */
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(X(0), y0 - 132); ctx.lineTo(X(0), y0 + 6); ctx.stroke();
+        ctx.setLineDash([]);
+
+        const w1 = boxW(P.m1), w2 = boxW(P.m2);
+        const joined = (t < 0 && mode === 'explosion') ||
+                       (t >= 0 && mode === 'inelastic');
+        const vv = t < 0 ? S.a : S.b;
+        const c1 = -w1 / 2 + vv.v1 * t;
+        const c2 =  w2 / 2 + vv.v2 * t;
+
+        /* one body or two */
+        if (joined) {
+            const L = X(c1 - w1 / 2), R = X(c2 + w2 / 2);
+            const h = Math.max(boxH(P.m1), boxH(P.m2));
+            body(ctx, c, L, R, y0, h, null);
+            ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(X(c1 + w1 / 2), y0 - h); ctx.lineTo(X(c1 + w1 / 2), y0); ctx.stroke();
+            ctx.setLineDash([]);
+            PP5.tag(ctx, c, 'm₁', X(c1), y0 - h / 2, c.soft, 13);
+            PP5.tag(ctx, c, 'm₂', X(c2), y0 - h / 2, c.soft, 13);
+            vArrow(ctx, c, X((c1 + c2) / 2), y0 - h - 20, vv.v1, sc);
+        } else {
+            drawBody(ctx, c, X(c1), w1 * sc, boxH(P.m1), y0, 'm₁', P.m1, vv.v1, sc);
+            drawBody(ctx, c, X(c2), w2 * sc, boxH(P.m2), y0, 'm₂', P.m2, vv.v2, sc);
+        }
+
+        /* burst mark at the instant of contact */
+        if (Math.abs(t) < 0.12) {
+            const k = 1 - Math.abs(t) / 0.12;
+            ctx.strokeStyle = c.acc; ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+                const a = (i / 8) * Math.PI * 2 + 0.4;
+                const r0 = 14 + 10 * (1 - k), r1 = r0 + 12 * k;
+                ctx.globalAlpha = k;
+                ctx.beginPath();
+                ctx.moveTo(X(0) + Math.cos(a) * r0, y0 - 34 + Math.sin(a) * r0);
+                ctx.lineTo(X(0) + Math.cos(a) * r1, y0 - 34 + Math.sin(a) * r1);
+                ctx.stroke();
+            }
             ctx.globalAlpha = 1;
         }
 
-        /* Phase update */
-        if (phase === 'approach') {
-            x1 += v1px;
-            // Check collision: balls touch when x2 - x1 = r1 + r2
-            if (x2 - x1 <= r1 + r2) {
-                x1 = x2 - r1 - r2;
-                collisionX = (x1 + x2) / 2;
-                flashTimer = 12;
-                phase = 'collided';
-                // Switch to post-collision velocities
-                v1px = v1_post * SPEED_PX;
-                v2px = v2_post * SPEED_PX;
-            }
-        } else if (phase === 'collided') {
-            flashTimer--;
-            x1 += v1px;
-            x2 += v2px;
-            if (flashTimer <= 0) phase = 'separate';
-        } else if (phase === 'separate') {
-            x1 += v1px;
-            x2 += v2px;
-            // Reset when both balls have exited or been stationary long enough
-            const offLeft  = x1 + r1 < 0;
-            const offRight = x2 - r2 > W;
-            const bothOut  = (offLeft || x1 + r1 < 0 || v1px <= 0) && (offRight || x2 - r2 > W);
-            pauseTimer++;
-            if (pauseTimer > 90 || (offLeft && offRight)) {
-                pauseTimer = 0;
-                resetTimer = 40;
-                phase = 'reset';
-            }
-        } else if (phase === 'reset') {
-            resetTimer--;
-            if (resetTimer <= 0) initPhase();
-        }
-
-        /* Velocity arrows above balls */
-        if (show.arrows) {
-            const curV1 = (phase === 'approach') ? p.v1 : (phase === 'collided' || phase === 'separate' ? v1_post : p.v1);
-            const curV2 = (phase === 'approach') ? 0    : (phase === 'collided' || phase === 'separate' ? v2_post : 0);
-            drawArrow(x1, trackY - r1 - 18, curV1, col.acc);
-            drawArrow(x2, trackY - r2 - 18, curV2, col.soft);
-        }
-
-        /* Balls */
-        drawBall(x1, trackY, r1, col.acc + 'dd', col.acc + '66', 'm₁');
-        drawBall(x2, trackY, r2, col.soft + 'dd', col.soft + '44', 'm₂');
-
-        /* Speed labels */
-        if (show.labels) {
-            ctx.font = '11px "JetBrains Mono", monospace';
-            ctx.fillStyle = col.faint;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            const curV1 = (phase === 'approach') ? p.v1 : v1_post;
-            const curV2 = (phase === 'approach') ? 0    : v2_post;
-            ctx.fillText(curV1.toFixed(2) + ' m/s', x1, trackY + r1 + 6);
-            ctx.fillText(curV2.toFixed(2) + ' m/s', x2, trackY + r2 + 6);
-        }
-
-        /* Phase label */
-        ctx.font = '10px "JetBrains Mono", monospace';
-        ctx.fillStyle = col.faint;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        const phaseLabel = phase === 'approach' ? 'APPROACHING' : (phase === 'reset' ? 'RESETTING' : 'POST-COLLISION');
-        ctx.fillText(phaseLabel, 14, 14);
-
-        /* Readout update */
-        const p_before = p.m1 * p.v1;
-        const ke_before = 0.5 * p.m1 * p.v1 * p.v1;
-        const p_after  = p.m1 * v1_post + p.m2 * v2_post;
-        const ke_after = 0.5 * p.m1 * v1_post * v1_post + 0.5 * p.m2 * v2_post * v2_post;
-        const dke      = ke_after - ke_before;
-
-        const $ = id => document.getElementById(id);
-        if ($('r-pbefore'))  $('r-pbefore').textContent  = p_before.toFixed(2) + ' kg·m/s';
-        if ($('r-pafter'))   $('r-pafter').textContent   = p_after.toFixed(2)  + ' kg·m/s';
-        if ($('r-kebefore')) $('r-kebefore').textContent = ke_before.toFixed(2) + ' J';
-        if ($('r-keafter'))  $('r-keafter').textContent  = ke_after.toFixed(2)  + ' J';
-        if ($('r-dke'))      $('r-dke').textContent      = dke.toFixed(2)       + ' J';
+        /* caption stack, top left — never the bottom strip */
+        const modeName = { elastic: PP5.T('Elastic', 'Pružná'),
+                           inelastic: PP5.T('Perfectly inelastic', 'Dokonale nepružná'),
+                           explosion: PP5.T('Explosion', 'Výbuch') }[mode];
+        PP5.mono(ctx, modeName.toUpperCase(), 16, 18, c.soft, 10);
+        const phase = !meets() ? PP5.T('no contact — v₁ ≤ v₂', 'bez kontaktu — v₁ ≤ v₂')
+                    : t < 0 ? PP5.T('① before', '① před')
+                            : PP5.T('② after', '② po');
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c.ink;
+        ctx.fillText(phase, 16, 39);
     }
 
-    /* ── RAF loop ────────────────────────────────────────────────────── */
-    let lastT = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
+    const boxH = m => Math.min(62, Math.max(26, 30 * Math.cbrt(m)));
 
-    function frame(ts) {
-        draw();
-        frames++;
-        if (ts - lastT >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; lastT = ts;
+    function body(ctx, c, L, R, y0, h, fill) {
+        ctx.fillStyle = fill || c.paper;
+        ctx.fillRect(L, y0 - h, R - L, h);
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.strokeRect(L, y0 - h, R - L, h);
+    }
+    function drawBody(ctx, c, cx, w, h, y0, name, m, v, sc) {
+        body(ctx, c, cx - w / 2, cx + w / 2, y0, h, name === 'm₁' ? c.paper : c.edge);
+        PP5.tag(ctx, c, name, cx, y0 - h / 2, c.ink, 14);
+        PP5.mono(ctx, PP5.num(m, 2) + ' kg', cx, y0 + 22, c.faint, 10, 'center');
+        vArrow(ctx, c, cx, y0 - h - 20, v, sc);
+    }
+    function vArrow(ctx, c, cx, y, v, sc) {
+        if (Math.abs(v) < 0.02) {
+            PP5.mono(ctx, PP5.num(0, 2) + ' m/s', cx, y - 4, c.faint, 10, 'center');
+            return;
         }
-        requestAnimationFrame(frame);
+        const len = Math.min(120, Math.max(18, Math.abs(v) * 15));
+        PP5.arrow(ctx, cx, y, cx + Math.sign(v) * len, y, c.acc, 2.4);
+        PP5.mono(ctx, PP5.num(v, 2) + ' m/s', cx + Math.sign(v) * (len / 2), y - 13,
+                 c.soft, 10, 'center');
     }
 
-    initPhase();
-    requestAnimationFrame(frame);
+    /* ── the bars: signed momentum chain + stacked kinetic energy ─────── */
+    function drawBars(v) {
+        const c = PP5.colours(), ctx = v.ctx, W = v.W, H = v.H;
+        const S = state();
+        const split = Math.max(300, W * 0.60);
+        momentumBars(ctx, c, 0, 0, split - 26, H, S);
+        energyBars(ctx, c, split, 0, W - split, H, S);
+    }
 
+    function momentumBars(ctx, c, x, y, w, h, S) {
+        PP5.mono(ctx, PP5.T('MOMENTUM — SIGNED, LAID END TO END',
+                            'HYBNOST — ZNAMÉNKOVĚ, POKLÁDÁNO ZA SEBE'), x, y + 12, c.soft, 10);
+        const states = [S.a, S.b];
+        let lo = 0, hi = 0;
+        states.forEach(st => [0, st.p1, st.p1 + st.p2].forEach(q => { lo = Math.min(lo, q); hi = Math.max(hi, q); }));
+        const pad = 12, avail = w - 2 * pad;
+        const range = Math.max(hi - lo, 1e-6);
+        const sc = avail / (range * 1.12);
+        const zx = x + pad + (-lo) * sc * 1.0 + (avail - range * sc) / 2;
+        const rowY = [y + 48, y + 108], BH = 26;
+
+        /* zero line */
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(zx, y + 28); ctx.lineTo(zx, y + h - 26); ctx.stroke();
+        PP5.mono(ctx, '0', zx, y + 20, c.faint, 10, 'center');   /* clear of the Sp label */
+
+        states.forEach((st, i) => {
+            const yy = rowY[i];
+            seg(ctx, c, zx, yy, BH, 0, st.p1, c.acc, 'p₁');
+            seg(ctx, c, zx, yy, BH, st.p1, st.p1 + st.p2, c.edge, 'p₂');
+            PP5.mono(ctx, i === 0 ? PP5.T('① before', '① před') : PP5.T('② after', '② po'),
+                     x, yy - BH / 2 - 12, c.faint, 10);
+        });
+        function seg(ctx, c, zx, yy, BH, q0, q1, fill, name) {
+            const a = zx + q0 * sc, b = zx + q1 * sc;
+            const L = Math.min(a, b), R = Math.max(a, b);
+            if (R - L < 0.5) return;
+            ctx.fillStyle = fill; ctx.fillRect(L, yy - BH / 2, R - L, BH);
+            ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.strokeRect(L, yy - BH / 2, R - L, BH);
+            if (R - L > 26) {
+                ctx.font = 'italic 12px "Source Serif 4",Georgia,serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillStyle = fill === c.acc ? c.paper : c.soft;
+                ctx.fillText(name, (L + R) / 2, yy);
+            }
+        }
+
+        /* the point of the whole picture: both chains end at the same place */
+        const tx = zx + S.a.p * sc;
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.moveTo(tx, y + 24); ctx.lineTo(tx, y + h - 26); ctx.stroke();
+        ctx.setLineDash([]);
+        const lab = 'Σp = ' + PP5.num(S.a.p, 2) + ' kg·m/s';
+        ctx.font = '10px "JetBrains Mono",monospace';
+        const lw = ctx.measureText(lab).width + 10;
+        const lx = Math.min(Math.max(tx, x + lw / 2), x + w - lw / 2);
+        ctx.fillStyle = c.paper; ctx.fillRect(lx - lw / 2, y + h - 32, lw, 16);
+        PP5.mono(ctx, lab, lx, y + h - 24, c.ink, 10, 'center');
+    }
+
+    function energyBars(ctx, c, x, y, w, h, S) {
+        PP5.mono(ctx, PP5.T('KINETIC ENERGY — STACKED', 'KINETICKÁ ENERGIE — SKLÁDANĚ'),
+                 x, y + 12, c.soft, 10);
+        const base = y + h - 34, top = y + 34;
+        const peak = Math.max(S.a.e, S.b.e, 1e-9);
+        const sc = (base - top) / (peak * 1.08);
+        const BW = Math.min(74, (w - 60) / 2);
+        const xs = [x + 26, x + 26 + BW + 34];
+
+        [S.a, S.b].forEach((st, i) => {
+            const bx = xs[i];
+            let yy = base;
+            [[st.e1, c.acc, 'E₁'], [st.e2, c.edge, 'E₂']].forEach(([e, fill, nm]) => {
+                const bh = e * sc;
+                if (bh < 0.5) return;
+                ctx.fillStyle = fill; ctx.fillRect(bx, yy - bh, BW, bh);
+                ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+                ctx.strokeRect(bx, yy - bh, BW, bh);
+                if (bh > 16) {
+                    ctx.font = 'italic 12px "Source Serif 4",Georgia,serif';
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillStyle = fill === c.acc ? c.paper : c.soft;
+                    ctx.fillText(nm, bx + BW / 2, yy - bh / 2);
+                }
+                yy -= bh;
+            });
+            /* whichever column is short gets a hatched cap up to the other */
+            const mine = st.e, other = i === 0 ? S.b.e : S.a.e;
+            if (other - mine > peak * 0.004) {
+                const capB = base - mine * sc, capH = (other - mine) * sc;
+                PP5.hatch(ctx, bx, capB - capH, BW, capH, c.faint, 6);
+                ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+                ctx.strokeRect(bx, capB - capH, BW, capH);
+                ctx.setLineDash([]);
+            }
+            PP5.mono(ctx, i === 0 ? PP5.T('① before', '① před') : PP5.T('② after', '② po'),
+                     bx + BW / 2, base + 16, c.faint, 10, 'center');
+            PP5.mono(ctx, PP5.num(st.e, 2) + ' J', bx + BW / 2, base - Math.max(st.e * sc, 0) - 12,
+                     c.ink, 10, 'center');
+        });
+
+        const dE = S.b.e - S.a.e;
+        if (Math.abs(dE) > peak * 0.004) {
+            const lab = (dE < 0 ? PP5.T('lost to heat and deformation', 'ztraceno do tepla a deformace')
+                                : PP5.T('released by the charge', 'uvolněno náloží'))
+                        + ':  ' + PP5.num(Math.abs(dE), 2) + ' J';
+            PP5.mono(ctx, lab, x, y + h - 6, c.faint, 10);
+        }
+    }
+
+    /* ── the ledger + readouts ───────────────────────────────────────── */
+    const U_P = ' kg·m/s', U_E = ' J';
+    function put(id, txt) { const el = $(id); if (el) el.textContent = txt; }
+
+    function ledger() {
+        const S = state();
+        put('lg-h1', PP5.T('① before', '① před'));
+        put('lg-h2', PP5.T('② after', '② po'));
+        put('lg-p1a', PP5.num(S.a.p1, 2)); put('lg-p1b', PP5.num(S.b.p1, 2));
+        put('lg-p2a', PP5.num(S.a.p2, 2)); put('lg-p2b', PP5.num(S.b.p2, 2));
+        put('lg-pta', PP5.num(S.a.p, 2));  put('lg-ptb', PP5.num(S.b.p, 2));
+        put('lg-e1a', PP5.num(S.a.e1, 2)); put('lg-e1b', PP5.num(S.b.e1, 2));
+        put('lg-e2a', PP5.num(S.a.e2, 2)); put('lg-e2b', PP5.num(S.b.e2, 2));
+        put('lg-eta', PP5.num(S.a.e, 2));  put('lg-etb', PP5.num(S.b.e, 2));
+
+        PP5.katexInto($('lg-vp'), '\\sum p_1 = \\sum p_2');
+        put('lg-vp-num', PP5.num(S.a.p, 3) + ' = ' + PP5.num(S.b.p, 3) + U_P + '   ✓');
+
+        const dE = S.b.e - S.a.e;
+        if (mode === 'elastic') {
+            PP5.katexInto($('lg-ve'), '\\sum E_{k1} = \\sum E_{k2}');
+            put('lg-ve-num', PP5.num(S.a.e, 3) + ' = ' + PP5.num(S.b.e, 3) + U_E + '   ✓');
+        } else if (mode === 'inelastic') {
+            PP5.katexInto($('lg-ve'), '\\sum E_{k1} = \\sum E_{k2} + \\Delta E');
+            put('lg-ve-num', PP5.num(S.a.e, 3) + ' = ' + PP5.num(S.b.e, 3) + ' + ' +
+                             PP5.num(-dE, 3) + U_E);
+        } else {
+            PP5.katexInto($('lg-ve'), '\\sum E_{k2} = \\sum E_{k1} + \\Delta E');
+            put('lg-ve-num', PP5.num(S.b.e, 3) + ' = ' + PP5.num(S.a.e, 3) + ' + ' +
+                             PP5.num(dE, 3) + U_E);
+        }
+
+        const note = $('lg-note');
+        if (note) note.textContent = {
+            elastic: PP5.T(
+                'Both laws hold at once, so the pair of final velocities is fixed — no other pair conserves both. That is Ex. 9-66: a ball rebounding off a heavier block, its sign flipped by the collision.',
+                'Platí oba zákony naráz, takže dvojice koncových rychlostí je jednoznačně dána — žádná jiná nezachová obojí. Přesně to je úloha 9-66: kulička se odrazí od těžšího kvádru a srážka jí obrátí znaménko.'),
+            inelastic: PP5.T(
+                'One equation, one unknown: the bodies leave together. The energy that vanished went into deformation and heat — it never appears in the ledger, and it does not have to. Momentum still closes exactly.',
+                'Jedna rovnice, jedna neznámá: tělesa odcházejí společně. Energie, která zmizela, šla do deformace a tepla — v bilanci se vůbec neobjeví a ani nemusí. Hybnost přesto vychází přesně.'),
+            explosion: PP5.T(
+                'Run it backwards and it is a perfectly inelastic collision. The charge adds kinetic energy but it cannot touch Σp: the forces of the burst are internal, and internal forces cancel in pairs.',
+                'Pusťte to pozpátku a je to dokonale nepružná srážka. Nálož přidá kinetickou energii, ale na Σp nesáhne: síly výbuchu jsou vnitřní a vnitřní síly se ruší po dvojicích.'),
+        }[mode];
+    }
+
+    function readouts() {
+        const S = state();
+        put('l1-r-v1', PP5.num(S.b.v1, 2) + ' m/s');
+        put('l1-r-v2', PP5.num(S.b.v2, 2) + ' m/s');
+        put('l1-r-p', PP5.num(S.b.p, 2) + U_P);
+        put('l1-r-dke', PP5.num(S.b.e - S.a.e, 2) + U_E);
+        const st = $('l1-state');
+        if (st) st.textContent = meets()
+            ? (t < 0 ? PP5.T('before', 'před') : PP5.T('after', 'po'))
+            : PP5.T('no contact', 'bez kontaktu');
+
+        const warn = $('l1-warn'), run = $('l1-run');
+        if (warn) {
+            warn.textContent = meets() ? '' : PP5.T(
+                'Body 1 is not closing on body 2, so they never meet. Raise v₁ or lower v₂.',
+                'Těleso 1 se k tělesu 2 nepřibližuje, takže se nikdy nepotkají. Zvyšte v₁ nebo snižte v₂.');
+            warn.classList.toggle('warn', !meets());
+        }
+        if (run) run.disabled = !meets();
+
+        const mn = $('l1-modenote');
+        if (mn) mn.textContent = {
+            elastic: PP5.T('Momentum and kinetic energy both conserved.',
+                           'Zachovává se hybnost i kinetická energie.'),
+            inelastic: PP5.T('Momentum conserved; the bodies leave as one.',
+                             'Zachovává se hybnost; tělesa odcházejí jako jedno.'),
+            explosion: PP5.T('One body at rest or in flight splits in two.',
+                             'Jedno těleso v klidu nebo v letu se rozdělí na dvě.'),
+        }[mode];
+    }
+
+    function paint() { V.redraw(); if (B) B.redraw(); readouts(); }
+    function refresh() { ledger(); paint(); }
+
+    /* ── controls ────────────────────────────────────────────────────── */
+    const SL = [['l1-m1', 'm1'], ['l1-m2', 'm2'], ['l1-v1', 'v1'], ['l1-v2', 'v2'], ['l1-dE', 'dE']];
+    const FMT = {
+        m1: v => PP5.num(v, 2) + ' kg', m2: v => PP5.num(v, 2) + ' kg',
+        v1: v => PP5.num(v, 2) + ' m/s', v2: v => PP5.num(v, 2) + ' m/s',
+        dE: v => PP5.num(v, 0) + ' J',
+    };
+    function syncLabels() {
+        for (const [id, key] of SL) {
+            const vl = $(id + '-val');
+            if (vl) vl.textContent = FMT[key](P[key]);
+        }
+    }
+    for (const [id, key] of SL) {
+        const sl = $(id);
+        if (!sl) continue;
+        sl.addEventListener('input', () => {
+            P[key] = parseFloat(sl.value);
+            syncLabels();
+            rewind(); refresh();
+        });
+        P[key] = parseFloat(sl.value);
+    }
+
+    function applyMode() {
+        document.querySelectorAll('#lab [data-hit]').forEach(el => {
+            const want = el.getAttribute('data-hit');
+            el.style.display = (want === 'explosion') === (mode === 'explosion') ? '' : 'none';
+        });
+        rewind(); refresh();
+    }
+    PP5.radios('data-type-pick', k => { mode = k; applyMode(); });
+
+    function setRunLabel() {
+        const b = $('l1-run');
+        if (b) b.innerHTML = running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Run</span><span lang="cs">Spustit</span>';
+    }
+    $('l1-run')?.addEventListener('click', () => {
+        if (!meets()) return;
+        if (!running && tau >= 1) setTau(0);
+        running = !running;
+        setRunLabel();
+        if (running) startLoop(); else stopLoop();
+    });
+    $('l1-rewind')?.addEventListener('click', () => { rewind(); setRunLabel(); });
+    $('l1-reset')?.addEventListener('click', () => {
+        Object.assign(P, D);
+        for (const [id, key] of SL) { const sl = $(id); if (sl) sl.value = P[key]; }
+        syncLabels(); rewind(); refresh(); setRunLabel();
+    });
+
+    document.addEventListener('langchange', () => { syncLabels(); refresh(); });
+
+    syncLabels(); applyMode(); setRunLabel();
+    PP5.whenReady(refresh);
 }());
 </script>
 

@@ -28,8 +28,9 @@
             linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
             var(--paper-deep);
     }
-    #sim-canvas,
-    #roll-canvas {
+    /* position by CLASS — an #id rule is orphaned the moment a canvas is
+       renamed, and the canvas then grows the page without bound. */
+    .canvas-wrap canvas {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -353,6 +354,147 @@
         transform: translate(-2px, -2px);
         box-shadow: 3px 3px 0 var(--ink);
     }
+
+    /* The wedge runs down to the lower left, so the badge cannot live there. */
+    .canvas-formula-badge.top-right {
+        top: 14px;
+        right: 14px;
+        bottom: auto;
+        left: auto;
+    }
+
+    /* ── Panel buttons ───────────────────────────────────────────────── */
+    .panel-reset {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+    .fam-run-row { display: flex; gap: 10px; margin-top: 16px; }
+    .fam-btn-run, .fam-btn-rewind {
+        font-family: var(--f-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        padding: 10px 14px;
+        border: 1.5px solid var(--ink);
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .fam-btn-run { flex: 1; background: var(--accent); color: var(--paper); }
+    .fam-btn-rewind { background: var(--paper); color: var(--ink-soft); }
+    .fam-btn-run:hover, .fam-btn-rewind:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0 var(--ink);
+    }
+    .fam-btn-run:disabled {
+        background: var(--paper-edge);
+        color: var(--ink-faint);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    .sim-note {
+        margin: 14px 0 0;
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--ink-faint);
+        min-height: 1.6em;
+    }
+
+    /* ── The derivation strip ────────────────────────────────────────── */
+    .eom-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    .eom-col {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+    }
+    .eom-head {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 11px 20px;
+        border-bottom: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+    }
+    .eom-head .accent-pip { align-self: center; }
+    .eom-axis {
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 19px;
+        color: var(--accent);
+        line-height: 1;
+    }
+    .eom-desc {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-faint);
+    }
+    .eom-body { padding: 20px 20px 18px; }
+    .eom-stage {
+        padding: 12px 0 13px;
+        border-bottom: 1px dashed var(--ink-faint);
+    }
+    .eom-stage:first-child { padding-top: 2px; }
+    .eom-stage-label {
+        font-family: var(--f-mono);
+        font-size: 9.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-faint);
+        margin-bottom: 9px;
+    }
+    .eom-eq {
+        font-size: 16px;
+        color: var(--ink);
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 2px;
+    }
+    .eom-eq-num {
+        margin-top: 9px;
+        font-family: var(--f-mono);
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        color: var(--ink-soft);
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .eom-vals {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0 14px;
+        margin-top: 16px;
+    }
+    .eom-val { display: flex; flex-direction: column; gap: 5px; }
+    .eom-sym { font-size: 15px; color: var(--ink-soft); }
+    .eom-num {
+        font-family: var(--f-mono);
+        font-size: 15px;
+        color: var(--accent);
+        letter-spacing: 0.03em;
+    }
+    .eom-foot a { color: var(--accent); border-bottom-color: var(--accent); }
+    .eom-foot {
+        margin: 18px 0 0;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--ink-faint);
+    }
+    @media (max-width: 900px) {
+        .eom-grid { grid-template-columns: 1fr; }
+    }
+
     .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
     </style>
 </head>
@@ -388,16 +530,21 @@
     <section class="topic-hero">
         <div>
             <div class="num">§ I.06 · rotation</div>
-            <h1>Rotation</h1>
+            <h1><span lang="en">Rotation</span><span lang="cs">Rotace</span></h1>
             <p class="lede">
-                Every spinning object obeys Newton's second law — but with
-                torque instead of force, moment of inertia instead of mass.
-                Apply a torque and watch angular velocity grow exactly as predicted.
+                <span lang="en">Every translational idea has a rotational twin, and the exercises are
+                solved with the same second law — torque in place of force, rotational inertia in place of
+                mass. What is new is that a cord which does not slip ties the two motions together, and
+                that one constraint is what turns three separate bodies into one solvable system.</span>
+                <span lang="cs">Každá posuvná veličina má svého rotačního dvojníka a úlohy se řeší týmž
+                druhým zákonem — místo síly moment síly, místo hmotnosti moment setrvačnosti. Nové je to,
+                že lano, které neprokluzuje, obě pohybové veličiny sváže; a právě tahle jediná vazba udělá
+                ze tří samostatných těles jednu řešitelnou soustavu.</span>
             </p>
         </div>
         <div class="eq-wrap">
-            <div class="eq-big" data-tex="\sum M = I\alpha"></div>
-            <div class="eq-caption">Net torque equals moment of inertia times angular acceleration</div>
+            <div class="eq-big" data-tex="\sum M = I\varepsilon"></div>
+            <div class="eq-caption"><span lang="en">The rotational second law — net torque equals rotational inertia times angular acceleration</span><span lang="cs">Druhý pohybový zákon pro rotaci — výsledný moment síly je moment setrvačnosti krát úhlové zrychlení</span></div>
         </div>
     </section>
 
@@ -466,6 +613,27 @@
 
                 <div class="core-formula">
                     <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The bodies you will meet</span><span lang="cs">Tělesa, na která narazíte</span></span>
+                        <span class="cf-eq" data-tex="I_{\text{disk}} = \tfrac{1}{2}MR^2"></span>
+                        <span class="cf-eq" data-tex="I_{\text{obruč}} = MR^2"></span>
+                        <span class="cf-eq" data-tex="I_{\text{slupka}} = \tfrac{2}{3}MR^2"></span>
+                        <span class="cf-eq" data-tex="I_{\text{koule}} = \tfrac{2}{5}MR^2"></span>
+                        <span class="cf-eq" data-tex="I_{\text{tyč}} = \tfrac{1}{12}ML^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">All about the axis of symmetry, except the rod, which is about a perpendicular axis through
+      its centre. These five cover the whole exercise set, and the fractions are the entire difference between
+      them: the further the mass sits from the axis, the larger the number. A uniform disc pulley is worth
+      remembering in the form <span data-tex="I/R^2 = \tfrac{1}{2}M"></span> — it adds half its own mass to a
+      system on a cord.</span><span lang="cs">Vše k ose symetrie, kromě tyče, u níž jde o kolmou osu procházející jejím středem. Těchhle
+      pět pokryje celou sadu úloh a celý rozdíl mezi nimi je v těch zlomcích: čím dál od osy hmota sedí, tím
+      větší číslo. Kladku ve tvaru homogenního disku se vyplatí pamatovat si jako
+      <span data-tex="I/R^2 = \tfrac{1}{2}M"></span> — soustavě na laně přidá polovinu své hmotnosti.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
                         <span class="cf-desc"><span lang="en">Parallel-axis theorem</span><span lang="cs">Steinerova věta</span></span>
                         <span class="cf-eq" data-tex="I = I_T + M d^2"></span>
                     </div>
@@ -506,6 +674,25 @@
       it would with a massless pulley.</span><span lang="cs">Rotující těleso ukládá kinetickou energii, takže v úloze na zachování není kladka s momentem
       setrvačnosti jen přihlížející — ukrojí si díl uvolněné potenciální energie a zavěšené závaží skončí
       pomalejší, než by bylo s nehmotnou kladkou.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Angular momentum</span><span lang="cs">Moment hybnosti</span></span>
+                        <span class="cf-eq" data-tex="\ell = r_\perp m v = r m v\sin\varphi"></span>
+                        <span class="cf-eq" data-tex="L = I\omega"></span>
+                        <span class="cf-eq" data-tex="L_1 = L_2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The rotational twin of momentum, and it is conserved on exactly the same terms: no external
+      torque, no change. A body flying past an axis already has angular momentum about it — only the component
+      of its velocity perpendicular to the arm counts, which is where the
+      <span data-tex="\sin\varphi"></span> comes from. This is the only way to get through a brief impact on a
+      pivoted body, because the force during it is unknown and the energy is not conserved.</span><span lang="cs">Rotační dvojník hybnosti a zachovává se za úplně stejných podmínek: žádný vnější moment
+      síly, žádná změna. Těleso letící kolem osy už vůči ní moment hybnosti má — počítá se jen složka rychlosti
+      kolmá na rameno, odtud ten <span data-tex="\sin\varphi"></span>. Je to jediná cesta, jak projít krátkým
+      nárazem do otočného tělesa, protože síla během něj je neznámá a energie se nezachovává.</span>
                     </p>
                 </div>
 
@@ -572,6 +759,17 @@
        <span data-tex="a = \varepsilon r"></span> a pak i tahové síly.</span></span>
                 </div>
 
+                <div class="cm-step">
+                    <span class="cm-num">07</span>
+                    <span><span lang="en"><strong>A brief impact on a pivoted body is an angular-momentum problem.</strong> Not energy — the
+       collision destroys some. Write <span data-tex="\ell = r_\perp m v"></span> for whatever arrives, put
+       <span data-tex="L = I\omega"></span> on the other side with the combined inertia (the parallel-axis
+       theorem again if the newcomer lodges off-centre), and set them equal.</span><span lang="cs"><strong>Krátký náraz do otočného tělesa je úloha na moment hybnosti.</strong> Ne na energii —
+       srážka jí část zničí. Pro to, co přilétá, napište <span data-tex="\ell = r_\perp m v"></span>, na druhou
+       stranu dejte <span data-tex="L = I\omega"></span> se složeným momentem setrvačnosti (a znovu Steinerova
+       věta, uvízne-li příchozí mimo osu) a dejte to rovno.</span></span>
+                </div>
+
             </div>
         </div>
     </section>
@@ -579,104 +777,132 @@
     <!-- ════════════════════════════════════════════════════════════════════
          § 5  SIMULATION LAB
          ════════════════════════════════════════════════════════════════════ -->
-    <section id="lab" class="lab" style="margin-top:72px;">
+    <section id="lab" class="lab" style="margin-top:72px; margin-bottom:0;">
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Rotating disk sandbox</span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Two boxes, one cord, a pulley that has mass</span><span lang="cs">Dva kvádry, jedno lano, kladka s hmotností</span></span>
+                <span id="pl-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
             </div>
-            <div class="canvas-wrap" style="flex:1;position:relative;overflow:hidden;">
-                <canvas id="sim-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-                <div class="canvas-formula-badge" data-tex="\sum M = I\alpha"></div>
-                <div class="sim-hint">adjust torque and moment of inertia</div>
+            <div class="canvas-wrap">
+                <canvas id="pul-canvas"></canvas>
+                <div class="canvas-formula-badge top-right" data-tex="a = \varepsilon R"></div>
+                <div class="sim-hint"><span lang="en">the rim and the cord move together</span><span lang="cs">věnec a lano se pohybují společně</span></div>
             </div>
         </div>
 
         <div class="side-stack">
 
-            <!-- Parameters -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
-                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
-                        text-transform:uppercase;letter-spacing:0.14em;background:none;
-                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="pl-reset" class="panel-reset">reset</button>
                 </div>
                 <div class="panel-body">
+
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Torque M</span>
-                            <span class="sim-control-val" id="p-torque-val">10 N·m</span>
+                            <span class="sim-control-name"><span lang="en">Left box <em>m</em><sub>1</sub></span><span lang="cs">Levý kvádr <em>m</em><sub>1</sub></span></span>
+                            <span class="sim-control-val" id="pl-m1-val">6.20 kg</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-torque" min="0" max="30" step="1" value="10">
+                        <input class="sim-control-range" type="range" id="pl-m1" min="0.2" max="12" step="0.05" value="6.2">
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Moment of inertia I</span>
-                            <span class="sim-control-val" id="p-inertia-val">2.0 kg·m²</span>
+                            <span class="sim-control-name"><span lang="en">Left slope <em>α</em><sub>1</sub></span><span lang="cs">Levý sklon <em>α</em><sub>1</sub></span></span>
+                            <span class="sim-control-val" id="pl-a1-val">0°</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-inertia" min="0.5" max="10" step="0.5" value="2">
+                        <input class="sim-control-range" type="range" id="pl-a1" min="0" max="90" step="1" value="0">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Right box <em>m</em><sub>2</sub></span><span lang="cs">Pravý kvádr <em>m</em><sub>2</sub></span></span>
+                            <span class="sim-control-val" id="pl-m2-val">6.20 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="pl-m2" min="0.2" max="12" step="0.05" value="6.2">
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Initial ω₀</span>
-                            <span class="sim-control-val" id="p-omega0-val">0.0 rad/s</span>
+                            <span class="sim-control-name"><span lang="en">Right slope <em>α</em><sub>2</sub></span><span lang="cs">Pravý sklon <em>α</em><sub>2</sub></span></span>
+                            <span class="sim-control-val" id="pl-a2-val">90°</span>
                         </div>
-                        <input class="sim-control-range" type="range" id="p-omega0" min="0" max="5" step="0.5" value="0">
+                        <input class="sim-control-range" type="range" id="pl-a2" min="0" max="90" step="1" value="90">
+                    </div>
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Pulley mass <em>M</em><sub>k</sub></span><span lang="cs">Hmotnost kladky <em>M</em><sub>k</sub></span></span>
+                            <span class="sim-control-val" id="pl-mp-val">2.57 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="pl-mp" min="0" max="10" step="0.01" value="2.57">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Pulley radius <em>R</em></span><span lang="cs">Poloměr kladky <em>R</em></span></span>
+                            <span class="sim-control-val" id="pl-R-val">2.40 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="pl-R" min="0.02" max="0.30" step="0.002" value="0.024">
+                    </div>
+
+                    <div class="fam-run-row">
+                        <button id="pl-run" class="fam-btn-run">▶ <span lang="en">Run</span><span lang="cs">Spustit</span></button>
+                        <button id="pl-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
+                    </div>
+                    <p class="sim-note"><span lang="en">The pulley is a uniform disc, so <em>I</em> = ½<em>M</em><sub>k</sub><em>R</em>². Both surfaces are frictionless.</span><span lang="cs">Kladka je homogenní disk, takže <em>I</em> = ½<em>M</em><sub>k</sub><em>R</em>². Obě podložky jsou bez tření.</span></p>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="pl-forces">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">all forces on both boxes</span><span lang="cs">všechny síly na obou kvádrech</span></span>
+                    </div>
+                    <div class="toggle-row" id="pl-comps">
+                        <div class="toggle-box on"></div>
+                        <span class="toggle-name"><span lang="en">weight split along the slope</span><span lang="cs">tíha rozložená podél svahu</span></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Readout -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečet</span></span>
                 </div>
                 <div class="panel-body">
-                    <div class="readout-section">Kinematics</div>
+                    <div class="readout-section"><span lang="en">Constant while it runs</span><span lang="cs">Během pohybu konstantní</span></div>
                     <div class="readout-row">
-                        <span class="readout-label">α (angular acc.)</span>
-                        <span class="readout-val" id="r-alpha">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">ω (angular vel.)</span>
-                        <span class="readout-val" id="r-omega">—</span>
+                        <span class="readout-label" data-tex="a"></span>
+                        <span class="readout-val" id="pl-r-a">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">θ (angle)</span>
-                        <span class="readout-val" id="r-theta">—</span>
-                    </div>
-                    <div class="readout-section" style="margin-top:4px;">Energy &amp; Momentum</div>
-                    <div class="readout-row">
-                        <span class="readout-label">KE<sub>rot</sub></span>
-                        <span class="readout-val" id="r-ke">—</span>
+                        <span class="readout-label" data-tex="\varepsilon = a/R"></span>
+                        <span class="readout-val" id="pl-r-eps">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">L (angular mom.)</span>
-                        <span class="readout-val" id="r-L">—</span>
+                        <span class="readout-label" data-tex="T_1"></span>
+                        <span class="readout-val" id="pl-r-t1">—</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Display -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Display</span>
-                </div>
-                <div class="panel-body">
-                    <div class="toggle-row" id="tgl-torque-arrow">
-                        <div class="toggle-box on"></div>
-                        <span class="toggle-name">torque arrow</span>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T_2"></span>
+                        <span class="readout-val" id="pl-r-t2">—</span>
                     </div>
-                    <div class="toggle-row" id="tgl-omega-arc">
-                        <div class="toggle-box on"></div>
-                        <span class="toggle-name">ω sweep arc</span>
+                    <div class="readout-section" style="margin-top:4px;"><span lang="en">At the clock shown</span><span lang="cs">V zobrazeném čase</span></div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="t"></span>
+                        <span class="readout-val" id="pl-r-t">—</span>
                     </div>
-                    <div class="toggle-row" id="tgl-spokes">
-                        <div class="toggle-box on"></div>
-                        <span class="toggle-name">disk spokes</span>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="v = \varepsilon R t"></span>
+                        <span class="readout-val" id="pl-r-v">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega = v/R"></span>
+                        <span class="readout-val" id="pl-r-w">—</span>
                     </div>
                 </div>
             </div>
@@ -684,10 +910,254 @@
         </div>
     </section>
 
+    <!-- ════ THE CHAIN — three equations, then the constraint that closes them ════ -->
+    <section id="chain" style="margin-top:24px;">
+        <div class="eom-grid">
+
+            <div class="eom-col">
+                <div class="eom-head">
+                    <span class="accent-pip"></span>
+                    <span class="eom-axis" data-tex="\sum F,\ \sum M"></span>
+                    <span class="eom-desc"><span lang="en">one equation per part</span><span lang="cs">jedna rovnice na každou část</span></span>
+                </div>
+                <div class="eom-body">
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Left box — along its slope, positive up</span><span lang="cs">Levý kvádr — podél svahu, kladně nahoru</span></div>
+                        <div class="eom-eq" id="ch-b1"></div>
+                        <div class="eom-eq-num" id="ch-b1-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Right box — along its slope, positive down</span><span lang="cs">Pravý kvádr — podél svahu, kladně dolů</span></div>
+                        <div class="eom-eq" id="ch-b2"></div>
+                        <div class="eom-eq-num" id="ch-b2-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Pulley — torques about its axle</span><span lang="cs">Kladka — momenty sil k její ose</span></div>
+                        <div class="eom-eq" id="ch-pul"></div>
+                        <div class="eom-eq-num" id="ch-pul-num"></div>
+                    </div>
+                    <div class="eom-vals">
+                        <div class="eom-val"><span class="eom-sym" data-tex="T_1"></span><span class="eom-num" id="ch-v-t1">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="T_2"></span><span class="eom-num" id="ch-v-t2">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="I"></span><span class="eom-num" id="ch-v-I">—</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eom-col">
+                <div class="eom-head">
+                    <span class="accent-pip"></span>
+                    <span class="eom-axis" data-tex="a = \varepsilon R"></span>
+                    <span class="eom-desc"><span lang="en">no slip — the step that closes it</span><span lang="cs">bez prokluzu — krok, který to uzavře</span></span>
+                </div>
+                <div class="eom-body">
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">The cord does not slip on the rim</span><span lang="cs">Lano po věnci neprokluzuje</span></div>
+                        <div class="eom-eq" id="ch-slip"></div>
+                        <div class="eom-eq-num" id="ch-slip-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">so the pulley equation loses its angles</span><span lang="cs">a v rovnici kladky zmizí úhlové veličiny</span></div>
+                        <div class="eom-eq" id="ch-sub"></div>
+                        <div class="eom-eq-num" id="ch-sub-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Add all three — the tensions cancel</span><span lang="cs">Sečtěte všechny tři — tahové síly se vyruší</span></div>
+                        <div class="eom-eq" id="ch-res"></div>
+                        <div class="eom-eq-num" id="ch-res-num"></div>
+                    </div>
+                    <div class="eom-vals">
+                        <div class="eom-val"><span class="eom-sym" data-tex="a"></span><span class="eom-num" id="ch-v-a">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="\varepsilon"></span><span class="eom-num" id="ch-v-eps">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="I/R^2"></span><span class="eom-num" id="ch-v-ir2">—</span></div>
+                    </div>
+                    <p class="eom-foot" id="ch-foot"></p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
     <!-- ════════════════════════════════════════════════════════════════════
-         § 6  ROLLING SANDBOX
+         § 6  TORSION OSCILLATOR
          ════════════════════════════════════════════════════════════════════ -->
     <section id="lab2" class="lab" style="margin-top:28px;">
+
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Torsion oscillator — weighing a rotational inertia</span><span lang="cs">Torzní oscilátor — jak se váží moment setrvačnosti</span></span>
+                <span id="to-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="tor-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="T = 2\pi\sqrt{\dfrac{I}{\kappa}}"></div>
+                <div class="sim-hint"><span lang="en">slide the riders out · watch the period grow</span><span lang="cs">posuňte závaží ven · perioda se prodlouží</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="to-reset" class="panel-reset">reset</button>
+                </div>
+                <div class="panel-body">
+
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Disc mass <em>M</em></span><span lang="cs">Hmotnost kotouče <em>M</em></span></span>
+                            <span class="sim-control-val" id="to-M-val">1.20 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="to-M" min="0.2" max="3" step="0.05" value="1.2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Disc radius <em>R</em></span><span lang="cs">Poloměr kotouče <em>R</em></span></span>
+                            <span class="sim-control-val" id="to-R-val">15.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="to-R" min="0.05" max="0.25" step="0.005" value="0.15">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Wire stiffness <em>κ</em></span><span lang="cs">Tuhost drátu <em>κ</em></span></span>
+                            <span class="sim-control-val" id="to-k-val">0.050 N·m/rad</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="to-k" min="0.01" max="0.40" step="0.005" value="0.05">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Each rider <em>m</em></span><span lang="cs">Každé závaží <em>m</em></span></span>
+                            <span class="sim-control-val" id="to-m-val">0.200 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="to-m" min="0" max="0.6" step="0.01" value="0.2">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Riders at <em>d</em></span><span lang="cs">Závaží ve vzdálenosti <em>d</em></span></span>
+                            <span class="sim-control-val" id="to-d-val">10.0 cm</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="to-d" min="0" max="0.25" step="0.005" value="0.10">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Twist it to <em>θ</em><sub>0</sub></span><span lang="cs">Natočení <em>θ</em><sub>0</sub></span></span>
+                            <span class="sim-control-val" id="to-th-val">60°</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="to-th" min="5" max="170" step="1" value="60">
+                    </div>
+
+                    <div class="fam-run-row">
+                        <button id="to-run" class="fam-btn-run">▶ <span lang="en">Run</span><span lang="cs">Spustit</span></button>
+                        <button id="to-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
+                    </div>
+                    <p class="sim-note" id="to-note"></p>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečet</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="I = \tfrac{1}{2}MR^2 + 2md^2"></span>
+                        <span class="readout-val" id="to-r-I">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega = \sqrt{\kappa/I}"></span>
+                        <span class="readout-val" id="to-r-w">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T = 2\pi/\omega"></span>
+                        <span class="readout-val" id="to-r-T">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="M_{max} = \kappa\theta_0"></span>
+                        <span class="readout-val" id="to-r-M">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\theta"></span>
+                        <span class="readout-val" id="to-r-th">—</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ════ FROM THE ROTATIONAL SECOND LAW TO THE OSCILLATION EQUATION ════ -->
+    <section id="torsion-eom" style="margin-top:24px;">
+        <div class="eom-grid">
+
+            <div class="eom-col">
+                <div class="eom-head">
+                    <span class="accent-pip"></span>
+                    <span class="eom-axis" data-tex="\sum M = I\varepsilon"></span>
+                    <span class="eom-desc"><span lang="en">the second law, for turning</span><span lang="cs">druhý zákon, pro otáčení</span></span>
+                </div>
+                <div class="eom-body">
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Newton's second law for rotation</span><span lang="cs">Druhý Newtonův zákon pro rotaci</span></div>
+                        <div class="eom-eq" id="te-a1"></div>
+                        <div class="eom-eq-num" id="te-a1-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">The only torque acting — the twisted wire</span><span lang="cs">Jediný působící moment síly — zkroucený drát</span></div>
+                        <div class="eom-eq" id="te-a2"></div>
+                        <div class="eom-eq-num" id="te-a2-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Put the two together</span><span lang="cs">Dejte obojí dohromady</span></div>
+                        <div class="eom-eq" id="te-a3"></div>
+                        <div class="eom-eq-num" id="te-a3-num"></div>
+                    </div>
+                    <div class="eom-vals">
+                        <div class="eom-val"><span class="eom-sym" data-tex="I"></span><span class="eom-num" id="te-v-I">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="\kappa"></span><span class="eom-num" id="te-v-k">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="M_{max}"></span><span class="eom-num" id="te-v-M">—</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eom-col">
+                <div class="eom-head">
+                    <span class="accent-pip"></span>
+                    <span class="eom-axis" data-tex="\ddot\theta + \omega^2\theta = 0"></span>
+                    <span class="eom-desc"><span lang="en">the oscillation equation</span><span lang="cs">rovnice kmitání</span></span>
+                </div>
+                <div class="eom-body">
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">Divide by <em>I</em> — both constants collapse into one</span><span lang="cs">Vydělte <em>I</em> — obě konstanty splynou v jednu</span></div>
+                        <div class="eom-eq" id="te-b1"></div>
+                        <div class="eom-eq-num" id="te-b1-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">A function whose second derivative is minus itself</span><span lang="cs">Funkce, jejíž druhá derivace je mínus ona sama</span></div>
+                        <div class="eom-eq" id="te-b2"></div>
+                        <div class="eom-eq-num" id="te-b2-num"></div>
+                    </div>
+                    <div class="eom-stage">
+                        <div class="eom-stage-label"><span lang="en">so the period follows, and it never depends on <em>θ</em><sub>0</sub></span><span lang="cs">odtud plyne perioda — a na <em>θ</em><sub>0</sub> vůbec nezávisí</span></div>
+                        <div class="eom-eq" id="te-b3"></div>
+                        <div class="eom-eq-num" id="te-b3-num"></div>
+                    </div>
+                    <div class="eom-vals">
+                        <div class="eom-val"><span class="eom-sym" data-tex="\omega"></span><span class="eom-num" id="te-v-w">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="T"></span><span class="eom-num" id="te-v-T">—</span></div>
+                        <div class="eom-val"><span class="eom-sym" data-tex="\theta"></span><span class="eom-num" id="te-v-th">—</span></div>
+                    </div>
+                    <p class="eom-foot" id="te-foot"></p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         § 7  ROLLING SANDBOX
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="lab3" class="lab" style="margin-top:28px;">
 
         <div class="canvas-panel">
             <div class="canvas-head">
@@ -875,250 +1345,864 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- ════════════════════════════════════════════════════════════════════
-     SIMULATION — Rotating disk, symplectic Euler integration
-     ════════════════════════════════════════════════════════════════════ -->
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   § I.06 — shared helpers
+   ══════════════════════════════════════════════════════════════════════ */
+const PP6 = (function () {
     'use strict';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const texNum = (v, d) => num(v, d).replace(',', '{,}');
 
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    /* ── CSS colour tokens ───────────────────────────────────────────── */
-    function readCol() {
+    function colours() {
         const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
         return {
-            ink:    s.getPropertyValue('--ink').trim()        || '#363026',
-            acc:    s.getPropertyValue('--accent').trim()     || '#8a2840',
-            soft:   s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
-            faint:  s.getPropertyValue('--ink-faint').trim()  || '#7A6A52',
-            paper:  s.getPropertyValue('--paper').trim()      || '#FFFDF6',
-            paperD: s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            ink:   s.getPropertyValue('--ink').trim()        || '#363026',
+            soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7a6a52',
+            paper: s.getPropertyValue('--paper').trim()      || '#f7f3e6',
+            deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            edge:  s.getPropertyValue('--paper-edge').trim() || '#e6dfc8',
+            acc:   b.getPropertyValue('--accent').trim()     || '#8a2840',
         };
     }
-    const col = readCol();
 
-    /* ── Simulation parameters ───────────────────────────────────────── */
-    const DEFAULTS = { torque: 10, inertia: 2, omega0: 0 };
-    const p = { ...DEFAULTS };
-
-    /* ── Simulation state — symplectic Euler ─────────────────────────── */
-    let omega = p.omega0;   // rad/s
-    let theta = 0;          // rad
-    let simT  = 0;          // elapsed sim seconds
-
-    const show = { torqueArrow: true, omegaArc: true, spokes: true };
-
-    /* ── Slider wiring ───────────────────────────────────────────────── */
-    function bindSlider(id, valId, fmt, key, onchange) {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.value = p[key];
-        inp.addEventListener('input', () => {
-            p[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(+inp.value);
-            if (onchange) onchange();
-        });
-        if (lbl) lbl.textContent = fmt(p[key]);
+    /* dpr-correct canvas sized from its wrapper, never from itself; the
+       returned redraw() coalesces into one animation frame, so a sim with
+       no motion never holds a permanent RAF loop. */
+    function mount(id, drawFn) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const o = { canvas, ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 240), H = Math.max(r.height, 160);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        o.redraw = function () {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); drawFn(o); });
+        };
+        size();
+        new ResizeObserver(() => { size(); o.redraw(); }).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
     }
 
-    bindSlider('p-torque',  'p-torque-val',  v => v.toFixed(0) + ' N·m',    'torque');
-    bindSlider('p-inertia', 'p-inertia-val', v => v.toFixed(1) + ' kg·m²',  'inertia');
-    bindSlider('p-omega0',  'p-omega0-val',  v => v.toFixed(1) + ' rad/s',  'omega0', () => {
-        omega = p.omega0;
-        theta = 0;
-        simT  = 0;
-    });
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        Object.assign(p, DEFAULTS);
-        ['torque','inertia','omega0'].forEach(k => {
-            const inp = document.getElementById('p-' + k);
-            if (inp) inp.value = p[k];
-        });
-        document.getElementById('p-torque-val').textContent  = p.torque.toFixed(0) + ' N·m';
-        document.getElementById('p-inertia-val').textContent = p.inertia.toFixed(1) + ' kg·m²';
-        document.getElementById('p-omega0-val').textContent  = p.omega0.toFixed(1) + ' rad/s';
-        omega = p.omega0;
-        theta = 0;
-        simT  = 0;
-    });
-
-    /* ── Toggle wiring ───────────────────────────────────────────────── */
-    function wireToggle(id, key) {
-        document.getElementById(id)?.addEventListener('click', function () {
-            show[key] = !show[key];
-            this.querySelector('.toggle-box')?.classList.toggle('on');
-        });
-    }
-    wireToggle('tgl-torque-arrow', 'torqueArrow');
-    wireToggle('tgl-omega-arc',    'omegaArc');
-    wireToggle('tgl-spokes',       'spokes');
-
-    /* ── Curved arrow helper (for torque indicator) ──────────────────── */
-    function drawCurvedArrow(cx, cy, r, startAngle, endAngle, color, lw) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth   = lw || 2.5;
-        ctx.lineCap     = 'round';
-        ctx.setLineDash([]);
-        const cw = endAngle > startAngle;
+    function arrow(ctx, x1, y1, x2, y2, col, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 3) return;
+        const ux = dx / len, uy = dy / len;
+        const hl = Math.min(10, len * 0.34), hw = hl * 0.52;
+        ctx.strokeStyle = col; ctx.fillStyle = col;
+        ctx.lineWidth = lw || 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.arc(cx, cy, r, startAngle, endAngle, !cw);
+        ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function tag(ctx, c, text, x, y, col, size, italic) {
+        ctx.font = (italic === false ? '' : 'italic ') +
+                   (size || 13) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const w = ctx.measureText(text).width + 9;
+        ctx.fillStyle = c.paper;
+        ctx.fillRect(x - w / 2, y - 9, w, 18);
+        ctx.fillStyle = col;
+        ctx.fillText(text, x, y);
+    }
+
+    function mono(ctx, text, x, y, col, size, align) {
+        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col;
+        ctx.fillText(text, x, y);
+    }
+
+    /* KaTeX is deferred, so it is NOT there while an inline script first
+       runs. Never cache a render that did not happen. */
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+
+    return { isCS, T, num, texNum, colours, mount, arrow, tag, mono,
+             katexInto, whenReady, G: 9.81 };
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 1 — TWO BOXES, ONE CORD, A PULLEY THAT HAS MASS
+
+   Positive sense: the right box goes DOWN its slope, the left box goes UP
+   its own. Three equations and one constraint:
+
+     left box    T1 - m1 g sin(a1) = m1 a
+     right box   m2 g sin(a2) - T2 = m2 a
+     pulley      (T2 - T1) R = I e
+     no slip     a = e R          =>   T2 - T1 = (I/R^2) a
+
+   Adding the three kills both tensions:
+
+     a = g (m2 sin(a2) - m1 sin(a1)) / (m1 + m2 + I/R^2)
+
+   The pulley is a uniform disc, so I/R^2 = Mk/2 exactly — it adds half
+   its own mass to the system and the radius drops out of a altogether.
+   The radius only sets how fast it spins, which is the whole point of
+   the a = eR step.
+
+   Both surfaces are frictionless. Defaults are Ex. 10-69's numbers
+   (6.20 kg either side, R = 2.40 cm, I = 7.40e-4 kg m^2 via Mk = 2.57 kg,
+   left slope flat, right box hanging) — see the note under the chain for
+   why the frictionless prediction sits above that exercise's measurement.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP6.mount('pul-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const G = PP6.G, RAD = Math.PI / 180;
+
+    const D = { m1: 6.20, a1: 0, m2: 6.20, a2: 90, mp: 2.57, R: 0.024 };
+    const P = Object.assign({}, D);
+
+    /* ── the physics ─────────────────────────────────────────────────── */
+    function solve() {
+        const I = 0.5 * P.mp * P.R * P.R;
+        const s1 = Math.sin(P.a1 * RAD), s2 = Math.sin(P.a2 * RAD);
+        const ir2 = I / (P.R * P.R);                 /* = Mk/2 for a disc */
+        const inert = P.m1 + P.m2 + ir2;
+        const a = G * (P.m2 * s2 - P.m1 * s1) / inert;
+        return { I, ir2, inert, s1, s2, a,
+                 eps: a / P.R,
+                 T1: P.m1 * (a + G * s1),
+                 T2: P.m2 * (G * s2 - a) };
+    }
+
+    /* ── the scene ────────────────────────────────────────────────────
+       Distances along the cord are metric, so the motion means something.
+       The bodies are NOT: a box is drawn at a size set by its mass alone
+       and a pulley at a size set by its radius alone, both in pixels, so
+       that tilting a slope no longer changes how big everything looks. */
+    const L = 1.5;                       /* metres of face either side */
+    const D1 = 0.95, D2 = 0.55;          /* where the boxes start */
+    const MARGIN = 0.22;                 /* metres kept clear at each end */
+    const boxPx = m => Math.min(110, Math.max(44, 72 * Math.cbrt(m / 6.2)));
+    const rimPx = R => 24 + (R - 0.02) / 0.28 * 40;
+
+    function limits() {
+        return { hi: Math.min(D1 - MARGIN, L - D2 - MARGIN),
+                 lo: -Math.min(L - D1 - MARGIN, D2 - MARGIN) };
+    }
+
+    let showF = true, showC = true;
+
+    /* ── clock: s = 1/2 a t^2 from rest, run over a fixed wall time ───── */
+    const DUR = 2.4;
+    let tau = 0, tSim = 0, sNow = 0, running = false, raf = 0;
+    function endTime() {
+        const S = solve(), lim = limits();
+        const reach = S.a >= 0 ? Math.max(lim.hi, 0) : Math.max(-lim.lo, 0);
+        if (Math.abs(S.a) < 1e-9 || reach < 1e-9) return 0;
+        return Math.sqrt(2 * reach / Math.abs(S.a));
+    }
+    function setTau(x) {
+        tau = Math.max(0, Math.min(1, x));
+        const S = solve();
+        tSim = tau * endTime();
+        sNow = 0.5 * S.a * tSim * tSim;
+    }
+    function rewind() { setTau(0); running = false; stopLoop(); paint(); }
+    function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+    function startLoop() {
+        if (raf) return;
+        let last = 0;
+        const step = ts => {
+            const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+            last = ts;
+            setTau(tau + dt / DUR);
+            if (tau >= 1) running = false;
+            paint();
+            if (running) raf = requestAnimationFrame(step); else { raf = 0; setRunLabel(); }
+        };
+        raf = requestAnimationFrame(step);
+    }
+
+    /* ── drawing ─────────────────────────────────────────────────────── */
+    function draw(v) {
+        const c = PP6.colours(), ctx = v.ctx, W = v.W, H = v.H;
+        const S = solve();
+        const a1 = P.a1 * RAD, a2 = P.a2 * RAD;
+        /* u runs down the face away from the pulley, n out of the surface */
+        const u1 = { x: -Math.cos(a1), y: Math.sin(a1) };
+        const n1 = { x: -Math.sin(a1), y: -Math.cos(a1) };
+        const u2 = { x: Math.cos(a2), y: Math.sin(a2) };
+        const n2 = { x: Math.sin(a2), y: -Math.cos(a2) };
+        const w1 = boxPx(P.m1), w2 = boxPx(P.m2), Rpx = rimPx(P.R);
+
+        /* the axle is pinned, so the corners of the canvas stay free */
+        const pc = { x: W * 0.5, y: H * 0.30 };
+
+        /* metres per pixel for the travel only */
+        const marg = Math.max(w1, w2) / 2 + 30;
+        const sc = Math.min(300, Math.max(38,
+            Math.min((W * 0.46 - marg) / Math.max(L * Math.cos(a1), L * Math.cos(a2), 0.12),
+                     (H * 0.60 - marg) / Math.max(L * Math.sin(a1), L * Math.sin(a2), 0.12))));
+
+        /* THE FIX: each straight run of cord leaves the rim tangentially, so
+           everything on that side is measured from the tangent point — not
+           from a notional apex. A box at 90 degrees then hangs plumb under
+           the rim instead of drifting sideways by the pulley's offset. */
+        const T1 = { x: pc.x + n1.x * Rpx, y: pc.y + n1.y * Rpx };
+        const T2 = { x: pc.x + n2.x * Rpx, y: pc.y + n2.y * Rpx };
+        const d1 = D1 - sNow, d2 = D2 + sNow;
+        const b1 = { x: T1.x + u1.x * d1 * sc, y: T1.y + u1.y * d1 * sc };
+        const b2 = { x: T2.x + u2.x * d2 * sc, y: T2.y + u2.y * d2 * sc };
+
+        surface(ctx, c, T1, u1, n1, a1, w1, sc, 'α₁');
+        surface(ctx, c, T2, u2, n2, a2, w2, sc, 'α₂');
+
+        /* the cord: straight, straight, and an arc over the rim */
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.8; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(b1.x, b1.y); ctx.lineTo(T1.x, T1.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(b2.x, b2.y); ctx.lineTo(T2.x, T2.y); ctx.stroke();
+        const g1 = Math.atan2(n1.y, n1.x), g2 = Math.atan2(n2.y, n2.x);
+        const bA = Math.atan2(n1.y + n2.y, n1.x + n2.x);
+        ctx.beginPath();
+        ctx.arc(pc.x, pc.y, Rpx, g1, g2, !between(g1, g2, bA));
         ctx.stroke();
-        // Arrowhead at end
-        const arrowAngle = cw ? endAngle : startAngle;
-        const perpDir    = cw ? 1 : -1;
-        const ax = cx + r * Math.cos(arrowAngle);
-        const ay = cy + r * Math.sin(arrowAngle);
-        const tangX = -Math.sin(arrowAngle) * perpDir;
-        const tangY =  Math.cos(arrowAngle) * perpDir;
-        const hw = 7, hl = 9;
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(ax, ay);
-        ctx.lineTo(ax - tangX * hl - tangY * hw, ay - tangY * hl + tangX * hw);
-        ctx.lineTo(ax - tangX * hl + tangY * hw, ay - tangY * hl - tangX * hw);
-        ctx.closePath();
-        ctx.fill();
-    }
 
-    /* ── Main draw ───────────────────────────────────────────────────── */
-    let lastWallTime = null;
+        pulley(ctx, c, pc, Rpx);
+        drawBox(ctx, c, b1, w1, -a1, 'm₁', P.m1);
+        drawBox(ctx, c, b2, w2, a2, 'm₂', P.m2);
 
-    function draw(ts) {
-        /* Symplectic Euler integration */
-        if (lastWallTime === null) lastWallTime = ts;
-        const dtWall = Math.min((ts - lastWallTime) / 1000, 0.05); // clamp to 50ms
-        lastWallTime = ts;
-        const alpha = (p.inertia > 0) ? p.torque / p.inertia : 0;
-        // Symplectic Euler: update ω first, then θ
-        omega += alpha * dtWall;
-        theta += omega * dtWall;
-        simT  += dtWall;
-
-        ctx.clearRect(0, 0, W, H);
-
-        const cx = W * 0.5;
-        const cy = H * 0.5;
-        const R  = Math.min(W, H) * 0.34;
-
-        /* Disk body with radial gradient */
-        const grad = ctx.createRadialGradient(cx - R * 0.25, cy - R * 0.25, R * 0.05, cx, cy, R);
-        grad.addColorStop(0, col.acc + 'dd');
-        grad.addColorStop(0.6, col.acc + 'aa');
-        grad.addColorStop(1, col.acc + '55');
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        /* Spokes */
-        if (show.spokes) {
-            const numSpokes = 6;
-            ctx.strokeStyle = col.paper + 'aa';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([]);
-            for (let i = 0; i < numSpokes; i++) {
-                const a = theta + (i / numSpokes) * Math.PI * 2;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.lineTo(cx + R * Math.cos(a), cy + R * Math.sin(a));
-                ctx.stroke();
-            }
+        if (showF) {
+            const Fmax = Math.max(P.m1 * G, P.m2 * G, S.T1, S.T2, 1e-6);
+            const fs = 66 / Fmax;                       /* pixels per newton */
+            forces(ctx, c, b1, w1, u1, n1, a1, P.m1, S.T1, fs, '₁');
+            forces(ctx, c, b2, w2, u2, n2, a2, P.m2, S.T2, fs, '₂');
         }
 
-        /* Hub */
-        ctx.beginPath();
-        ctx.arc(cx, cy, 7, 0, Math.PI * 2);
-        ctx.fillStyle = col.ink;
-        ctx.fill();
+        /* caption, top left — the no-slip statement, in numbers */
+        PP6.mono(ctx, PP6.T('NO SLIP', 'BEZ PROKLUZU'), 16, 18, c.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c.ink;
+        ctx.fillText('s = R θ = ' + PP6.num(Math.abs(sNow), 3) + ' m', 16, 39);
+        PP6.mono(ctx, 'θ = ' + PP6.num(Math.abs(sNow / P.R), 1) + ' rad   ω = ' +
+                 PP6.num(Math.abs(S.eps * tSim), 1) + ' rad/s', 16, 58, c.faint, 10);
+        PP6.mono(ctx, PP6.T('schematic — bodies not to scale, distances are',
+                            'schéma — tělesa nejsou v měřítku, vzdálenosti ano'), 16, 76, c.faint, 9);
+    }
 
-        /* Rim marker dot */
-        const mx = cx + R * Math.cos(theta);
-        const my = cy + R * Math.sin(theta);
-        ctx.beginPath();
-        ctx.arc(mx, my, 7, 0, Math.PI * 2);
-        ctx.fillStyle = col.paper;
-        ctx.fill();
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+    function between(g1, g2, g) {
+        const w = x => ((x % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+        const A = w(g1), B = w(g2), C = w(g);
+        return A <= B ? (C >= A && C <= B) : (C >= A || C <= B);
+    }
 
-        /* Torque curved arrow */
-        if (show.torqueArrow && p.torque > 0) {
-            const torqueR = R * 1.18;
-            const sweep   = Math.min(Math.PI * 1.1, 0.3 + p.torque / 30 * Math.PI);
-            drawCurvedArrow(cx, cy, torqueR, -Math.PI * 0.5, -Math.PI * 0.5 + sweep, col.ink, 2.2);
-            // Label
-            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-            ctx.fillStyle = col.soft;
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('M', cx + torqueR + 8, cy - R * 0.5);
-        }
-
-        /* ω sweep arc (scales with current ω) */
-        if (show.omegaArc && omega > 0.05) {
-            const omegaR = R * 0.55;
-            const sweep  = Math.min(Math.abs(omega) * 0.4, Math.PI * 1.5);
-            ctx.strokeStyle = col.paper + 'cc';
-            ctx.lineWidth   = 2;
-            ctx.setLineDash([3, 4]);
+    /* the surface sits half a box below the cord, parallel to it */
+    function surface(ctx, c, T, u, n, ang, wpx, sc, label) {
+        if (ang > 88 * RAD) return;                 /* a hanging box has none */
+        const rim = rimPx(P.R);
+        const o = { x: T.x - n.x * wpx / 2 + u.x * rim, y: T.y - n.y * wpx / 2 + u.y * rim };
+        const e = { x: o.x + u.x * (L * sc - rim), y: o.y + u.y * (L * sc - rim) };
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(e.x, e.y); ctx.stroke();
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1;
+        for (let q = 0.03; q <= 1.0; q += 0.06) {
+            const px = o.x + (e.x - o.x) * q, py = o.y + (e.y - o.y) * q;
             ctx.beginPath();
-            ctx.arc(cx, cy, omegaR, theta, theta + sweep);
+            ctx.moveTo(px, py);
+            ctx.lineTo(px - n.x * 13 + u.x * 11, py - n.y * 13 + u.y * 11);
             ctx.stroke();
+        }
+        /* The angle at the foot, between the surface running back up to the
+           pulley and the horizontal pointing the same way. Taking min/max of
+           the two bearings drew the reflex twin instead (9 deg came out as
+           189); the short signed sweep between them is the angle itself. */
+        if (ang > 3 * RAD) {
+            const bx = -u.x, by = -u.y;                 /* back up the slope */
+            const hx = Math.sign(bx) || 1;              /* horizontal, same way */
+            ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + hx * 62, e.y); ctx.stroke();
             ctx.setLineDash([]);
+            const gb = Math.atan2(by, bx), gh = Math.atan2(0, hx);
+            let d = gh - gb;
+            while (d > Math.PI) d -= Math.PI * 2;
+            while (d <= -Math.PI) d += Math.PI * 2;
+            ctx.strokeStyle = c.soft; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(e.x, e.y, 34, gb, gb + d, d < 0); ctx.stroke();
+            const mid = gb + d / 2;
+            plain(ctx, c, label, e.x + Math.cos(mid) * 52, e.y + Math.sin(mid) * 52, c.soft, 13, true);
         }
-
-        /* Readout update */
-        const alpha_out = (p.inertia > 0) ? p.torque / p.inertia : 0;
-        const ke_out    = 0.5 * p.inertia * omega * omega;
-        const L_out     = p.inertia * omega;
-        const thetaDeg  = ((theta * 180 / Math.PI) % 360 + 360) % 360;
-
-        const $ = id => document.getElementById(id);
-        if ($('r-alpha')) $('r-alpha').textContent = alpha_out.toFixed(3) + ' rad/s²';
-        if ($('r-omega')) $('r-omega').textContent = omega.toFixed(3) + ' rad/s';
-        if ($('r-theta')) $('r-theta').textContent = thetaDeg.toFixed(1) + '°';
-        if ($('r-ke'))    $('r-ke').textContent    = ke_out.toFixed(2) + ' J';
-        if ($('r-L'))     $('r-L').textContent     = L_out.toFixed(3) + ' kg·m²/s';
     }
 
-    /* ── RAF loop ────────────────────────────────────────────────────── */
-    let prevT = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
-
-    function frame(ts) {
-        draw(ts);
-        frames++;
-        if (ts - prevT >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; prevT = ts;
+    function pulley(ctx, c, pc, Rpx) {
+        const th = sNow / P.R;
+        ctx.fillStyle = c.deep;
+        ctx.beginPath(); ctx.arc(pc.x, pc.y, Rpx, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(pc.x, pc.y, Rpx, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1;
+        for (let k = 0; k < 4; k++) {
+            const g = th + k * Math.PI / 2;
+            ctx.beginPath();
+            ctx.moveTo(pc.x, pc.y);
+            ctx.lineTo(pc.x + Math.cos(g) * Rpx * 0.86, pc.y + Math.sin(g) * Rpx * 0.86);
+            ctx.stroke();
         }
-        requestAnimationFrame(frame);
+        ctx.strokeStyle = c.acc; ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        ctx.moveTo(pc.x + Math.cos(th) * Rpx * 0.45, pc.y + Math.sin(th) * Rpx * 0.45);
+        ctx.lineTo(pc.x + Math.cos(th) * Rpx, pc.y + Math.sin(th) * Rpx);
+        ctx.stroke();
+        ctx.fillStyle = c.ink;
+        ctx.beginPath(); ctx.arc(pc.x, pc.y, 3, 0, Math.PI * 2); ctx.fill();
+        PP6.mono(ctx, 'R = ' + PP6.num(P.R * 100, 1) + ' cm', pc.x, pc.y - Rpx - 12,
+                 c.faint, 9, 'center');
     }
 
-    requestAnimationFrame(frame);
+    function drawBox(ctx, c, p, w, rot, name, m) {
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(rot);
+        ctx.fillStyle = name === 'm₁' ? c.paper : c.edge;
+        ctx.fillRect(-w / 2, -w / 2, w, w);
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.6; ctx.setLineDash([]);
+        ctx.strokeRect(-w / 2, -w / 2, w, w);
+        ctx.restore();
+        PP6.tag(ctx, c, name, p.x, p.y - 8, c.ink, 15);
+        PP6.mono(ctx, PP6.num(m, 2) + ' kg', p.x, p.y + 11, c.soft, 10, 'center');
+    }
 
+    /* every force on one box: the weight G, the normal from its surface and
+       the cord tension — arrows and symbols only. No plate behind a label:
+       an opaque box kept covering the cord and the box edges. */
+    function forces(ctx, c, p, w, u, n, ang, m, Tn, fs, sub) {
+        const Wt = m * G, Nn = Wt * Math.cos(ang);
+        if (showC && ang > 3 * RAD && ang < 87 * RAD) {
+            const ls = Wt * Math.sin(ang) * fs, ln = Nn * fs;
+            ctx.setLineDash([4, 3]);
+            PP6.arrow(ctx, p.x, p.y, p.x + u.x * ls, p.y + u.y * ls, c.faint, 1.4);
+            PP6.arrow(ctx, p.x, p.y, p.x - n.x * ln, p.y - n.y * ln, c.faint, 1.4);
+            ctx.setLineDash([]);
+            plain(ctx, c, 'G sin α', p.x + u.x * (ls + 22), p.y + u.y * (ls + 22), c.faint, 12);
+            plain(ctx, c, 'G cos α', p.x - n.x * (ln + 22), p.y - n.y * (ln + 22), c.faint, 12);
+        }
+        const wl = Wt * fs;
+        PP6.arrow(ctx, p.x, p.y, p.x, p.y + wl, c.ink, 2.2);
+        plain(ctx, c, 'G' + sub, p.x + 13, p.y + wl - 8, c.ink, 14);
+
+        if (Nn * fs > 6) {
+            PP6.arrow(ctx, p.x, p.y, p.x + n.x * Nn * fs, p.y + n.y * Nn * fs, c.soft, 2.2);
+            plain(ctx, c, 'N' + sub, p.x + n.x * (Nn * fs + 16), p.y + n.y * (Nn * fs + 16), c.soft, 14);
+        }
+        const tl = Math.abs(Tn) * fs, sg = Tn >= 0 ? -1 : 1;
+        if (tl > 6) {
+            PP6.arrow(ctx, p.x, p.y, p.x + sg * u.x * tl, p.y + sg * u.y * tl, c.acc, 2.4);
+            plain(ctx, c, 'T' + sub, p.x + sg * u.x * (tl + 16), p.y + sg * u.y * (tl + 16), c.acc, 14);
+        }
+    }
+
+    /* an unbacked label: a thin paper halo keeps it readable over the grid
+       without blanking out whatever it happens to sit on */
+    function plain(ctx, c, text, x, y, col, size, italic) {
+        ctx.font = (italic ? 'italic ' : '') + (size || 13) +
+                   'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = c.paper;
+        ctx.strokeText(text, x, y);
+        ctx.fillStyle = col;
+        ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+
+    /* ── the chain and the readouts ──────────────────────────────────── */
+    const N = PP6.texNum;
+    function put(id, t) { const el = $(id); if (el) el.textContent = t; }
+
+    function chain() {
+        const S = solve();
+        const g = N(G, 2), tex = (id, t) => PP6.katexInto($(id), t);
+
+        tex('ch-b1', 'T_1 - m_1 g\\sin\\alpha_1 = m_1 a');
+        put('ch-b1-num', 'T₁ − ' + PP6.num(P.m1, 2) + '·' + PP6.num(G, 2) + '·sin ' +
+                         PP6.num(P.a1, 0) + '° = ' + PP6.num(P.m1, 2) + ' a');
+        tex('ch-b2', 'm_2 g\\sin\\alpha_2 - T_2 = m_2 a');
+        put('ch-b2-num', PP6.num(P.m2, 2) + '·' + PP6.num(G, 2) + '·sin ' + PP6.num(P.a2, 0) +
+                         '° − T₂ = ' + PP6.num(P.m2, 2) + ' a');
+        tex('ch-pul', '(T_2 - T_1)\\,R = I\\varepsilon');
+        put('ch-pul-num', '(' + PP6.num(S.T2, 2) + ' − ' + PP6.num(S.T1, 2) + ')·' +
+                          PP6.num(P.R, 3) + ' = ' + PP6.num(S.I * S.eps, 4) + ' N·m');
+
+        tex('ch-slip', 'a = \\varepsilon R \\quad\\Longrightarrow\\quad \\varepsilon = \\dfrac{a}{R}');
+        put('ch-slip-num', PP6.num(S.a, 3) + ' = ' + PP6.num(S.eps, 1) + ' · ' + PP6.num(P.R, 3) +
+                           '   (' + PP6.T('m/s² = rad/s² · m', 'm/s² = rad/s² · m') + ')');
+        tex('ch-sub', 'T_2 - T_1 = \\dfrac{I}{R^2}\\,a = \\tfrac{1}{2}M_k\\,a');
+        put('ch-sub-num', PP6.num(S.T2 - S.T1, 3) + ' = ' + PP6.num(S.ir2, 3) + ' · ' +
+                          PP6.num(S.a, 3) + ' N');
+        tex('ch-res', 'a = \\dfrac{g\\,(m_2\\sin\\alpha_2 - m_1\\sin\\alpha_1)}{m_1 + m_2 + I/R^2}');
+        put('ch-res-num', PP6.num(G * (P.m2 * S.s2 - P.m1 * S.s1), 2) + ' / ' +
+                          PP6.num(S.inert, 3) + ' = ' + PP6.num(S.a, 3) + ' m/s²');
+
+        put('ch-v-t1', PP6.num(S.T1, 2) + ' N');
+        put('ch-v-t2', PP6.num(S.T2, 2) + ' N');
+        put('ch-v-I', PP6.num(S.I * 1000, 3) + '·10⁻³');
+        put('ch-v-a', PP6.num(S.a, 3));
+        put('ch-v-eps', PP6.num(S.eps, 1));
+        put('ch-v-ir2', PP6.num(S.ir2, 3) + ' kg');
+
+        const foot = $('ch-foot');
+        if (foot) foot.textContent = PP6.T(
+            'The radius cancels out of a: for a disc pulley I/R² is exactly half its mass, so R only sets how fast it spins. ' +
+            'Ex. 10-69 runs on these very numbers but measures ε = 155 rad/s², below the frictionless value here — and that gap is the table friction the exercise asks you to find.',
+            'Poloměr se ze zrychlení a vykrátí: u diskové kladky je I/R² přesně polovina její hmotnosti, takže R určuje jen to, jak rychle se točí. ' +
+            'Úloha 10-69 běží na týchž číslech, ale naměří ε = 155 rad/s², méně než zdejší hodnota bez tření — a právě ten rozdíl je tření podložky, které má úloha odhalit.');
+    }
+
+    function readouts() {
+        const S = solve();
+        put('pl-r-a', PP6.num(S.a, 3) + ' m/s²');
+        put('pl-r-eps', PP6.num(S.eps, 1) + ' rad/s²');
+        put('pl-r-t1', PP6.num(S.T1, 2) + ' N');
+        put('pl-r-t2', PP6.num(S.T2, 2) + ' N');
+        put('pl-r-t', PP6.num(tSim, 3) + ' s');
+        put('pl-r-v', PP6.num(S.a * tSim, 3) + ' m/s');
+        put('pl-r-w', PP6.num(S.eps * tSim, 1) + ' rad/s');
+        const st = $('pl-state');
+        if (st) st.textContent = Math.abs(S.a) < 1e-9
+            ? PP6.T('balanced', 'v rovnováze')
+            : (tau >= 1 ? PP6.T('stopped', 'zastaveno')
+                        : PP6.T('t = ', 't = ') + PP6.num(tSim, 2) + ' s');
+    }
+
+    /* ── from the second law to the oscillation equation ─────────────── */
+    function motion() {
+        const S = solve();
+        const tex = (id, t) => PP6.katexInto($(id), t);
+        const n = PP6.num;
+
+        tex('te-a1', '\\sum M = I\\varepsilon\\,,\\qquad \\varepsilon = \\ddot\\theta');
+        put('te-a1-num', PP6.T('the angular acceleration is θ differentiated twice',
+                               'úhlové zrychlení je dvakrát zderivované θ'));
+
+        tex('te-a2', 'M = -\\kappa\\theta');
+        put('te-a2-num', 'κ = ' + n(P.k, 3) + ' N·m/rad   →   M = −' + n(P.k, 3) + ' θ   ' +
+                         PP6.T('(N·m, θ in rad)', '(N·m, θ v rad)'));
+
+        tex('te-a3', 'I\\ddot\\theta = -\\kappa\\theta');
+        put('te-a3-num', n(S.I, 4) + ' · d²θ/dt² = −' + n(P.k, 3) + ' · θ');
+
+        tex('te-b1', '\\ddot\\theta + \\dfrac{\\kappa}{I}\\,\\theta = 0' +
+                     '\\qquad \\omega^2 \\equiv \\dfrac{\\kappa}{I}');
+        put('te-b1-num', 'ω² = ' + n(P.k, 3) + ' / ' + n(S.I, 4) + ' = ' +
+                         n(S.w * S.w, 3) + ' s⁻²');
+
+        tex('te-b2', '\\theta(t) = \\theta_0\\cos(\\omega t + \\varphi)\\,,' +
+                     '\\qquad \\omega = \\sqrt{\\dfrac{\\kappa}{I}}');
+        put('te-b2-num', 'θ₀ = ' + n(P.th, 0) + '°   ω = ' + n(S.w, 3) + ' rad/s');
+
+        tex('te-b3', 'T = \\dfrac{2\\pi}{\\omega} = 2\\pi\\sqrt{\\dfrac{I}{\\kappa}}');
+        put('te-b3-num', 'T = 2π · √(' + n(S.I, 4) + ' / ' + n(P.k, 3) + ') = ' + n(S.T, 3) + ' s');
+
+        const foot = $('te-foot');
+        if (foot) foot.innerHTML = PP6.T(
+            'Nothing in that derivation is peculiar to rotation. Run the dictionary the other way — ' +
+            'θ → x, I → m, κ → k — and the same three lines read ma = −kx, a mass on a spring. ' +
+            'Any restoring influence proportional to the displacement gives this equation, and therefore ' +
+            'this motion: a period set by the inertia and the stiffness alone, with the amplitude nowhere ' +
+            'in it. That is the whole subject of <a href="oscillation.html">§ I.08 · Oscillation</a>, ' +
+            'where the same derivation is run for straight-line motion.',
+            'Na téhle úvaze není nic, co by patřilo jen rotaci. Použijte slovník opačným směrem — ' +
+            'θ → x, I → m, κ → k — a tytéž tři řádky říkají ma = −kx, tedy těleso na pružině. ' +
+            'Každý vratný účinek úměrný výchylce dá tuhle rovnici, a tedy i tenhle pohyb: periodu určuje ' +
+            'jen setrvačnost a tuhost, amplituda v ní není vůbec. Přesně o tom je ' +
+            '<a href="oscillation.html">§ I.08 · Kmitání</a>, kde se tatáž úvaha provede pro přímočarý pohyb.');
+    }
+
+    function paint() { V.redraw(); readouts(); }
+    function refresh() { chain(); paint(); }
+
+    /* ── controls ────────────────────────────────────────────────────── */
+    const SL = [['pl-m1', 'm1'], ['pl-a1', 'a1'], ['pl-m2', 'm2'],
+                ['pl-a2', 'a2'], ['pl-mp', 'mp'], ['pl-R', 'R']];
+    const FMT = {
+        m1: v => PP6.num(v, 2) + ' kg', m2: v => PP6.num(v, 2) + ' kg',
+        a1: v => PP6.num(v, 0) + '°',   a2: v => PP6.num(v, 0) + '°',
+        mp: v => PP6.num(v, 2) + ' kg', R: v => PP6.num(v * 100, 2) + ' cm',
+    };
+    function syncLabels() {
+        for (const [id, key] of SL) {
+            const vl = $(id + '-val');
+            if (vl) vl.textContent = FMT[key](P[key]);
+        }
+    }
+    for (const [id, key] of SL) {
+        const sl = $(id);
+        if (!sl) continue;
+        P[key] = parseFloat(sl.value);
+        sl.addEventListener('input', () => {
+            P[key] = parseFloat(sl.value);
+            syncLabels(); rewind(); refresh();
+        });
+    }
+
+    function setRunLabel() {
+        const b = $('pl-run');
+        if (b) b.innerHTML = running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Run</span><span lang="cs">Spustit</span>';
+    }
+    $('pl-run')?.addEventListener('click', () => {
+        if (endTime() <= 0) return;
+        if (!running && tau >= 1) setTau(0);
+        running = !running;
+        setRunLabel();
+        if (running) startLoop(); else stopLoop();
+    });
+    $('pl-rewind')?.addEventListener('click', () => { rewind(); setRunLabel(); });
+    $('pl-reset')?.addEventListener('click', () => {
+        Object.assign(P, D);
+        for (const [id, key] of SL) { const sl = $(id); if (sl) sl.value = P[key]; }
+        syncLabels(); rewind(); refresh(); setRunLabel();
+    });
+
+    /* this sandbox wires its own toggles — there is deliberately no global
+       .toggle-row handler on the site, because it double-fires. */
+    [['pl-forces', v => { showF = v; }], ['pl-comps', v => { showC = v; }]].forEach(([id, set]) => {
+        const row = $(id);
+        if (!row) return;
+        row.addEventListener('click', () => {
+            const bx = row.querySelector('.toggle-box');
+            const on = !bx.classList.contains('on');
+            bx.classList.toggle('on', on);
+            set(on); paint();
+        });
+    });
+
+    document.addEventListener('langchange', () => { syncLabels(); refresh(); });
+
+    syncLabels(); setTau(0); setRunLabel(); paint();
+    PP6.whenReady(refresh);
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 2 — TORSION OSCILLATOR
+
+   A disc hung on a wire is the rotational twin of a mass on a spring.
+   The wire supplies a restoring torque proportional to the twist,
+
+       M = -kappa * theta      =>      I theta'' = -kappa theta
+
+   so the motion is simple harmonic in the ANGLE, with
+
+       omega = sqrt(kappa / I) ,   T = 2 pi sqrt(I / kappa)
+
+   and theta(t) = theta0 cos(omega t) in closed form — no integrator, the
+   drawing evaluates the solution itself.
+
+   Two riders can be slid along a diameter, adding 2 m d^2 by the very
+   definition I = sum m r^2. That is what makes this apparatus worth
+   drawing: it is how a rotational inertia is actually measured, and
+   moving the same mass outwards lengthens the period without anything
+   else changing — the point of Ex. 10-38 seen from the other side.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP6.mount('tor-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const RAD = Math.PI / 180;
+
+    const D = { M: 1.20, R: 0.150, k: 0.050, m: 0.200, d: 0.100, th: 60 };
+    const P = Object.assign({}, D);
+
+    /* ── the physics ─────────────────────────────────────────────────── */
+    function solve() {
+        const d = Math.min(P.d, P.R);                 /* a rider cannot leave the disc */
+        const I = 0.5 * P.M * P.R * P.R + 2 * P.m * d * d;
+        const w = Math.sqrt(P.k / I);
+        return { d, I, w, T: 2 * Math.PI / w, th0: P.th * RAD, Mmax: P.k * P.th * RAD };
+    }
+    const thetaAt = t => { const S = solve(); return S.th0 * Math.cos(S.w * t); };
+
+    /* ── clock: real time, the closed form evaluated straight ────────── */
+    let tSim = 0, running = false, raf = 0;
+    function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+    function startLoop() {
+        if (raf) return;
+        let last = 0;
+        const step = ts => {
+            const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+            last = ts;
+            tSim += dt;
+            paint();
+            if (running) raf = requestAnimationFrame(step); else { raf = 0; }
+        };
+        raf = requestAnimationFrame(step);
+    }
+    function rewind() { tSim = 0; running = false; stopLoop(); setRunLabel(); paint(); }
+
+    /* ── drawing: an orthographic view from a little above the disc ──── */
+    const KY = 0.34;                                  /* foreshortening */
+    const rimPx = R => 70 + (R - 0.05) / 0.20 * 80;   /* size from R alone */
+
+    function draw(v) {
+        const c = PP6.colours(), ctx = v.ctx, W = v.W, H = v.H;
+        const S = solve(), th = thetaAt(tSim);
+        const Rp = rimPx(P.R), cx = W * 0.5, cy = Math.min(H * 0.64, H - 128);
+        const ceil = Math.max(46, cy - Rp - 190);
+        const TH = 15;                                /* disc thickness, px */
+        const proj = (r, a) => ({ x: cx + r * Math.cos(a), y: cy + r * KY * Math.sin(a) });
+
+        /* ceiling the wire is clamped to */
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(cx - 78, ceil); ctx.lineTo(cx + 78, ceil); ctx.stroke();
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1;
+        for (let x = cx - 76; x < cx + 78; x += 11) {
+            ctx.beginPath(); ctx.moveTo(x, ceil); ctx.lineTo(x - 9, ceil - 11); ctx.stroke();
+        }
+
+        const len = cy - ceil;
+
+        /* the disc: bottom face, rim band, top face */
+        ctx.fillStyle = c.edge;
+        ellipse(ctx, cx, cy + TH, Rp, Rp * KY); ctx.fill();
+        ctx.fillRect(cx - Rp, cy, Rp * 2, TH);
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(cx - Rp, cy); ctx.lineTo(cx - Rp, cy + TH); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx + Rp, cy); ctx.lineTo(cx + Rp, cy + TH); ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + TH, Rp, Rp * KY, 0, 0, Math.PI); ctx.stroke();
+
+        ctx.fillStyle = c.deep;
+        ellipse(ctx, cx, cy, Rp, Rp * KY); ctx.fill();
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5;
+        ellipse(ctx, cx, cy, Rp, Rp * KY); ctx.stroke();
+
+        /* The wire goes AFTER the disc: it hangs above the top face, so the
+           stretch between the far rim and the centre must be drawn over it,
+           or the wire appears to stop at the back edge. The winding is also
+           tapered to nothing at both ends, so it meets the ceiling clamp and
+           the disc centre on the axis instead of wandering off it. */
+        ctx.strokeStyle = c.soft; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+        for (let strand = 0; strand < 2; strand++) {
+            ctx.beginPath();
+            for (let q = 0; q <= 1.0001; q += 0.02) {
+                const yy = ceil + q * len;
+                const amp = 6 * Math.sin(Math.PI * Math.min(q, 1));
+                const xx = cx + amp * Math.sin(q * Math.PI * 6 + th + strand * Math.PI);
+                q === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+            }
+            ctx.stroke();
+        }
+        /* the collar where it is clamped to the disc */
+        ctx.fillStyle = c.paper;
+        ellipse(ctx, cx, cy, 7, 7 * KY + 1.5); ctx.fill();
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2;
+        ellipse(ctx, cx, cy, 7, 7 * KY + 1.5); ctx.stroke();
+        PP6.mono(ctx, 'κ = ' + PP6.num(P.k, 3) + ' N·m/rad', cx + 14, ceil + len * 0.34, c.faint, 9);
+
+        /* where zero twist is, and where the disc is now */
+        /* both radial lines start at the collar, not under it */
+        const z0 = proj(10, 0), z = proj(Rp, 0);
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1.2; ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.moveTo(z0.x, z0.y); ctx.lineTo(z.x, z.y); ctx.stroke();
+        ctx.setLineDash([]);
+        plainTo(ctx, c, PP6.T('rest', 'klid'), z.x + 16, z.y + 4, c.faint, 11);
+
+        const m0 = proj(10, th), mk = proj(Rp, th);
+        ctx.strokeStyle = c.acc; ctx.lineWidth = 2.6;
+        ctx.beginPath(); ctx.moveTo(m0.x, m0.y); ctx.lineTo(mk.x, mk.y); ctx.stroke();
+        ctx.fillStyle = c.acc;
+        ctx.beginPath(); ctx.arc(mk.x, mk.y, 3.6, 0, Math.PI * 2); ctx.fill();
+
+        /* the twist itself, as an arc on the face of the disc */
+        if (Math.abs(th) > 4 * RAD) {
+            ctx.strokeStyle = c.soft; ctx.lineWidth = 1.3;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, Rp * 0.52, Rp * 0.52 * KY, 0, 0, th, th < 0);
+            ctx.stroke();
+            const hm = proj(Rp * 0.62, th / 2);
+            plainTo(ctx, c, 'θ', hm.x, hm.y, c.soft, 14, true);
+        }
+
+        /* the riders, the whole reason the apparatus exists */
+        if (P.m > 0.001) {
+            const rd = Rp * (S.d / P.R);
+            [th + Math.PI / 2, th - Math.PI / 2].forEach(a => {
+                const q = proj(rd, a);
+                const sz = 11 + 15 * (P.m / 0.6);
+                ctx.fillStyle = c.faint; ctx.globalAlpha = 0.28;
+                ellipse(ctx, q.x, q.y + 2, sz * 0.7, sz * 0.7 * KY); ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = c.acc;
+                ctx.fillRect(q.x - sz / 2, q.y - sz * 0.75, sz, sz * 0.75);
+                ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2;
+                ctx.strokeRect(q.x - sz / 2, q.y - sz * 0.75, sz, sz * 0.75);
+            });
+            const q0 = proj(rd, th + Math.PI / 2);
+            ctx.strokeStyle = c.soft; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(q0.x, q0.y); ctx.stroke();
+            ctx.setLineDash([]);
+            plainTo(ctx, c, 'd', (cx + q0.x) / 2, (cy + q0.y) / 2 - 9, c.soft, 13, true);
+        }
+
+        /* caption, top left */
+        PP6.mono(ctx, PP6.T('TORSION OSCILLATOR', 'TORZNÍ OSCILÁTOR'), 16, 18, c.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c.ink;
+        ctx.fillText('θ = ' + PP6.num(th / RAD, 1) + '°', 16, 39);
+        PP6.mono(ctx, PP6.T('restoring torque M = −κθ', 'vratný moment M = −κθ'), 16, 58, c.faint, 10);
+
+        trace(ctx, c, W, S);
+    }
+
+    function ellipse(ctx, x, y, rx, ry) {
+        ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    }
+    /* label with a paper halo rather than a plate, so nothing is blanked out */
+    function plainTo(ctx, c, text, x, y, col, size, italic) {
+        ctx.font = (italic ? 'italic ' : '') + (size || 12) +
+                   'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3.5;
+        ctx.strokeStyle = c.paper; ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+
+    /* a scrolling three-period window of theta(t), so T is something you see */
+    function trace(ctx, c, W, S) {
+        const bw = 168, bh = 60, bx = W - bw - 16, by = 14;
+        const win = 3 * S.T;
+        ctx.fillStyle = c.paper; ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.strokeRect(bx, by, bw, bh);
+        const mid = by + bh / 2;
+        ctx.strokeStyle = c.faint;
+        ctx.beginPath(); ctx.moveTo(bx, mid); ctx.lineTo(bx + bw, mid); ctx.stroke();
+        ctx.strokeStyle = c.acc; ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        for (let i = 0; i <= bw; i++) {
+            const t0 = tSim - win + (i / bw) * win;
+            const y = mid - Math.cos(S.w * t0) * (bh / 2 - 7);
+            i === 0 ? ctx.moveTo(bx + i, y) : ctx.lineTo(bx + i, y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = c.acc;
+        ctx.beginPath();
+        ctx.arc(bx + bw, mid - Math.cos(S.w * tSim) * (bh / 2 - 7), 3, 0, Math.PI * 2);
+        ctx.fill();
+        /* one period, bracketed */
+        const pw = bw / 3;
+        ctx.strokeStyle = c.soft; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(bx + bw - pw, by + bh - 5); ctx.lineTo(bx + bw, by + bh - 5); ctx.stroke();
+        PP6.mono(ctx, 'T', bx + bw - pw / 2, by + bh - 12, c.soft, 9, 'center');
+    }
+
+    /* ── readouts ────────────────────────────────────────────────────── */
+    function put(id, t) { const el = $(id); if (el) el.textContent = t; }
+    function readouts() {
+        const S = solve(), th = thetaAt(tSim);
+        put('to-r-I', PP6.num(S.I * 1000, 2) + '·10⁻³ kg·m²');
+        put('to-r-w', PP6.num(S.w, 3) + ' rad/s');
+        put('to-r-T', PP6.num(S.T, 3) + ' s');
+        put('to-r-M', PP6.num(S.Mmax, 4) + ' N·m');
+        put('to-r-th', PP6.num(th / RAD, 1) + '°');
+        put('te-v-I', PP6.num(S.I * 1000, 2) + '·10⁻³');
+        put('te-v-k', PP6.num(P.k, 3));
+        put('te-v-M', PP6.num(S.Mmax, 4) + ' N·m');
+        put('te-v-w', PP6.num(S.w, 3) + ' rad/s');
+        put('te-v-T', PP6.num(S.T, 3) + ' s');
+        put('te-v-th', PP6.num(th / RAD, 1) + '°');
+        const st = $('to-state');
+        if (st) st.textContent = PP6.T('t = ', 't = ') + PP6.num(tSim, 2) + ' s';
+        const note = $('to-note');
+        if (note) note.textContent = P.d > P.R
+            ? PP6.T('A rider cannot sit past the rim, so d is held at R.',
+                    'Závaží nemůže být za okrajem, proto se d drží na R.')
+            : PP6.T('Same masses, moved outwards: I grows as d², and the period with √I.',
+                    'Stejné hmotnosti, jen dál od osy: I roste s d², perioda s √I.');
+    }
+    function paint() { V.redraw(); readouts(); }
+
+    /* ── controls ────────────────────────────────────────────────────── */
+    const SL = [['to-M', 'M'], ['to-R', 'R'], ['to-k', 'k'],
+                ['to-m', 'm'], ['to-d', 'd'], ['to-th', 'th']];
+    const FMT = {
+        M: v => PP6.num(v, 2) + ' kg', R: v => PP6.num(v * 100, 1) + ' cm',
+        k: v => PP6.num(v, 3) + ' N·m/rad', m: v => PP6.num(v, 3) + ' kg',
+        d: v => PP6.num(v * 100, 1) + ' cm', th: v => PP6.num(v, 0) + '°',
+    };
+    function syncLabels() {
+        for (const [id, key] of SL) {
+            const vl = $(id + '-val');
+            if (vl) vl.textContent = FMT[key](P[key]);
+        }
+    }
+    for (const [id, key] of SL) {
+        const sl = $(id);
+        if (!sl) continue;
+        P[key] = parseFloat(sl.value);
+        sl.addEventListener('input', () => {
+            P[key] = parseFloat(sl.value);
+            syncLabels(); tSim = 0; motion(); paint();
+        });
+    }
+    function setRunLabel() {
+        const b = $('to-run');
+        if (b) b.innerHTML = running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Run</span><span lang="cs">Spustit</span>';
+    }
+    $('to-run')?.addEventListener('click', () => {
+        running = !running; setRunLabel();
+        if (running) startLoop(); else stopLoop();
+    });
+    $('to-rewind')?.addEventListener('click', rewind);
+    $('to-reset')?.addEventListener('click', () => {
+        Object.assign(P, D);
+        for (const [id, key] of SL) { const sl = $(id); if (sl) sl.value = P[key]; }
+        syncLabels(); rewind();
+    });
+    document.addEventListener('langchange', () => { syncLabels(); motion(); paint(); });
+
+    syncLabels(); setRunLabel(); paint();
+    PP6.whenReady(motion);
 }());
 </script>
 
