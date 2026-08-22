@@ -28,13 +28,10 @@
             linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
             var(--paper-deep);
     }
-    #sim-canvas {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
-        cursor: crosshair;
+    /* position by CLASS — an #id rule is orphaned the moment a canvas is
+       renamed, and the canvas then grows the page without bound. */
+    .canvas-wrap canvas {
+        position: absolute; inset: 0; width: 100%; height: 100%; display: block;
     }
     .sim-hint {
         position: absolute;
@@ -296,6 +293,244 @@
     .cm-step strong { color: var(--ink); }
 
     /* ── Exercise tabs ────────────────────────────────────────────────── */
+
+    /* ── Panel chrome ────────────────────────────────────────────────── */
+    .panel-reset {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.14em; background: none; border: none;
+        cursor: pointer; color: var(--ink-faint); padding: 0;
+    }
+    .fam-run-row { display: flex; gap: 10px; margin-top: 16px; }
+    .fam-btn-run, .fam-btn-rewind {
+        font-family: var(--f-mono); font-size: 11px; text-transform: uppercase;
+        letter-spacing: 0.14em; padding: 10px 14px;
+        border: 1.5px solid var(--ink); cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .fam-btn-run { flex: 1; background: var(--accent); color: var(--paper); }
+    .fam-btn-rewind { background: var(--paper); color: var(--ink-soft); }
+    .fam-btn-run:hover, .fam-btn-rewind:hover {
+        transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink);
+    }
+    .sim-note {
+        margin: 14px 0 0; font-size: 12px; line-height: 1.55;
+        color: var(--ink-faint); min-height: 1.6em;
+    }
+    .sim-note.warn { color: var(--accent); }
+    .toggle-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 0; border-bottom: 1px dashed var(--ink-faint); cursor: pointer;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-box {
+        width: 15px; height: 15px; border: 1.5px solid var(--ink);
+        position: relative; flex: 0 0 auto;
+    }
+    .toggle-box.on { background: var(--accent); border-color: var(--accent); }
+    .toggle-box.on::after {
+        content: ''; position: absolute; inset: 3px; background: var(--paper);
+    }
+    .toggle-name { font-size: 13px; color: var(--ink-soft); }
+
+    /* ── The impact ledger ───────────────────────────────────────────── */
+    .ledger-box { border: 1.5px solid var(--ink); background: var(--paper); }
+    .ledger-head {
+        display: flex; align-items: baseline; gap: 14px;
+        padding: 12px 24px; border-bottom: 1.5px solid var(--ink);
+        background: var(--paper-deep);
+    }
+    .ledger-head .accent-pip { align-self: center; }
+    .ledger-title {
+        font-family: var(--f-mono); font-size: 11px; text-transform: uppercase;
+        letter-spacing: 0.2em; color: var(--ink);
+    }
+    .ledger-sub { font-size: 12.5px; color: var(--ink-faint); }
+    .ledger-body {
+        display: grid; grid-template-columns: minmax(320px, 1fr) 1fr;
+        gap: 34px; padding: 24px 24px 22px; align-items: start;
+    }
+    .ledger-grid { display: grid; grid-template-columns: 1fr auto; gap: 0 24px; align-items: baseline; }
+    .lg-cell { padding: 9px 0; border-bottom: 1px dashed var(--ink-faint); }
+    .lg-lab { font-size: 14px; color: var(--ink-soft); }
+    .lg-num {
+        font-family: var(--f-mono); font-size: 14px; color: var(--accent);
+        text-align: right; min-width: 108px; letter-spacing: 0.03em;
+    }
+    .lg-tot {
+        border-bottom: none; border-top: 1.5px solid var(--ink);
+        font-weight: 600; padding-top: 11px; margin-top: 2px;
+    }
+    .lg-gap { height: 16px; border: none; padding: 0; }
+    .ledger-verdict { border-left: 3px solid var(--accent); padding: 4px 0 4px 22px; }
+    .lv-eq { font-size: 19px; color: var(--ink); overflow-x: auto; padding-bottom: 2px; }
+    .lv-num {
+        margin-top: 10px; font-family: var(--f-mono); font-size: 13px;
+        color: var(--ink-soft); overflow-x: auto; white-space: nowrap;
+    }
+    .lv-split { margin-top: 20px; }
+    .lv-note { margin: 16px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--ink-faint); }
+    @media (max-width: 900px) {
+        .ledger-body { grid-template-columns: 1fr; gap: 26px; }
+        .ledger-verdict { border-left: none; border-top: 3px solid var(--accent); padding: 20px 0 0; }
+    }
+
+    /* ── The movie sandbox — see topics/_movie-sandbox.html ──────────── */
+    #lab.movie {
+        display: block;
+        margin-left: calc(-50vw + 50% + 12px);
+        margin-right: calc(-50vw + 50% + 12px);
+        margin-bottom: 0;
+    }
+    #lab.movie .canvas-panel { min-height: 0; }
+    #lab.movie .canvas-wrap {
+        flex: 0 0 auto;             /* or `height` is ignored and it collapses */
+        min-height: 0;
+        height: clamp(400px, 62vh, 700px);
+        background: #10131c;
+    }
+    .gate {
+        position: absolute; inset: 0; z-index: 4;
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 20px; cursor: pointer;
+        background: rgba(16, 19, 28, 0.55);
+        backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+        transition: opacity 900ms ease, backdrop-filter 900ms ease,
+                    -webkit-backdrop-filter 900ms ease, background 900ms ease;
+    }
+    .gate.away {
+        opacity: 0; pointer-events: none; background: rgba(16, 19, 28, 0);
+        backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+    }
+    .gate-btn {
+        width: 84px; height: 84px; border-radius: 50%;
+        border: 1.5px solid #d6dfe8; background: rgba(214, 223, 232, 0.10);
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background 220ms ease;
+    }
+    .gate:hover .gate-btn { transform: scale(1.07); background: rgba(214, 223, 232, 0.20); }
+    .gate-btn::after {
+        content: ''; width: 0; height: 0; margin-left: 6px;
+        border-left: 24px solid #eef3f8;
+        border-top: 15px solid transparent; border-bottom: 15px solid transparent;
+    }
+    .gate-title {
+        font-family: var(--f-serif); font-size: clamp(20px, 2.4vw, 30px);
+        color: #eef3f8; text-align: center; padding: 0 24px;
+    }
+    .gate-sub {
+        font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.2em;
+        text-transform: uppercase; color: #9aa8b8; text-align: center;
+    }
+    .canvas-wrap.armed canvas { filter: blur(10px); }
+    #lab.movie .canvas-wrap canvas { transition: filter 900ms ease; }
+    @media (prefers-reduced-motion: reduce) {
+        .gate, .gate-btn, #lab.movie .canvas-wrap canvas { transition: none; }
+    }
+    #lab.movie .canvas-formula-badge {
+        top: auto; bottom: 16px; left: 16px; right: auto;
+        background: rgba(16, 19, 28, 0.86); border-color: #4a5666;
+        color: #eef3f8; font-size: 20px; padding: 9px 16px;
+    }
+    #lab.movie .sim-hint { color: #8b9aab; }
+    .movie-bar {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--ink); border-top: none; background: var(--paper);
+    }
+    .bar-btn {
+        flex: 0 0 auto; font-family: var(--f-mono); font-size: 11px;
+        letter-spacing: 0.14em; text-transform: uppercase; padding: 0 20px;
+        border: none; border-right: 1.5px solid var(--ink);
+        background: var(--paper); color: var(--ink-soft); cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .bar-btn.next {
+        border-right: none; border-left: 1.5px solid var(--ink);
+        background: var(--accent); color: var(--paper);
+    }
+    .bar-btn:hover:not(:disabled) { background: var(--paper-deep); }
+    .bar-btn.next:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    .bar-btn:disabled { color: var(--ink-faint); cursor: not-allowed; }
+    .ms-rail { flex: 1 1 auto; display: flex; overflow-x: auto; scrollbar-width: thin; }
+    .ms-chip {
+        flex: 1 1 0; min-width: 132px; display: flex; flex-direction: column; gap: 3px;
+        padding: 11px 14px 12px; border-right: 1px dashed var(--ink-faint);
+        cursor: pointer; color: var(--ink-faint);
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .ms-chip:last-child { border-right: none; }
+    .ms-chip:hover { background: var(--paper-deep); color: var(--ink-soft); }
+    .ms-chip.on { background: var(--paper-deep); color: var(--ink); }
+    .ms-chip.on .ms-num { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .ms-num {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.06em;
+        width: 19px; height: 16px; line-height: 15px; text-align: center;
+        border: 1px solid currentColor;
+    }
+    .ms-name { font-size: 12.5px; line-height: 1.25; }
+    .ms-reads {
+        flex: 0 0 auto; display: flex; align-items: center; gap: 22px;
+        padding: 0 22px; border-left: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .ms-read { display: flex; flex-direction: column; gap: 3px; }
+    .ms-read-k {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint);
+    }
+    .ms-read-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        letter-spacing: 0.02em; white-space: nowrap;
+    }
+    .movie-note {
+        margin: 10px 0 0; font-size: 11.5px; line-height: 1.5;
+        color: var(--ink-faint); text-align: center;
+    }
+    @media (max-width: 900px) {
+        #lab.movie { margin-left: -48px; margin-right: -48px; }
+        .ms-reads { display: none; }
+        .ms-chip { min-width: 112px; }
+    }
+
+    /* ── The movie's log strip ───────────────────────────────────────── */
+    .fl-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; }
+    .fl-col { border: 1.5px solid var(--ink); background: var(--paper); }
+    .fl-head {
+        display: flex; align-items: baseline; gap: 12px; padding: 11px 20px;
+        border-bottom: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .fl-head .accent-pip { align-self: center; }
+    .fl-kicker {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.16em; color: var(--ink-faint);
+    }
+    .fl-title { font-family: var(--f-serif); font-size: 19px; color: var(--ink); line-height: 1.15; }
+    .fl-body { padding: 20px 20px 18px; }
+    .fl-text { font-size: 14.5px; line-height: 1.72; color: var(--ink-soft); margin: 0 0 16px; }
+    .fl-text em { font-style: italic; color: var(--ink); }
+    .fl-eq {
+        font-size: 18px; color: var(--ink); border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 18px; margin: 0 0 16px; overflow-x: auto;
+    }
+    .fl-rows { display: grid; grid-template-columns: 1fr auto; gap: 0 18px; }
+    .fl-k { font-size: 13.5px; color: var(--ink-soft); padding: 8px 0; border-bottom: 1px dashed var(--ink-faint); }
+    .fl-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        text-align: right; letter-spacing: 0.02em; white-space: nowrap;
+        padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
+    }
+    .fl-real { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin: 0; }
+    .fl-real strong { color: var(--ink); font-weight: 600; }
+    .fl-stamp {
+        font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px;
+        padding-bottom: 10px; border-bottom: 1px solid var(--ink-faint);
+    }
+    .fl-verdict {
+        margin-top: 16px; padding: 12px 14px; border: 1px solid var(--accent);
+        background: var(--paper-deep); font-size: 13px; line-height: 1.6; color: var(--ink);
+    }
+    .fl-verdict b { color: var(--accent); }
+    @media (max-width: 900px) { .fl-grid { grid-template-columns: 1fr; } }
+
     .ex-tabs {
         display: flex;
         flex-wrap: wrap;
@@ -350,16 +585,22 @@
     <section class="topic-hero">
         <div>
             <div class="num">§ I.08 · oscillation</div>
-            <h1>Oscillation</h1>
+            <h1><span lang="en">Oscillation</span><span lang="cs">Kmitání</span></h1>
             <p class="lede">
-                Pull a spring-mass from equilibrium and release. The restoring force
-                drives sinusoidal motion — a perpetual exchange between kinetic and
-                potential energy, altered by damping in real systems.
+                <span lang="en">Anything pushed back towards where it started, by an amount proportional
+                to how far it has strayed, does the same thing: it oscillates, at a frequency set by the
+                stiffness and the inertia and by nothing else. The amplitude never enters. Find those two
+                numbers — whatever the object is, whatever it is made of, however it moves — and the
+                motion is already known.</span>
+                <span lang="cs">Cokoli, co je tlačeno zpět tam, odkud vyšlo, silou úměrnou tomu, jak
+                daleko se dostalo, dělá totéž: kmitá, a to s frekvencí danou jen tuhostí a setrvačností.
+                Amplituda do ní nevstupuje vůbec. Najděte ta dvě čísla — ať je to cokoli, z čehokoli
+                a ať se to hýbe jakkoli — a pohyb je tím určen.</span>
             </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="x = A\cos(\omega_0 t + \varphi)"></div>
-            <div class="eq-caption">Position in simple harmonic motion</div>
+            <div class="eq-caption"><span lang="en">Simple harmonic motion — one frequency, one amplitude, one phase, and nothing else in it</span><span lang="cs">Harmonický pohyb — jedna frekvence, jedna amplituda, jedna fáze a nic víc</span></div>
         </div>
     </section>
 
@@ -411,6 +652,27 @@
       torsion pendulum measures an unknown <span data-tex="I"></span>.</span><span lang="cs">Vždy týž tvar: odmocnina z „jak silně to tlačí zpět" děleno „jak těžko se to rozpohybuje". U kroutivé
       soustavy je tou dvojicí torzní konstanta a moment setrvačnosti — a právě tak torzní kyvadlo změří neznámé
       <span data-tex="I"></span>.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A spring off the axis</span><span lang="cs">Pružina mimo osu</span></span>
+                        <span class="cf-eq" data-tex="\varkappa_{ef} = k\,d^2"></span>
+                        <span class="cf-eq" data-tex="\omega = \sqrt{\dfrac{k d^2}{I}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">An ordinary spring attached a distance <span data-tex="d"></span> from the axis <em>is</em> a torsion
+      spring. Turn by a small angle and its end moves <span data-tex="d\theta"></span>, so it pulls back with
+      <span data-tex="k d\theta"></span> on a lever arm <span data-tex="d"></span> — a restoring torque
+      <span data-tex="k d^2\theta"></span>. That one substitution turns every linear spring problem into a
+      rotational one, and when the inertia happens to carry the same
+      <span data-tex="d^2"></span> the geometry cancels out of the answer completely.</span><span lang="cs">Obyčejná pružina uchycená ve vzdálenosti <span data-tex="d"></span> od osy <em>je</em> torzní
+      pružina. Pootočte o malý úhel a její konec se posune o <span data-tex="d\theta"></span>, takže táhne zpět
+      silou <span data-tex="k d\theta"></span> na rameni <span data-tex="d"></span> — vratným momentem
+      <span data-tex="k d^2\theta"></span>. Tahle jediná náhrada převede každou úlohu s lineární pružinou na
+      rotační, a nese-li moment setrvačnosti tutéž <span data-tex="d^2"></span>, geometrie se z výsledku
+      vykrátí úplně.</span>
                     </p>
                 </div>
 
@@ -523,6 +785,19 @@
        <span data-tex="\omega\theta_{max}"></span>.</span></span>
                 </div>
 
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>If it turns rather than slides, build the torsion constant yourself.</strong> A spring at a
+       distance <span data-tex="d"></span> from the axis gives <span data-tex="\varkappa_{ef} = k d^2"></span>; put
+       that over the rotational inertia about the same axis and you have
+       <span data-tex="\omega"></span>. Watch for the case where both carry
+       <span data-tex="d^2"></span> — then the length cancels and the answer does not depend on the size of the
+       thing at all.</span><span lang="cs"><strong>Otáčí-li se to místo posouvání, sestavte si torzní konstantu sami.</strong> Pružina ve
+       vzdálenosti <span data-tex="d"></span> od osy dá <span data-tex="\varkappa_{ef} = k d^2"></span>; vydělte
+       momentem setrvačnosti k téže ose a máte <span data-tex="\omega"></span>. Pozor na případ, kdy obojí nese
+       <span data-tex="d^2"></span> — pak se délka vykrátí a výsledek na velikosti tělesa vůbec nezávisí.</span></span>
+                </div>
+
             </div>
         </div>
     </section>
@@ -530,108 +805,299 @@
     <!-- ═══════════════════════════════════════════════════════════════
          § 5  SIMULATION LAB
          ═══════════════════════════════════════════════════════════════ -->
-    <section id="lab" class="lab" style="margin-top:72px;">
-
+    <!-- ════ § 3  LAB 1 — ONE LAW, FIVE OSCILLATORS (movie sandbox) ════ -->
+    <section id="lab" class="lab movie" style="margin-top:72px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Spring-mass sandbox</span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">One law, five oscillators</span><span lang="cs">Jeden zákon, pět oscilátorů</span></span>
+                <span style="display:flex;gap:16px;align-items:baseline;">
+                    <span id="mv-clock" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+                    <button id="mv-reset" class="panel-reset">restart</button>
+                </span>
+            </div>
+            <div class="canvas-wrap armed" id="mv-wrap">
+                <canvas id="mv-canvas"></canvas>
+                <div class="gate" id="mv-gate">
+                    <div class="gate-btn"></div>
+                    <div class="gate-title"><span lang="en">Five things that all do the same thing</span><span lang="cs">Pět věcí, které dělají totéž</span></div>
+                    <div class="gate-sub"><span lang="en">a spring · a pendulum · a rod · a wire · a rod on a spring</span><span lang="cs">pružina · kyvadlo · tyč · drát · tyč na pružině</span></div>
+                </div>
+                <div class="canvas-formula-badge" id="mv-eq"></div>
+                <div class="sim-hint"><span lang="en">same two numbers, every time</span><span lang="cs">pokaždé tatáž dvě čísla</span></div>
+            </div>
+        </div>
+        <div class="movie-bar">
+            <button id="mv-prev" class="bar-btn">←</button>
+            <div class="ms-rail" id="mv-list"></div>
+            <div class="ms-reads">
+                <div class="ms-read">
+                    <span class="ms-read-k"><span lang="en">restoring</span><span lang="cs">vratná</span></span>
+                    <span class="ms-read-v" id="mv-r-k">—</span>
+                </div>
+                <div class="ms-read">
+                    <span class="ms-read-k"><span lang="en">inertia</span><span lang="cs">setrvačnost</span></span>
+                    <span class="ms-read-v" id="mv-r-i">—</span>
+                </div>
+                <div class="ms-read">
+                    <span class="ms-read-k">ω</span>
+                    <span class="ms-read-v" id="mv-r-w">—</span>
+                </div>
+            </div>
+            <button id="mv-next" class="bar-btn next"><span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→</button>
+        </div>
+    </section>
+
+    <p class="movie-note" id="mv-note"></p>
+
+    <section id="oscilog" style="margin-top:24px;">
+        <div class="fl-grid">
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker" id="fl-kicker">—</span>
+                    <span class="fl-title" id="fl-title">—</span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-text" id="fl-text"></p>
+                    <div class="fl-eq" id="fl-eq"></div>
+                    <div class="fl-rows" id="fl-rows"></div>
+                </div>
+            </div>
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker"><span lang="en">Where it turns up</span><span lang="cs">Kde se s tím potkáte</span></span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-stamp" id="fl-stamp">—</p>
+                    <p class="fl-real" id="fl-real"></p>
+                    <div class="fl-verdict" id="fl-verdict" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 4  LAB 2 — THE PASSENGER ════ -->
+    <section id="lab2" class="lab" style="margin-top:56px; margin-bottom:0;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">The passenger — how hard can it shake before the top slides?</span><span lang="cs">Pasažér — jak silně smí kmitat, aby horní neklouzal?</span></span>
+                <span id="p1-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
             </div>
             <div class="canvas-wrap">
-                <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="F = -kx"></div>
-                <div class="sim-hint">adjust k, m, damping · watch amplitude decay</div>
+                <canvas id="p1-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="\omega^2 A \le \mu_s g"></div>
+                <div class="sim-hint"><span lang="en">the demand peaks at the turning points</span><span lang="cs">nárok vrcholí v bodech obratu</span></div>
             </div>
         </div>
 
         <div class="side-stack">
-
-            <!-- Parameters -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
-                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
-                        text-transform:uppercase;letter-spacing:0.14em;background:none;
-                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
-                        title="Reset to defaults">reset</button>
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="p1-reset" class="panel-reset">reset</button>
                 </div>
                 <div class="panel-body">
-
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Spring constant <em>k</em></span>
-                            <span class="sim-control-val" id="p-k-val">100 N/m</span>
+                            <span class="sim-control-name"><span lang="en">Amplitude <em>A</em></span><span lang="cs">Amplituda <em>A</em></span></span>
+                            <span class="sim-control-val" id="p1-A-val">0.20 m</span>
                         </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-k" min="10" max="500" step="10" value="100">
+                        <input class="sim-control-range" type="range" id="p1-A" min="0.02" max="0.45" step="0.005" value="0.20">
                     </div>
-
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Mass <em>m</em></span>
-                            <span class="sim-control-val" id="p-m-val">0.5 kg</span>
+                            <span class="sim-control-name"><span lang="en">Stiffness <em>k</em></span><span lang="cs">Tuhost <em>k</em></span></span>
+                            <span class="sim-control-val" id="p1-k-val">200 N/m</span>
                         </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-m" min="0.1" max="5" step="0.1" value="0.5">
+                        <input class="sim-control-range" type="range" id="p1-k" min="50" max="600" step="5" value="200">
                     </div>
-
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Damping <em>b</em></span>
-                            <span class="sim-control-val" id="p-b-val">1.0 N·s/m</span>
+                            <span class="sim-control-name"><span lang="en">Lower body <em>M</em></span><span lang="cs">Dolní těleso <em>M</em></span></span>
+                            <span class="sim-control-val" id="p1-M-val">10.0 kg</span>
                         </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-b" min="0" max="20" step="0.5" value="1">
+                        <input class="sim-control-range" type="range" id="p1-M" min="1" max="20" step="0.1" value="10">
                     </div>
-
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Amplitude <em>A</em></span>
-                            <span class="sim-control-val" id="p-amp-val">0.15 m</span>
+                            <span class="sim-control-name"><span lang="en">Passenger <em>m</em></span><span lang="cs">Pasažér <em>m</em></span></span>
+                            <span class="sim-control-val" id="p1-m-val">1.80 kg</span>
                         </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-amp" min="0.05" max="0.5" step="0.05" value="0.15">
+                        <input class="sim-control-range" type="range" id="p1-m" min="0.1" max="8" step="0.1" value="1.8">
                     </div>
-
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Friction <em>μ</em><sub>s</sub></span><span lang="cs">Tření <em>μ</em><sub>s</sub></span></span>
+                            <span class="sim-control-val" id="p1-mu-val">0.40</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="p1-mu" min="0.02" max="0.9" step="0.01" value="0.40">
+                    </div>
+                    <div class="fam-run-row">
+                        <button id="p1-run" class="fam-btn-run">▶ <span lang="en">Run</span><span lang="cs">Spustit</span></button>
+                        <button id="p1-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
+                    </div>
+                    <p class="sim-note" id="p1-note"></p>
                 </div>
             </div>
 
-            <!-- Readout -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečet</span></span>
                 </div>
                 <div class="panel-body">
-                    <div class="readout-section">Frequency</div>
                     <div class="readout-row">
-                        <span class="readout-label">ω₀</span>
-                        <span class="readout-val" id="r-omega0">—</span>
+                        <span class="readout-label" data-tex="\omega = \sqrt{k/(M+m)}"></span>
+                        <span class="readout-val" id="p1-r-w">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">ω<sub>d</sub></span>
-                        <span class="readout-val" id="r-omegad">—</span>
+                        <span class="readout-label" data-tex="a_{max} = \omega^2 A"></span>
+                        <span class="readout-val" id="p1-r-a">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">T<sub>d</sub></span>
-                        <span class="readout-val" id="r-td">—</span>
-                    </div>
-                    <div class="readout-section" style="margin-top:4px;">State</div>
-                    <div class="readout-row">
-                        <span class="readout-label">x</span>
-                        <span class="readout-val" id="r-x">—</span>
+                        <span class="readout-label" data-tex="\mu_s g"></span>
+                        <span class="readout-val" id="p1-r-lim">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">v</span>
-                        <span class="readout-val" id="r-v">—</span>
+                        <span class="readout-label" data-tex="A_{max} = \mu_s g/\omega^2"></span>
+                        <span class="readout-val" id="p1-r-Amax">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">E</span>
-                        <span class="readout-val" id="r-e">—</span>
+                        <span class="readout-label"><span lang="en">slip so far</span><span lang="cs">dosavadní prokluz</span></span>
+                        <span class="readout-val" id="p1-r-slip">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 5  LAB 3 — THE BALLISTIC OSCILLATOR ════ -->
+    <section id="lab3" class="lab" style="margin-top:56px; margin-bottom:0;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">The ballistic oscillator — a collision, then an oscillation</span><span lang="cs">Balistický oscilátor — nejdřív srážka, pak kmitání</span></span>
+                <span id="b1-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="b1-canvas"></canvas>
+                <div class="canvas-formula-badge" data-tex="mv = (M+m)V"></div>
+                <div class="sim-hint"><span lang="en">momentum through the impact · energy after it</span><span lang="cs">nárazem hybnost · po něm energie</span></div>
+            </div>
+        </div>
+
+        <div class="side-stack">
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
+                    <button id="b1-reset" class="panel-reset">reset</button>
+                </div>
+                <div class="panel-body">
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Projectile <em>m</em></span><span lang="cs">Střela <em>m</em></span></span>
+                            <span class="sim-control-val" id="b1-m-val">9.5 g</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="b1-m" min="1" max="60" step="0.5" value="9.5">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Its speed <em>v</em></span><span lang="cs">Její rychlost <em>v</em></span></span>
+                            <span class="sim-control-val" id="b1-v-val">630 m/s</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="b1-v" min="50" max="1000" step="5" value="630">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Block <em>M</em></span><span lang="cs">Kvádr <em>M</em></span></span>
+                            <span class="sim-control-val" id="b1-M-val">5.40 kg</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="b1-M" min="0.5" max="15" step="0.1" value="5.4">
+                    </div>
+                    <div class="sim-control">
+                        <div class="sim-control-head">
+                            <span class="sim-control-name"><span lang="en">Stiffness <em>k</em></span><span lang="cs">Tuhost <em>k</em></span></span>
+                            <span class="sim-control-val" id="b1-k-val">6000 N/m</span>
+                        </div>
+                        <input class="sim-control-range" type="range" id="b1-k" min="500" max="12000" step="100" value="6000">
+                    </div>
+                    <div class="fam-run-row">
+                        <button id="b1-run" class="fam-btn-run">▶ <span lang="en">Fire</span><span lang="cs">Vystřelit</span></button>
+                        <button id="b1-rewind" class="fam-btn-rewind">↺ <span lang="en">Rewind</span><span lang="cs">Zpět</span></button>
                     </div>
                 </div>
             </div>
 
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">The wrong way</span><span lang="cs">Špatná cesta</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="toggle-row" id="b1-wrong">
+                        <div class="toggle-box"></div>
+                        <span class="toggle-name"><span lang="en">conserve energy through the impact</span><span lang="cs">zachovat energii i při nárazu</span></span>
+                    </div>
+                    <p class="sim-note" id="b1-note"></p>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečet</span></span>
+                </div>
+                <div class="panel-body">
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="V = mv/(M+m)"></span>
+                        <span class="readout-val" id="b1-r-V">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="\omega"></span>
+                        <span class="readout-val" id="b1-r-w">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="A = V/\omega"></span>
+                        <span class="readout-val" id="b1-r-A">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label" data-tex="T"></span>
+                        <span class="readout-val" id="b1-r-T">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 6  THE IMPACT LEDGER ════ -->
+    <section id="impact" style="margin-top:24px;">
+        <div class="ledger-box">
+            <div class="ledger-head">
+                <span class="accent-pip"></span>
+                <span class="ledger-title"><span lang="en">The impact ledger</span><span lang="cs">Bilance nárazu</span></span>
+                <span class="ledger-sub"><span lang="en">momentum survives it · energy does not</span><span lang="cs">hybnost ho přežije · energie ne</span></span>
+            </div>
+            <div class="ledger-body">
+                <div class="ledger-grid">
+                    <div class="lg-cell lg-lab"><span data-tex="p = mv"></span></div>
+                    <div class="lg-cell lg-num" id="im-p1">—</div>
+                    <div class="lg-cell lg-lab"><span data-tex="p' = (M+m)V"></span></div>
+                    <div class="lg-cell lg-num lg-tot" id="im-p2">—</div>
+
+                    <div class="lg-gap"></div><div class="lg-gap"></div>
+
+                    <div class="lg-cell lg-lab"><span data-tex="E_k = \tfrac{1}{2}mv^2"></span></div>
+                    <div class="lg-cell lg-num" id="im-e1">—</div>
+                    <div class="lg-cell lg-lab"><span data-tex="E_k' = \tfrac{1}{2}(M+m)V^2"></span></div>
+                    <div class="lg-cell lg-num" id="im-e2">—</div>
+                    <div class="lg-cell lg-lab lg-tot"><span lang="en">destroyed</span><span lang="cs">zničeno</span></div>
+                    <div class="lg-cell lg-num lg-tot" id="im-loss">—</div>
+                </div>
+                <div class="ledger-verdict">
+                    <div class="lv-eq" id="im-vp"></div>
+                    <div class="lv-num" id="im-vp-num"></div>
+                    <div class="lv-eq lv-split" id="im-ve"></div>
+                    <div class="lv-num" id="im-ve-num"></div>
+                    <p class="lv-note" id="im-note"></p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -677,328 +1143,929 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     SPRING-MASS SIMULATION — symplectic Euler, 10 substeps/frame
-     ═══════════════════════════════════════════════════════════════════ -->
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   § I.08 — shared helpers. g = 9.8, because the chapter 15 answer keys do.
+   ══════════════════════════════════════════════════════════════════════ */
+const PP8 = (function () {
     'use strict';
-
-    /* ── Canvas setup ──────────────────────────────────────────────── */
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  300);
-        H = Math.max(r.height, 300);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    /* ── Colour tokens ─────────────────────────────────────────────── */
-    function readCol() {
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const big = (v, d) => {
+        const s = num(v, d === undefined ? 0 : d);
+        const parts = s.split(isCS() ? ',' : '.');
+        return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ') +
+               (parts[1] ? (isCS() ? ',' : '.') + parts[1] : '');
+    };
+    function colours() {
         const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   s.getPropertyValue('--accent').trim()    || '#2d6e6a',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink:   s.getPropertyValue('--ink').trim()        || '#363026',
+            soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7a6a52',
+            paper: s.getPropertyValue('--paper').trim()      || '#f7f3e6',
+            deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            edge:  s.getPropertyValue('--paper-edge').trim() || '#e6dfc8',
+            acc:   b.getPropertyValue('--accent').trim()     || '#2d6e6a',
         };
     }
-    let col = readCol();
-
-    /* ── Physics parameters & state ───────────────────────────────── */
-    const DEFAULTS = { k: 100, m: 0.5, b: 1.0, A: 0.15 };
-    let cfg = { ...DEFAULTS };
-
-    const SUBSTEPS = 10;
-    const DT = 1 / 600;   // per substep (= 1/60 / 10)
-
-    let x = 0, v = 0;     // physical units (m, m/s)
-    const WAVEFORM_LEN = 300;
-    let wave = [];         // ring buffer of x values (m)
-
-    function initSim() {
-        x = cfg.A;
-        v = 0;
-        wave = [];
-    }
-    initSim();
-
-    /* ── Symplectic Euler integrator ───────────────────────────────── */
-    function step() {
-        const a = (-cfg.k * x - cfg.b * v) / cfg.m;
-        v += a * DT;
-        x += v * DT;
-    }
-
-    /* ── Spring coil drawing ───────────────────────────────────────── */
-    function drawSpring(x1, y1, x2, y2, coils, r) {
-        const len = Math.hypot(x2 - x1, y2 - y1);
-        if (len < 2) return;
-        const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
-        const px = -uy, py = ux;  // perpendicular
-        const segLen = len / (coils * 2 + 2);
-
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x1 + ux * segLen, y1 + uy * segLen);
-
-        for (let i = 0; i < coils * 2; i++) {
-            const side = (i % 2 === 0) ? +r : -r;
-            const cx_ = x1 + ux * segLen * (i + 1.5) + px * side;
-            const cy_ = y1 + uy * segLen * (i + 1.5) + py * side;
-            ctx.lineTo(cx_, cy_);
+    function mount(id, drawFn) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const o = { canvas, ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 240), H = Math.max(r.height, 180);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
-
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([]);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        o.redraw = function () {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); drawFn(o); });
+        };
+        size();
+        new ResizeObserver(() => { size(); o.redraw(); }).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
+    }
+    function mono(ctx, text, x, y, col, size, align) {
+        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+    }
+    function halo(ctx, bg, text, x, y, col, size, italic, align) {
+        ctx.font = (italic ? 'italic ' : '') + (size || 12) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3.5;
+        ctx.strokeStyle = bg; ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+    function arrow(ctx, x1, y1, x2, y2, col, lw) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(10, L * 0.34), hw = hl * 0.52;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+        ctx.setLineDash([]); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+    /* a coil spring between two points */
+    function coil(ctx, x1, y1, x2, y2, turns, amp, col) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 2) return;
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+        ctx.beginPath();
+        const N = turns * 12;
+        for (let i = 0; i <= N; i++) {
+            const t = i / N, e = Math.min(t, 1 - t) * 6;
+            const off = Math.sin(t * turns * Math.PI * 2) * amp * Math.min(1, e);
+            const x = x1 + ux * L * t + nx * off, y = y1 + uy * L * t + ny * off;
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
         ctx.stroke();
     }
-
-    /* ── Hatching helper ───────────────────────────────────────────── */
-    function hatchRect(rx, ry, rw, rh) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(rx, ry, rw, rh);
-        ctx.clip();
-        ctx.strokeStyle = col.faint + '90';
-        ctx.lineWidth = 0.8;
-        ctx.setLineDash([]);
-        const step = 7;
-        for (let i = rx - rh; i < rx + rw + rh; i += step) {
+    /* the site's hatched ground / wall */
+    function hatch(ctx, x1, y1, x2, y2, col, depth) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
             ctx.beginPath();
-            ctx.moveTo(i, ry);
-            ctx.lineTo(i + rh, ry + rh);
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth);
             ctx.stroke();
         }
-        ctx.restore();
+    }
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+    return { isCS, T, num, big, colours, mount, mono, halo, arrow, coil, hatch,
+             katexInto, whenReady, G: 9.8 };
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 1 — THE PASSENGER   (Ex. 15-24)
+
+   A block rides on a block on a spring. The only horizontal force on the
+   passenger is friction, and it has to supply m·a at every instant. The
+   demand is largest at the turning points, where a = omega^2 A, so the
+   condition for the passenger to hold on is
+
+       m omega^2 A  <=  mu_s m g      =>      omega^2 A <= mu_s g
+
+   The passenger's own mass cancels out of THAT — but not out of omega,
+   which carries M + m. Both bodies are integrated, so past the limit the
+   passenger really does slide, with kinetic friction taken equal to the
+   static value (the exercise gives only one).
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP8.mount('p1-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const G = PP8.G;
+
+    const D = { A: 0.20, k: 200, M: 10, m: 1.8, mu: 0.40 };
+    const P = Object.assign({}, D);
+
+    const omega = () => Math.sqrt(P.k / (P.M + P.m));
+    const Amax  = () => P.mu * G / (omega() * omega());
+
+    /* state: x is the block, xp the passenger */
+    let x = 0, v = 0, xp = 0, vp = 0, stuck = true, slip = 0, t = 0;
+    let running = false, raf = 0, lastTs = 0;
+
+    function rewind() {
+        x = P.A; v = 0; xp = P.A; vp = 0; stuck = true; slip = 0; t = 0;
+        running = false; stopLoop(); setRunLabel(); paint();
+    }
+    function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+    /* symplectic Euler, small steps, with an explicit stick/slip switch */
+    function step(dt) {
+        const M = P.M, m = P.m, k = P.k, mu = P.mu;
+        if (stuck) {
+            const a = -k * x / (M + m);
+            if (m * Math.abs(a) > mu * m * G) { stuck = false; }
+            else {
+                v += a * dt; x += v * dt; vp = v; xp = x;
+                return;
+            }
+        }
+        const vrel = vp - v;
+        const sgn = vrel > 0 ? 1 : (vrel < 0 ? -1 : 0);
+        const ap = -mu * G * sgn;
+        const ab = (-k * x + mu * m * G * sgn) / M;
+        vp += ap * dt; v += ab * dt;
+        xp += vp * dt; x += v * dt;
+        slip = Math.max(slip, Math.abs(xp - x));
+        if (Math.abs(vp - v) < 2e-3) {
+            const a = -k * x / (M + m);
+            if (m * Math.abs(a) <= mu * m * G) {
+                stuck = true;
+                v = (M * v + m * vp) / (M + m); vp = v; xp = x;
+            }
+        }
+    }
+    function startLoop() {
+        if (raf) return;
+        const tick = ts => {
+            const dt = lastTs ? Math.min((ts - lastTs) / 1000, 1 / 20) : 0;
+            lastTs = ts;
+            let acc = dt * 0.6;                       /* slowed, to be watchable */
+            while (acc > 0) { const h = Math.min(acc, 1 / 1200); step(h); t += h; acc -= h; }
+            paint();
+            if (running) raf = requestAnimationFrame(tick); else { raf = 0; lastTs = 0; }
+        };
+        lastTs = 0;
+        raf = requestAnimationFrame(tick);
     }
 
-    /* ── Main draw ──────────────────────────────────────────────────── */
-    function draw() {
-        ctx.clearRect(0, 0, W, H);
+    function draw(vv) {
+        const c = PP8.colours(), ctx = vv.ctx, W = vv.W, H = vv.H;
+        const sc = Math.min((W - 150) / (2 * Math.max(P.A, 0.05) + 0.5), 480);
+        const y0 = H * 0.62;
+        const cx = W * 0.52;
 
-        /* Layout constants */
-        const PHYS_SCALE = Math.min(W, H) * 0.9;  // px per meter of full range
-        const EQ_X = W * 0.50;                     // equilibrium position of mass centre
-        const MASS_Y = H * 0.55;                   // vertical centre of mass
-        const WALL_X = 32;                         // right edge of wall
-        const MASS_W = 40, MASS_H = 40;
-        const MASS_X = EQ_X + x * PHYS_SCALE;      // actual mass centre (px)
+        PP8.hatch(ctx, 20, y0, W - 20, y0, c.faint, 9);
+        const wallX = 42;
+        PP8.hatch(ctx, wallX, y0, wallX, y0 - 96, c.faint, -9);
 
-        /* Waveform area (upper 35% of canvas) */
-        const WAVE_TOP = 12;
-        const WAVE_H   = H * 0.32;
-        const WAVE_MID = WAVE_TOP + WAVE_H * 0.5;
-        const WAVE_SCALE = WAVE_H * 0.45 / Math.max(cfg.A, 0.05);
+        const bw = 96, bh = 34, pw = 58, ph = 24;
+        const bx = cx + x * sc;
+        PP8.coil(ctx, wallX, y0 - bh / 2 - 6, bx - bw / 2, y0 - bh / 2 - 6, 9, 8, c.soft);
 
-        /* --- Waveform plot --- */
-        if (wave.length > 1) {
-            const dx = (W - 40) / WAVEFORM_LEN;
-            ctx.beginPath();
-            ctx.strokeStyle = col.acc;
-            ctx.lineWidth = 1.4;
+        ctx.fillStyle = c.edge; ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.fillRect(bx - bw / 2, y0 - bh, bw, bh);
+        ctx.strokeRect(bx - bw / 2, y0 - bh, bw, bh);
+        PP8.halo(ctx, c.paper, 'M', bx, y0 - bh / 2, c.ink, 14, true);
+
+        const px = cx + xp * sc;
+        ctx.fillStyle = stuck ? c.paper : c.deep;
+        ctx.fillRect(px - pw / 2, y0 - bh - ph, pw, ph);
+        ctx.strokeStyle = stuck ? c.ink : c.acc; ctx.lineWidth = stuck ? 1.5 : 2.2;
+        ctx.strokeRect(px - pw / 2, y0 - bh - ph, pw, ph);
+        PP8.halo(ctx, c.paper, 'm', px, y0 - bh - ph / 2, c.ink, 13, true);
+
+        /* the equilibrium line and the two turning points */
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(cx, y0 - 118); ctx.lineTo(cx, y0 + 6); ctx.stroke();
+        ctx.setLineDash([]);
+
+        /* the two bars: what friction must supply, and what it can */
+        const need = P.m * Math.abs(P.k * x / (P.M + P.m));
+        const have = P.mu * P.m * G;
+        const barX = W - 108, barY = 34, barH = H * 0.46, barW = 26;
+        const top = Math.max(need, have) * 1.15 || 1;
+        const bar = (ox, val, col, lab) => {
+            const h = barH * val / top;
+            ctx.fillStyle = col;
+            ctx.fillRect(ox, barY + barH - h, barW, h);
+            ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2;
+            ctx.strokeRect(ox, barY + barH - h, barW, h);
+            PP8.mono(ctx, PP8.num(val, 1), ox + barW / 2, barY + barH + 13, c.soft, 9, 'center');
+            PP8.mono(ctx, lab, ox + barW / 2, barY + barH + 26, c.faint, 9, 'center');
+        };
+        bar(barX, need, need > have + 1e-9 ? c.acc : c.edge, PP8.T('needs', 'nutno'));
+        bar(barX + barW + 16, have, c.deep, PP8.T('has', 'k dispozici'));
+        ctx.strokeStyle = c.acc; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
+        const hy = barY + barH - barH * have / top;
+        ctx.beginPath(); ctx.moveTo(barX - 10, hy); ctx.lineTo(barX + 2 * barW + 26, hy); ctx.stroke();
+        ctx.setLineDash([]);
+        PP8.mono(ctx, PP8.T('FRICTION, N', 'TŘENÍ, N'), barX, barY - 12, c.soft, 9);
+
+        /* caption */
+        PP8.mono(ctx, PP8.T('THE PASSENGER', 'PASAŽÉR'), 16, 18, c.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c.ink;
+        ctx.fillText(stuck ? PP8.T('riding along', 'veze se')
+                           : PP8.T('sliding', 'klouže'), 16, 39);
+        PP8.mono(ctx, 't = ' + PP8.num(t, 2) + ' s', 16, 58, c.faint, 10);
+    }
+
+    function readouts() {
+        const w = omega(), am = Amax();
+        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        put('p1-r-w', PP8.num(w, 3) + ' rad/s');
+        put('p1-r-a', PP8.num(w * w * P.A, 2) + ' m/s²');
+        put('p1-r-lim', PP8.num(P.mu * G, 2) + ' m/s²');
+        put('p1-r-Amax', PP8.num(am, 3) + ' m');
+        put('p1-r-slip', PP8.num(slip * 1000, 1) + ' mm');
+        const st = $('p1-state');
+        if (st) st.textContent = stuck ? PP8.T('holding', 'drží') : PP8.T('slipping', 'klouže');
+        const note = $('p1-note');
+        if (note) {
+            const over = P.A > am;
+            note.textContent = over
+                ? PP8.T('A is past A_max, so the passenger cannot be held: it slides at the turning points.',
+                        'A je za A_max, pasažéra už nelze udržet: v bodech obratu klouže.')
+                : PP8.T('Below A_max the friction available is never called on for more than it has.',
+                        'Pod A_max se po tření nikdy nechce víc, než má.');
+            note.classList.toggle('warn', over);
+        }
+    }
+    function paint() { V.redraw(); readouts(); }
+
+    const SL = [['p1-A', 'A'], ['p1-k', 'k'], ['p1-M', 'M'], ['p1-m', 'm'], ['p1-mu', 'mu']];
+    const FMT = {
+        A: v => PP8.num(v, 2) + ' m', k: v => PP8.num(v, 0) + ' N/m',
+        M: v => PP8.num(v, 1) + ' kg', m: v => PP8.num(v, 2) + ' kg', mu: v => PP8.num(v, 2),
+    };
+    function syncLabels() {
+        for (const [id, key] of SL) { const el = $(id + '-val'); if (el) el.textContent = FMT[key](P[key]); }
+    }
+    for (const [id, key] of SL) {
+        const sl = $(id);
+        if (!sl) continue;
+        P[key] = parseFloat(sl.value);
+        sl.addEventListener('input', () => { P[key] = parseFloat(sl.value); syncLabels(); rewind(); });
+    }
+    function setRunLabel() {
+        const b = $('p1-run');
+        if (b) b.innerHTML = running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Run</span><span lang="cs">Spustit</span>';
+    }
+    $('p1-run')?.addEventListener('click', () => {
+        running = !running; setRunLabel();
+        if (running) startLoop(); else stopLoop();
+    });
+    $('p1-rewind')?.addEventListener('click', rewind);
+    $('p1-reset')?.addEventListener('click', () => {
+        Object.assign(P, D);
+        for (const [id, key] of SL) { const sl = $(id); if (sl) sl.value = P[key]; }
+        syncLabels(); rewind();
+    });
+    document.addEventListener('langchange', () => { syncLabels(); paint(); });
+    syncLabels(); rewind();
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 2 — ONE LAW, FIVE OSCILLATORS   (the movie sandbox)
+
+   Five systems that look nothing like one another and obey one equation.
+   Each step names that system's restoring constant and its inertia and
+   divides. The fifth is Ex. 15-51; the fourth is Ex. 15-101's apparatus,
+   with its published numbers.
+
+   Steps 1-5 are animated at a common tempo so they can be watched — their
+   true periods differ by a factor of 24 — and the panel carries the real
+   one. Step 6 makes that honest by plotting each on its own t/T axis,
+   where all five are the same curve.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP8.mount('mv-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const G = PP8.G, N = PP8.num;
+
+    const SYS = [
+        { k: 'spring', kk: 20, mm: 0.50 },
+        { k: 'pend',   l: 0.60, mm: 0.30 },
+        { k: 'rod',    L: 0.80, mm: 0.40 },
+        { k: 'torsion', kap: 0.020, I: 8.1e-5 },
+        { k: 'rodspring', kk: 1850, mm: 0.600, L: 1.0 },
+    ];
+    /* restoring constant and inertia, in whatever units that system uses */
+    function pair(i) {
+        const S = SYS[i];
+        if (S.k === 'spring')     return { K: S.kk, I: S.mm, kl: 'k', il: 'm' };
+        if (S.k === 'pend')       return { K: S.mm * G * S.l, I: S.mm * S.l * S.l, kl: 'm g ℓ', il: 'm ℓ²' };
+        if (S.k === 'rod')        return { K: S.mm * G * (S.L / 2), I: S.mm * S.L * S.L / 3, kl: 'm g d', il: 'I' };
+        if (S.k === 'torsion')    return { K: S.kap, I: S.I, kl: 'ϰ', il: 'I' };
+        return { K: S.kk * (S.L / 2) * (S.L / 2), I: S.mm * S.L * S.L / 12, kl: 'k d²', il: 'I' };
+    }
+    const wOf = i => { const q = pair(i); return Math.sqrt(q.K / q.I); };
+    const TOf = i => 2 * Math.PI / wOf(i);
+
+    const STEPS = [
+        { sys: 0, t: ['A mass on a spring', 'Těleso na pružině'],
+          when: ['The one everybody starts from', 'Ten, kterým všichni začínají'],
+          body: ['The stiffness is the spring constant and the inertia is the mass, and there is nothing else in it. Note what is <em>not</em> in the answer: the amplitude. Pull it twice as far and it takes exactly as long to come back.',
+                 'Tuhostí je tuhost pružiny a setrvačností hmotnost, a nic víc v tom není. Všimněte si, co ve výsledku <em>není</em>: amplituda. Vytáhněte to dvakrát dál a trvá to přesně stejně dlouho.'],
+          eq: '\\omega = \\sqrt{\\dfrac{k}{m}}',
+          real: ['Every other system on this page is this one in disguise. The work is only ever to find out what plays the part of <strong>k</strong> and what plays the part of <strong>m</strong>.',
+                 'Každá další soustava na této stránce je tahle v přestrojení. Práce spočívá jen v tom zjistit, co hraje roli <strong>k</strong> a co roli <strong>m</strong>.'] },
+        { sys: 1, t: ['A simple pendulum', 'Matematické kyvadlo'],
+          when: ['A bob on a string, swung gently', 'Závaží na vlákně, malé rozkyvy'],
+          body: ['Turn it by a small angle and gravity pulls back with a torque <em>mg&#8467;</em> per radian, against an inertia <em>m&#8467;²</em>. Divide and the mass cancels — which is why a heavy pendulum and a light one of the same length keep the same time, and why this was the first good clock.',
+                 'Vychylte ho o malý úhel a tíže táhne zpět momentem <em>mg&#8467;</em> na radián proti setrvačnosti <em>m&#8467;²</em>. Vydělte a hmotnost se vykrátí — proto těžké i lehké kyvadlo téže délky měří stejný čas a proto z toho byly první dobré hodiny.'],
+          eq: '\\omega = \\sqrt{\\dfrac{mg\\ell}{m\\ell^{2}}} = \\sqrt{\\dfrac{g}{\\ell}}',
+          real: ['The cancellation is the surprise, and it only survives for <strong>small</strong> angles: the restoring torque is really <em>mg&#8467;·sinθ</em>, and calling that <em>mg&#8467;·θ</em> is the whole approximation this chapter rests on.',
+                 'To vykrácení je to překvapivé a přežije jen u <strong>malých</strong> úhlů: vratný moment je ve skutečnosti <em>mg&#8467;·sinθ</em> a nahradit ho <em>mg&#8467;·θ</em> je celá aproximace, na níž tahle kapitola stojí.'] },
+        { sys: 2, t: ['A rod swinging from its end', 'Tyč zavěšená za konec'],
+          when: ['A physical pendulum — the mass is spread out', 'Fyzické kyvadlo — hmota je rozprostřená'],
+          body: ['Now the bob is not a point, so the inertia is a real rotational inertia about the pivot and the weight acts at the centre of mass, a distance <em>d</em> away. Same division, different two numbers. The mass cancels again here, but only because both terms happen to carry it.',
+                 'Teď závaží není bod, takže setrvačnost je skutečný moment setrvačnosti k ose a tíha působí v těžišti ve vzdálenosti <em>d</em>. Totéž dělení, jiná dvě čísla. Hmotnost se i tady vykrátí, ale jen proto, že ji náhodou nesou oba členy.'],
+          eq: '\\omega = \\sqrt{\\dfrac{mgd}{I}}',
+          real: ['A rod hung from one end has <em>I = mL²/3</em> and <em>d = L/2</em>, so it swings like a simple pendulum of length <strong>2L/3</strong> — shorter than the rod, and faster than you would guess.',
+                 'Tyč zavěšená za konec má <em>I = mL²/3</em> a <em>d = L/2</em>, takže kýve jako matematické kyvadlo délky <strong>2L/3</strong> — kratší než tyč a rychleji, než byste čekali.'] },
+        { sys: 3, t: ['A disc on a wire', 'Kotouč na drátu'],
+          when: ['A torsion pendulum · Ex. 15-101', 'Torzní kyvadlo · úloha 15-101'],
+          body: ['Nothing here moves in a straight line at all, and it makes no difference. The wire supplies a restoring torque <em>ϰ</em> per radian, the disc has a rotational inertia, and the same division gives the same kind of answer. This one is worth knowing backwards: measure ϰ from a graph and <em>T</em> from another, and you have weighed an inertia without touching it.',
+                 'Tady se nic nepohybuje po přímce a je to úplně jedno. Drát dodává vratný moment <em>ϰ</em> na radián, kotouč má moment setrvačnosti, a totéž dělení dá tentýž druh odpovědi. Tohle se vyplatí umět pozpátku: odečtěte ϰ z jednoho grafu a <em>T</em> z druhého a zvážili jste moment setrvačnosti, aniž byste se ho dotkli.'],
+          eq: '\\omega = \\sqrt{\\dfrac{\\varkappa}{I}} \\quad\\Longrightarrow\\quad I = \\dfrac{\\varkappa}{\\omega^{2}}',
+          real: ['These are <strong>Ex. 15-101</strong>’s own numbers: a torque graph giving ϰ = 0.020 N·m/rad, a trace giving T = 0.40 s, and the two together giving <strong>I = 8.1·10⁻⁵ kg·m²</strong>. Read the panel — it is the exercise, solved.',
+                 'Tohle jsou čísla přímo z <strong>úlohy 15-101</strong>: graf momentu dá ϰ = 0,020 N·m/rad, záznam dá T = 0,40 s a obojí dohromady <strong>I = 8,1·10⁻⁵ kg·m²</strong>. Podívejte se do panelu — je to ta úloha, vyřešená.'] },
+        { sys: 4, t: ['A rod on a spring', 'Tyč na pružině'],
+          when: ['Ex. 15-51 · the length that does not matter', 'Úloha 15-51 · délka, na které nezáleží'],
+          body: ['An ordinary spring, attached a distance <em>d</em> from the axis, <em>is</em> a torsion spring: its end moves <em>dθ</em>, so it pulls back on a lever arm <em>d</em> and the restoring torque is <em>kd²θ</em>. Put that over <em>mL²/12</em> with <em>d = L/2</em> and the length cancels completely — the rod could be any size at all.',
+                 'Obyčejná pružina uchycená ve vzdálenosti <em>d</em> od osy <em>je</em> torzní pružina: její konec se posune o <em>dθ</em>, takže táhne zpět na rameni <em>d</em> a vratný moment je <em>kd²θ</em>. Vydělte to <em>mL²/12</em> při <em>d = L/2</em> a délka se vykrátí úplně — tyč může být jakkoli velká.'],
+          eq: '\\omega = \\sqrt{\\dfrac{k(L/2)^{2}}{mL^{2}/12}} = \\sqrt{\\dfrac{3k}{m}}',
+          real: ['The exercise never tells you <em>L</em>, and that is the hint. With k = 1850 N/m and m = 0.600 kg the period is <strong>0.065 s</strong> whether the rod is 10 cm long or 10 m.',
+                 'Úloha vám <em>L</em> nikdy neřekne, a to je nápověda. Při k = 1850 N/m a m = 0,600 kg vyjde perioda <strong>0,065 s</strong>, ať je tyč 10 cm nebo 10 m dlouhá.'] },
+        { sys: -1, t: ['All five, side by side', 'Všech pět vedle sebe'],
+          when: ['Plotted against t / T', 'Vyneseno proti t / T'],
+          body: ['Their periods differ by a factor of twenty-four, so laying them on a common clock would show nothing but a blur. Give each its own clock — plot against <em>t/T</em> instead of <em>t</em> — and they are not five curves. They are one curve, drawn five times.',
+                 'Jejich periody se liší čtyřiadvacetkrát, takže na společných hodinách by z toho byla jen šmouha. Dejte každému vlastní hodiny — vyneste proti <em>t/T</em> místo <em>t</em> — a nejsou to pětkřivky. Je to jedna křivka nakreslená pětkrát.'],
+          eq: 'x(t) = A\\cos(\\omega t + \\varphi)',
+          real: ['That is the whole chapter. Anything pushed back in proportion to its displacement does <em>this</em>, and the only question a problem can really ask is which two numbers go into <strong>ω = √(restoring / inertia)</strong>.',
+                 'To je celá kapitola. Cokoli, co je tlačeno zpět úměrně výchylce, dělá <em>tohle</em>, a jediné, nač se úloha může doopravdy ptát, je která dvě čísla patří do <strong>ω = √(vratná / setrvačnost)</strong>.'],
+          verdict: ['Five systems, five pairs of numbers, one equation — and five periods from <b>0.065 s</b> to <b>1.55 s</b> that all come out of the same division.',
+                    'Pět soustav, pět dvojic čísel, jedna rovnice — a pět period od <b>0,065 s</b> do <b>1,55 s</b>, které všechny plynou z téhož dělení.'] },
+    ];
+
+    const SKY = { bg: '#10131c', ink: '#eef3f8', soft: '#b9c6d4', faint: '#8b9aab', acc: '#7fd4c8' };
+
+    let step = 0, u = 0, playing = false, raf = 0, last = 0, started = false, phase = 0;
+    const DUR = 6.0;
+
+    function drawSystem(ctx, W, H, i, ph) {
+        const cx = W * 0.5, cy = H * 0.52, S = SYS[i];
+        const A = Math.sin(ph);
+        ctx.lineCap = 'round';
+        if (S.k === 'spring') {
+            const y = cy, x = cx + A * 70;
+            PP8.hatch(ctx, cx - 210, y + 44, cx + 210, y + 44, SKY.faint, 9);
+            PP8.hatch(ctx, cx - 190, y + 44, cx - 190, y - 40, SKY.faint, -9);
+            PP8.coil(ctx, cx - 190, y, x - 32, y, 10, 9, SKY.soft);
+            ctx.fillStyle = '#25303f'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6;
+            ctx.fillRect(x - 32, y - 26, 64, 52); ctx.strokeRect(x - 32, y - 26, 64, 52);
+            PP8.halo(ctx, SKY.bg, 'm', x, y, SKY.ink, 15, true);
+        } else if (S.k === 'pend') {
+            const th = A * 0.42, L = 150, px = cx + Math.sin(th) * L, py = cy - 70 + Math.cos(th) * L;
+            PP8.hatch(ctx, cx - 60, cy - 70, cx + 60, cy - 70, SKY.faint, -9);
+            ctx.strokeStyle = SKY.soft; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.moveTo(cx, cy - 70); ctx.lineTo(px, py); ctx.stroke();
+            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(cx, cy - 70); ctx.lineTo(cx, cy - 70 + L); ctx.stroke();
             ctx.setLineDash([]);
-            for (let i = 0; i < wave.length; i++) {
-                const wx = 20 + i * dx;
-                const wy = WAVE_MID - wave[i] * WAVE_SCALE;
-                if (i === 0) ctx.moveTo(wx, wy);
-                else ctx.lineTo(wx, wy);
+            ctx.fillStyle = SKY.acc;
+            ctx.beginPath(); ctx.arc(px, py, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.4; ctx.stroke();
+            PP8.halo(ctx, SKY.bg, 'ℓ', (cx + px) / 2 + 12, (cy - 70 + py) / 2, SKY.soft, 14, true);
+        } else if (S.k === 'rod') {
+            const th = A * 0.36, L = 160;
+            PP8.hatch(ctx, cx - 60, cy - 80, cx + 60, cy - 80, SKY.faint, -9);
+            ctx.save(); ctx.translate(cx, cy - 80); ctx.rotate(th);
+            ctx.fillStyle = '#25303f'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6;
+            ctx.fillRect(-8, 0, 16, L); ctx.strokeRect(-8, 0, 16, L);
+            ctx.restore();
+            ctx.fillStyle = SKY.acc;
+            const dx = -Math.sin(th) * L / 2, dy = Math.cos(th) * L / 2;
+            ctx.beginPath(); ctx.arc(cx + dx, cy - 80 + dy, 4.5, 0, Math.PI * 2); ctx.fill();
+            PP8.halo(ctx, SKY.bg, 'd', cx + dx + 16, cy - 80 + dy, SKY.soft, 13, true);
+        } else if (S.k === 'torsion') {
+            const th = A * 0.8, R = 74, KY = 0.34;
+            const dy = cy - 10, ceil = cy - 120;
+            PP8.hatch(ctx, cx - 60, ceil, cx + 60, ceil, SKY.faint, -9);
+            /* the disc first: bottom face, rim band, top face */
+            ctx.fillStyle = '#2c3444';
+            ctx.beginPath(); ctx.ellipse(cx, dy + 12, R, R * KY, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillRect(cx - R, dy, R * 2, 12);
+            ctx.fillStyle = '#25303f';
+            ctx.beginPath(); ctx.ellipse(cx, dy, R, R * KY, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.5; ctx.stroke();
+            /* THEN the wire, which hangs above the top face — drawn under it,
+               it appeared to stop at the disc's back edge. Its winding tapers
+               to nothing at both ends so it meets the clamp and the centre on
+               the axis instead of wandering off it. */
+            ctx.strokeStyle = SKY.soft; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+            for (let strand = 0; strand < 2; strand++) {
+                ctx.beginPath();
+                for (let q = 0; q <= 1.0001; q += 0.02) {
+                    const yy = ceil + q * (dy - ceil);
+                    const amp = 6 * Math.sin(Math.PI * Math.min(q, 1));
+                    const xx = cx + amp * Math.sin(q * Math.PI * 6 + th + strand * Math.PI);
+                    q === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+                }
+                ctx.stroke();
+            }
+            /* the collar where it is clamped to the disc */
+            ctx.fillStyle = '#25303f';
+            ctx.beginPath(); ctx.ellipse(cx, dy, 7, 7 * KY + 1.5, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.2; ctx.stroke();
+            /* the twist marker starts outside the collar, not under it */
+            ctx.strokeStyle = SKY.acc; ctx.lineWidth = 2.6;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(th) * 10, dy + Math.sin(th) * 10 * KY);
+            ctx.lineTo(cx + Math.cos(th) * R, dy + Math.sin(th) * R * KY); ctx.stroke();
+        } else {
+            const th = A * 0.5, L = 200;
+            ctx.save(); ctx.translate(cx, cy); ctx.rotate(th);
+            ctx.fillStyle = '#25303f'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6;
+            ctx.fillRect(-L / 2, -7, L, 14); ctx.strokeRect(-L / 2, -7, L, 14);
+            ctx.restore();
+            ctx.fillStyle = SKY.acc;
+            ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
+            const ex = cx + Math.cos(th) * L / 2, ey = cy + Math.sin(th) * L / 2;
+            PP8.hatch(ctx, cx + L / 2 + 70, cy - 60, cx + L / 2 + 70, cy + 60, SKY.faint, -9);
+            PP8.coil(ctx, ex, ey, cx + L / 2 + 70, cy, 8, 8, SKY.soft);
+            PP8.halo(ctx, SKY.bg, 'd', (cx + ex) / 2, (cy + ey) / 2 - 16, SKY.soft, 13, true);
+        }
+    }
+
+    /* Step 6 used to show five identical curves and nothing else, which reads
+       as a bug rather than as the point. Two rows now: the same five on ONE
+       clock, where they are visibly nothing alike, and then each on its own
+       t/T, where they are one curve. A small glyph identifies each column. */
+    function glyph(ctx, x, y, w, i) {
+        const c = SKY.soft;
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 1.3; ctx.setLineDash([]);
+        const cx = x + w / 2;
+        if (i === 0) {
+            PP8.coil(ctx, cx - 22, y + 12, cx + 8, y + 12, 5, 4, c);
+            ctx.strokeRect(cx + 8, y + 5, 14, 14);
+        } else if (i === 1) {
+            ctx.beginPath(); ctx.moveTo(cx - 14, y + 2); ctx.lineTo(cx + 14, y + 2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, y + 2); ctx.lineTo(cx + 9, y + 20); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx + 9, y + 23, 4, 0, Math.PI * 2); ctx.fill();
+        } else if (i === 2) {
+            ctx.beginPath(); ctx.moveTo(cx - 14, y + 2); ctx.lineTo(cx + 14, y + 2); ctx.stroke();
+            ctx.save(); ctx.translate(cx, y + 2); ctx.rotate(0.35);
+            ctx.strokeRect(-3, 0, 6, 24); ctx.restore();
+        } else if (i === 3) {
+            ctx.beginPath(); ctx.moveTo(cx - 14, y + 2); ctx.lineTo(cx + 14, y + 2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, y + 2); ctx.lineTo(cx, y + 15); ctx.stroke();
+            ctx.beginPath(); ctx.ellipse(cx, y + 19, 16, 6, 0, 0, Math.PI * 2); ctx.stroke();
+        } else {
+            ctx.beginPath(); ctx.moveTo(cx - 20, y + 14); ctx.lineTo(cx + 6, y + 14); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx - 7, y + 14, 3, 0, Math.PI * 2); ctx.fill();
+            PP8.coil(ctx, cx + 6, y + 14, cx + 24, y + 14, 4, 3, c);
+        }
+    }
+
+    function drawAll(ctx, W, H) {
+        const bw = Math.min(W * 0.155, 180), gap = (W - 5 * bw) / 6;
+        /* bands kept above the bottom strip, where the equation badge sits */
+        const gy = H * 0.13, rowA = H * 0.25, rowB = H * 0.52, bh = H * 0.18;
+        const COMMON = 1.6;                       /* seconds shown in the top row */
+        const NAME_EN = ['spring', 'pendulum', 'rod', 'wire', 'rod + spring'];
+        const NAME_CS = ['pružina', 'kyvadlo', 'tyč', 'drát', 'tyč + pružina'];
+
+        PP8.mono(ctx, PP8.T('ON ONE CLOCK — ' + PP8.num(COMMON, 1) + ' s OF REAL TIME, ALL FIVE',
+                            'NA JEDNĚCH HODINÁCH — ' + PP8.num(COMMON, 1) + ' s SKUTEČNÉHO ČASU'),
+                 gap, rowA - 16, SKY.soft, 10);
+        PP8.mono(ctx, PP8.T('ON ITS OWN CLOCK — ONE PERIOD EACH, PLOTTED AGAINST t / T',
+                            'NA VLASTNÍCH HODINÁCH — JEDNA PERIODA, PROTI t / T'),
+                 gap, rowB - 16, SKY.soft, 10);
+
+        for (let i = 0; i < 5; i++) {
+            const x = gap + i * (bw + gap);
+            glyph(ctx, x, gy, bw, i);
+
+            /* the same 1.6 s for everybody: nothing alike */
+            let mid = rowA + bh / 2;
+            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+            ctx.beginPath(); ctx.moveTo(x, mid); ctx.lineTo(x + bw, mid); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.strokeStyle = SKY.acc; ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            const w = wOf(i);
+            for (let q = 0; q <= bw; q++) {
+                const t = q / bw * COMMON;
+                const y = mid - Math.cos(w * t + phase) * (bh / 2 - 5);
+                q ? ctx.lineTo(x + q, y) : ctx.moveTo(x + q, y);
             }
             ctx.stroke();
-            /* Zero line */
-            ctx.strokeStyle = col.faint + '80';
-            ctx.lineWidth = 0.8;
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            ctx.moveTo(20, WAVE_MID);
-            ctx.lineTo(W - 20, WAVE_MID);
-            ctx.stroke();
+            const cycles = COMMON / TOf(i);
+            PP8.mono(ctx, PP8.num(cycles, cycles < 10 ? 1 : 0) + ' ×',
+                     x + bw - 2, rowA + bh + 12, SKY.faint, 9, 'right');
+
+            /* its own clock: one curve, five times */
+            mid = rowB + bh / 2;
+            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+            ctx.beginPath(); ctx.moveTo(x, mid); ctx.lineTo(x + bw, mid); ctx.stroke();
             ctx.setLineDash([]);
-            /* Label */
-            ctx.fillStyle = col.faint;
-            ctx.font = '10px "JetBrains Mono",monospace';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            ctx.fillText('x(t)', 20, WAVE_TOP + 2);
-        }
-
-        /* Divider between waveform and spring scene */
-        ctx.strokeStyle = col.faint + '40';
-        ctx.lineWidth = 0.8;
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(0, WAVE_TOP + WAVE_H + 8);
-        ctx.lineTo(W, WAVE_TOP + WAVE_H + 8);
-        ctx.stroke();
-
-        /* --- Wall --- */
-        const wallW = 14;
-        ctx.fillStyle = col.paper;
-        ctx.fillRect(0, MASS_Y - 60, wallW, 120);
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(0, MASS_Y - 60, wallW, 120);
-        hatchRect(-14, MASS_Y - 60, 14, 120);
-
-        /* --- Equilibrium dashed line --- */
-        ctx.strokeStyle = col.accent + '60';
-        ctx.lineWidth = 0.9;
-        ctx.setLineDash([5, 4]);
-        ctx.beginPath();
-        ctx.moveTo(EQ_X, MASS_Y - 40);
-        ctx.lineTo(EQ_X, MASS_Y + 40);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono",monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText('eq', EQ_X, MASS_Y + 26);
-
-        /* --- Spring --- */
-        drawSpring(WALL_X, MASS_Y, MASS_X - MASS_W / 2, MASS_Y, 10, 9);
-
-        /* --- Mass block --- */
-        const mx = MASS_X - MASS_W / 2, my = MASS_Y - MASS_H / 2;
-        ctx.fillStyle = col.acc;
-        ctx.fillRect(mx, my, MASS_W, MASS_H);
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(mx, my, MASS_W, MASS_H);
-        /* 'm' label on mass */
-        ctx.fillStyle = col.paper;
-        ctx.font = 'italic bold 16px "Source Serif 4",Georgia,serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('m', MASS_X, MASS_Y);
-
-        /* Ground line */
-        const GROUND_Y = MASS_Y + MASS_H / 2 + 2;
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(0, GROUND_Y);
-        ctx.lineTo(W, GROUND_Y);
-        ctx.stroke();
-        hatchRect(0, GROUND_Y, W, 10);
-
-        /* x displacement arrow */
-        if (Math.abs(x) > 0.005) {
-            const arrowY = MASS_Y - MASS_H / 2 - 14;
-            const x0 = EQ_X, x1 = MASS_X;
-            ctx.strokeStyle = col.soft;
-            ctx.lineWidth = 1;
-            ctx.setLineDash([3, 3]);
+            ctx.strokeStyle = SKY.acc; ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(x0, arrowY);
-            ctx.lineTo(x1, arrowY);
+            for (let q = 0; q <= bw; q++) {
+                const y = mid - Math.cos(q / bw * 2 * Math.PI + phase) * (bh / 2 - 5);
+                q ? ctx.lineTo(x + q, y) : ctx.moveTo(x + q, y);
+            }
             ctx.stroke();
-            ctx.setLineDash([]);
-            /* Arrowhead */
-            const dir = x > 0 ? 1 : -1;
-            ctx.fillStyle = col.soft;
-            ctx.beginPath();
-            ctx.moveTo(x1, arrowY);
-            ctx.lineTo(x1 - dir*8, arrowY - 4);
-            ctx.lineTo(x1 - dir*8, arrowY + 4);
-            ctx.closePath();
-            ctx.fill();
-            ctx.fillStyle = col.soft;
-            ctx.font = '11px "JetBrains Mono",monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText('x = ' + x.toFixed(3) + ' m', (x0 + x1) / 2, arrowY - 3);
+
+            PP8.mono(ctx, PP8.T(NAME_EN[i], NAME_CS[i]), x + bw / 2, rowB + bh + 16, SKY.ink, 10, 'center');
+            PP8.mono(ctx, 'T = ' + PP8.num(TOf(i), TOf(i) < 0.2 ? 4 : 3) + ' s',
+                     x + bw / 2, rowB + bh + 31, SKY.faint, 9, 'center');
+            PP8.mono(ctx, 'ω = ' + PP8.num(wOf(i), 1), x + bw / 2, rowB + bh + 45, SKY.faint, 9, 'center');
         }
-
-        /* --- Readout update --- */
-        const omega0 = Math.sqrt(cfg.k / cfg.m);
-        const gamma  = cfg.b / (2 * cfg.m);
-        const arg    = omega0 * omega0 - gamma * gamma;
-        const omegad = arg > 0 ? Math.sqrt(arg) : 0;
-        const Td     = omegad > 0 ? 2 * Math.PI / omegad : Infinity;
-        const E      = 0.5 * cfg.k * x * x + 0.5 * cfg.m * v * v;
-
-        const $ = id => document.getElementById(id);
-        if ($('r-omega0')) $('r-omega0').textContent = omega0.toFixed(2) + ' rad/s';
-        if ($('r-omegad')) $('r-omegad').textContent = omegad > 0 ? omegad.toFixed(2) + ' rad/s' : 'overdamped';
-        if ($('r-td'))     $('r-td').textContent     = isFinite(Td) ? Td.toFixed(3) + ' s' : '—';
-        if ($('r-x'))      $('r-x').textContent      = x.toFixed(4) + ' m';
-        if ($('r-v'))      $('r-v').textContent      = v.toFixed(3) + ' m/s';
-        if ($('r-e'))      $('r-e').textContent      = E.toFixed(4) + ' J';
     }
 
-    /* ── Slider wiring ─────────────────────────────────────────────── */
-    function bindSlider(inputId, valId, fmt, key, needsReinit) {
-        const inp = document.getElementById(inputId);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            cfg[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(+inp.value);
-            if (needsReinit) initSim();
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, st = STEPS[step];
+        ctx.fillStyle = SKY.bg; ctx.fillRect(0, 0, W, H);
+        if (st.sys < 0) drawAll(ctx, W, H);
+        else drawSystem(ctx, W, H, st.sys, phase);
+
+        PP8.mono(ctx, PP8.T('STEP', 'KROK') + ' ' + (step + 1) + ' / ' + STEPS.length, 16, 18, SKY.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = SKY.ink;
+        ctx.fillText(PP8.T(st.t[0], st.t[1]), 16, 39);
+
+        if (st.sys >= 0) {
+            const q = pair(st.sys), w = wOf(st.sys);
+            const bw = Math.min(300, W * 0.28), x = W - bw - 16, y = 16, bh = 104;
+            ctx.fillStyle = 'rgba(20,25,36,0.90)';
+            ctx.strokeStyle = '#4a5666'; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.fillRect(x, y, bw, bh); ctx.strokeRect(x, y, bw, bh);
+            PP8.mono(ctx, PP8.T('THE TWO NUMBERS', 'TA DVĚ ČÍSLA'), x + 12, y + 15, SKY.soft, 9.5);
+            PP8.mono(ctx, PP8.T('restoring', 'vratná') + '   ' + q.kl, x + 12, y + 38, SKY.faint, 10);
+            PP8.mono(ctx, PP8.num(q.K, q.K < 1 ? 4 : 2), x + bw - 12, y + 38, SKY.acc, 12, 'right');
+            PP8.mono(ctx, PP8.T('inertia', 'setrvačnost') + '   ' + q.il, x + 12, y + 60, SKY.faint, 10);
+            PP8.mono(ctx, PP8.num(q.I, q.I < 0.01 ? 6 : 4), x + bw - 12, y + 60, SKY.acc, 12, 'right');
+            ctx.strokeStyle = '#4a5666'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(x + 12, y + 74); ctx.lineTo(x + bw - 12, y + 74); ctx.stroke();
+            PP8.mono(ctx, 'ω = √(' + PP8.T('restoring/inertia', 'vratná/setrvačnost') + ')', x + 12, y + 90, SKY.faint, 9.5);
+            PP8.mono(ctx, PP8.num(w, 2) + ' rad/s', x + bw - 12, y + 90, SKY.ink, 12, 'right');
+        }
+    }
+
+    function buildList() {
+        const list = $('mv-list');
+        if (!list) return;
+        list.innerHTML = '';
+        STEPS.forEach((st, i) => {
+            const row = document.createElement('div');
+            row.className = 'ms-chip' + (i === step ? ' on' : '');
+            row.innerHTML = '<span class="ms-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+                            '<span class="ms-name">' + PP8.T(st.t[0], st.t[1]) + '</span>';
+            row.addEventListener('click', () => goto(i));
+            list.appendChild(row);
         });
     }
-    bindSlider('p-k',   'p-k-val',   v => v + ' N/m',    'k', false);
-    bindSlider('p-m',   'p-m-val',   v => v.toFixed(1) + ' kg', 'm', false);
-    bindSlider('p-b',   'p-b-val',   v => v.toFixed(1) + ' N·s/m', 'b', false);
-    bindSlider('p-amp', 'p-amp-val', v => v.toFixed(2) + ' m', 'A', true);
+    function markList() {
+        const rows = document.querySelectorAll('#mv-list .ms-chip');
+        rows.forEach((r, i) => r.classList.toggle('on', i === step));
+        const on = rows[step];
+        if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    function rowsFor(i) {
+        const st = STEPS[i];
+        if (st.sys < 0) return SYS.map((_, j) => [
+            [['T · ' + ['spring', 'pendulum', 'rod', 'wire', 'rod + spring'][j],
+              'T · ' + ['pružina', 'kyvadlo', 'tyč', 'drát', 'tyč + pružina'][j]],
+             PP8.num(TOf(j), TOf(j) < 0.2 ? 4 : 3) + ' s']]);
+        const q = pair(st.sys), w = wOf(st.sys);
+        return [
+            [['restoring constant  ' + q.kl, 'vratná konstanta  ' + q.kl], PP8.num(q.K, q.K < 1 ? 4 : 2)],
+            [['inertia  ' + q.il, 'setrvačnost  ' + q.il], PP8.num(q.I, q.I < 0.01 ? 6 : 4)],
+            [['ω', 'ω'], PP8.num(w, 3) + ' rad/s'],
+            [['period T', 'perioda T'], PP8.num(TOf(st.sys), TOf(st.sys) < 0.2 ? 4 : 3) + ' s'],
+        ];
+    }
+    function panels() {
+        const st = STEPS[step];
+        const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+        set('fl-kicker', PP8.T('Step', 'Krok') + ' ' + String(step + 1).padStart(2, '0') + ' / ' + STEPS.length);
+        set('fl-title', PP8.T(st.t[0], st.t[1]));
+        set('fl-text', PP8.T(st.body[0], st.body[1]));
+        PP8.katexInto($('fl-eq'), st.eq);
+        PP8.katexInto($('mv-eq'), st.eq);
+        set('fl-rows', rowsFor(step).map(r =>
+            '<div class="fl-k">' + PP8.T(r[0][0], r[0][1]) + '</div><div class="fl-v">' + r[1] + '</div>'
+        ).join(''));
+        set('fl-stamp', PP8.T(st.when[0], st.when[1]));
+        set('fl-real', PP8.T(st.real[0], st.real[1]));
+        const vd = $('fl-verdict');
+        if (vd) {
+            if (st.verdict) { vd.style.display = ''; vd.innerHTML = PP8.T(st.verdict[0], st.verdict[1]); }
+            else vd.style.display = 'none';
+        }
+        const prev = $('mv-prev'), next = $('mv-next');
+        if (prev) prev.disabled = step === 0;
+        if (next) next.innerHTML = step === STEPS.length - 1
+            ? '<span lang="en">Start again</span><span lang="cs">Znovu od začátku</span>'
+            : '<span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→';
+        const note = $('mv-note');
+        if (note) note.textContent = PP8.T(
+            'Steps 1–5 run at a common tempo so they can be watched; their true periods differ by a factor of 24 and are in the panel. Step 6 plots each against its own t/T.',
+            'Kroky 1–5 běží společným tempem, aby se daly sledovat; skutečné periody se liší čtyřiadvacetkrát a jsou v panelu. Krok 6 vynáší každý proti jeho vlastnímu t/T.');
+    }
+    function readouts() {
+        const st = STEPS[step];
+        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        if (st.sys < 0) { put('mv-r-k', '—'); put('mv-r-i', '—'); put('mv-r-w', '—'); }
+        else {
+            const q = pair(st.sys);
+            put('mv-r-k', PP8.num(q.K, q.K < 1 ? 4 : 2));
+            put('mv-r-i', PP8.num(q.I, q.I < 0.01 ? 6 : 4));
+            put('mv-r-w', PP8.num(wOf(st.sys), 2) + ' rad/s');
+        }
+        const cl = $('mv-clock');
+        if (cl) cl.textContent = PP8.T('system ', 'soustava ') + (step + 1) + '/' + STEPS.length;
+    }
+    function paint() { V.redraw(); readouts(); }
 
-    /* ── Reset button ──────────────────────────────────────────────── */
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        cfg = { ...DEFAULTS };
-        [
-            ['p-k',   'p-k-val',   v => v + ' N/m'],
-            ['p-m',   'p-m-val',   v => (+v).toFixed(1) + ' kg'],
-            ['p-b',   'p-b-val',   v => (+v).toFixed(1) + ' N·s/m'],
-            ['p-amp', 'p-amp-val', v => (+v).toFixed(2) + ' m'],
-        ].forEach(([id, valId, fmt]) => {
-            const keyMap = { 'p-k': 'k', 'p-m': 'm', 'p-b': 'b', 'p-amp': 'A' };
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(valId);
-            if (inp) inp.value = cfg[keyMap[id]];
-            if (lbl) lbl.textContent = fmt(cfg[keyMap[id]]);
-        });
-        initSim();
+    function loop(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        phase += dt * 2.0;                       /* the common tempo */
+        if (playing) { u += dt / DUR; if (u >= 1) { u = 1; playing = false; } }
+        paint();
+        if (started) raf = requestAnimationFrame(loop); else { raf = 0; last = 0; }
+    }
+    function kick() { if (!raf && started) { last = 0; raf = requestAnimationFrame(loop); } }
+    function goto(i) {
+        step = Math.max(0, Math.min(STEPS.length - 1, i));
+        u = 0; playing = true;
+        markList(); panels(); paint(); kick();
+    }
+
+    $('mv-next')?.addEventListener('click', () => goto(step === STEPS.length - 1 ? 0 : step + 1));
+    $('mv-prev')?.addEventListener('click', () => goto(step - 1));
+    $('mv-reset')?.addEventListener('click', () => goto(0));
+
+    const gate = $('mv-gate'), wrap = V.canvas.parentElement;
+    function open() {
+        if (started) return;
+        started = true;
+        gate?.classList.add('away');
+        wrap.classList.remove('armed');
+        setTimeout(() => gate && gate.remove(), 1000);
+        goto(0);
+    }
+    gate?.addEventListener('click', open);
+    gate?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+    if (gate) { gate.tabIndex = 0; gate.setAttribute('role', 'button'); }
+
+    document.addEventListener('langchange', () => { buildList(); panels(); readouts(); V.redraw(); });
+    buildList(); panels(); readouts(); V.redraw();
+    PP8.whenReady(panels);
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 3 — THE BALLISTIC OSCILLATOR   (Ex. 15-35)
+
+   Two stages, and the second one is the lesson. Momentum carries through
+   the impact; energy does not, and at these speeds almost none of it
+   survives. The toggle runs the wrong method — conserving kinetic energy
+   through the embedding — and draws the amplitude it predicts alongside
+   the right one, which at the exercise's own numbers is 24 times too big.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP8.mount('b1-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+
+    const D = { m: 9.5, v: 630, M: 5.4, k: 6000 };   /* m in grams */
+    const P = Object.assign({}, D);
+    let wrong = false, t = 0, running = false, raf = 0, last = 0;
+
+    function sol() {
+        const m = P.m / 1000, M = P.M, k = P.k;
+        const V0 = m * P.v / (M + m);
+        const w = Math.sqrt(k / (M + m));
+        const A = V0 / w;
+        const Ei = 0.5 * m * P.v * P.v, Ef = 0.5 * (M + m) * V0 * V0;
+        return { m, M, k, V0, w, A, T: 2 * Math.PI / w,
+                 p1: m * P.v, p2: (M + m) * V0,
+                 Ei, Ef, loss: Ei - Ef,
+                 Aw: P.v * Math.sqrt(m / k) };
+    }
+    const T_IMPACT = 0.55;                         /* seconds of approach, drawn */
+
+    function rewind() { t = 0; running = false; stop(); setRunLabel(); paint(); }
+    function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+    function start() {
+        if (raf) return;
+        const tick = ts => {
+            const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+            last = ts;
+            t += dt * 0.35;
+            paint();
+            if (running) raf = requestAnimationFrame(tick); else { raf = 0; last = 0; }
+        };
+        last = 0; raf = requestAnimationFrame(tick);
+    }
+
+    function draw(vv) {
+        const c = PP8.colours(), ctx = vv.ctx, W = vv.W, H = vv.H, S = sol();
+        const y0 = H * 0.66, cx = W * 0.58;
+        const shown = Math.max(S.A, wrong ? S.Aw : 0, 0.02);
+        const sc = Math.min((W * 0.34) / shown, 2400);
+
+        PP8.hatch(ctx, 20, y0, W - 20, y0, c.faint, 9);
+        PP8.hatch(ctx, 46, y0, 46, y0 - 104, c.faint, -9);
+
+        const after = t > T_IMPACT;
+        const x = after ? S.A * Math.cos(S.w * (t - T_IMPACT)) : 0;
+        const bw = 92, bh = 46;
+        const bx = cx + x * sc;
+        PP8.coil(ctx, 46, y0 - bh / 2, bx - bw / 2, y0 - bh / 2, 10, 9, c.soft);
+
+        /* the amplitude the wrong method claims */
+        if (wrong) {
+            const wx = cx + S.Aw * sc;
+            ctx.strokeStyle = c.acc; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
+            ctx.beginPath(); ctx.moveTo(wx, y0 - 118); ctx.lineTo(wx, y0); ctx.stroke();
+            ctx.setLineDash([]);
+            PP8.halo(ctx, c.paper, PP8.T('energy method: ', 'metoda energie: ') +
+                     PP8.num(S.Aw * 100, 1) + ' cm', wx, y0 - 128, c.acc, 12, true);
+        }
+        /* the amplitude momentum gives */
+        const ax = cx + S.A * sc;
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(ax, y0 - 84); ctx.lineTo(ax, y0); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, y0 - 96); ctx.lineTo(cx, y0); ctx.stroke();
+        ctx.setLineDash([]);
+        PP8.halo(ctx, c.paper, 'A = ' + PP8.num(S.A * 100, 2) + ' cm', ax, y0 - 94, c.ink, 12, true);
+
+        ctx.fillStyle = c.edge; ctx.strokeStyle = c.ink; ctx.lineWidth = 1.6; ctx.setLineDash([]);
+        ctx.fillRect(bx - bw / 2, y0 - bh, bw, bh);
+        ctx.strokeRect(bx - bw / 2, y0 - bh, bw, bh);
+        PP8.halo(ctx, c.edge, 'M', bx, y0 - bh / 2, c.ink, 15, true);
+
+        /* the projectile */
+        if (!after) {
+            const q = t / T_IMPACT;
+            const px = bx - bw / 2 - (1 - q) * (W * 0.42);
+            ctx.fillStyle = c.acc;
+            ctx.beginPath(); ctx.ellipse(px, y0 - bh / 2, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+            PP8.arrow(ctx, px - 46, y0 - bh / 2 - 24, px - 8, y0 - bh / 2 - 24, c.acc, 1.8);
+            PP8.halo(ctx, c.paper, PP8.num(P.v, 0) + ' m/s', px - 27, y0 - bh / 2 - 36, c.acc, 12, true);
+        } else {
+            ctx.fillStyle = c.acc;
+            ctx.beginPath(); ctx.ellipse(bx - 14, y0 - bh / 2, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+        }
+
+        PP8.mono(ctx, PP8.T('BALLISTIC OSCILLATOR', 'BALISTICKÝ OSCILÁTOR'), 16, 18, c.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c.ink;
+        ctx.fillText(after ? PP8.T('oscillating', 'kmitá') : PP8.T('incoming', 'přilétá'), 16, 39);
+        PP8.mono(ctx, PP8.T('scale: ', 'měřítko: ') + PP8.num(100 / sc * 100, 1) +
+                 ' cm ' + PP8.T('per 100 px', 'na 100 px'), 16, H - 20, c.faint, 9);
+    }
+
+    function ledger() {
+        const S = sol();
+        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        put('im-p1', PP8.num(S.p1, 3) + ' kg·m/s');
+        put('im-p2', PP8.num(S.p2, 3) + ' kg·m/s');
+        put('im-e1', PP8.big(S.Ei, 1) + ' J');
+        put('im-e2', PP8.num(S.Ef, 3) + ' J');
+        put('im-loss', PP8.big(S.loss, 1) + ' J');
+        PP8.katexInto($('im-vp'), 'mv = (M+m)V');
+        put('im-vp-num', PP8.num(S.p1, 4) + ' = ' + PP8.num(S.p2, 4) + ' kg·m/s   ✓');
+        PP8.katexInto($('im-ve'), 'E_k \\neq E_k\'');
+        put('im-ve-num', PP8.big(S.Ei, 1) + ' → ' + PP8.num(S.Ef, 3) + ' J   (−' +
+                         PP8.num(100 * S.loss / S.Ei, 2) + ' %)');
+        const note = $('im-note');
+        if (note) note.textContent = PP8.T(
+            'Almost none of the energy survives an embedding, which is why energy cannot be carried across it. Momentum can: no external force acts during the impact, so the total is untouched. Take the speed momentum gives you, and only then start doing energy.',
+            'Uvíznutí nepřežije skoro žádná energie — proto se přes něj energie nedá přenášet. Hybnost ano: během nárazu nepůsobí žádná vnější síla, takže celek zůstává. Vezměte rychlost, kterou dá hybnost, a teprve pak začněte s energií.');
+    }
+    function readouts() {
+        const S = sol();
+        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        put('b1-r-V', PP8.num(S.V0, 3) + ' m/s');
+        put('b1-r-w', PP8.num(S.w, 2) + ' rad/s');
+        put('b1-r-A', PP8.num(S.A * 100, 2) + ' cm');
+        put('b1-r-T', PP8.num(S.T, 4) + ' s');
+        const st = $('b1-state');
+        if (st) st.textContent = 't = ' + PP8.num(t, 2) + ' s';
+        const note = $('b1-note');
+        if (note) note.textContent = wrong
+            ? PP8.T('Conserving energy through the impact predicts ' + PP8.num(S.Aw * 100, 1) +
+                    ' cm — ' + PP8.num(S.Aw / S.A, 0) + ' times too big.',
+                    'Zachování energie i při nárazu předpovídá ' + PP8.num(S.Aw * 100, 1) +
+                    ' cm — ' + PP8.num(S.Aw / S.A, 0) + 'krát moc.')
+            : PP8.T('Switch it on to see what the wrong method predicts.',
+                    'Zapněte a uvidíte, co předpoví špatná metoda.');
+    }
+    function paint() { V.redraw(); readouts(); }
+    function refresh() { ledger(); paint(); }
+
+    const SL = [['b1-m', 'm'], ['b1-v', 'v'], ['b1-M', 'M'], ['b1-k', 'k']];
+    const FMT = {
+        m: v => PP8.num(v, 1) + ' g', v: v => PP8.num(v, 0) + ' m/s',
+        M: v => PP8.num(v, 2) + ' kg', k: v => PP8.big(v, 0) + ' N/m',
+    };
+    function syncLabels() {
+        for (const [id, key] of SL) { const el = $(id + '-val'); if (el) el.textContent = FMT[key](P[key]); }
+    }
+    for (const [id, key] of SL) {
+        const sl = $(id);
+        if (!sl) continue;
+        P[key] = parseFloat(sl.value);
+        sl.addEventListener('input', () => { P[key] = parseFloat(sl.value); syncLabels(); t = 0; refresh(); });
+    }
+    function setRunLabel() {
+        const b = $('b1-run');
+        if (b) b.innerHTML = running
+            ? '❚❚ <span lang="en">Pause</span><span lang="cs">Pauza</span>'
+            : '▶ <span lang="en">Fire</span><span lang="cs">Vystřelit</span>';
+    }
+    $('b1-run')?.addEventListener('click', () => {
+        if (!running && t > 12) t = 0;
+        running = !running; setRunLabel();
+        if (running) start(); else stop();
     });
-
-    /* ── RAF loop ──────────────────────────────────────────────────── */
-    let lastT = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
-
-    function frame(ts) {
-        /* Integrate */
-        for (let i = 0; i < SUBSTEPS; i++) {
-            step();
-        }
-        wave.push(x);
-        if (wave.length > WAVEFORM_LEN) wave.shift();
-
-        draw();
-
-        frames++;
-        if (ts - lastT >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; lastT = ts;
-        }
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-
+    $('b1-rewind')?.addEventListener('click', rewind);
+    $('b1-reset')?.addEventListener('click', () => {
+        Object.assign(P, D);
+        for (const [id, key] of SL) { const sl = $(id); if (sl) sl.value = P[key]; }
+        syncLabels(); rewind(); refresh();
+    });
+    /* this sandbox wires its own toggle; there is deliberately no global one */
+    $('b1-wrong')?.addEventListener('click', () => {
+        const row = $('b1-wrong'), bx = row.querySelector('.toggle-box');
+        wrong = !bx.classList.contains('on');
+        bx.classList.toggle('on', wrong);
+        paint();
+    });
+    document.addEventListener('langchange', () => { syncLabels(); refresh(); });
+    syncLabels(); setRunLabel(); refresh();
+    PP8.whenReady(ledger);
 }());
 </script>
 

@@ -21,12 +21,10 @@
             linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
             var(--paper-deep);
     }
-    #sim-canvas {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
+    /* position by CLASS — an #id rule is orphaned the moment a canvas is
+       renamed, and the canvas then grows the page without bound. */
+    .canvas-wrap canvas {
+        position: absolute; inset: 0; width: 100%; height: 100%; display: block;
     }
     .sim-hint {
         position: absolute;
@@ -259,6 +257,149 @@
     .cm-step strong { color: var(--ink); }
 
     /* ── Exercise tabs ────────────────────────────────────────────────── */
+    /* ── The movie sandbox — see topics/_movie-sandbox.html ──────────── */
+    #lab.movie {
+        display: block;
+        margin-left: calc(-50vw + 50% + 12px);
+        margin-right: calc(-50vw + 50% + 12px);
+        margin-bottom: 0;
+    }
+    #lab.movie .canvas-panel { min-height: 0; }
+    #lab.movie .canvas-wrap {
+        flex: 0 0 auto;             /* or `height` is ignored and it collapses */
+        min-height: 0;
+        height: clamp(400px, 62vh, 700px);
+        background: #10131c;
+    }
+    .gate {
+        position: absolute; inset: 0; z-index: 4;
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 20px; cursor: pointer;
+        background: rgba(16, 19, 28, 0.55);
+        backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+        transition: opacity 900ms ease, backdrop-filter 900ms ease,
+                    -webkit-backdrop-filter 900ms ease, background 900ms ease;
+    }
+    .gate.away {
+        opacity: 0; pointer-events: none; background: rgba(16, 19, 28, 0);
+        backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+    }
+    .gate-btn {
+        width: 84px; height: 84px; border-radius: 50%;
+        border: 1.5px solid #d6dfe8; background: rgba(214, 223, 232, 0.10);
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background 220ms ease;
+    }
+    .gate:hover .gate-btn { transform: scale(1.07); background: rgba(214, 223, 232, 0.20); }
+    .gate-btn::after {
+        content: ''; width: 0; height: 0; margin-left: 6px;
+        border-left: 24px solid #eef3f8;
+        border-top: 15px solid transparent; border-bottom: 15px solid transparent;
+    }
+    .gate-title {
+        font-family: var(--f-serif); font-size: clamp(20px, 2.4vw, 30px);
+        color: #eef3f8; text-align: center; padding: 0 24px;
+    }
+    .gate-sub {
+        font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.2em;
+        text-transform: uppercase; color: #9aa8b8; text-align: center;
+    }
+    .canvas-wrap.armed canvas { filter: blur(10px); }
+    #lab.movie .canvas-wrap canvas { transition: filter 900ms ease; }
+    @media (prefers-reduced-motion: reduce) {
+        .gate, .gate-btn, #lab.movie .canvas-wrap canvas { transition: none; }
+    }
+    #lab.movie .canvas-formula-badge {
+        top: auto; bottom: 16px; left: 16px; right: auto;
+        background: rgba(16, 19, 28, 0.86); border-color: #4a5666;
+        color: #eef3f8; font-size: 20px; padding: 9px 16px;
+    }
+    #lab.movie .sim-hint { color: #8b9aab; }
+    .movie-bar {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--ink); border-top: none; background: var(--paper);
+    }
+    .bar-btn {
+        flex: 0 0 auto; font-family: var(--f-mono); font-size: 11px;
+        letter-spacing: 0.14em; text-transform: uppercase; padding: 0 20px;
+        border: none; border-right: 1.5px solid var(--ink);
+        background: var(--paper); color: var(--ink-soft); cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .bar-btn.next {
+        border-right: none; border-left: 1.5px solid var(--ink);
+        background: var(--accent); color: var(--paper);
+    }
+    .bar-btn:hover:not(:disabled) { background: var(--paper-deep); }
+    .bar-btn.next:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    .bar-btn:disabled { color: var(--ink-faint); cursor: not-allowed; }
+    .ms-rail { flex: 1 1 auto; display: flex; overflow-x: auto; scrollbar-width: thin; }
+    .ms-chip {
+        flex: 1 1 0; min-width: 132px; display: flex; flex-direction: column; gap: 3px;
+        padding: 11px 14px 12px; border-right: 1px dashed var(--ink-faint);
+        cursor: pointer; color: var(--ink-faint);
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .ms-chip:last-child { border-right: none; }
+    .ms-chip:hover { background: var(--paper-deep); color: var(--ink-soft); }
+    .ms-chip.on { background: var(--paper-deep); color: var(--ink); }
+    .ms-chip.on .ms-num { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .ms-num {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.06em;
+        width: 19px; height: 16px; line-height: 15px; text-align: center;
+        border: 1px solid currentColor;
+    }
+    .ms-name { font-size: 12.5px; line-height: 1.25; }
+    .movie-note {
+        margin: 10px 0 0; font-size: 11.5px; line-height: 1.5;
+        color: var(--ink-faint); text-align: center;
+    }
+    @media (max-width: 900px) {
+        #lab.movie { margin-left: -48px; margin-right: -48px; }
+        .ms-chip { min-width: 112px; }
+    }
+
+    /* ── The movie's log strip ───────────────────────────────────────── */
+    .fl-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; }
+    .fl-col { border: 1.5px solid var(--ink); background: var(--paper); }
+    .fl-head {
+        display: flex; align-items: baseline; gap: 12px; padding: 11px 20px;
+        border-bottom: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .fl-head .accent-pip { align-self: center; }
+    .fl-kicker {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.16em; color: var(--ink-faint);
+    }
+    .fl-title { font-family: var(--f-serif); font-size: 19px; color: var(--ink); line-height: 1.15; }
+    .fl-body { padding: 20px 20px 18px; }
+    .fl-text { font-size: 14.5px; line-height: 1.72; color: var(--ink-soft); margin: 0 0 16px; }
+    .fl-text em { font-style: italic; color: var(--ink); }
+    .fl-eq {
+        font-size: 18px; color: var(--ink); border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 18px; margin: 0 0 16px; overflow-x: auto;
+    }
+    .fl-rows { display: grid; grid-template-columns: 1fr auto; gap: 0 18px; }
+    .fl-k { font-size: 13.5px; color: var(--ink-soft); padding: 8px 0; border-bottom: 1px dashed var(--ink-faint); }
+    .fl-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        text-align: right; letter-spacing: 0.02em; white-space: nowrap;
+        padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
+    }
+    .fl-real { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin: 0; }
+    .fl-real strong { color: var(--ink); font-weight: 600; }
+    .fl-stamp {
+        font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px;
+        padding-bottom: 10px; border-bottom: 1px solid var(--ink-faint);
+    }
+    .fl-verdict {
+        margin-top: 16px; padding: 12px 14px; border: 1px solid var(--accent);
+        background: var(--paper-deep); font-size: 13px; line-height: 1.6; color: var(--ink);
+    }
+    .fl-verdict b { color: var(--accent); }
+    @media (max-width: 900px) { .fl-grid { grid-template-columns: 1fr; } }
+
     .ex-tabs {
         display: flex;
         flex-wrap: wrap;
@@ -634,8 +775,64 @@
         </div>
     </section>
 
+    <!-- ════ LAB 1 — EVERY FORCE IN THE COURSE (movie sandbox) ════ -->
+    <section id="lab" class="lab movie" style="margin-top:72px; margin-bottom:0;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Every force in this course</span><span lang="cs">Všechny síly tohoto kurzu</span></span>
+                <span style="display:flex;gap:16px;align-items:baseline;">
+                    <span id="fv-clock" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+                    <button id="fv-reset" class="panel-reset">restart</button>
+                </span>
+            </div>
+            <div class="canvas-wrap armed" id="fv-wrap">
+                <canvas id="fv-canvas"></canvas>
+                <div class="gate" id="fv-gate">
+                    <div class="gate-btn"></div>
+                    <div class="gate-title"><span lang="en">Six forces, and two things that are not forces</span><span lang="cs">Šest sil</span></div>
+                    <div class="gate-sub"><span lang="en">weight · normal · tension · friction · spring · anything else</span><span lang="cs">tíha · normálová · tahová · třecí · pružiny · cokoli dalšího</span></div>
+                </div>
+                <div class="canvas-formula-badge" id="fv-eq"></div>
+                <div class="sim-hint"><span lang="en">the free-body diagram builds as you go</span><span lang="cs">silový diagram se cestou skládá</span></div>
+            </div>
+        </div>
+        <div class="movie-bar">
+            <button id="fv-prev" class="bar-btn">←</button>
+            <div class="ms-rail" id="fv-list"></div>
+            <button id="fv-next" class="bar-btn next"><span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→</button>
+        </div>
+    </section>
+
+    <section id="forcelog" style="margin-top:24px;">
+        <div class="fl-grid">
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker" id="fv-kicker">—</span>
+                    <span class="fl-title" id="fv-title">—</span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-text" id="fv-text"></p>
+                    <div class="fl-eq" id="fv-fleq"></div>
+                    <div class="fl-rows" id="fv-rows"></div>
+                </div>
+            </div>
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker"><span lang="en">Where the exercises use it</span><span lang="cs">Kde ji úlohy používají</span></span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-stamp" id="fv-stamp">—</p>
+                    <p class="fl-real" id="fv-real"></p>
+                    <div class="fl-verdict" id="fv-verdict" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ════ § 3  LAB — BOX ON A SLOPE ════ -->
-    <section id="lab" class="lab" style="margin-top:72px; margin-bottom:0;">
+    <section id="lab2" class="lab" style="margin-top:72px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Box on a slope</span><span lang="cs">Kvádr na nakloněné rovině</span></span>
@@ -854,6 +1051,561 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   § I.03 — helpers for the forces movie. g = 9.8, as the ch5/ch6 keys use.
+   ══════════════════════════════════════════════════════════════════════ */
+const PP3 = (function () {
+    'use strict';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    function mount(id, drawFn) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const o = { canvas, ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 240), H = Math.max(r.height, 180);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        o.redraw = function () {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); drawFn(o); });
+        };
+        size();
+        new ResizeObserver(() => { size(); o.redraw(); }).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
+    }
+    function mono(ctx, text, x, y, col, size, align) {
+        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+    }
+    function halo(ctx, bg, text, x, y, col, size, italic, align) {
+        ctx.font = (italic ? 'italic ' : '') + (size || 12) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3.5;
+        ctx.strokeStyle = bg; ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+    function arrow(ctx, x1, y1, x2, y2, col, lw, dashed) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 2) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.34), hw = hl * 0.5;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+        ctx.lineCap = 'round'; ctx.setLineDash(dashed ? [4, 3] : []);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+    function coil(ctx, x1, y1, x2, y2, turns, amp, col) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 2) return;
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = col; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+        ctx.beginPath();
+        const N = turns * 12;
+        for (let i = 0; i <= N; i++) {
+            const t = i / N, e = Math.min(t, 1 - t) * 6;
+            const off = Math.sin(t * turns * Math.PI * 2) * amp * Math.min(1, e);
+            const x = x1 + ux * L * t + nx * off, y = y1 + uy * L * t + ny * off;
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.stroke();
+    }
+    /* ticks fall on the material side: +n, against +u */
+    function hatch(ctx, x1, y1, x2, y2, col, depth) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
+            ctx.beginPath(); ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth);
+            ctx.stroke();
+        }
+    }
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+    return { isCS, T, num, mount, mono, halo, arrow, coil, hatch, katexInto, whenReady, G: 9.8 };
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 1 — EVERY FORCE IN THIS COURSE   (movie sandbox)
+
+   Six force types and two things that are not forces at all. Every number
+   drawn or printed comes from the chapter 5 and 6 exercises this topic
+   links to, so the arrows are to scale against each other:
+
+     weight     Ex. 5-47's 5.00 kg block, G = 49.0 N
+     normal     the same block flat, pulled at 25 degrees, and on a
+                20 degree slope: 49.0 N, 43.9 N, 75.2 N of an 80 N weight
+     tension    Ex. 5-51's train: one cord, three segments, 11.6 / 34.9 / 65 N
+     friction   Ex. 6-20: needed 27.4 N, static LIMIT 18.8 N, kinetic 11.3 N,
+                giving that exercise's answers of 8.6, 46 and 39 N
+     spring     F = -kx, the only one that depends on position
+     external   whatever the problem says it is
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP3.mount('fv-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const G = PP3.G, N = PP3.num, RAD = Math.PI / 180;
+
+    /* the numbers, all from the exercise set */
+    const F = {};
+    F.m = 5.00; F.W = F.m * G;                         /* 49.0 N */
+    F.pullF = 12.0; F.pullTh = 25 * RAD;
+    F.Nflat = F.W;
+    F.Ntilt = F.W - F.pullF * Math.sin(F.pullTh);      /* 43.9 N */
+    F.slopeW = 80.0; F.slopeTh = 20 * RAD;
+    F.Nslope = F.slopeW * Math.cos(F.slopeTh);         /* 75.2 N */
+    F.m1 = 12.0; F.m2 = 24.0; F.m3 = 31.0; F.T3 = 65.0;
+    F.a = F.T3 / (F.m1 + F.m2 + F.m3);                 /* 0.970 */
+    F.T1 = F.m1 * F.a; F.T2 = (F.m1 + F.m2) * F.a;
+    F.mus = 0.25; F.mud = 0.15;
+    F.need = F.slopeW * Math.sin(F.slopeTh);           /* 27.4 */
+    F.fmax = F.mus * F.Nslope;                         /* 18.8 */
+    F.fkin = F.mud * F.Nslope;                         /* 11.3 */
+    F.k = 200; F.x = 0.15;
+    F.Lstr = 1.70; F.mball = 1.34;
+    F.rball = Math.sqrt(F.Lstr * F.Lstr - (F.Lstr / 2) * (F.Lstr / 2));
+
+    const SKY = { bg: '#141a16', ink: '#eaf1ec', soft: '#b6c6bb', faint: '#899a8e',
+                  acc: '#c98a3c', acc2: '#7fb0d8', ghost: '#3c4a41' };
+
+    const STEPS = [
+        { key: 'G',
+          t: ['Weight', 'Tíhová síla'],
+          when: ['Every body, every problem, no exceptions', 'Každé těleso, každá úloha, bez výjimky'],
+          body: ['The one force that is always there and never needs anything to touch the body. It points straight down, and its size is proportional to the mass — which is why the arrow on a heavy block is longer than the one on a light block, and why the two nonetheless fall side by side: doubling the mass doubles the pull <em>and</em> doubles the resistance to being pulled.',
+                 'Jediná síla, která tu je vždycky a nepotřebuje, aby se tělesa cokoli dotýkalo. Míří přímo dolů a její velikost je úměrná hmotnosti — proto je šipka u těžkého kvádru delší než u lehkého a proto přesto padají vedle sebe: dvojnásobná hmotnost zdvojnásobí tah <em>i</em> odpor proti tažení.'],
+          eq: 'G = mg',
+          rows: () => [[['mass', 'hmotnost'], N(F.m, 2) + ' kg'],
+                       [['g', 'g'], N(G, 1) + ' m/s²'],
+                       [['weight', 'tíha'], N(F.W, 1) + ' N']],
+          real: ['<strong>Ex. 6-20</strong> gives you the weight directly — 80 N of penguin and sled — and never mentions the mass at all. Weight is a force in newtons; mass is a number of kilograms. Keep them apart and half of chapter 6 stops being confusing.',
+                 '<strong>Úloha 6-20</strong> zadá tíhu rovnou — 80 N tučňáka se saněmi — a hmotnost vůbec nezmíní. Tíha je síla v newtonech, hmotnost je počet kilogramů. Držte je oddělené a půlka kapitoly 6 přestane být matoucí.'] },
+
+        { key: 'N',
+          t: ['The normal force', 'Normálová síla'],
+          when: ['Wherever a surface is being pressed on', 'Všude, kde se tlačí na podložku'],
+          body: ['A surface pushes back, always along its own perpendicular and never along it. The size is whatever it takes to stop the body sinking in — so it is <em>not</em> automatically <em>mg</em>. Tilt the surface and it drops to <em>mg</em> cos α. Pull upwards on the body and it shrinks; pull hard enough and it reaches zero, which is the instant the body leaves the surface.',
+                 'Podložka tlačí zpět, vždy podél své kolmice a nikdy podél sebe. Velikost je taková, aby se těleso nepropadlo — takže to <em>není</em> automaticky <em>mg</em>. Nakloňte podložku a klesne na <em>mg</em> cos α. Zatáhněte za těleso vzhůru a zmenší se; zatáhněte dost a klesne na nulu, což je okamžik, kdy těleso podložku opouští.'],
+          eq: 'N = mg\\cos\\alpha - F\\sin\\theta \\quad(\\text{whatever it takes})',
+          rows: () => [[['flat, nothing else', 'na rovině, nic dalšího'], N(F.Nflat, 1) + ' N'],
+                       [['Ex. 5-47, pulled at 25°', 'Úloha 5-47, tah pod 25°'], N(F.Ntilt, 1) + ' N'],
+                       [['Ex. 6-20, on a 20° slope', 'Úloha 6-20, na svahu 20°'], N(F.Nslope, 1) + ' N'],
+                       [['that slope’s weight', 'tíha na tom svahu'], N(F.slopeW, 1) + ' N']],
+          real: ['Three situations, one block, three different normal forces. In <strong>Ex. 5-47</strong> the rope at 25° carries part of the weight, so the floor carries less. On <strong>Ex. 6-20</strong>’s slope the normal force is only <strong>75.2 N</strong> of an 80 N weight — and since friction is built on <em>N</em>, tilting a surface weakens its grip twice over.',
+                 'Tři situace, jeden kvádr, tři různé normálové síly. V <strong>úloze 5-47</strong> nese lano pod 25° část tíhy, takže podlaha nese míň. Na svahu <strong>úlohy 6-20</strong> je normálová síla jen <strong>75,2 N</strong> z 80 N tíhy — a protože se tření staví na <em>N</em>, naklonění podložky oslabí její sevření hned dvakrát.'] },
+
+        { key: 'T',
+          t: ['Tension', 'Tahová síla'],
+          when: ['Ropes, cords, cables · Ex. 5-51, 5-69, 6-59', 'Lana, provázky, vlákna · úlohy 5-51, 5-69, 6-59'],
+          body: ['A cord pulls along its own length, away from the body, and it can only ever pull — push a rope and nothing happens. In an ideal massless cord the tension is the same all the way along, but that is one cord: a train of blocks has a <em>different</em> tension in each segment, because each segment has a different amount of mass behind it to drag.',
+                 'Lano táhne podél sebe, směrem od tělesa, a umí jen táhnout — zatlačte na lano a nestane se nic. V ideálním nehmotném laně je tah po celé délce stejný, ale to je jedno lano: řetěz kvádrů má v každém úseku <em>jiný</em> tah, protože každý úsek za sebou vleče jinou hmotu.'],
+          eq: 'T_i = \\left(\\textstyle\\sum m\\ \\text{behind it}\\right)a',
+          rows: () => [[['Ex. 5-51 · pull on the whole train', 'Úloha 5-51 · tah celého vlaku'], N(F.T3, 1) + ' N'],
+                       [['acceleration', 'zrychlení'], N(F.a, 3) + ' m/s²'],
+                       [['T₁, dragging 12.0 kg', 'T₁, vleče 12,0 kg'], N(F.T1, 2) + ' N'],
+                       [['T₂, dragging 36.0 kg', 'T₂, vleče 36,0 kg'], N(F.T2, 2) + ' N']],
+          real: ['<strong>Ex. 5-51</strong> is exactly this and nothing more: one acceleration for the whole train, then each tension is that acceleration times whatever is still behind the cord. The front segment carries 65 N, the back one <strong>11.6 N</strong> — same cord, same instant.',
+                 '<strong>Úloha 5-51</strong> je přesně tohle a nic víc: jedno zrychlení pro celý vlak a pak je každý tah tímto zrychlením krát to, co je za lanem. Přední úsek nese 65 N, zadní <strong>11,6 N</strong> — totéž lano, tentýž okamžik.'] },
+
+        { key: 'f',
+          t: ['Friction', 'Třecí síla'],
+          when: ['Ex. 6-20, 6-34 · the only force with two laws', 'Úlohy 6-20, 6-34 · jediná síla se dvěma zákony'],
+          body: ['This is the one the list above is incomplete without, and the only one whose law is an <em>inequality</em>. While nothing is sliding, static friction takes whatever value is needed to prevent it — up to a ceiling of <em>μ<sub>s</sub>N</em>, and not a newton more. Once sliding starts it becomes a fixed <em>μ<sub>d</sub>N</em>, usually smaller, always opposing the sliding. Do not write <em>f = μN</em> for a body that is not moving; write <em>f ≤ μ<sub>s</sub>N</em> and find out.',
+                 'Tahle v tom seznamu chyběla a je to jediná, jejíž zákon je <em>nerovnost</em>. Dokud nic neklouže, bere statické tření takovou hodnotu, jaká je potřeba, aby se tomu zabránilo — až po strop <em>μ<sub>s</sub>N</em> a ani newton víc. Jakmile klouzání začne, stane se z něj pevné <em>μ<sub>d</sub>N</em>, obvykle menší, vždy proti klouzání. Nepište <em>f = μN</em> pro těleso, které se nehýbe; napište <em>f ≤ μ<sub>s</sub>N</em> a zjistěte to.'],
+          eq: 'f_s \\le \\mu_s N\\,,\\qquad f_d = \\mu_d N',
+          rows: () => [[['Ex. 6-20 · pull down the slope', 'Úloha 6-20 · tah dolů po svahu'], N(F.need, 1) + ' N'],
+                       [['static friction can supply at most', 'statické tření dodá nejvýš'], N(F.fmax, 1) + ' N'],
+                       [['kinetic friction supplies exactly', 'dynamické tření dodá přesně'], N(F.fkin, 1) + ' N'],
+                       [['so, least push to hold it', 'nejmenší tlak, aby drželo'], N(F.need - F.fmax, 1) + ' N'],
+                       [['to start it moving up', 'aby se rozjelo vzhůru'], N(F.need + F.fmax, 0) + ' N'],
+                       [['to keep it moving up', 'aby jelo vzhůru dál'], N(F.need + F.fkin, 0) + ' N']],
+          real: ['All three of <strong>Ex. 6-20</strong>’s answers are in that table, and they differ only in which friction is acting and which way it points. <strong>8.6 N</strong> to hold it, <strong>46 N</strong> to break it loose, <strong>39 N</strong> to keep it going — the drop from 46 to 39 is the whole difference between μ<sub>s</sub> and μ<sub>d</sub>.',
+                 'Všechny tři odpovědi <strong>úlohy 6-20</strong> jsou v té tabulce a liší se jen tím, které tření působí a kam míří. <strong>8,6 N</strong>, aby drželo, <strong>46 N</strong>, aby se utrhlo, <strong>39 N</strong>, aby jelo dál — pokles ze 46 na 39 je celý rozdíl mezi μ<sub>s</sub> a μ<sub>d</sub>.'] },
+
+        { key: 'Fs',
+          t: ['The spring force', 'Síla pružiny'],
+          when: ['§ I.04 and § I.08 · the force that remembers', '§ I.04 a § I.08 · síla, která si pamatuje'],
+          body: ['The only force here whose size depends on <em>where the body is</em> rather than on what is touching it or how fast it goes. Stretch it twice as far and it pulls twice as hard. The minus sign is the important part: it always points back towards the unstretched position, and that single fact is what turns a spring into an oscillator in § I.08.',
+                 'Jediná zdejší síla, jejíž velikost závisí na tom, <em>kde těleso je</em>, a ne na tom, co se ho dotýká nebo jak rychle letí. Natáhněte ji dvakrát dál a táhne dvakrát silněji. Důležité je znaménko mínus: míří vždy zpět k nenatažené poloze, a právě tenhle jediný fakt dělá z pružiny oscilátor v § I.08.'],
+          eq: 'F = -kx',
+          rows: () => [[['stiffness k', 'tuhost k'], N(F.k, 0) + ' N/m'],
+                       [['stretched by', 'protažení'], N(F.x, 2) + ' m'],
+                       [['pull', 'tah'], N(F.k * F.x, 1) + ' N'],
+                       [['at twice the stretch', 'při dvojnásobném protažení'], N(2 * F.k * F.x, 1) + ' N']],
+          real: ['It is not in this topic’s exercises, but it is in <strong>§ I.04</strong>’s (energy stored, ½kx²) and it runs the whole of <strong>§ I.08</strong>. Meet it here so that the minus sign is old news by the time it matters.',
+                 'V úlohách tohoto tématu není, ale je v úlohách <strong>§ I.04</strong> (uložená energie ½kx²) a řídí celé <strong>§ I.08</strong>. Potkejte ji tady, ať je znaménko mínus stará známost, než začne být důležité.'] },
+
+        { key: 'F',
+          t: ['Any other external force', 'Jakákoli další externí síla'],
+          when: ['A hand, a wind, an engine — the problem tells you', 'Ruka, vítr, motor — zadání to řekne'],
+          body: ['Everything else arrives with no formula at all: a hand pushing, a wind, a rocket, a magnet. There is nothing to derive — the problem states its size and direction and you put it into the sum like any other. If it acts at an angle, split it into components first; that is the only work it ever asks for. Air resistance belongs here too, and this course sets it aside on purpose.',
+                 'Všechno ostatní přichází zcela bez vzorce: tlačící ruka, vítr, raketa, magnet. Není co odvozovat — zadání řekne velikost a směr a vy to dosadíte do součtu jako cokoli jiného. Působí-li to pod úhlem, rozložte to nejdřív na složky; to je jediná práce, kterou to kdy vyžaduje. Patří sem i odpor vzduchu, který tenhle kurz záměrně odkládá stranou.'],
+          eq: 'F_x = F\\cos\\theta\\,,\\qquad F_y = F\\sin\\theta',
+          rows: () => [[['Ex. 5-47 · rope pulls', 'Úloha 5-47 · lano táhne'], N(F.pullF, 1) + ' N'],
+                       [['at', 'pod úhlem'], N(F.pullTh / RAD, 0) + '°'],
+                       [['along the floor', 'podél podlahy'], N(F.pullF * Math.cos(F.pullTh), 2) + ' N'],
+                       [['lifting', 'zdvihá'], N(F.pullF * Math.sin(F.pullTh), 2) + ' N']],
+          real: ['<strong>Ex. 5-47</strong> is one applied force and nothing else, and it still takes two lines: the part along the floor accelerates the block, and the part across it changes the normal force. One force, two axes, two jobs.',
+                 '<strong>Úloha 5-47</strong> je jedna přiložená síla a nic víc, a přesto zabere dva řádky: složka podél podlahy urychluje kvádr a složka napříč mění normálovou sílu. Jedna síla, dvě osy, dvě úlohy.'] },
+
+        { key: 'all',
+          t: ['All of them at once', 'Všechny naráz'],
+          when: ['The only equation any of this is for', 'Jediná rovnice, kvůli které to všechno je'],
+          body: ['Draw every force that touches the body — and gravity, which does not — and add them as vectors. That is a free-body diagram, and it is the entire method: one diagram per body, one axis at a time, and <em>ΣF = ma</em> along each. Nothing else on this page matters if the diagram is wrong, and nothing else is hard if it is right.',
+                 'Nakreslete každou sílu, která se tělesa dotýká — a gravitaci, která ne — a sečtěte je vektorově. To je silový diagram a je to celá metoda: jeden diagram na těleso, jedna osa po druhé a <em>ΣF = ma</em> podél každé. Nic dalšího na téhle stránce nezáleží, je-li diagram špatně, a nic dalšího není těžké, je-li dobře.'],
+          eq: '\\textstyle\\sum \\vec F = m\\vec a',
+          rows: () => [[['forces that need contact', 'síly vyžadující dotyk'], '4'],
+                       [['forces that do not', 'síly bez dotyku'], '1'],
+                       [['axes to resolve along', 'os k rozložení'], '2'],
+                       [['equations you get', 'rovnic, které dostanete'], '2']],
+          real: ['Every exercise in chapters 5 and 6 is this picture with different labels. <strong>Ex. 6-34</strong> needs two of them — one for the slab and one for the block on it — and the friction between them appears in both, pointing opposite ways.',
+                 'Každá úloha z kapitol 5 a 6 je tenhle obrázek s jinými popisky. <strong>Úloha 6-34</strong> potřebuje dva — jeden pro desku a jeden pro kvádr na ní — a tření mezi nimi se objeví v obou, pokaždé opačným směrem.'] },
+
+    ];
+
+    let step = 0, raf = 0, last = 0, started = false, ph = 0;
+
+    /* ── scenes ──────────────────────────────────────────────────────── */
+    function block(ctx, x, y, w, h, rot, fill) {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(rot || 0);
+        ctx.fillStyle = fill || '#243026'; ctx.fillRect(-w / 2, -h, w, h);
+        ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.5; ctx.strokeRect(-w / 2, -h, w, h);
+        ctx.restore();
+    }
+    const FS = 1.7;                                   /* pixels per newton */
+
+    function scene(v, ctx) {
+        const W = v.W, H = v.H, k = STEPS[step].key;
+        const y0 = H * 0.66;
+        if (k === 'G') {
+            PP3.hatch(ctx, 40, y0 + 40, W - 40, y0 + 40, SKY.faint, 9);
+            [[W * 0.34, 2.0, 46], [W * 0.62, 5.0, 66]].forEach(([cx, mm, sz]) => {
+                block(ctx, cx, y0, sz, sz, 0, '#243026');
+                PP3.halo(ctx, SKY.bg, N(mm, 1) + ' kg', cx, y0 - sz / 2, SKY.ink, 13, true);
+                const L = mm * G * FS;
+                PP3.arrow(ctx, cx, y0, cx, y0 + L, SKY.acc, 2.4);
+                PP3.halo(ctx, SKY.bg, 'G = ' + N(mm * G, 1) + ' N', cx, y0 + L + 14, SKY.acc, 13, true);
+            });
+        } else if (k === 'N') {
+            const cases = [
+                [W * 0.20, 0, F.Nflat, PP3.T('flat', 'na rovině')],
+                [W * 0.50, 0, F.Ntilt, PP3.T('pulled at 25°', 'tah pod 25°')],
+                [W * 0.80, -F.slopeTh, F.Nslope, PP3.T('20° slope', 'svah 20°')],
+            ];
+            cases.forEach(([cx, rot, Nv, lab], i) => {
+                const sx = Math.cos(rot) * 74, sy = Math.sin(rot) * 74;
+                PP3.hatch(ctx, cx - sx, y0 - sy, cx + sx, y0 + sy, SKY.faint, 9);
+                block(ctx, cx, y0, 54, 40, rot, '#243026');
+                const nx = Math.sin(rot), ny = -Math.cos(rot);
+                PP3.arrow(ctx, cx, y0, cx + nx * Nv * FS, y0 + ny * Nv * FS, SKY.acc2, 2.4);
+                PP3.halo(ctx, SKY.bg, 'N = ' + N(Nv, 1), cx + nx * (Nv * FS + 22), y0 + ny * (Nv * FS + 22), SKY.acc2, 12, true);
+                if (i === 1) PP3.arrow(ctx, cx, y0 - 20, cx + Math.cos(-F.pullTh) * 70,
+                                       y0 - 20 + Math.sin(-F.pullTh) * 70, SKY.acc, 2, true);
+                PP3.mono(ctx, lab, cx, y0 + 58, SKY.faint, 10, 'center');
+            });
+        } else if (k === 'T') {
+            PP3.hatch(ctx, 40, y0 + 26, W - 40, y0 + 26, SKY.faint, 9);
+            const xs = [W * 0.24, W * 0.46, W * 0.68];
+            const ms = [F.m3, F.m2, F.m1], tn = [F.T3, F.T2, F.T1], nm = ['T₃', 'T₂', 'T₁'];
+            xs.forEach((cx, i) => {
+                block(ctx, cx, y0 + 26, 58, 46, 0, '#243026');
+                PP3.halo(ctx, SKY.bg, N(ms[i], 1) + ' kg', cx, y0 + 3, SKY.ink, 12, true);
+                const ax = cx + 29, L = tn[i] * 1.6;
+                PP3.arrow(ctx, ax, y0 - 2, ax + L, y0 - 2, SKY.acc, 2.2);
+                PP3.halo(ctx, SKY.bg, nm[i] + ' = ' + N(tn[i], 1) + ' N', ax + L / 2, y0 - 20, SKY.acc, 12, true);
+                if (i < 2) { ctx.strokeStyle = SKY.soft; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+                    ctx.beginPath(); ctx.moveTo(cx + 29, y0 + 3); ctx.lineTo(xs[i + 1] - 29, y0 + 3); ctx.stroke(); }
+            });
+            PP3.mono(ctx, 'a = ' + N(F.a, 3) + ' m/s²', W * 0.46, y0 + 62, SKY.faint, 10, 'center');
+        } else if (k === 'f') {
+            const cx = W * 0.30, rot = -F.slopeTh;
+            const sx = Math.cos(rot) * 130, sy = Math.sin(rot) * 130;
+            PP3.hatch(ctx, cx - sx, y0 - sy, cx + sx, y0 + sy, SKY.faint, 9);
+            block(ctx, cx, y0, 58, 44, rot, '#243026');
+            const ux = Math.cos(rot), uy = Math.sin(rot);
+            /* the weight's pull DOWN the slope */
+            PP3.arrow(ctx, cx, y0 - 22, cx - ux * F.need * FS, y0 - 22 - uy * F.need * FS, SKY.acc, 2.2);
+            PP3.halo(ctx, SKY.bg, 'G sin α = ' + N(F.need, 1) + ' N',
+                     cx - ux * (F.need * FS + 46), y0 - 22 - uy * (F.need * FS + 46) + 14, SKY.acc, 12, true);
+            /* friction, which opposes the slide and therefore points UP it */
+            PP3.arrow(ctx, cx, y0 - 22, cx + ux * F.fmax * FS, y0 - 22 + uy * F.fmax * FS, '#c96a6a', 2.4);
+            PP3.halo(ctx, SKY.bg, 'f = ' + N(F.fmax, 1) + ' N',
+                     cx + ux * (F.fmax * FS + 40), y0 - 22 + uy * (F.fmax * FS + 40) - 14, '#c96a6a', 12, true);
+            const bx = W * 0.60, by = H * 0.26, bw = Math.min(W * 0.30, 300), bh = 22;
+            [[PP3.T('needed to hold it', 'nutné k udržení'), F.need, SKY.acc],
+             [PP3.T('static can give (limit)', 'statické dá nejvýš'), F.fmax, SKY.acc2],
+             [PP3.T('kinetic gives', 'dynamické dává'), F.fkin, SKY.ghost]].forEach(([lab, val, col], i) => {
+                const y = by + i * 46;
+                ctx.fillStyle = col; ctx.fillRect(bx, y, bw * val / F.need, bh);
+                ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.2; ctx.strokeRect(bx, y, bw * val / F.need, bh);
+                PP3.mono(ctx, lab, bx, y - 8, SKY.faint, 9.5);
+                PP3.mono(ctx, N(val, 1) + ' N', bx + bw * val / F.need + 8, y + bh / 2, SKY.ink, 11);
+            });
+            PP3.mono(ctx, PP3.T('static falls short by ' + N(F.need - F.fmax, 1) + ' N — hence Ex. 6-20 (a)',
+                                'statickému chybí ' + N(F.need - F.fmax, 1) + ' N — odtud úloha 6-20 (a)'),
+                     bx, by + 3 * 46 - 4, SKY.soft, 10);
+        } else if (k === 'Fs') {
+            PP3.hatch(ctx, 40, y0 + 30, W - 40, y0 + 30, SKY.faint, 9);
+            PP3.hatch(ctx, W * 0.16, y0 + 30, W * 0.16, y0 - 54, SKY.faint, -9);
+            const eq = W * 0.52;
+            const xs = [-0.10, 0, 0.15].map(d => d);
+            xs.forEach((d, i) => {
+                const y = y0 - 90 + i * 74;
+                PP3.coil(ctx, W * 0.16, y, eq + d * 640 - 27, y, 9, 8, SKY.soft);
+                block(ctx, eq + d * 640, y + 22, 54, 44, 0, '#243026');
+                ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+                ctx.beginPath(); ctx.moveTo(eq, y - 26); ctx.lineTo(eq, y + 26); ctx.stroke();
+                ctx.setLineDash([]);
+                if (Math.abs(d) > 1e-9) {
+                    const Fv = -F.k * d;
+                    PP3.arrow(ctx, eq + d * 640, y, eq + d * 640 + Fv * 0.9, y, SKY.acc, 2.2);
+                    PP3.halo(ctx, SKY.bg, N(Fv, 1) + ' N', eq + d * 640 + Fv * 0.45, y - 18, SKY.acc, 12, true);
+                }
+                PP3.mono(ctx, 'x = ' + N(d, 2) + ' m', W * 0.20, y, SKY.faint, 10);
+            });
+        } else if (k === 'F') {
+            PP3.hatch(ctx, 40, y0 + 30, W - 40, y0 + 30, SKY.faint, 9);
+            const cx = W * 0.52;
+            block(ctx, cx, y0 + 30, 62, 48, 0, '#243026');
+            const L = F.pullF * 5.4;
+            PP3.arrow(ctx, cx, y0 + 6, cx + Math.cos(-F.pullTh) * L, y0 + 6 + Math.sin(-F.pullTh) * L, SKY.acc, 2.6);
+            PP3.halo(ctx, SKY.bg, 'F = ' + N(F.pullF, 1) + ' N', cx + Math.cos(-F.pullTh) * (L + 34),
+                     y0 + 6 + Math.sin(-F.pullTh) * (L + 34), SKY.acc, 13, true);
+            const cxx = F.pullF * Math.cos(F.pullTh) * 5.4, cyy = F.pullF * Math.sin(F.pullTh) * 5.4;
+            PP3.arrow(ctx, cx, y0 + 6, cx + cxx, y0 + 6, SKY.acc2, 1.8, true);
+            PP3.arrow(ctx, cx + cxx, y0 + 6, cx + cxx, y0 + 6 - cyy, SKY.acc2, 1.8, true);
+            PP3.halo(ctx, SKY.bg, N(F.pullF * Math.cos(F.pullTh), 2), cx + cxx / 2, y0 + 22, SKY.acc2, 11, true);
+            PP3.halo(ctx, SKY.bg, N(F.pullF * Math.sin(F.pullTh), 2), cx + cxx + 24, y0 + 6 - cyy / 2, SKY.acc2, 11, true);
+            for (let i = 0; i < 5; i++) {
+                const wy = y0 - 90 + i * 16;
+                ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1; ctx.setLineDash([6, 5]);
+                ctx.beginPath(); ctx.moveTo(60, wy); ctx.lineTo(60 + 70 + 18 * Math.sin(ph + i), wy); ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            PP3.mono(ctx, PP3.T('a hand, a wind, an engine…', 'ruka, vítr, motor…'), 60, y0 - 106, SKY.faint, 10);
+        } else if (k === 'all') {
+            const cx = W * 0.42, rot = -F.slopeTh;
+            const sx = Math.cos(rot) * 150, sy = Math.sin(rot) * 150;
+            PP3.hatch(ctx, cx - sx, y0 - sy, cx + sx, y0 + sy, SKY.faint, 9);
+            block(ctx, cx, y0, 62, 48, rot, '#243026');
+            const ux = Math.cos(rot), uy = Math.sin(rot), nx = Math.sin(rot), ny = -Math.cos(rot);
+            const put = (dx, dy, len, col, lab) => {
+                PP3.arrow(ctx, cx, y0 - 24, cx + dx * len, y0 - 24 + dy * len, col, 2.2);
+                PP3.halo(ctx, SKY.bg, lab, cx + dx * (len + 20), y0 - 24 + dy * (len + 20), col, 12, true);
+            };
+            put(0, 1, 62, SKY.acc, 'G');
+            put(nx, ny, 58, SKY.acc2, 'N');
+            put(ux, uy, 50, '#8fbf7f', 'T');
+            put(-ux, -uy, 34, '#c96a6a', 'f');
+            PP3.coil(ctx, cx + ux * 90, y0 - 24 + uy * 90, cx + ux * 150, y0 - 24 + uy * 150, 7, 7, SKY.soft);
+            PP3.mono(ctx, PP3.T('one body · every force on it · ΣF = ma',
+                                'jedno těleso · každá síla na něm · ΣF = ma'), 40, H - 46, SKY.soft, 10);
+        } else {
+            const cx = W * 0.36, top = H * 0.22, rodH = 200;
+            ctx.strokeStyle = SKY.soft; ctx.lineWidth = 3;
+            ctx.setLineDash([]); ctx.beginPath();
+            ctx.moveTo(cx, top - 20); ctx.lineTo(cx, top + rodH + 20); ctx.stroke();
+            const ry = 118, bx = cx + ry, by = top + rodH / 2;
+            ctx.strokeStyle = SKY.soft; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(cx, top); ctx.lineTo(bx, by); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, top + rodH); ctx.lineTo(bx, by); ctx.stroke();
+            ctx.fillStyle = SKY.acc;
+            ctx.beginPath(); ctx.arc(bx, by, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.4; ctx.stroke();
+            const uu = 1 / Math.hypot(ry, rodH / 2);
+            PP3.arrow(ctx, bx, by, bx - ry * uu * 74, by - (rodH / 2) * uu * 74, SKY.acc2, 2.2);
+            PP3.halo(ctx, SKY.bg, 'T', bx - ry * uu * 92, by - (rodH / 2) * uu * 92, SKY.acc2, 13, true);
+            PP3.arrow(ctx, bx, by, bx - ry * uu * 52, by + (rodH / 2) * uu * 52, SKY.acc2, 2.2);
+            PP3.halo(ctx, SKY.bg, 'T', bx - ry * uu * 70, by + (rodH / 2) * uu * 70, SKY.acc2, 13, true);
+            PP3.arrow(ctx, bx, by, bx, by + 60, SKY.acc, 2.2);
+            PP3.halo(ctx, SKY.bg, 'G', bx + 14, by + 52, SKY.acc, 13, true);
+            ctx.strokeStyle = '#c96a6a'; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
+            ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(cx, by); ctx.stroke();
+            ctx.setLineDash([]);
+            PP3.halo(ctx, SKY.bg, PP3.T('what the sum must equal: mv²/r',
+                                        'čemu se součet musí rovnat: mv²/r'),
+                     (bx + cx) / 2, by - 16, '#c96a6a', 12, true);
+            /* the top view, so the circle is visible */
+            const tx = W * 0.78, ty = H * 0.46, tr = 74;
+            ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = SKY.soft;
+            ctx.beginPath(); ctx.arc(tx, ty, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = SKY.acc;
+            ctx.beginPath(); ctx.arc(tx + Math.cos(ph) * tr, ty + Math.sin(ph) * tr, 9, 0, Math.PI * 2); ctx.fill();
+            PP3.mono(ctx, PP3.T('seen from above', 'pohled shora'), tx, ty + tr + 22, SKY.faint, 10, 'center');
+        }
+    }
+
+    /* the free-body diagram, accumulating */
+    function fbd(v, ctx) {
+        const W = v.W, H = v.H;
+        const w = Math.min(240, W * 0.22), h = w * 0.92;
+        const x = W - w - 16, y = 16;
+        ctx.save();
+        ctx.fillStyle = 'rgba(18,24,20,0.92)';
+        ctx.strokeStyle = '#3f4d44'; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+        ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+        ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+        PP3.mono(ctx, PP3.T('FREE-BODY DIAGRAM', 'SILOVÝ DIAGRAM'), x + 12, y + 15, SKY.soft, 9.5);
+        const cx = x + w / 2, cy = y + h / 2 + 6;
+        ctx.fillStyle = '#243026'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.4;
+        ctx.fillRect(cx - 15, cy - 15, 30, 30); ctx.strokeRect(cx - 15, cy - 15, 30, 30);
+        const seen = STEPS[step].key;
+        const order = ['G', 'N', 'T', 'f', 'Fs', 'F'];
+        const idx = order.indexOf(seen);
+        const dirs = { G: [0, 1, 'G'], N: [0, -1, 'N'], T: [1, 0, 'T'],
+                       f: [-1, 0, 'f'], Fs: [-0.71, -0.71, 'F'], F: [0.71, -0.71, 'F'] };
+        const HUE = { G: SKY.acc, N: SKY.acc2, T: '#8fbf7f', f: '#c96a6a',
+                      Fs: SKY.acc, F: SKY.acc };
+        order.forEach((kk, i) => {
+            const live = seen === 'all' || seen === 'not' ? true : i <= idx;
+            if (!live) return;
+            const hot = kk === seen || seen === 'all' || seen === 'not';
+            const [dx, dy, lab] = dirs[kk];
+            const L = 46;
+            const col = hot ? HUE[kk] : SKY.ghost;
+            PP3.arrow(ctx, cx, cy, cx + dx * L, cy + dy * L, col, hot ? 2.2 : 1.5);
+            PP3.halo(ctx, SKY.bg, lab, cx + dx * (L + 14), cy + dy * (L + 14), col, 12, true);
+        });
+        ctx.restore();
+    }
+
+    function draw(v) {
+        const ctx = v.ctx, st = STEPS[step];
+        ctx.fillStyle = SKY.bg; ctx.fillRect(0, 0, v.W, v.H);
+        scene(v, ctx);
+        fbd(v, ctx);
+        PP3.mono(ctx, PP3.T('FORCE', 'SÍLA') + ' ' + (step + 1) + ' / ' + STEPS.length, 16, 18, SKY.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = SKY.ink;
+        ctx.fillText(PP3.T(st.t[0], st.t[1]), 16, 39);
+    }
+
+    function buildList() {
+        const list = $('fv-list');
+        if (!list) return;
+        list.innerHTML = '';
+        STEPS.forEach((st, i) => {
+            const row = document.createElement('div');
+            row.className = 'ms-chip' + (i === step ? ' on' : '');
+            row.innerHTML = '<span class="ms-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+                            '<span class="ms-name">' + PP3.T(st.t[0], st.t[1]) + '</span>';
+            row.addEventListener('click', () => goto(i));
+            list.appendChild(row);
+        });
+    }
+    function markList() {
+        const rows = document.querySelectorAll('#fv-list .ms-chip');
+        rows.forEach((r, i) => r.classList.toggle('on', i === step));
+        const on = rows[step];
+        if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    function panels() {
+        const st = STEPS[step];
+        const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+        set('fv-kicker', PP3.T('Force', 'Síla') + ' ' + String(step + 1).padStart(2, '0') + ' / ' + STEPS.length);
+        set('fv-title', PP3.T(st.t[0], st.t[1]));
+        set('fv-text', PP3.T(st.body[0], st.body[1]));
+        PP3.katexInto($('fv-fleq'), st.eq);
+        PP3.katexInto($('fv-eq'), st.eq);
+        set('fv-rows', st.rows().map(r =>
+            '<div class="fl-k">' + PP3.T(r[0][0], r[0][1]) + '</div><div class="fl-v">' + r[1] + '</div>'
+        ).join(''));
+        set('fv-stamp', PP3.T(st.when[0], st.when[1]));
+        set('fv-real', PP3.T(st.real[0], st.real[1]));
+        const vd = $('fv-verdict');
+        if (vd) {
+            if (st.verdict) { vd.style.display = ''; vd.innerHTML = PP3.T(st.verdict[0], st.verdict[1]); }
+            else vd.style.display = 'none';
+        }
+        const prev = $('fv-prev'), next = $('fv-next');
+        if (prev) prev.disabled = step === 0;
+        if (next) next.innerHTML = step === STEPS.length - 1
+            ? '<span lang="en">Start again</span><span lang="cs">Znovu od začátku</span>'
+            : '<span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→';
+    }
+    function readouts() {
+        const cl = $('fv-clock');
+        if (cl) cl.textContent = (step + 1) + ' / ' + STEPS.length;
+    }
+    function paint() { V.redraw(); readouts(); }
+
+    function loop(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        ph += dt * 1.6;
+        paint();
+        if (started) raf = requestAnimationFrame(loop); else { raf = 0; last = 0; }
+    }
+    function kick() { if (!raf && started) { last = 0; raf = requestAnimationFrame(loop); } }
+    function goto(i) {
+        step = Math.max(0, Math.min(STEPS.length - 1, i));
+        markList(); panels(); paint(); kick();
+    }
+
+    $('fv-next')?.addEventListener('click', () => goto(step === STEPS.length - 1 ? 0 : step + 1));
+    $('fv-prev')?.addEventListener('click', () => goto(step - 1));
+    $('fv-reset')?.addEventListener('click', () => goto(0));
+
+    const gate = $('fv-gate'), wrap = V.canvas.parentElement;
+    function open() {
+        if (started) return;
+        started = true;
+        gate?.classList.add('away');
+        wrap.classList.remove('armed');
+        setTimeout(() => gate && gate.remove(), 1000);
+        goto(0);
+    }
+    gate?.addEventListener('click', open);
+    gate?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+    if (gate) { gate.tabIndex = 0; gate.setAttribute('role', 'button'); }
+
+    document.addEventListener('langchange', () => { buildList(); panels(); readouts(); V.redraw(); });
+    buildList(); panels(); readouts(); V.redraw();
+    PP3.whenReady(panels);
+}());
+</script>
+
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════
