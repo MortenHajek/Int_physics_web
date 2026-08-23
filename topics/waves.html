@@ -28,13 +28,9 @@
             linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
             var(--paper-deep);
     }
-    #sim-canvas {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
+    /* No page-local canvas rule: styles.css positions `.canvas-wrap canvas`
+       site-wide. A rule keyed to one canvas id is how work-and-energy.html
+       grew without bound once its canvases were renamed. */
     .sim-hint {
         position: absolute;
         bottom: 12px;
@@ -354,6 +350,185 @@
         box-shadow: 3px 3px 0 var(--ink);
     }
     .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+
+    /* ── Panel furniture shared by the three sandboxes ───────────────── */
+    .panel-reset {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.14em; background: none; border: none;
+        cursor: pointer; color: var(--ink-faint); padding: 0;
+    }
+    .panel-reset:hover { color: var(--accent); }
+    .sim-note { margin: 14px 0 0; font-size: 12px; line-height: 1.6; color: var(--ink-faint); }
+    .sim-note.warn { color: var(--accent); }
+
+
+    /* ── The movie sandbox — see topics/_movie-sandbox.html ──────────── */
+    /* The film sits in the text column until the gate is opened, then widens
+       out to the window. ONLY the margins move: the canvas keeps its height,
+       so nothing below the panel shifts and the play button stays under the
+       pointer. The 12px still matters — 50vw counts the scrollbar and the
+       content box does not, so a flush 100vw turns the page's vertical
+       scrollbar into a horizontal one. */
+    #lab.movie {
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        transition: margin 520ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #lab.movie.wide {
+        margin-left: calc(-50vw + 50% + 12px);
+        margin-right: calc(-50vw + 50% + 12px);
+    }
+    #lab.movie .canvas-panel { min-height: 0; }
+    #lab.movie .canvas-wrap {
+        flex: 0 0 auto;             /* or `height` is ignored and it collapses */
+        min-height: 0;
+        height: clamp(400px, 64vh, 720px);
+        background: #0d181d;
+    }
+    .gate {
+        position: absolute; inset: 0; z-index: 4;
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 20px; cursor: pointer;
+        background: rgba(13, 24, 29, 0.55);
+        backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+        transition: opacity 900ms ease, backdrop-filter 900ms ease,
+                    -webkit-backdrop-filter 900ms ease, background 900ms ease;
+    }
+    .gate.away {
+        opacity: 0; pointer-events: none; background: rgba(13, 24, 29, 0);
+        backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+    }
+    .gate-btn {
+        width: 84px; height: 84px; border-radius: 50%;
+        border: 1.5px solid #cfe4ea; background: rgba(207, 228, 234, 0.10);
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background 220ms ease;
+    }
+    .gate:hover .gate-btn { transform: scale(1.07); background: rgba(207, 228, 234, 0.20); }
+    .gate-btn::after {
+        content: ''; width: 0; height: 0; margin-left: 6px;
+        border-left: 24px solid #e8f4f7;
+        border-top: 15px solid transparent; border-bottom: 15px solid transparent;
+    }
+    .gate-title {
+        font-family: var(--f-serif); font-size: clamp(20px, 2.4vw, 30px);
+        color: #e8f4f7; text-align: center; padding: 0 24px;
+    }
+    .gate-sub {
+        font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.2em;
+        text-transform: uppercase; color: #93b0b9; text-align: center;
+    }
+    .canvas-wrap.armed canvas { filter: blur(10px); }
+    #lab.movie .canvas-wrap canvas { transition: filter 900ms ease; }
+    @media (prefers-reduced-motion: reduce) {
+        .gate, .gate-btn, #lab.movie, #lab.movie .canvas-wrap canvas { transition: none; }
+    }
+    #lab.movie .canvas-formula-badge {
+        top: auto; bottom: 16px; left: 16px; right: auto;
+        background: rgba(13, 24, 29, 0.86); border-color: #40616b;
+        color: #e8f4f7; font-size: 20px; padding: 9px 16px;
+    }
+    #lab.movie .sim-hint { color: #7f9ba4; }
+    .movie-bar {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--ink); border-top: none; background: var(--paper);
+    }
+    .bar-btn {
+        flex: 0 0 auto; font-family: var(--f-mono); font-size: 11px;
+        letter-spacing: 0.14em; text-transform: uppercase; padding: 0 20px;
+        border: none; border-right: 1.5px solid var(--ink);
+        background: var(--paper); color: var(--ink-soft); cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .bar-btn.next {
+        border-right: none; border-left: 1.5px solid var(--ink);
+        background: var(--accent); color: var(--paper);
+    }
+    .bar-btn:hover:not(:disabled) { background: var(--paper-deep); }
+    .bar-btn.next:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    .bar-btn:disabled { color: var(--ink-faint); cursor: not-allowed; }
+    .ms-rail { flex: 1 1 auto; display: flex; overflow-x: auto; scrollbar-width: thin; }
+    .ms-chip {
+        flex: 1 1 0; min-width: 104px; display: flex; flex-direction: column; gap: 3px;
+        padding: 11px 14px 12px; border-right: 1px dashed var(--ink-faint);
+        cursor: pointer; color: var(--ink-faint);
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .ms-chip:last-child { border-right: none; }
+    .ms-chip:hover { background: var(--paper-deep); color: var(--ink-soft); }
+    .ms-chip.on { background: var(--paper-deep); color: var(--ink); }
+    .ms-chip.on .ms-num { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .ms-num {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.06em;
+        width: 19px; height: 16px; line-height: 15px; text-align: center;
+        border: 1px solid currentColor;
+    }
+    .ms-name { font-size: 12.5px; line-height: 1.25; }
+    .ms-reads {
+        flex: 0 0 auto; display: flex; align-items: center; gap: 22px;
+        padding: 0 22px; border-left: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .ms-read { display: flex; flex-direction: column; gap: 3px; }
+    .ms-read-k {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint);
+    }
+    .ms-read-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        letter-spacing: 0.02em; white-space: nowrap;
+    }
+    .movie-note {
+        margin: 10px 0 0; font-size: 11.5px; line-height: 1.5;
+        color: var(--ink-faint); text-align: center;
+    }
+    @media (max-width: 900px) {
+        #lab.movie.wide { margin-left: -48px; margin-right: -48px; }
+        .ms-reads { display: none; }
+        .ms-chip { min-width: 96px; }
+    }
+
+    /* ── The movie's log strip ───────────────────────────────────────── */
+    .fl-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; }
+    .fl-col { border: 1.5px solid var(--ink); background: var(--paper); }
+    .fl-head {
+        display: flex; align-items: baseline; gap: 12px; padding: 11px 20px;
+        border-bottom: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .fl-head .accent-pip { align-self: center; }
+    .fl-kicker {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.16em; color: var(--ink-faint);
+    }
+    .fl-title { font-family: var(--f-serif); font-size: 19px; color: var(--ink); line-height: 1.15; }
+    .fl-body { padding: 20px 20px 18px; }
+    .fl-text { font-size: 14.5px; line-height: 1.72; color: var(--ink-soft); margin: 0 0 16px; }
+    .fl-text em { font-style: italic; color: var(--ink); }
+    .fl-eq {
+        font-size: 18px; color: var(--ink); border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 18px; margin: 0 0 16px; overflow-x: auto;
+    }
+    .fl-rows { display: grid; grid-template-columns: 1fr auto; gap: 0 18px; }
+    .fl-k { font-size: 13.5px; color: var(--ink-soft); padding: 8px 0; border-bottom: 1px dashed var(--ink-faint); }
+    .fl-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        text-align: right; letter-spacing: 0.02em; white-space: nowrap;
+        padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
+    }
+    .fl-real { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin: 0; }
+    .fl-real strong { color: var(--ink); font-weight: 600; }
+    .fl-stamp {
+        font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px;
+        padding-bottom: 10px; border-bottom: 1px solid var(--ink-faint);
+    }
+    .fl-verdict {
+        margin-top: 16px; padding: 12px 14px; border: 1px solid var(--accent);
+        background: var(--paper-deep); font-size: 13px; line-height: 1.6; color: var(--ink);
+    }
+    .fl-verdict b { color: var(--accent); }
+    @media (max-width: 900px) { .fl-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 
@@ -385,16 +560,26 @@
     <section class="topic-hero">
         <div>
             <div class="num">§ I.09 · waves</div>
-            <h1>Waves</h1>
+            <h1><span lang="en">Waves</span><span lang="cs">Vlnění</span></h1>
             <p class="lede">
-                A plucked string sings at precise frequencies — harmonics that are integers
-                times the fundamental. Explore standing waves, nodes, and the relationship
-                between tension, density, and wave speed.
+                <span lang="en">A wave is an oscillation that moves house. Two numbers describe the repetition — one
+                in space, one in time — and their ratio is the speed, which the medium fixes and the
+                shaking cannot change. Put two such waves in one place and they simply add: that is
+                the standing wave on a clamped rope, the quiet spot between two speakers and the note
+                of an organ pipe, all three.</span>
+                <span lang="cs">Vlna je kmitání, které se stěhuje. Opakování popisují dvě čísla — jedno v prostoru,
+                jedno v čase — a jejich podíl je rychlost, kterou určuje prostředí a třesení na ní nic
+                nezmění. Dejte dvě takové vlny na jedno místo a prostě se sečtou: to je stojaté vlnění
+                na upnutém laně, tiché místo mezi dvěma reproduktory i tón varhanní píšťaly, všechno
+                tři najednou.</span>
             </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="v = \lambda f"></div>
-            <div class="eq-caption">Wave speed equals wavelength times frequency</div>
+            <div class="eq-caption">
+                <span lang="en">One step in space per step in time</span>
+                <span lang="cs">Jeden krok v prostoru na jeden krok v čase</span>
+            </div>
         </div>
     </section>
 
@@ -440,13 +625,16 @@
                         <span class="cf-desc"><span lang="en">Wave speed</span><span lang="cs">Rychlost vlny</span></span>
                         <span class="cf-eq" data-tex="v = \dfrac{\omega}{k} = \lambda f"></span>
                         <span class="cf-eq" data-tex="v = \sqrt{\dfrac{F}{\mu}}\ \text{(struna)}"></span>
+                        <span class="cf-eq" data-tex="v \doteq 343\ \mathrm{m\,s^{-1}}\ \text{(zvuk ve vzduchu)}"></span>
                     </div>
                     <p class="cf-note">
                         <span lang="en">The first is a definition; the second says what actually sets the speed on a string — the tension and
       the mass per unit length, both properties of the medium. Shake it faster and the wavelength shortens to
-      keep the product fixed.</span><span lang="cs">První je definice; druhá říká, co rychlost na struně skutečně určuje — napětí a hmotnost na jednotku
+      keep the product fixed. For sound in air the speed is simply given, and every frequency answer in
+      chapter 17 is that 343 divided by a length.</span><span lang="cs">První je definice; druhá říká, co rychlost na struně skutečně určuje — napětí a hmotnost na jednotku
       délky, obojí vlastnost prostředí. Zatřeste rychleji a vlnová délka se zkrátí, aby součin
-      zůstal.</span>
+      zůstal. Pro zvuk ve vzduchu je rychlost prostě zadaná a každý výsledek pro frekvenci v 17. kapitole
+      je těch 343 dělených nějakou délkou.</span>
                     </p>
                 </div>
 
@@ -457,22 +645,35 @@
                     </div>
                     <p class="cf-note">
                         <span lang="en">Not the wave speed. The wave may race along at metres per second while each particle merely wobbles at
-      centimetres per second — confusing the two is the classic error here.</span><span lang="cs">Není to rychlost vlny. Vlna se může řítit metry za sekundu, zatímco každá částice jen kmitá centimetry
-      za sekundu — záměna obojího je tu klasická chyba.</span>
+      centimetres per second — confusing the two is the classic error here. Their ratio is
+      <span data-tex="u_{max}/v = kA"></span>, the steepest slope the wave carries, and nothing forces it to be
+      small: on a short enough wavelength the particles outrun the wave.</span><span lang="cs">Není to rychlost vlny. Vlna se může řítit metry za sekundu, zatímco každá částice jen kmitá centimetry
+      za sekundu — záměna obojího je tu klasická chyba. Jejich poměr je
+      <span data-tex="u_{max}/v = kA"></span>, tedy nejstrmější sklon, který vlna nese, a nic ho nenutí být
+      malý: při dost krátké vlnové délce částice vlnu předběhnou.</span>
                     </p>
                 </div>
 
                 <div class="core-formula">
                     <div class="cf-head">
                         <span class="cf-desc"><span lang="en">Standing waves</span><span lang="cs">Stojaté vlnění</span></span>
+                        <span class="cf-eq" data-tex="y = 2A\sin kx\,\cos\omega t"></span>
                         <span class="cf-eq" data-tex="L = n\dfrac{\lambda}{2}\,,\qquad n = 1, 2, 3,\ldots"></span>
                         <span class="cf-eq" data-tex="f_n = n\dfrac{v}{2L}"></span>
                     </div>
                     <p class="cf-note">
-                        <span lang="en">A string clamped at both ends can only hold whole numbers of half-wavelengths, so only certain
-      frequencies survive. Reading <span data-tex="n"></span> off a picture of the mode gives the length
-      immediately from the wavelength.</span><span lang="cs">Struna upnutá na obou koncích udrží jen celé počty půlvln, takže přežijí jen určité frekvence.
-      Odečtení <span data-tex="n"></span> z obrázku kmitu dá délku okamžitě z vlnové délky.</span>
+                        <span lang="en">Two identical waves crossing in opposite directions add to a <em>product</em> of a function of
+      <span data-tex="x"></span> and a function of <span data-tex="t"></span> — that shape, and not a sum
+      inside one sine, is how a standing wave is recognised at a glance, and its two coefficients are still
+      just <span data-tex="k"></span> and <span data-tex="\omega"></span>. A string clamped at both ends can
+      only hold whole numbers of half-wavelengths, so only certain frequencies survive; reading
+      <span data-tex="n"></span> off a picture of the mode gives the length immediately from the
+      wavelength.</span><span lang="cs">Dvě stejné vlny míjející se opačnými směry se sečtou na <em>součin</em> funkce
+      <span data-tex="x"></span> a funkce <span data-tex="t"></span> — právě podle tohoto tvaru, a ne podle
+      součtu uvnitř jednoho sinu, se stojaté vlnění pozná na první pohled, a jeho dva koeficienty jsou pořád
+      jen <span data-tex="k"></span> a <span data-tex="\omega"></span>. Struna upnutá na obou koncích udrží
+      jen celé počty půlvln, takže přežijí jen určité frekvence; odečtení <span data-tex="n"></span>
+      z obrázku kmitu dá délku okamžitě z vlnové délky.</span>
                     </p>
                 </div>
 
@@ -570,6 +771,21 @@
 
                 <div class="cm-step">
                     <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>For a pipe, the ends decide which harmonics exist.</strong> A closed end is a
+       displacement node, an open end an antinode. Open at both ends gives
+       <span data-tex="f_n = n\,v/2L"></span> for every <span data-tex="n"></span>; closed at one end gives
+       <span data-tex="f_n = n\,v/4L"></span> for odd <span data-tex="n"></span> only. Either way the
+       <span data-tex="n"></span>-th harmonic is <span data-tex="n"></span> times the fundamental, which is
+       often the only thing a question actually needs.</span><span lang="cs"><strong>U píšťaly rozhodují konce, které harmonické existují.</strong> Uzavřený konec je
+       uzel výchylky, otevřený kmitna. Oboustranně otevřená dává
+       <span data-tex="f_n = n\,v/2L"></span> pro každé <span data-tex="n"></span>; jednostranně uzavřená
+       <span data-tex="f_n = n\,v/4L"></span> jen pro liché <span data-tex="n"></span>. Tak či tak je
+       <span data-tex="n"></span>-tá harmonická <span data-tex="n"></span>-násobkem základní, což je často
+       jediné, co úloha doopravdy potřebuje.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
                     <span><span lang="en"><strong>Two sources: get the path difference, then convert to frequency.</strong> Work out
        <span data-tex="\Delta L"></span> from the geometry, set it equal to
        <span data-tex="m\lambda"></span> or
@@ -584,7 +800,7 @@
                 </div>
 
                 <div class="cm-step">
-                    <span class="cm-num">06</span>
+                    <span class="cm-num">07</span>
                     <span><span lang="en"><strong>Doppler: sanity-check the direction before trusting the signs.</strong> A detector moving away
        must register a lower frequency. If your arithmetic says otherwise, you have picked the wrong
        combination.</span><span lang="cs"><strong>Doppler: než uvěříte znaménkům, ověřte směr posuvu.</strong> Detektor vzdalující se od zdroje
@@ -596,102 +812,78 @@
         </div>
     </section>
 
-    <!-- ── Simulation Lab ── -->
-    <section id="lab" class="lab" style="margin-top:72px;">
+    <!-- ════════════════════════════════════════════════════════════════
+         LAB 1 — THE MOVIE: from one wave to a standing wave
+         Eight steps. The string is Ex. 16-50's rope throughout; the film
+         builds its standing wave out of the two travelling halves, then
+         runs the same argument again in an air column.
+         ════════════════════════════════════════════════════════════════ -->
+    <section id="lab" class="lab movie" style="margin-top:72px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>Standing wave sandbox</span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">What makes a wave, and what two of them make</span><span lang="cs">Z čeho je vlna a co vzejde ze dvou</span></span>
+                <span style="display:flex;gap:16px;align-items:baseline;">
+                    <span id="mv-clock" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+                    <button id="mv-reset" class="panel-reset">restart</button>
+                </span>
             </div>
-            <div class="canvas-wrap">
-                <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="v = \lambda f"></div>
-                <div class="sim-hint">change harmonic n to see modes</div>
+            <div class="canvas-wrap armed" id="mv-wrap">
+                <canvas id="mv-canvas"></canvas>
+                <div class="gate" id="mv-gate">
+                    <div class="gate-btn"></div>
+                    <div class="gate-title"><span lang="en">Three numbers make a wave. Two waves make a note.</span><span lang="cs">Tři čísla udělají vlnu. Dvě vlny udělají tón.</span></div>
+                    <div class="gate-sub"><span lang="en">eight steps · amplitude · wavenumber · angular frequency</span><span lang="cs">osm kroků · amplituda · vlnočet · úhlová frekvence</span></div>
+                </div>
+                <div class="canvas-formula-badge" id="mv-eq"></div>
+                <div class="sim-hint"><span lang="en">one number changes per step, the others hold</span><span lang="cs">v každém kroku se mění jedno číslo, ostatní drží</span></div>
             </div>
         </div>
-
-        <div class="side-stack">
-            <!-- Parameters -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
-                    <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
-                        text-transform:uppercase;letter-spacing:0.14em;background:none;
-                        border:none;cursor:pointer;color:var(--ink-faint);padding:0;"
-                        title="Reset to defaults">reset</button>
+        <div class="movie-bar">
+            <button id="mv-prev" class="bar-btn">←</button>
+            <div class="ms-rail" id="mv-list"></div>
+            <div class="ms-reads">
+                <div class="ms-read">
+                    <span class="ms-read-k" id="mv-k-a">—</span>
+                    <span class="ms-read-v" id="mv-r-a">—</span>
                 </div>
-                <div class="panel-body">
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Harmonic <em>n</em></span>
-                            <span class="sim-control-val" id="p-n-val">1</span>
-                        </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-n" min="1" max="5" step="1" value="1">
-                    </div>
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Tension <em>T</em> (N)</span>
-                            <span class="sim-control-val" id="p-tension-val">100 N</span>
-                        </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-tension" min="10" max="200" step="1" value="100">
-                    </div>
-                    <div class="sim-control">
-                        <div class="sim-control-head">
-                            <span class="sim-control-name">Linear density <em>μ</em> (g/m)</span>
-                            <span class="sim-control-val" id="p-mu-val">2.0 g/m</span>
-                        </div>
-                        <input class="sim-control-range" type="range"
-                               id="p-mu" min="1" max="10" step="0.5" value="2">
-                    </div>
+                <div class="ms-read">
+                    <span class="ms-read-k" id="mv-k-b">—</span>
+                    <span class="ms-read-v" id="mv-r-b">—</span>
+                </div>
+                <div class="ms-read">
+                    <span class="ms-read-k" id="mv-k-c">—</span>
+                    <span class="ms-read-v" id="mv-r-c">—</span>
                 </div>
             </div>
+            <button id="mv-next" class="bar-btn next"><span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→</button>
+        </div>
+    </section>
 
-            <!-- Readout -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+    <p class="movie-note" id="mv-note"></p>
+
+    <section id="wavelog" style="margin-top:24px;">
+        <div class="fl-grid">
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker" id="fl-kicker">—</span>
+                    <span class="fl-title" id="fl-title">—</span>
                 </div>
-                <div class="panel-body">
-                    <div class="readout-row">
-                        <span class="readout-label">f<sub>n</sub></span>
-                        <span class="readout-val" id="r-fn">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">λ<sub>n</sub></span>
-                        <span class="readout-val" id="r-lambda">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">v</span>
-                        <span class="readout-val" id="r-v">—</span>
-                    </div>
-                    <div class="readout-row">
-                        <span class="readout-label">T<sub>period</sub></span>
-                        <span class="readout-val" id="r-period">—</span>
-                    </div>
+                <div class="fl-body">
+                    <p class="fl-text" id="fl-text"></p>
+                    <div class="fl-eq" id="fl-eq"></div>
+                    <div class="fl-rows" id="fl-rows"></div>
                 </div>
             </div>
-
-            <!-- Display -->
-            <div class="side-panel">
-                <div class="panel-head">
-                    <span><span class="accent-pip"></span>Display</span>
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker"><span lang="en">Where the exercises use it</span><span lang="cs">Kde to úlohy potřebují</span></span>
                 </div>
-                <div class="panel-body">
-                    <div class="toggle-row" id="tgl-envelope">
-                        <div class="toggle-box on"></div>
-                        <span class="toggle-name">envelope curves</span>
-                    </div>
-                    <div class="toggle-row" id="tgl-nodes">
-                        <div class="toggle-box on"></div>
-                        <span class="toggle-name">node markers</span>
-                    </div>
-                    <div class="toggle-row" id="tgl-antinodes">
-                        <div class="toggle-box on"></div>
-                        <span class="toggle-name">antinode markers</span>
-                    </div>
+                <div class="fl-body">
+                    <p class="fl-stamp" id="fl-stamp">—</p>
+                    <p class="fl-real" id="fl-real"></p>
+                    <div class="fl-verdict" id="fl-verdict" style="display:none;"></div>
                 </div>
             </div>
         </div>
@@ -738,249 +930,846 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
-<!-- ── SIMULATION — Standing Wave on String ── -->
+<!-- ── Shared helper ── -->
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   PP9 — the small helper the sandbox on this page uses. Same shape as
+   PP4..PP8 on the other topic pages: colour tokens read from <body>, a
+   dpr-sized canvas mount that coalesces into one requestAnimationFrame,
+   and the drawing primitives (mono text, haloed serif label, arrow,
+   hatching) the site draws with.
+   ══════════════════════════════════════════════════════════════════════ */
+const PP9 = (function () {
     'use strict';
-
-    /* ── Canvas + context ── */
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width, 200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    /* ── CSS colour tokens ── */
-    function readCol() {
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const big = (v, d) => {
+        const s = num(v, d === undefined ? 0 : d);
+        const parts = s.split(isCS() ? ',' : '.');
+        return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ') +
+               (parts[1] ? (isCS() ? ',' : '.') + parts[1] : '');
+    };
+    function colours() {
         const s = getComputedStyle(document.documentElement);
+        const b = getComputedStyle(document.body);
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   s.getPropertyValue('--accent').trim()    || '#1a6678',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFFEC',
+            ink:   s.getPropertyValue('--ink').trim()        || '#363026',
+            soft:  s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
+            faint: s.getPropertyValue('--ink-faint').trim()  || '#7a6a52',
+            paper: s.getPropertyValue('--paper').trim()      || '#f7f3e6',
+            deep:  s.getPropertyValue('--paper-deep').trim() || '#efead6',
+            edge:  s.getPropertyValue('--paper-edge').trim() || '#e6dfc8',
+            acc:   b.getPropertyValue('--accent').trim()     || '#1a6678',
         };
     }
-    let col = readCol();
-
-    /* ── Simulation state ── */
-    const DEFAULTS = { n: 1, T: 100, mu: 0.002 };
-    let state = { ...DEFAULTS };
-
-    /* ── Display toggles ── */
-    const show = { envelope: true, nodes: true, antinodes: true };
-
-    /* ── Slider wiring ── */
-    function bindSlider(inputId, valId, transform, fmt, key) {
-        const inp = document.getElementById(inputId);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = transform(+inp.value);
-            if (lbl) lbl.textContent = fmt(+inp.value);
-        });
-        // init display
-        if (lbl) lbl.textContent = fmt(+inp.value);
+    function mount(id, drawFn) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const o = { canvas, ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 240), H = Math.max(r.height, 80);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        o.redraw = function () {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); drawFn(o); });
+        };
+        size();
+        new ResizeObserver(() => { size(); o.redraw(); }).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
     }
-
-    bindSlider('p-n',       'p-n-val',       v => v,        v => String(v),               'n');
-    bindSlider('p-tension', 'p-tension-val', v => v,        v => v + ' N',                'T');
-    bindSlider('p-mu',      'p-mu-val',      v => v / 1000, v => v.toFixed(1) + ' g/m',  'mu');
-    // init mu
-    state.mu = 0.002;
-
-    /* ── Reset ── */
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        const sets = [
-            ['p-n',       1,    v => String(v),             'n'],
-            ['p-tension', 100,  v => v + ' N',              'T'],
-            ['p-mu',      2,    v => v.toFixed(1) + ' g/m', 'mu_display'],
-        ];
-        sets.forEach(([id, val, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
-            if (inp) inp.value = val;
-            if (lbl) lbl.textContent = fmt(val);
-        });
-        state.mu = 0.002;
-    });
-
-    /* ── Toggle wiring ── */
-    function wireToggle(id, key) {
-        const row = document.getElementById(id);
-        if (!row) return;
-        row.addEventListener('click', function () {
-            show[key] = !show[key];
-            this.querySelector('.toggle-box')?.classList.toggle('on');
-        });
+    function mono(ctx, text, x, y, col, size, align) {
+        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
     }
-    wireToggle('tgl-envelope',   'envelope');
-    wireToggle('tgl-nodes',      'nodes');
-    wireToggle('tgl-antinodes',  'antinodes');
-
-    /* ── Wall hatching helper ── */
-    function drawWall(x, side) {
-        // side: +1 = right face hatching, -1 = left face hatching
-        const wallW = 10, wallH = H * 0.72;
-        const wy = (H - wallH) / 2;
-        ctx.fillStyle = col.soft + '30';
-        ctx.fillRect(x - (side > 0 ? wallW : 0), wy, wallW, wallH);
-        ctx.strokeStyle = col.soft + '80';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([]);
+    /* the same, on a paper backdrop, for a caption that sits over a painted
+       field where bare ink would be unreadable */
+    function plate(ctx, bg, text, x, y, col, size) {
+        const sz = size || 10;
+        ctx.font = sz + 'px "JetBrains Mono",monospace';
+        const w = ctx.measureText(text).width;
+        ctx.fillStyle = bg;
+        ctx.fillRect(x - 4, y - sz * 0.85, w + 8, sz * 1.7);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+    }
+    /* a haloed label stays readable over a curve without blanking it out */
+    function halo(ctx, bg, text, x, y, col, size, italic, align) {
+        ctx.font = (italic ? 'italic ' : '') + (size || 12) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3.5;
+        ctx.strokeStyle = bg; ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+    function arrow(ctx, x1, y1, x2, y2, col, lw) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 2.5) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(10, L * 0.34), hw = hl * 0.52;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+        ctx.setLineDash([]); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+    /* a dimension bar with end ticks and a label above it */
+    function span(ctx, bg, x1, x2, y, col, label) {
+        ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.moveTo(x, wy); ctx.lineTo(x, wy + wallH);
+        ctx.moveTo(x1, y - 5); ctx.lineTo(x1, y + 5);
+        ctx.moveTo(x2, y - 5); ctx.lineTo(x2, y + 5);
+        ctx.moveTo(x1, y); ctx.lineTo(x2, y);
         ctx.stroke();
-        // diagonal hatching
-        ctx.strokeStyle = col.soft + '50';
-        ctx.lineWidth = 0.8;
-        const hatch = 10;
-        for (let i = -wallH; i < wallH * 2; i += hatch) {
-            const x1 = x + (side > 0 ? 0 : -wallW);
-            const x2 = x1 + wallW * side;
+        if (label) halo(ctx, bg, label, (x1 + x2) / 2, y - 13, col, 13, true);
+    }
+    /* the site's hatched wall. The ticks go along +n and against +u, so the
+       side the hatching lands on is chosen by the direction you draw the
+       line in, not by the sign of depth. */
+    function hatch(ctx, x1, y1, x2, y2, col, depth) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 1) return;
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.lineWidth = 1;
+        for (let d = 0; d < L; d += 10) {
+            const px = x1 + ux * d, py = y1 + uy * d;
             ctx.beginPath();
-            ctx.moveTo(x1, wy + i);
-            ctx.lineTo(x2, wy + i + wallW);
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth);
             ctx.stroke();
         }
     }
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    /* KaTeX is deferred, so an inline script cannot typeset at parse time */
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+    function radios(attr, onPick) {
+        const rows = Array.from(document.querySelectorAll('[' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            rows.forEach(r => r.querySelector('.toggle-box').classList.remove('on'));
+            row.querySelector('.toggle-box').classList.add('on');
+            onPick(row.getAttribute(attr));
+        }));
+        return rows;
+    }
+    function toggles(attr, onPick) {
+        const rows = Array.from(document.querySelectorAll('[' + attr + ']'));
+        rows.forEach(row => row.addEventListener('click', () => {
+            const box = row.querySelector('.toggle-box');
+            box.classList.toggle('on');
+            onPick(row.getAttribute(attr), box.classList.contains('on'));
+        }));
+        return rows;
+    }
+    function slider(id, valId, fmt, onInput) {
+        const inp = document.getElementById(id), lbl = document.getElementById(valId);
+        if (!inp) return null;
+        const label = () => { if (lbl) lbl.textContent = fmt(+inp.value); };
+        inp.addEventListener('input', () => { label(); onInput(+inp.value); });
+        label();
+        return { el: inp, get: () => +inp.value,
+                 set: v => { inp.value = v; label(); }, label };
+    }
+    return { isCS, T, num, big, colours, mount, mono, plate, halo, arrow, span, hatch,
+             katexInto, whenReady, radios, toggles, slider, VSOUND: 343 };
+}());
+</script>
 
-    /* ── Main draw ── */
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
+<!-- ── LAB · the movie ── -->
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   THE MOVIE — WHAT MAKES A WAVE, AND WHAT TWO OF THEM MAKE
 
-        const WALL_PAD = 36;
-        const x0 = WALL_PAD;
-        const x1 = W - WALL_PAD;
-        const ropeLen = x1 - x0;        // canvas pixels = "1 m" scale reference
-        const midY    = H * 0.5;
-        const A       = Math.min(H * 0.28, 35); // amplitude in px, fixed visual
+   Eight steps. The first three take the wave apart into the only three
+   numbers it has — the amplitude, the wavenumber and the angular
+   frequency — one per step, each shown by varying that number alone and
+   holding the other two. The fourth puts them back together and lets go:
+   v = omega/k. The fifth adds a second wave. The sixth sends a single bump
+   at a clamped end and builds the reflection out of a mirror pulse drawn
+   outside the rope, which is where the second wave comes from for nothing.
+   The seventh turns a continuous wave around the same way and the standing
+   wave appears. The eighth clamps BOTH ends, and only certain wavelengths
+   survive.
 
-        const n   = state.n;
-        const T   = state.T;
-        const mu  = state.mu;           // kg/m
-        const v   = Math.sqrt(T / mu);  // m/s (physics)
-        // L = 1 m conceptual scale for readout; ropeLen px = 1 m
-        const L_m = 1.0;               // meters (physical string length for display)
-        const fn  = n * v / (2 * L_m); // Hz
-        const omn = 2 * Math.PI * fn;  // rad/s
-        const lam = 2 * L_m / n;       // m
+   The numbers are Ex. 16-84's where the parameters are being defined
+   (k = 60 cm^-1, T = 0.20 s, A = 3.0 mm -> u_max = 9.4 cm/s) and
+   Ex. 16-50's rope everywhere a rope is drawn:
+       k = pi/2      -> lambda = 4.0 m
+       omega = 12 pi -> T = 1/6 s, f = 6.0 Hz
+       v = omega/k   = 24 m/s
+       n = 2         -> L = lambda = 4.0 m, m = 1.4 kg, tau_3 = 0.11 s
 
-        // time in seconds (physical), capped speed for visual appeal
-        const t_sec = (ts / 1000) * Math.min(fn / 5, 6);
+   Every curve is evaluated from those constants; nothing is sketched.
+   The rope's own 6 Hz would be a blur at 60 fps, so the clock runs at
+   SLOW x real time and the note under the film says so.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PP9.mount('mv-canvas', draw);
+    if (!V) return;
+    const $ = id => document.getElementById(id);
+    const N = PP9.num;
 
-        // Dashed envelope ±A
-        if (show.envelope) {
-            ctx.strokeStyle = col.acc + '40';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([6, 5]);
-            for (const sign of [1, -1]) {
-                ctx.beginPath();
-                const SAMPLES = 120;
-                for (let i = 0; i <= SAMPLES; i++) {
-                    const xFrac = i / SAMPLES;
-                    const xPx   = x0 + xFrac * ropeLen;
-                    const env   = A * Math.sin(n * Math.PI * xFrac);
-                    const yPx   = midY - sign * env;
-                    if (i === 0) ctx.moveTo(xPx, yPx);
-                    else ctx.lineTo(xPx, yPx);
-                }
-                ctx.stroke();
-            }
-            ctx.setLineDash([]);
-        }
+    const SKY = { bg: '#0d181d', ink: '#e6f2f5', soft: '#a3c0c8', faint: '#7d9aa3',
+                  acc: '#5fc8e0', ghost: '#3b5b66', warm: '#e0a04a', wall: '#4e6c76' };
 
-        // Standing wave rope
-        const SAMPLES = 200;
+    /* the rope of Ex. 16-50, and the two travelling waves that make its
+       standing wave — each of them half the amplitude the exercise prints */
+    const AMP = 0.05, LAM = 4.0, KW = 2 * Math.PI / LAM;
+    const FR = 6.0, OM = 2 * Math.PI * FR, VW = OM / KW;      /* 24 m/s */
+    const FT = 200, MU = FT / (VW * VW), LEN = 4.0, MASS = MU * LEN;
+    const F1 = VW / (2 * LEN);                                /* 3.0 Hz  */
+    const SLOW = 0.2;
+    const XWALL = 12.0;          /* where the clamp is, in the pulse scene */
+
+    /* Ex. 16-84's wave, quoted where each of its parameters is defined */
+    const K84 = 6000, T84 = 0.20, OM84 = 2 * Math.PI / T84, A84 = 3.0e-3;
+    const V84 = OM84 / K84, U84 = A84 * OM84;
+
+    /* ── the script ──────────────────────────────────────────────────── */
+    const STEPS = [
+        {
+            key: 'amp',
+            t: ['A — how far it swings', 'A — jak daleko kmitá'],
+            when: ['Ch. 16 · the amplitude', 'Kap. 16 · amplituda'],
+            body: ['A wave has only three numbers in it, and this is the easy one. The <em>amplitude</em> A is the greatest displacement any point of the medium ever reaches; the curve never leaves the band between +A and −A. Change it and the shape is scaled and nothing else — the same crests arrive at the same places at the same times, only taller.',
+                   'Vlna má v sobě jen tři čísla a tohle je to snadné. <em>Amplituda</em> A je největší výchylka, které kterýkoli bod prostředí kdy dosáhne; křivka nikdy neopustí pás mezi +A a −A. Změňte ji a tvar se jen přeškáluje — tytéž hřebeny dorazí na táž místa v týchž časech, jen vyšší.'],
+            eq: 'y(x,t) = A\\sin(kx - \\omega t)',
+            rows: () => [
+                [['amplitude A (this rope)', 'amplituda A (toto lano)'], N(AMP, 3) + ' m'],
+                [['the ghost below it', 'duch pod ní'], N(AMP / 2, 3) + ' m'],
+                [['the band it never leaves', 'pás, který neopustí'], '±' + N(AMP, 3) + ' m'],
+                [['Ex. 16-84: A', 'Úl. 16-84: A'], N(A84 * 1000, 1) + ' mm'],
+            ],
+            real: ['<strong>Ex. 16-84</strong> is this whole film run backwards: it hands you the three numbers — k = 60 cm⁻¹, T = 0.20 s, A = 3.0 mm — and asks you to write the wave. A is the one that goes in front, untouched, in whatever unit you were given it in. The other two need work, and the next two steps are that work.',
+                   '<strong>Úloha 16-84</strong> je celý tenhle film pozpátku: dá vám ta tři čísla — k = 60 cm⁻¹, T = 0,20 s, A = 3,0 mm — a chce po vás napsat vlnu. A je to jediné, které jde dopředu beze změny, v jednotce, ve které jste ho dostali. Zbylá dvě chtějí práci, a další dva kroky jsou právě ta práce.'],
+            reads: () => [['A', N(AMP, 3) + ' m'], ['λ', N(LAM, 1) + ' m'], ['f', N(FR, 1) + ' Hz']],
+        },
+        {
+            key: 'kspace',
+            t: ['k — how it repeats in space', 'k — jak se opakuje v prostoru'],
+            when: ['Ch. 16 · the wavenumber', 'Kap. 16 · vlnočet'],
+            body: ['Stop the clock and walk along the rope. The <em>wavenumber</em> k counts how many radians of the sine you get through per metre walked, so one whole turn — 2π — takes you exactly one wavelength: <em>k = 2π/λ</em>. The three ropes below differ in k alone. The dot on each moves at the same metres per second, and crosses four times as many crests on the bottom rope as on the top one.',
+                   'Zastavte hodiny a projděte se podél lana. <em>Vlnočet</em> k počítá, kolik radiánů sinu ujdete na jeden metr, takže jedna celá otáčka — 2π — je přesně jedna vlnová délka: <em>k = 2π/λ</em>. Tři lana dole se liší jen v k. Tečka na každém se pohybuje stejným počtem metrů za sekundu a na spodním laně mine čtyřikrát víc hřebenů než na horním.'],
+            eq: 'k = \\dfrac{2\\pi}{\\lambda}\\,,\\qquad \\lambda = \\dfrac{2\\pi}{k}',
+            rows: () => [
+                [['top: λ, k', 'nahoře: λ, k'], N(2 * LAM, 1) + ' m · ' + N(KW / 2, 3) + ' m⁻¹'],
+                [['middle: λ, k (this rope)', 'uprostřed: λ, k (toto lano)'], N(LAM, 1) + ' m · ' + N(KW, 3) + ' m⁻¹'],
+                [['bottom: λ, k', 'dole: λ, k'], N(LAM / 2, 1) + ' m · ' + N(2 * KW, 3) + ' m⁻¹'],
+                [['Ex. 16-84: k', 'Úl. 16-84: k'], '60 cm⁻¹ = ' + PP9.big(K84, 0) + ' m⁻¹'],
+                [['its λ = 2π/k', 'jeho λ = 2π/k'], N(2 * Math.PI / K84 * 1000, 3) + ' mm'],
+            ],
+            real: ['The unit is the trap in <strong>Ex. 16-84</strong>, and it is worth being slow about. A wavenumber of 60 cm⁻¹ is <em>60 radians per centimetre</em>, which is 6000 radians per metre, not 0.60 of anything. The wavelength that follows is 2π/6000 = <strong>1.05 mm</strong> — a very short wave. The exercise lets you leave k in cm⁻¹ in the final answer, but only if every other length in it is in centimetres too.',
+                   'Jednotka je v <strong>úloze 16-84</strong> ta past a vyplatí se u ní zpomalit. Vlnočet 60 cm⁻¹ je <em>60 radiánů na centimetr</em>, tedy 6000 radiánů na metr, ne 0,60 čehokoli. Vlnová délka z toho vychází 2π/6000 = <strong>1,05 mm</strong> — velmi krátká vlna. Úloha dovolí nechat k ve výsledku v cm⁻¹, ale jen když jsou v centimetrech i všechny ostatní délky v něm.'],
+            reads: () => [['k', N(KW, 3) + ' m⁻¹'], ['λ = 2π/k', N(LAM, 1) + ' m'], ['f', N(FR, 1) + ' Hz']],
+        },
+        {
+            key: 'omega',
+            t: ['ω — how it repeats in time', 'ω — jak se opakuje v čase'],
+            when: ['Ch. 16 · the angular frequency', 'Kap. 16 · úhlová frekvence'],
+            body: ['Now stand at one place and start the clock. That point of the rope just oscillates, and the <em>angular frequency</em> ω counts radians per second exactly as k counted radians per metre: one turn is one period, <em>ω = 2π/T = 2πf</em>. The three traces below are one point of three ropes that differ in ω alone — same clock, same amplitude, three tempos.',
+                   'Teď se postavte na jedno místo a spusťte hodiny. Ten bod lana prostě kmitá a <em>úhlová frekvence</em> ω počítá radiány za sekundu přesně tak, jako k počítal radiány na metr: jedna otáčka je jedna perioda, <em>ω = 2π/T = 2πf</em>. Tři záznamy dole jsou jeden bod tří lan, která se liší jen v ω — tytéž hodiny, táž amplituda, tři tempa.'],
+            eq: '\\omega = \\dfrac{2\\pi}{T} = 2\\pi f',
+            rows: () => [
+                [['top: T, f', 'nahoře: T, f'], N(2 / FR, 3) + ' s · ' + N(FR / 2, 1) + ' Hz'],
+                [['middle: T, f (this rope)', 'uprostřed: T, f (toto lano)'], N(1 / FR, 4) + ' s · ' + N(FR, 1) + ' Hz'],
+                [['bottom: T, f', 'dole: T, f'], N(0.5 / FR, 4) + ' s · ' + N(2 * FR, 1) + ' Hz'],
+                [['Ex. 16-84: T', 'Úl. 16-84: T'], N(T84, 2) + ' s'],
+                [['its ω = 2π/T', 'jeho ω = 2π/T'], N(OM84, 1) + ' s⁻¹'],
+                [['its u_max = Aω', 'jeho u_max = Aω'], N(U84 * 100, 1) + ' cm/s'],
+            ],
+            real: ['With ω in hand, <strong>Ex. 16-84</strong> is finished: ω = 2π/0.20 = 31 s⁻¹, and the answer is <strong>z = (3.0 mm) sin[(60 cm⁻¹)y − (31 s⁻¹)t]</strong> — a sine because the displacement is stated to be zero at the origin, and a minus because it travels in +y. Part (b) asks for the fastest the string itself ever moves, and that is a question about ω and A only: differentiate in time and the largest value of ωA cos(…) is <strong>u_max = Aω = 9.4 cm/s</strong>.',
+                   'S ω v ruce je <strong>úloha 16-84</strong> hotová: ω = 2π/0,20 = 31 s⁻¹ a výsledek je <strong>z = (3,0 mm) sin[(60 cm⁻¹)y − (31 s⁻¹)t]</strong> — sinus, protože je výchylka v počátku podle zadání nulová, a minus, protože vlna postupuje ve směru +y. Část (b) se ptá, jak nejrychleji se kdy pohne sama struna, a to je otázka jen na ω a A: zderivujte podle času a největší hodnota ωA cos(…) je <strong>u_max = Aω = 9,4 cm/s</strong>.'],
+            verdict: ['Three numbers in, one wave out: <b>A</b> scales it, <b>k</b> sets how it repeats along the rope, <b>ω</b> how it repeats in time. Nothing else is needed, and nothing else is allowed.',
+                      'Tři čísla dovnitř, jedna vlna ven: <b>A</b> ji škáluje, <b>k</b> určuje, jak se opakuje podél lana, <b>ω</b>, jak se opakuje v čase. Nic dalšího není potřeba a nic dalšího není dovoleno.'],
+            reads: () => [['ω', N(OM, 2) + ' s⁻¹'], ['T = 2π/ω', N(1 / FR, 4) + ' s'], ['f', N(FR, 1) + ' Hz']],
+        },
+        {
+            key: 'travel',
+            t: ['Together they make it travel', 'Dohromady ji rozejdou'],
+            when: ['Ch. 16 · v = ω/k = λf', 'Kap. 16 · v = ω/k = λf'],
+            body: ['Start both clocks at once. Holding kx − ωt fixed is what riding a crest means, and that takes <em>x = (ω/k)t</em> — so the shape moves at <em>v = ω/k</em>, one wavelength per period. Two speeds live on this picture and nothing fixed relates them: the crest runs at v, while any one bit of rope only goes up and down at <em>u = −ωA cos(kx − ωt)</em>. Both arrows are drawn to one scale in metres per second.',
+                   'Spusťte obě hodiny naráz. Držet kx − ωt na stálé hodnotě znamená jet na hřebenu, a to vyžaduje <em>x = (ω/k)t</em> — tvar se tedy pohybuje rychlostí <em>v = ω/k</em>, jednu vlnovou délku za periodu. Na obrázku žijí dvě rychlosti a nic pevného je nespojuje: hřeben běží rychlostí v, zatímco kterýkoli kousek lana jen kmitá nahoru a dolů rychlostí <em>u = −ωA cos(kx − ωt)</em>. Obě šipky jsou kresleny v jedné škále v metrech za sekundu.'],
+            eq: 'v = \\dfrac{\\omega}{k} = \\lambda f',
+            rows: () => [
+                [['λ · f', 'λ · f'], N(LAM, 1) + ' m · ' + N(FR, 1) + ' Hz'],
+                [['wave speed v = ω/k', 'rychlost vlny v = ω/k'], N(VW, 1) + ' m/s'],
+                [['fastest bit of rope u_max = ωA', 'nejrychlejší kousek lana u_max = ωA'], N(OM * AMP, 3) + ' m/s'],
+                [['their ratio kA', 'jejich poměr kA'], N(KW * AMP, 4)],
+                [['Ex. 16-84: v = ω/k', 'Úl. 16-84: v = ω/k'], N(V84 * 1000, 2) + ' mm/s'],
+            ],
+            real: ['The ratio of the two speeds is u_max/v = <em>kA</em>, the steepest slope the wave carries, and nothing forces it to be small. On this rope the crest outruns the rope 12.7 times over. On the wave of <strong>Ex. 16-84</strong> it goes the other way: that wave crawls at ω/k = 5.2 mm/s while its string moves at 9.4 cm/s, eighteen times faster — because kA there is 18.',
+                   'Poměr obou rychlostí je u_max/v = <em>kA</em>, nejstrmější sklon, který vlna nese, a nic ho nenutí být malý. Na tomhle laně předbíhá hřeben lano 12,7krát. U vlny z <strong>úlohy 16-84</strong> je to naopak: ta se plouží rychlostí ω/k = 5,2 mm/s, zatímco její struna se hýbe 9,4 cm/s, osmnáctkrát rychleji — protože kA je tam 18.'],
+            verdict: ['Same law, opposite verdict: here <b>12.7 : 1</b> for the wave, in Ex. 16-84 <b>1 : 18</b>. Never read one of the two speeds off the other.',
+                      'Týž zákon, opačný výsledek: tady <b>12,7 : 1</b> pro vlnu, v úloze 16-84 <b>1 : 18</b>. Jednu z těch dvou rychlostí nikdy neodečítejte z druhé.'],
+            reads: () => [['λ', N(LAM, 1) + ' m'], ['f', N(FR, 1) + ' Hz'], ['v = λf', N(VW, 1) + ' m/s']],
+        },
+        {
+            key: 'addup',
+            t: ['Two waves in the same place add', 'Dvě vlny na jednom místě se sečtou'],
+            when: ['Ch. 16 · superposition', 'Kap. 16 · superpozice'],
+            body: ['Put a second wave on the rope, identical but lagging the first by a phase φ, and the rope simply carries the sum of the two — that is all superposition says. The sum is a wave of the very same λ and f, with amplitude <em>2A cos(φ/2)</em>: in step (φ = 0) it is twice as tall, half a wavelength out of step (φ = π) it is nothing at all. Watch φ sweep.',
+                   'Položte na lano druhou vlnu, stejnou, ale o fázi φ opožděnou za první, a lano prostě nese jejich součet — víc superpozice neříká. Součet je vlna téže λ a f s amplitudou <em>2A cos(φ/2)</em>: ve fázi (φ = 0) je dvakrát vyšší, o půl vlnové délky posunutá (φ = π) není vůbec. Sledujte, jak φ probíhá.'],
+            eq: 'A\\sin\\theta + A\\sin(\\theta+\\varphi) = 2A\\cos\\dfrac{\\varphi}{2}\\,\\sin\\!\\left(\\theta+\\dfrac{\\varphi}{2}\\right)',
+            rows: () => [
+                [['each wave', 'každá vlna'], N(AMP, 3) + ' m'],
+                [['in step, φ = 0', 've fázi, φ = 0'], N(2 * AMP, 3) + ' m'],
+                [['out of step, φ = π', 'v protifázi, φ = π'], '0 m'],
+                [['φ now', 'φ teď'], N(phi() / Math.PI, 2) + ' π'],
+                [['2A cos(φ/2) now', '2A cos(φ/2) teď'], N(Math.abs(2 * AMP * Math.cos(phi() / 2)), 4) + ' m'],
+            ],
+            real: ['Everything left in this topic is this one line used twice. Turn the second wave around instead of delaying it and the sum stops travelling — that is the standing wave, two steps on, and the next step shows where that second wave comes from for nothing. Send the two waves to a listener along paths of different lengths instead, and the phase difference is set by that difference alone, which is the whole of the two-speaker problem in chapter 17.',
+                   'Všechno, co v tomhle tématu zbývá, je tenhle jeden řádek použitý dvakrát. Otočte druhou vlnu místo toho, abyste ji zpozdili, a součet přestane putovat — to je stojaté vlnění o dva kroky dál, a další krok ukáže, odkud se ta druhá vlna vezme zadarmo. Nebo pošlete obě vlny k posluchači po různě dlouhých drahách a fázový rozdíl určí jen ten rozdíl drah, což je celá úloha o dvou reproduktorech v 17. kapitole.'],
+            reads: () => [['φ', N(phi() / Math.PI, 2) + ' π'],
+                          ['2A cos(φ/2)', N(Math.abs(2 * AMP * Math.cos(phi() / 2)), 4) + ' m'],
+                          ['λ, f', N(LAM, 1) + ' m · ' + N(FR, 1) + ' Hz']],
+        },
+        {
+            key: 'reflect',
+            t: ['A bump meets a wall', 'Hrb narazí do stěny'],
+            when: ['Ch. 16 · reflection at a fixed end', 'Kap. 16 · odraz na pevném konci'],
+            body: ['Superposition needs no sine waves — <em>any</em> two shapes on the rope add. So send a single bump at a clamped end and ask what has to happen there. The clamp cannot move, so whatever arrives must be cancelled at that one point at every instant, and the only way is for an equal and opposite bump to leave at the same moment. Draw that mirror pulse <em>outside</em> the rope, add the two, and what survives on the real side is the rope you actually see: a bump that comes back upside down.',
+                   'Superpozice žádné sinusovky nepotřebuje — sčítají se <em>jakkoékoli</em> dva tvary na laně. Pošlete tedy na upnutý konec jediný hrb a zeptejte se, co se tam musí stát. Úchyt se nemůže hýbat, takže cokoli přijde, musí být v tom jednom bodě v každém okamžiku vyrušeno, a jediná možnost je, že v témž okamžiku odejde stejně velký opačný hrb. Nakreslete ten zrcadlový puls <em>mimo</em> lano, sečtěte oba, a na skutečné straně zůstane lano, které opravdu vidíte: hrb, který se vrací vzhůru nohama.'],
+            eq: 'y(L,t) = 0 \\;\\Longrightarrow\\; y_{\\text{odraž}} = -\\,y_{\\text{příchozí}}',
+            rows: () => [
+                [['pulse speed v', 'rychlost pulsu v'], N(VW, 1) + ' m/s'],
+                [['to the clamp, L', 'k úchytu, L'], N(XWALL, 0) + ' m'],
+                [['there and back, 2L/v', 'tam a zpět, 2L/v'], N(2 * XWALL / VW, 3) + ' s'],
+                [['at the clamp, always', 'na úchytu, vždy'], '0 m'],
+                [['Ex. 16-50’s rope: 2L/v', 'lano z úl. 16-50: 2L/v'], N(2 * LEN / VW, 4) + ' s'],
+                [['and its f₁ = v/2L', 'a jeho f₁ = v/2L'], N(F1, 1) + ' Hz'],
+            ],
+            real: ['This is where the second wave of the next step comes from — a clamp makes it for you, free, out of the first. It is also where a rope’s notes come from: with a clamp at each end the pulse is returned at each end, and the round trip 2L/v is exactly the period of the lowest note the rope can hold. For the rope of <strong>Ex. 16-50</strong> that is 2L/v = <strong>0.33 s</strong>, which is 1/f₁ at f₁ = 3.0 Hz — and the n-th harmonic simply fits n of its own periods into the same round trip.',
+                   'Odtud se bere druhá vlna dalšího kroku — úchyt ji z té první vyrobí zadarmo. A odtud se berou i tóny lana: s úchytem na obou koncích se puls na obou koncích vrací a doba oběhu 2L/v je přesně perioda nejnižšího tónu, který lano udrží. Pro lano z <strong>úlohy 16-50</strong> je to 2L/v = <strong>0,33 s</strong>, což je 1/f₁ při f₁ = 3,0 Hz — a n-tá harmonická se do téže doby oběhu prostě vejde n svými periodami.'],
+            reads: () => [['v', N(VW, 0) + ' m/s'], ['L', N(XWALL, 0) + ' m'],
+                          ['2L/v', N(2 * XWALL / VW, 2) + ' s']],
+        },
+        {
+            key: 'standing',
+            t: ['Turn one around: it stops travelling', 'Otočte jednu: přestane putovat'],
+            when: ['Ch. 16 · the standing wave', 'Kap. 16 · stojaté vlnění'],
+            body: ['Now do to a continuous wave what the wall has just done to the bump. The reflection never stops arriving, so at every moment the rope carries two identical waves crossing in <em>opposite</em> directions, and their sum splits into a factor in x times a factor in t. Nothing travels any more. The points where <em>sin kx = 0</em> never move at all — the <em>nodes</em>, half a wavelength apart — and halfway between them the rope swings through 2A.',
+                   'Teď udělejte se spojitou vlnou to, co stěna právě udělala s hrbem. Odraz přichází bez ustání, takže lano v každém okamžiku nese dvě stejné vlny míjející se <em>opačnými</em> směry a jejich součet se rozpadne na činitel v x krát činitel v t. Nic už neputuje. Body, kde je <em>sin kx = 0</em>, se nehýbou vůbec — <em>uzly</em>, vzdálené půl vlnové délky — a uprostřed mezi nimi kmitá lano s rozkmitem 2A.'],
+            eq: 'A\\sin(kx+\\omega t) + A\\sin(kx-\\omega t) = 2A\\sin kx\\,\\cos\\omega t',
+            rows: () => [
+                [['each travelling wave A', 'každá postupná vlna A'], N(AMP, 3) + ' m'],
+                [['at an antinode, 2A', 'v kmitně, 2A'], N(2 * AMP, 2) + ' m'],
+                [['node spacing λ/2', 'vzdálenost uzlů λ/2'], N(LAM / 2, 1) + ' m'],
+                [['at the clamp, always', 'na úchytu, vždy'], '0 m'],
+                [['k, ω', 'k, ω'], 'π/2 m⁻¹ · 12π s⁻¹'],
+            ],
+            real: ['<strong>Ex. 16-50</strong> hands you exactly this shape: y = (0.10 m) sin(πx/2) sin(12πt). A <em>product</em> of a function of x and a function of t, not a sum inside one sine — that is how a standing wave is recognised at a glance. So 0.10 m is 2A, π/2 is k and 12π is ω, and from here the exercise is reading numbers off a form you have just built.',
+                   '<strong>Úloha 16-50</strong> vám dá přesně tenhle tvar: y = (0,10 m) sin(πx/2) sin(12πt). <em>Součin</em> funkce x a funkce t, ne součet uvnitř jednoho sinu — tak se stojaté vlnění pozná na první pohled. Takže 0,10 m je 2A, π/2 je k a 12π je ω, a odtud je celá úloha odečítáním čísel z tvaru, který jste právě postavili.'],
+            reads: () => [['λ/2', N(LAM / 2, 1) + ' m'], ['2A', N(2 * AMP, 2) + ' m'], ['f', N(FR, 1) + ' Hz']],
+        },
+        {
+            key: 'ladder',
+            t: ['Clamp both ends: only some fit', 'Upněte oba konce: vejdou se jen některé'],
+            when: ['Ch. 16 · λₙ = 2L/n, fₙ = n v/2L', 'Kap. 16 · λₙ = 2L/n, fₙ = n v/2L'],
+            body: ['One clamp forces one node. Two clamps force a node at each end, and a whole number of half-wavelengths has to fit between them — so of all the waves in the world the rope will hold only <em>λₙ = 2L/n</em>, and it refuses everything in between. All four ropes below are the same rope, each running at one of its own harmonics; their frequencies really are in the ratio 1 : 2 : 3 : 4.',
+                   'Jeden úchyt vynutí jeden uzel. Dva úchyty vynutí uzel na každém konci a mezi ně se musí vejít celý počet půlvln — ze všech vln na světě lano udrží jen <em>λₙ = 2L/n</em> a všechno mezi tím odmítne. Všechna čtyři lana dole jsou totéž lano, každé běží na jedné ze svých harmonických; jejich frekvence jsou opravdu v poměru 1 : 2 : 3 : 4.'],
+            eq: 'L = n\\dfrac{\\lambda}{2}\\,,\\qquad f_n = n\\dfrac{v}{2L}',
+            rows: () => [
+                [['n = 2, so L = λ', 'n = 2, tedy L = λ'], N(LEN, 1) + ' m'],
+                [['f₁ = v/2L', 'f₁ = v/2L'], N(F1, 1) + ' Hz'],
+                [['f₂ — the mode drawn in accent', 'f₂ — mód kreslený akcentem'], N(2 * F1, 1) + ' Hz'],
+                [['f₃ = 3v/2L', 'f₃ = 3v/2L'], N(3 * F1, 1) + ' Hz'],
+                [['τ₃ = 1/f₃', 'τ₃ = 1/f₃'], N(1 / (3 * F1), 4) + ' s'],
+                [['μ = F/v², m = μL', 'μ = F/v², m = μL'], N(MU, 3) + ' kg/m · ' + N(MASS, 2) + ' kg'],
+            ],
+            real: ['Every answer <strong>Ex. 16-50</strong> asks for falls out of this picture. Second harmonic means n = 2, so the rope is one whole wavelength long. Its speed came from ω/k back in step 4, and its mass is the one thing that needs the medium as well as the wave: μ = F/v² = 200/576 = 0.347 kg/m, then m = μL.',
+                   'Každá odpověď, na kterou se <strong>úloha 16-50</strong> ptá, plyne z tohoto obrázku. Druhá harmonická znamená n = 2, takže lano je dlouhé jednu celou vlnovou délku. Jeho rychlost jsme dostali z ω/k už ve 4. kroku a hmotnost je to jediné, co potřebuje kromě vlny i prostředí: μ = F/v² = 200/576 = 0,347 kg/m, pak m = μL.'],
+            verdict: ['(a) L = <b>4.0 m</b> · (b) v = <b>24 m/s</b> · (c) m = <b>1.4 kg</b> · (d) τ₃ = <b>0.11 s</b> — the printed answers, all four.',
+                      '(a) L = <b>4,0 m</b> · (b) v = <b>24 m/s</b> · (c) m = <b>1,4 kg</b> · (d) τ₃ = <b>0,11 s</b> — všechny čtyři tištěné výsledky.'],
+            reads: () => [['L', N(LEN, 1) + ' m'], ['λ₂ = 2L/2', N(LAM, 1) + ' m'], ['f₂', N(2 * F1, 1) + ' Hz']],
+        },
+    ];
+
+    /* ── machinery ───────────────────────────────────────────────────── */
+    let step = 0, clock = 0, raf = 0, last = 0, started = false;
+
+    /* the phase lag of step 5, swept slowly so both extremes are seen */
+    function phi() { return (clock * 0.5) % (2 * Math.PI); }
+
+    /* Every scene is laid out inside one band. The step caption owns the top
+       strip and the equation badge (about 70 px tall, plus its 16 px offset)
+       owns the bottom, so a scene drawn out to v.H collides with them. */
+    const TOP = 58;
+    const BOT = v => v.H - 96;
+    const BAND = v => BOT(v) - TOP;
+
+    /* metres -> pixels. The vertical scale is exaggerated (a 5 cm amplitude
+       on a 4 m wavelength would be a flat line) and the factor is printed. */
+    function mapper(v, xa, xb, ymax, yc, halfPx, mlIn) {
+        const ml = mlIn || 52, mr = 26;
+        const S = (v.W - ml - mr) / (xb - xa);
+        const AS = ymax > 0 ? halfPx / ymax : S;
+        return { S: S, AS: AS, ex: AS / S, ml: ml, mr: mr,
+                 x: m => ml + (m - xa) * S, y: q => yc - q * AS };
+    }
+    function exNote(v, ctx, m) {
+        PP9.mono(ctx, PP9.T('vertical scale ×', 'svislé měřítko ×') + N(m.ex, 0),
+                 v.W - 18, 18, SKY.faint, 9.5, 'right');
+    }
+    function curve(ctx, m, xa, xb, f, col, lw, dash) {
+        ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
         ctx.beginPath();
-        for (let i = 0; i <= SAMPLES; i++) {
-            const xFrac  = i / SAMPLES;
-            const xPx    = x0 + xFrac * ropeLen;
-            const kx     = n * Math.PI * xFrac;   // = (nπ/L)·x = k·x
-            const coswt  = Math.cos(omn * t_sec); // temporal factor
-            const yDisp  = A * Math.sin(kx) * coswt;
-            const yPx    = midY - yDisp;
-            if (i === 0) ctx.moveTo(xPx, yPx);
-            else ctx.lineTo(xPx, yPx);
+        const px0 = m.x(xa), px1 = m.x(xb);
+        for (let px = px0; px <= px1; px += 1.5) {
+            const xw = xa + (px - px0) / m.S;
+            const py = m.y(f(xw));
+            px === px0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
         }
-        ctx.strokeStyle = col.acc;
-        ctx.lineWidth = 2.5;
+        ctx.stroke(); ctx.setLineDash([]);
+    }
+    function axis(ctx, m, xa, xb) {
+        ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1; ctx.setLineDash([2, 5]);
+        ctx.beginPath(); ctx.moveTo(m.x(xa), m.y(0)); ctx.lineTo(m.x(xb), m.y(0)); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        // Node markers (including fixed endpoints)
-        if (show.nodes) {
-            // Nodes at x = k * L / n  for k = 0..n
-            for (let k = 0; k <= n; k++) {
-                const xFrac = k / n;
-                const xPx   = x0 + xFrac * ropeLen;
-                ctx.beginPath();
-                ctx.arc(xPx, midY, 5, 0, Math.PI * 2);
-                ctx.fillStyle = col.ink;
-                ctx.fill();
-                ctx.strokeStyle = col.paper;
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-            }
-        }
-
-        // Antinode markers — subtle arcs at peak positions
-        if (show.antinodes) {
-            // Antinodes at x = (2k+1) * L / (2n) for k=0..n-1
-            for (let k = 0; k < n; k++) {
-                const xFrac = (2 * k + 1) / (2 * n);
-                const xPx   = x0 + xFrac * ropeLen;
-                // Current displacement at this antinode
-                const coswt = Math.cos(omn * t_sec);
-                ctx.beginPath();
-                ctx.arc(xPx, midY - A * coswt, 4, 0, Math.PI * 2);
-                ctx.fillStyle = col.acc + 'CC';
-                ctx.fill();
-            }
-        }
-
-        // Walls
-        drawWall(x0, -1);   // left wall: hatching to the left
-        drawWall(x1,  1);   // right wall: hatching to the right
-
-        // Readout
-        const $ = id => document.getElementById(id);
-        if ($('r-fn'))     $('r-fn').textContent     = fn.toFixed(1) + ' Hz';
-        if ($('r-lambda')) $('r-lambda').textContent = lam.toFixed(3) + ' m';
-        if ($('r-v'))      $('r-v').textContent      = v.toFixed(1) + ' m/s';
-        if ($('r-period')) $('r-period').textContent = (1000 / fn).toFixed(2) + ' ms';
     }
 
-    /* ── RAF loop ── */
-    let lastT = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
+    /* ── the scenes ──────────────────────────────────────────────────── */
+    const SCENE = {};
 
-    function frame(ts) {
-        draw(ts);
-        frames++;
-        if (ts - lastT >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; lastT = ts;
+    /* 1 · A scales the curve and touches nothing else */
+    SCENE.amp = function (v, ctx) {
+        const tt = clock * SLOW, SPAN = 12, bd = BAND(v);
+        const yc = TOP + bd * 0.48, half = Math.min(96, bd * 0.36);
+        const m = mapper(v, 0, SPAN, AMP, yc, half);
+        exNote(v, ctx, m);
+        axis(ctx, m, 0, SPAN);
+
+        /* the band the curve never leaves */
+        ctx.strokeStyle = SKY.warm; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+        [AMP, -AMP].forEach(q => {
+            ctx.beginPath(); ctx.moveTo(m.x(0), m.y(q)); ctx.lineTo(m.x(SPAN), m.y(q)); ctx.stroke();
+        });
+        ctx.setLineDash([]);
+        PP9.halo(ctx, SKY.bg, '+A', m.x(0.15), m.y(AMP), SKY.warm, 14, true, 'left');
+        PP9.halo(ctx, SKY.bg, '−A', m.x(0.15), m.y(-AMP), SKY.warm, 14, true, 'left');
+
+        /* the same wave at half the amplitude — everything else identical */
+        const ph = x => KW * x - OM * tt;
+        curve(ctx, m, 0, SPAN, x => AMP / 2 * Math.sin(ph(x)), SKY.ghost, 1.6, [4, 4]);
+        curve(ctx, m, 0, SPAN, x => AMP * Math.sin(ph(x)), SKY.acc, 2.4);
+
+        /* A measured off the nearest crest */
+        const c0 = ((Math.PI / 2 + OM * tt) / KW) % LAM;
+        let cx = c0; while (cx < 2.2) cx += LAM;
+        if (cx < SPAN - 1) {
+            PP9.arrow(ctx, m.x(cx), m.y(0), m.x(cx), m.y(AMP), SKY.ink, 1.8);
+            PP9.halo(ctx, SKY.bg, 'A', m.x(cx) + 15, m.y(AMP / 2), SKY.ink, 15, true);
         }
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+        PP9.mono(ctx, PP9.T('both curves cross zero at the same places, at the same moments',
+                            'obě křivky protínají nulu na týchž místech a v týchž okamžicích'),
+                 52, BOT(v) - 6, SKY.faint, 10);
+    };
 
+    /* 2 · k alone, with the clock stopped */
+    SCENE.kspace = function (v, ctx) {
+        const SPAN = 12, bd = BAND(v), rowH = (bd - 16) / 3;
+        const lams = [2 * LAM, LAM, LAM / 2];
+        /* one marker walking the ropes at the same metres per second, so the
+           short-wavelength rope visibly turns through more radians per metre */
+        const xm = (clock * 1.6) % SPAN;
+        lams.forEach((lam, i) => {
+            const yc = TOP + rowH * (i + 0.5), half = Math.min(40, rowH * 0.20);
+            const m = mapper(v, 0, SPAN, AMP, yc, half, 96);
+            if (i === 0) exNote(v, ctx, m);
+            const on = i === 1;
+            const col = on ? SKY.acc : SKY.ghost;
+            const kk = 2 * Math.PI / lam;
+            axis(ctx, m, 0, SPAN);
+            curve(ctx, m, 0, SPAN, x => AMP * Math.sin(kk * x), col, on ? 2.4 : 1.7);
+            /* one wavelength marked */
+            const c0 = (Math.PI / 2) / kk;
+            if (c0 + lam <= SPAN - 0.3)
+                PP9.span(ctx, SKY.bg, m.x(c0), m.x(c0 + lam), m.y(AMP) - 8, on ? SKY.ink : SKY.faint,
+                         'λ = ' + N(lam, 1) + ' m');
+            /* exactly one metre, and how many radians of sine it covers —
+               drawn on the highlighted rope only, or the three rows crowd */
+            if (on)
+                PP9.span(ctx, SKY.bg, m.x(0.5), m.x(1.5), m.y(0) + half + 10, SKY.warm,
+                         '1 m = ' + N(kk, 2) + ' rad');
+            ctx.fillStyle = on ? SKY.ink : SKY.faint;
+            ctx.beginPath();
+            ctx.arc(m.x(xm), m.y(AMP * Math.sin(kk * xm)), on ? 5 : 3.6, 0, Math.PI * 2);
+            ctx.fill();
+            PP9.mono(ctx, 'k = ' + N(kk, 3) + ' m⁻¹', 12, yc - 8, on ? SKY.ink : SKY.faint, 10);
+            PP9.mono(ctx, 'λ = ' + N(lam, 1) + ' m', 12, yc + 8, on ? SKY.acc : SKY.faint, 9.5);
+        });
+        PP9.mono(ctx, PP9.T('the clock is stopped · the same instant on all three ropes',
+                            'hodiny stojí · týž okamžik na všech třech lanech'),
+                 12, BOT(v) - 4, SKY.faint, 10);
+    };
+
+    /* 3 · omega alone, at one fixed point of the rope */
+    SCENE.omega = function (v, ctx) {
+        const tt = clock * SLOW, bd = BAND(v), rowH = (bd - 16) / 3;
+        const WIN = 2 / (FR / 2);                     /* two periods of the slowest */
+        const fs = [FR / 2, FR, 2 * FR];
+        const bx = 96, bw = v.W - bx - 34;
+        fs.forEach((ff, i) => {
+            const yc = TOP + rowH * (i + 0.5), half = Math.min(34, rowH * 0.20);
+            const on = i === 1;
+            const col = on ? SKY.acc : SKY.ghost;
+            const w = 2 * Math.PI * ff;
+            const tx = s => bx + s / WIN * bw, ty = q => yc - q / AMP * half;
+            ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1; ctx.setLineDash([2, 5]);
+            ctx.beginPath(); ctx.moveTo(bx, yc); ctx.lineTo(bx + bw, yc); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.strokeStyle = col; ctx.lineWidth = on ? 2.4 : 1.7;
+            ctx.beginPath();
+            for (let j = 0; j <= 420; j++) {
+                const s = j / 420 * WIN, q = AMP * Math.sin(-w * s);
+                j ? ctx.lineTo(tx(s), ty(q)) : ctx.moveTo(tx(s), ty(q));
+            }
+            ctx.stroke();
+            PP9.span(ctx, SKY.bg, tx(0), tx(1 / ff), yc - half - 12, on ? SKY.ink : SKY.faint,
+                     'T = ' + N(1 / ff, 3) + ' s');
+            const sNow = ((tt % WIN) + WIN) % WIN;
+            ctx.fillStyle = on ? SKY.ink : SKY.faint;
+            ctx.beginPath();
+            ctx.arc(tx(sNow), ty(AMP * Math.sin(-2 * Math.PI * ff * sNow)), on ? 5 : 3.6, 0, Math.PI * 2);
+            ctx.fill();
+            PP9.mono(ctx, 'ω = ' + N(w, 2) + ' s⁻¹', 12, yc - 8, on ? SKY.ink : SKY.faint, 10);
+            PP9.mono(ctx, 'f = ' + N(ff, 1) + ' Hz', 12, yc + 8, on ? SKY.acc : SKY.faint, 9.5);
+        });
+        PP9.mono(ctx, PP9.T('one point of the rope, against time · ' + N(WIN, 3) + ' s across',
+                            'jeden bod lana, proti času · ' + N(WIN, 3) + ' s napříč'),
+                 bx, BOT(v) - 4, SKY.faint, 10);
+    };
+
+    /* 4 · both together: v = omega/k, and the two speeds that are not each other */
+    SCENE.travel = function (v, ctx) {
+        const tt = clock * SLOW, SPAN = 12, bd = BAND(v);
+        const yc = TOP + bd * 0.46, half = Math.min(76, bd * 0.30);
+        const m = mapper(v, 0, SPAN, AMP, yc, half);
+        exNote(v, ctx, m);
+        axis(ctx, m, 0, SPAN);
+        const y = x => AMP * Math.sin(KW * x - OM * tt);
+        curve(ctx, m, 0, SPAN, y, SKY.acc, 2.4);
+
+        /* one scale in m/s for both arrows */
+        const ARR = 150 / VW;
+        const c0 = ((Math.PI / 2 + OM * tt) / KW) % LAM;
+        let cx = c0; while (cx < 1.5) cx += LAM;
+        if (cx > SPAN - 4.5) cx -= LAM;
+        const cpx = m.x(cx), cpy = m.y(AMP);
+        ctx.fillStyle = SKY.acc;
+        ctx.beginPath(); ctx.arc(cpx, cpy, 4.5, 0, Math.PI * 2); ctx.fill();
+        PP9.arrow(ctx, cpx, cpy - 16, cpx + VW * ARR, cpy - 16, SKY.acc, 2.2);
+        PP9.halo(ctx, SKY.bg, 'v = ' + N(VW, 0) + ' m/s', cpx + VW * ARR / 2, cpy - 30, SKY.acc, 13, true);
+        /* one wavelength, so lambda-f can be read off the same picture */
+        if (cx + LAM <= SPAN - 0.4)
+            PP9.span(ctx, SKY.bg, m.x(cx), m.x(cx + LAM), m.y(-AMP) + 22, SKY.ink,
+                     'λ = ' + N(LAM, 1) + ' m');
+
+        const XP = 3.0, u = -OM * AMP * Math.cos(KW * XP - OM * tt);
+        const ppx = m.x(XP), ppy = m.y(y(XP));
+        ctx.fillStyle = SKY.warm;
+        ctx.beginPath(); ctx.arc(ppx, ppy, 5, 0, Math.PI * 2); ctx.fill();
+        PP9.arrow(ctx, ppx, ppy, ppx, ppy - u * ARR, SKY.warm, 2.2);
+        ctx.strokeStyle = SKY.warm; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+        ctx.beginPath();
+        ctx.moveTo(ppx - 9, ppy - OM * AMP * ARR); ctx.lineTo(ppx + 9, ppy - OM * AMP * ARR);
+        ctx.moveTo(ppx - 9, ppy + OM * AMP * ARR); ctx.lineTo(ppx + 9, ppy + OM * AMP * ARR);
+        ctx.stroke(); ctx.setLineDash([]);
+        PP9.halo(ctx, SKY.bg, 'u', ppx + 16, ppy - u * ARR / 2 - 2, SKY.warm, 14, true);
+
+        const kx = 52, ky = BOT(v) - 24;
+        PP9.arrow(ctx, kx, ky, kx + 10 * ARR, ky, SKY.faint, 1.4);
+        PP9.mono(ctx, '10 m/s', kx + 10 * ARR + 8, ky, SKY.faint, 10);
+        PP9.mono(ctx, 'v = ω/k = λf = ' + N(VW, 0) + ' m/s   ·   u_max = ωA = ' +
+                      N(OM * AMP, 2) + ' m/s   ·   u_max/v = kA = ' + N(KW * AMP, 3),
+                 kx, BOT(v) - 6, SKY.soft, 10);
+    };
+
+    /* 5 · a second wave, lagging by phi, and their sum */
+    SCENE.addup = function (v, ctx) {
+        const tt = clock * SLOW, SPAN = 12, bd = BAND(v), P = phi();
+        const yc = TOP + bd * 0.46, half = Math.min(96, bd * 0.36);
+        const m = mapper(v, 0, SPAN, 2 * AMP, yc, half);
+        exNote(v, ctx, m);
+        axis(ctx, m, 0, SPAN);
+        const th = x => KW * x - OM * tt;
+        const y1 = x => AMP * Math.sin(th(x));
+        const y2 = x => AMP * Math.sin(th(x) + P);
+        const res = 2 * AMP * Math.cos(P / 2);
+        curve(ctx, m, 0, SPAN, y1, SKY.ghost, 1.7);
+        curve(ctx, m, 0, SPAN, y2, SKY.warm, 1.7, [5, 4]);
+        ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
+        [res, -res].forEach(q => {
+            ctx.beginPath(); ctx.moveTo(m.x(0), m.y(q)); ctx.lineTo(m.x(SPAN), m.y(q)); ctx.stroke();
+        });
+        ctx.setLineDash([]);
+        curve(ctx, m, 0, SPAN, x => y1(x) + y2(x), SKY.acc, 2.8);
+
+        /* the phase dial, in the free corner of the band */
+        const dx = v.W - 74, dy = TOP + 46, R = 26;
+        ctx.fillStyle = SKY.bg; ctx.strokeStyle = SKY.ghost;
+        ctx.lineWidth = 1.2; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(dx, dy, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = SKY.acc; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(dx, dy, R, -Math.PI / 2, -Math.PI / 2 + P); ctx.stroke();
+        PP9.mono(ctx, 'φ', dx, dy, SKY.soft, 11, 'center');
+        PP9.mono(ctx, N(P / Math.PI, 2) + ' π', dx, dy + R + 13, SKY.acc, 10, 'center');
+
+        PP9.mono(ctx, PP9.T('wave 1 (solid ghost)  ·  wave 2, lagging by φ (dashed)  ·  their sum (bold)',
+                            'vlna 1 (plný duch)  ·  vlna 2, opožděná o φ (čárkovaně)  ·  jejich součet (tučně)'),
+                 52, BOT(v) - 24, SKY.faint, 10);
+        PP9.mono(ctx, '2A cos(φ/2) = ' + N(Math.abs(res), 4) + ' m' +
+                      (Math.abs(res) < 0.004 ? PP9.T('   ·   they have cancelled',
+                                                     '   ·   vyrušily se') : ''),
+                 52, BOT(v) - 6, SKY.soft, 10);
+    };
+
+    /* 6 · one bump, one clamped end, and the mirror pulse that explains it */
+    SCENE.reflect = function (v, ctx) {
+        const SPAN = 15, XW = XWALL, X0 = -3, WID = 0.55, A0 = 0.09;
+        const per = (2 * XW - 2 * X0) / VW;
+        const tau = (clock * SLOW) % per;
+        const c = X0 + VW * tau;                     /* the arriving bump  */
+        const g = (x, cc) => A0 * Math.exp(-Math.pow((x - cc) / WID, 2));
+        const bd = BAND(v), yc = TOP + bd * 0.46, half = Math.min(70, bd * 0.30);
+        /* drawn from x = 0, though the pulse starts at X0 and the mirror ends
+            there: both are invisibly far off the picture at the seam, so the
+            loop closes without a jump */
+        const m = mapper(v, 0, SPAN, A0, yc, half);
+        exNote(v, ctx, m);
+        axis(ctx, m, 0, XW);
+
+        /* the two pieces, and then the rope that is actually there */
+        curve(ctx, m, 0, SPAN, x => g(x, c), SKY.ghost, 1.4, [3, 4]);
+        curve(ctx, m, 0, SPAN, x => -g(x, 2 * XW - c), SKY.warm, 1.4, [3, 4]);
+        curve(ctx, m, 0, XW, x => g(x, c) - g(x, 2 * XW - c), SKY.acc, 2.6);
+
+        /* drawn bottom to top, so the hatching lands outside the rope */
+        PP9.hatch(ctx, m.x(XW), yc + half + 14, m.x(XW), yc - half - 14, SKY.wall, 10);
+        ctx.fillStyle = SKY.ink;
+        ctx.beginPath(); ctx.arc(m.x(XW), m.y(0), 4.5, 0, Math.PI * 2); ctx.fill();
+        PP9.halo(ctx, SKY.bg, 'y = 0', m.x(XW) - 36, m.y(0) - 18, SKY.ink, 13, true);
+        PP9.mono(ctx, PP9.T('the mirror pulse, outside the rope', 'zrcadlový puls, mimo lano'),
+                 v.W - 18, yc + half + 30, SKY.warm, 10, 'right');
+        PP9.mono(ctx, PP9.T('arriving (ghost)  ·  its mirror (dashed)  ·  their sum, the real rope (bold)',
+                            'příchozí (duch)  ·  jeho zrcadlo (čárkovaně)  ·  jejich součet, skutečné lano (tučně)'),
+                 52, BOT(v) - 6, SKY.faint, 10);
+    };
+
+    /* 7 · turn the second wave around — which is what a clamp does */
+    SCENE.standing = function (v, ctx) {
+        const tt = clock * SLOW, SPAN = 8, bd = BAND(v);
+        const yc = TOP + bd * 0.44, half = Math.min(92, bd * 0.34);
+        const m = mapper(v, 0, SPAN, 2 * AMP, yc, half, 76);
+        exNote(v, ctx, m);
+        axis(ctx, m, 0, SPAN);
+        const y1 = x => AMP * Math.sin(KW * x + OM * tt);   /* towards the clamp */
+        const y2 = x => AMP * Math.sin(KW * x - OM * tt);   /* away from it      */
+        curve(ctx, m, 0, SPAN, y1, SKY.ghost, 1.7);
+        curve(ctx, m, 0, SPAN, y2, SKY.warm, 1.7, [5, 4]);
+        curve(ctx, m, 0, SPAN, x => 2 * AMP * Math.sin(KW * x), SKY.faint, 1, [3, 4]);
+        curve(ctx, m, 0, SPAN, x => -2 * AMP * Math.sin(KW * x), SKY.faint, 1, [3, 4]);
+        curve(ctx, m, 0, SPAN, x => y1(x) + y2(x), SKY.acc, 2.8);
+
+        /* the clamp, hatched on its outside */
+        PP9.hatch(ctx, m.x(0), yc - half - 14, m.x(0), yc + half + 14, SKY.wall, 10);
+        ctx.fillStyle = SKY.ink;
+        ctx.beginPath(); ctx.arc(m.x(0), m.y(0), 4.5, 0, Math.PI * 2); ctx.fill();
+        PP9.halo(ctx, SKY.bg, 'y = 0', m.x(0) + 34, m.y(0) - 18, SKY.ink, 13, true);
+
+        /* which ghost goes which way */
+        PP9.arrow(ctx, m.x(5.4), yc - half + 12, m.x(4.4), yc - half + 12, SKY.ghost, 1.5);
+        PP9.mono(ctx, PP9.T('arriving', 'přichází'), m.x(5.6), yc - half + 12, SKY.ghost, 9.5);
+        PP9.arrow(ctx, m.x(5.4), yc - half + 28, m.x(6.4), yc - half + 28, SKY.warm, 1.5);
+        PP9.mono(ctx, PP9.T('reflected', 'odražená'), m.x(5.6), yc - half + 28, SKY.warm, 9.5, 'right');
+
+        for (let x = 0; x <= SPAN + 1e-9; x += LAM / 2) {
+            ctx.strokeStyle = SKY.ink; ctx.fillStyle = SKY.bg; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.arc(m.x(x), m.y(0), 4.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        }
+        for (let x = LAM / 4; x <= SPAN; x += LAM / 2) {
+            PP9.arrow(ctx, m.x(x), m.y(0), m.x(x), m.y(2 * AMP), SKY.faint, 1.3);
+            PP9.arrow(ctx, m.x(x), m.y(0), m.x(x), m.y(-2 * AMP), SKY.faint, 1.3);
+        }
+        PP9.span(ctx, SKY.bg, m.x(0), m.x(LAM / 2), m.y(0) + half + 16, SKY.ink,
+                 'λ/2 = ' + N(LAM / 2, 1) + ' m');
+        PP9.mono(ctx, PP9.T('nodes ○ never move  ·  antinodes ↕ swing through 2A = ' + N(2 * AMP, 2) + ' m',
+                            'uzly ○ se nehýbou  ·  kmitny ↕ kmitají s rozkmitem 2A = ' + N(2 * AMP, 2) + ' m'),
+                 76, BOT(v) - 6, SKY.faint, 10);
+    };
+
+    /* 8 · a node forced at each end: the ladder of notes the rope has */
+    SCENE.ladder = function (v, ctx) {
+        const tt = clock * SLOW;
+        const rowH = (BAND(v) - 20) / 4;
+        for (let n = 1; n <= 4; n++) {
+            const yc = TOP + rowH * (n - 0.5);
+            const half = Math.min(rowH * 0.30, 34);
+            const m = mapper(v, 0, LEN, 2 * AMP, yc, half, 100);
+            if (n === 1) exNote(v, ctx, m);
+            const on = n === 2;
+            const col = on ? SKY.acc : SKY.ghost;
+            /* the clamps, each hatched on its own outside */
+            PP9.hatch(ctx, m.x(0), yc - half - 12, m.x(0), yc + half + 12, SKY.wall, 8);
+            PP9.hatch(ctx, m.x(LEN), yc + half + 12, m.x(LEN), yc - half - 12, SKY.wall, 8);
+            axis(ctx, m, 0, LEN);
+            const fn = n * F1, wn = 2 * Math.PI * fn;
+            curve(ctx, m, 0, LEN, x => 2 * AMP * Math.sin(n * Math.PI * x / LEN), col, 1, [3, 4]);
+            curve(ctx, m, 0, LEN, x => -2 * AMP * Math.sin(n * Math.PI * x / LEN), col, 1, [3, 4]);
+            curve(ctx, m, 0, LEN,
+                  x => 2 * AMP * Math.sin(n * Math.PI * x / LEN) * Math.cos(wn * tt),
+                  col, on ? 2.6 : 1.7);
+            for (let j = 0; j <= n; j++) {
+                const x = j * LEN / n;
+                ctx.strokeStyle = col; ctx.fillStyle = SKY.bg; ctx.lineWidth = 1.4;
+                ctx.beginPath(); ctx.arc(m.x(x), m.y(0), 3.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            }
+            PP9.mono(ctx, 'n = ' + n, 12, yc - 10, on ? SKY.ink : SKY.faint, 11);
+            PP9.mono(ctx, 'λ = ' + N(2 * LEN / n, 2) + ' m', 12, yc + 6, on ? SKY.soft : SKY.faint, 9.5);
+            PP9.mono(ctx, 'f = ' + N(fn, 1) + ' Hz', 12, yc + 20, on ? SKY.acc : SKY.faint, 9.5);
+        }
+        PP9.mono(ctx, PP9.T('one rope, L = 4.0 m, clamped at both ends — the four lowest notes it has',
+                            'jedno lano, L = 4,0 m, upnuté na obou koncích — jeho čtyři nejnižší tóny'),
+                 52, BOT(v) - 4, SKY.faint, 10);
+    };
+
+    function draw(v) {
+        const ctx = v.ctx, st = STEPS[step];
+        ctx.fillStyle = SKY.bg; ctx.fillRect(0, 0, v.W, v.H);
+        const fn = SCENE[st.key];
+        if (fn) fn(v, ctx);
+        PP9.mono(ctx, PP9.T('STEP', 'KROK') + ' ' + (step + 1) + ' / ' + STEPS.length,
+                 16, 18, SKY.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = SKY.ink;
+        ctx.fillText(PP9.T(st.t[0], st.t[1]), 16, 39);
+    }
+
+    /* ── panels ──────────────────────────────────────────────────────── */
+    function buildList() {
+        const list = $('mv-list');
+        if (!list) return;
+        list.innerHTML = '';
+        STEPS.forEach((st, i) => {
+            const row = document.createElement('div');
+            row.className = 'ms-chip' + (i === step ? ' on' : '');
+            row.innerHTML = '<span class="ms-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+                            '<span class="ms-name">' + PP9.T(st.t[0], st.t[1]) + '</span>';
+            row.addEventListener('click', () => goto(i));
+            list.appendChild(row);
+        });
+    }
+    function markList() {
+        const rows = document.querySelectorAll('#mv-list .ms-chip');
+        rows.forEach((r, i) => r.classList.toggle('on', i === step));
+        const on = rows[step];
+        if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    function panels() {
+        const st = STEPS[step];
+        const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+        set('fl-kicker', PP9.T('Step', 'Krok') + ' ' + String(step + 1).padStart(2, '0') + ' / ' + STEPS.length);
+        set('fl-title', PP9.T(st.t[0], st.t[1]));
+        set('fl-text', PP9.T(st.body[0], st.body[1]));
+        PP9.katexInto($('fl-eq'), st.eq);
+        PP9.katexInto($('mv-eq'), st.eq);
+        set('fl-rows', st.rows().map(r =>
+            '<div class="fl-k">' + PP9.T(r[0][0], r[0][1]) + '</div><div class="fl-v">' + r[1] + '</div>'
+        ).join(''));
+        set('fl-stamp', PP9.T(st.when[0], st.when[1]));
+        set('fl-real', PP9.T(st.real[0], st.real[1]));
+        const vd = $('fl-verdict');
+        if (vd) {
+            if (st.verdict) { vd.style.display = ''; vd.innerHTML = PP9.T(st.verdict[0], st.verdict[1]); }
+            else vd.style.display = 'none';
+        }
+        const prev = $('mv-prev'), next = $('mv-next');
+        if (prev) prev.disabled = step === 0;
+        if (next) next.innerHTML = step === STEPS.length - 1
+            ? '<span lang="en">Start again</span><span lang="cs">Znovu od začátku</span>'
+            : '<span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→';
+        const note = $('mv-note');
+        if (note) note.textContent = PP9.T(
+            'Every curve is evaluated from A, k and ω — nothing is sketched. The rope runs at one fifth of real time, since its 6 Hz would be a blur, and the vertical scale is exaggerated by the factor printed on the picture. Steps 1–3 vary one of the three numbers and hold the other two.',
+            'Každá křivka je spočítaná z A, k a ω — nic není jen nakresleno. Lano běží pětinovým časem, protože jeho 6 Hz by se slilo, a svislé měřítko je zvětšeno činitelem uvedeným v obrázku. Kroky 1–3 mění vždy jedno z těch tří čísel a druhá dvě drží.');
+    }
+    function readouts() {
+        const r = STEPS[step].reads();
+        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        ['a', 'b', 'c'].forEach((slot, i) => {
+            put('mv-k-' + slot, r[i] ? r[i][0] : '');
+            put('mv-r-' + slot, r[i] ? r[i][1] : '—');
+        });
+        const cl = $('mv-clock');
+        if (cl) cl.textContent = 't = ' + N(clock * SLOW, 2) + ' s';
+    }
+    function paint() { V.redraw(); readouts(); }
+
+    function loop(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        clock += dt;
+        paint();
+        if (started) raf = requestAnimationFrame(loop); else { raf = 0; last = 0; }
+    }
+    function kick() { if (!raf && started) { last = 0; raf = requestAnimationFrame(loop); } }
+    function goto(i) {
+        step = Math.max(0, Math.min(STEPS.length - 1, i));
+        clock = 0;
+        markList(); panels(); paint(); kick();
+    }
+
+    $('mv-next')?.addEventListener('click', () => goto(step === STEPS.length - 1 ? 0 : step + 1));
+    $('mv-prev')?.addEventListener('click', () => goto(step - 1));
+    $('mv-reset')?.addEventListener('click', () => goto(0));
+
+    const gate = $('mv-gate'), wrap = V.canvas.parentElement;
+    function open() {
+        if (started) return;
+        started = true;
+        gate?.classList.add('away');
+        wrap.classList.remove('armed');
+        /* the stage leaves the text column now, and not before */
+        const stage = document.getElementById('lab');
+        if (stage) stage.classList.add('wide');
+        setTimeout(() => { if (gate) gate.remove(); }, 1000);
+        goto(0);
+    }
+    gate?.addEventListener('click', open);
+    gate?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+    if (gate) { gate.tabIndex = 0; gate.setAttribute('role', 'button'); }
+
+    document.addEventListener('langchange', () => { buildList(); panels(); readouts(); V.redraw(); });
+    buildList(); panels(); readouts(); V.redraw();
+    PP9.whenReady(panels);
 }());
 </script>
 

@@ -375,11 +375,22 @@
     }
 
     /* ── The movie sandbox — see topics/_movie-sandbox.html ──────────── */
+    /* The film sits in the text column until the gate is opened, then widens
+       out to the window. ONLY the margins move: the canvas keeps its height,
+       so nothing below the panel shifts and the play button stays under the
+       pointer. The 12px still matters — 50vw counts the scrollbar and the
+       content box does not, so a flush 100vw turns the page's vertical
+       scrollbar into a horizontal one. */
     #lab.movie {
         display: block;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        transition: margin 520ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #lab.movie.wide {
         margin-left: calc(-50vw + 50% + 12px);
         margin-right: calc(-50vw + 50% + 12px);
-        margin-bottom: 0;
     }
     #lab.movie .canvas-panel { min-height: 0; }
     #lab.movie .canvas-wrap {
@@ -424,7 +435,7 @@
     .canvas-wrap.armed canvas { filter: blur(10px); }
     #lab.movie .canvas-wrap canvas { transition: filter 900ms ease; }
     @media (prefers-reduced-motion: reduce) {
-        .gate, .gate-btn, #lab.movie .canvas-wrap canvas { transition: none; }
+        .gate, .gate-btn, #lab.movie, #lab.movie .canvas-wrap canvas { transition: none; }
     }
     #lab.movie .canvas-formula-badge {
         top: auto; bottom: 16px; left: 16px; right: auto;
@@ -485,7 +496,7 @@
         color: var(--ink-faint); text-align: center;
     }
     @media (max-width: 900px) {
-        #lab.movie { margin-left: -48px; margin-right: -48px; }
+        #lab.movie.wide { margin-left: -48px; margin-right: -48px; }
         .ms-reads { display: none; }
         .ms-chip { min-width: 112px; }
     }
@@ -1867,6 +1878,9 @@ const PP8 = (function () {
         started = true;
         gate?.classList.add('away');
         wrap.classList.remove('armed');
+        /* the stage leaves the text column now, and not before */
+        const stage = document.getElementById('lab');
+        if (stage) stage.classList.add('wide');
         setTimeout(() => gate && gate.remove(), 1000);
         goto(0);
     }

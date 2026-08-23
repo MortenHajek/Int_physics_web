@@ -28,13 +28,9 @@
             linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
             var(--paper-deep);
     }
-    #sim-canvas {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
+    /* No page-local canvas rule is needed: styles.css positions
+       `.canvas-wrap canvas` site-wide. A rule keyed to one canvas id is how
+       work-and-energy.html grew without bound once its canvases were renamed. */
     .sim-hint {
         position: absolute;
         bottom: 12px;
@@ -66,6 +62,15 @@
     /* KaTeX is a flex item here, so its full height sizes the badge and a
        \dfrac can no longer spill past the border. */
     .canvas-formula-badge .katex { line-height: normal; }
+    /* The bottom-left default belongs to Vol II, whose canvases are empty
+       there. This one draws the pressure axis, its tick labels and the shaded
+       work area in exactly that corner, so the badge moves to the one corner
+       of a pV plot that is always empty: above and to the right of a curve
+       that falls from left to right. The process name moves to the top left
+       to make room. */
+    .canvas-formula-badge.top-right {
+        top: 14px; right: 14px; bottom: auto; left: auto;
+    }
 
     /* ── Simulation parameter sliders ─────────────────────────────────── */
     .sim-control {
@@ -385,16 +390,26 @@
     <section class="topic-hero">
         <div>
             <div class="num">§ I.10 · thermodynamics</div>
-            <h1>Thermodynamics</h1>
+            <h1><span lang="en">Thermodynamics</span><span lang="cs">Termodynamika</span></h1>
             <p class="lede">
-                Heat, work, and internal energy are linked by the first law. Trace the path
-                of a gas on a PV diagram and see how different processes — isothermal, isobaric,
-                isochoric, adiabatic — exchange work and heat with their surroundings.
+                <span lang="en">A gas has only a handful of numbers — pressure, volume, temperature — and one
+                equation tying them together. Everything else in this topic is bookkeeping on a
+                <em>p–V</em> diagram: the work is the area under the path you take, the internal
+                energy depends on where you ended and not on how you got there, and the first law
+                is the receipt that has to balance.</span>
+                <span lang="cs">Plyn má jen hrstku čísel — tlak, objem, teplotu — a jednu rovnici, která je
+                svazuje. Všechno ostatní v tomhle tématu je účetnictví v <em>p–V</em> diagramu: práce
+                je plocha pod cestou, kterou zvolíte, vnitřní energie závisí na tom, kde jste
+                skončili, a ne jak jste se tam dostali, a první zákon je účtenka, která musí
+                sedět.</span>
             </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="\Delta U = Q - W"></div>
-            <div class="eq-caption">First law — energy conservation for thermodynamic systems</div>
+            <div class="eq-caption">
+                <span lang="en">The receipt: what went in, less what the gas spent</span>
+                <span lang="cs">Účtenka: co přišlo, minus co plyn utratil</span>
+            </div>
         </div>
     </section>
 
@@ -441,9 +456,14 @@
                     <p class="cf-note">
                         <span lang="en">The single most useful fact in the topic. On a <span data-tex="pV"></span> diagram, read the area under
       the path — a rectangle for constant pressure, a triangle plus a rectangle for a straight line, nothing at
-      all for a vertical line. Expansion does positive work, compression negative.</span><span lang="cs">Nejužitečnější fakt celého tématu. V <span data-tex="pV"></span> diagramu odečtěte plochu pod cestou —
+      all for a vertical line. Expansion does positive work, compression negative. And it is the area under
+      <em>that</em> path: two routes between the same two states enclose different areas and therefore do
+      different amounts of work, which is exactly what makes work a property of the journey and not of the
+      endpoints.</span><span lang="cs">Nejužitečnější fakt celého tématu. V <span data-tex="pV"></span> diagramu odečtěte plochu pod cestou —
       obdélník při stálém tlaku, trojúhelník plus obdélník u přímky, vůbec nic u svislé čáry. Rozpínání koná
-      kladnou práci, stlačování zápornou.</span>
+      kladnou práci, stlačování zápornou. A je to plocha pod <em>tou</em> cestou: dvě různé cesty mezi týmiž dvěma stavy
+      uzavírají různé plochy, a vykonají tedy různou práci — právě proto je práce vlastností cesty,
+      a ne koncových bodů.</span>
                     </p>
                 </div>
 
@@ -506,6 +526,27 @@
       question about atoms answered with a pressure gauge.</span><span lang="cs">Exponent počítá, kolika způsoby umí molekula ukládat energii, takže změření
       <span data-tex="\gamma"></span> z dvojice adiabat prozradí, z čeho je plyn — otázka o atomech zodpovězená
       tlakoměrem.</span>
+                    </p>
+                </div>
+
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">How much heat that took</span><span lang="cs">Kolik to stálo tepla</span></span>
+                        <span class="cf-eq" data-tex="C_V = \dfrac{f}{2}R\,,\qquad C_p = C_V + R\,,\qquad \gamma = \dfrac{C_p}{C_V}"></span>
+                        <span class="cf-eq" data-tex="Q = nC\,\Delta T = \dfrac{C}{R}\,\Delta(pV)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Heat per mole per kelvin, and which one you use depends on what is being held fixed:
+      <span data-tex="C_V"></span> at constant volume, <span data-tex="C_p"></span> at constant pressure, the
+      difference being exactly the work the gas does while expanding. The second form is the one that saves
+      time in an exercise — since <span data-tex="nR\,\Delta T = \Delta(pV)"></span>, a leg at constant
+      pressure carries <span data-tex="Q = \tfrac{\gamma}{\gamma-1}\,\Delta(pV)"></span> and the number of
+      moles never has to be found.</span><span lang="cs">Teplo na mol a na kelvin, a které z nich použijete, závisí na tom, co držíte pevně:
+      <span data-tex="C_V"></span> při stálém objemu, <span data-tex="C_p"></span> při stálém tlaku, a rozdíl
+      je přesně práce, kterou plyn vykoná při rozpínaní. Druhý tvar je ten, který v úloze ušetří čas —
+      protože <span data-tex="nR\,\Delta T = \Delta(pV)"></span>, nese úsek při stálém tlaku
+      <span data-tex="Q = \tfrac{\gamma}{\gamma-1}\,\Delta(pV)"></span> a počet molů se vůbec nemusí
+      hledat.</span>
                     </p>
                 </div>
 
@@ -575,6 +616,21 @@
 
                 <div class="cm-step">
                     <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Heat on each leg, from the right molar capacity.</strong> Constant volume takes
+       <span data-tex="C_V"></span>, constant pressure <span data-tex="C_p = C_V + R"></span>; with
+       <span data-tex="\gamma"></span> already known both follow from
+       <span data-tex="C_V = R/(\gamma-1)"></span>. Then use
+       <span data-tex="Q = \tfrac{C}{R}\Delta(pV)"></span> and skip finding
+       <span data-tex="n"></span> altogether.</span><span lang="cs"><strong>Teplo na každém úseku z té správné molní kapacity.</strong> Stálý objem bere
+       <span data-tex="C_V"></span>, stálý tlak <span data-tex="C_p = C_V + R"></span>; když už znáte
+       <span data-tex="\gamma"></span>, plynou obě z
+       <span data-tex="C_V = R/(\gamma-1)"></span>. Pak použijte
+       <span data-tex="Q = \tfrac{C}{R}\Delta(pV)"></span> a hledání
+       <span data-tex="n"></span> úplně vynechte.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">07</span>
                     <span><span lang="en"><strong>Efficiency: heat supplied in the denominator.</strong> Add up only the legs on which
        <span data-tex="Q > 0"></span>. Work out the net work as the enclosed area, and divide.</span><span lang="cs"><strong>Účinnost: do jmenovatele dodané teplo.</strong> Sečtěte jen ty úseky, na nichž je
        <span data-tex="Q > 0"></span>. Čistou práci určete jako uzavřenou plochu a vydělte.</span></span>
@@ -588,13 +644,13 @@
     <section id="lab" class="lab" style="margin-top:72px;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span>PV diagram sandbox</span>
+                <span><span class="accent-pip"></span><span lang="en">p–V diagram sandbox</span><span lang="cs">Laboratoř s p–V diagramem</span></span>
                 <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="\Delta U = Q - W"></div>
-                <div class="sim-hint">select process · adjust initial state and final volume</div>
+                <div class="canvas-formula-badge top-right" data-tex="\Delta U = Q - W"></div>
+                <div class="sim-hint"><span lang="en">select process · adjust initial state and final volume</span><span lang="cs">zvolte děj · nastavte počáteční stav a koncový objem</span></div>
             </div>
         </div>
 
@@ -602,24 +658,24 @@
             <!-- Parameters -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Parameters</span>
+                    <span><span class="accent-pip"></span><span lang="en">Parameters</span><span lang="cs">Parametry</span></span>
                     <button id="btn-reset" style="font-family:var(--f-mono);font-size:10px;
                         text-transform:uppercase;letter-spacing:0.14em;background:none;
                         border:none;cursor:pointer;color:var(--ink-faint);padding:0;">reset</button>
                 </div>
                 <div class="panel-body">
                     <div class="process-selector">
-                        <div class="process-selector-label">Process type</div>
+                        <div class="process-selector-label"><span lang="en">Process type</span><span lang="cs">Typ děje</span></div>
                         <select id="p-process">
-                            <option value="isothermal">Isothermal  (T = const)</option>
-                            <option value="isobaric">Isobaric  (P = const)</option>
-                            <option value="isochoric">Isochoric  (V = const)</option>
-                            <option value="adiabatic">Adiabatic  (PVᵞ = const)</option>
+                            <option value="isothermal" data-en="Isothermal  (T = const)" data-cs="Izotermický  (T = konst.)">Isothermal  (T = const)</option>
+                            <option value="isobaric" data-en="Isobaric  (p = const)" data-cs="Izobarický  (p = konst.)">Isobaric  (p = const)</option>
+                            <option value="isochoric" data-en="Isochoric  (V = const)" data-cs="Izochorický  (V = konst.)">Isochoric  (V = const)</option>
+                            <option value="adiabatic" data-en="Adiabatic  (pVᵞ = const)" data-cs="Adiabatický  (pVᵞ = konst.)">Adiabatic  (pVᵞ = const)</option>
                         </select>
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Initial P₀ (kPa)</span>
+                            <span class="sim-control-name"><span lang="en">Initial p₀ (kPa)</span><span lang="cs">Počáteční p₀ (kPa)</span></span>
                             <span class="sim-control-val" id="p-P0-val">200 kPa</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -627,7 +683,7 @@
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Initial V₀ (L)</span>
+                            <span class="sim-control-name"><span lang="en">Initial V₀ (L)</span><span lang="cs">Počáteční V₀ (l)</span></span>
                             <span class="sim-control-val" id="p-V0-val">10 L</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -635,7 +691,7 @@
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">Final V (L)</span>
+                            <span class="sim-control-name"><span lang="en">Final V (L)</span><span lang="cs">Koncový V (l)</span></span>
                             <span class="sim-control-val" id="p-Vf-val">20 L</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -643,7 +699,7 @@
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name">γ (heat capacity ratio)</span>
+                            <span class="sim-control-name"><span lang="en">γ (heat capacity ratio)</span><span lang="cs">γ (Poissonova konstanta)</span></span>
                             <span class="sim-control-val" id="p-gamma-val">1.4</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -655,21 +711,25 @@
             <!-- Readout -->
             <div class="side-panel">
                 <div class="panel-head">
-                    <span><span class="accent-pip"></span>Readout</span>
+                    <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečet</span></span>
                     <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
-                        <span class="readout-label">Process</span>
+                        <span class="readout-label"><span lang="en">Process</span><span lang="cs">Děj</span></span>
                         <span class="readout-val" id="r-process">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">W (work done)</span>
+                        <span class="readout-label"><span lang="en">W (work done by the gas)</span><span lang="cs">W (práce vykonaná plynem)</span></span>
                         <span class="readout-val" id="r-W">—</span>
                     </div>
                     <div class="readout-row">
                         <span class="readout-label">ΔU</span>
                         <span class="readout-val" id="r-dU">—</span>
+                    </div>
+                    <div class="readout-row">
+                        <span class="readout-label"><span lang="en">Q = ΔU + W (heat in)</span><span lang="cs">Q = ΔU + W (přijaté teplo)</span></span>
+                        <span class="readout-val" id="r-Q">—</span>
                     </div>
                     <div class="readout-row">
                         <span class="readout-label">T<sub>f</sub>/T<sub>i</sub></span>
@@ -865,8 +925,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ΔU estimate: for monatomic ideal gas ΔU = (3/2)nRΔT ≈ (3/2) · (PiVi)(Tf/Ti - 1)
-    // We don't know n, so use PV directly: ΔU = (3/2)(Pf·Vf - Pi·Vi) [in Pa·m³ = J]
+    // ΔU = n C_V ΔT, and n R ΔT = Δ(pV), so ΔU = Δ(pV)/(γ−1) — no need for n.
+    // This must use γ, not a hardcoded 3/2: with the default γ = 1.4 the old
+    // monatomic constant made ΔU ≠ −W on an adiabat, i.e. it broke the very
+    // first law printed on the badge above the plot.
     function computeDeltaU() {
         const { P0, V0, Vf, gamma, process } = state;
         const P0Pa = P0 * 1e3, V0m = V0 * 1e-3;
@@ -881,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // For isochoric Vf_m stays V0m (no volume change)
         const VfActual = (process === 'isochoric') ? V0m : Vfm;
-        return (3 / 2) * (PfPa * VfActual - P0Pa * V0m);
+        return (PfPa * VfActual - P0Pa * V0m) / (gamma - 1);
     }
 
     /* ── Drawing ── */
@@ -905,7 +967,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Data ranges — include both endpoints generously
         const Pf_isoch  = isochoricPf();
         const allPs     = [P0 * 1.4, process === 'isochoric' ? Pf_isoch * 1.4 : P0 * 1.4,
-                           process === 'adiabatic' ? P0 * Math.pow(V0 / Vf, gamma) * 1.4 : P0 * 0.3];
+                           process === 'adiabatic' ? P0 * Math.pow(V0 / Vf, gamma) * 1.4 : P0 * 0.3,
+                           /* a compression runs UP the curve, and an isothermal one
+                              was the one case the range never covered */
+                           process === 'isothermal' ? P0 * (V0 / Vf) * 1.4 : P0 * 0.3];
         const maxP      = Math.max(P0 * 1.45, allPs.reduce((a,b)=>Math.max(a,b), 0));
         const minP      = 0;
         const minV      = 0;
@@ -1051,8 +1116,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Process label in upper right of plot
-        const processLabels = {
+        // Process label, top LEFT inside the plot — the top right now carries
+        // the equation badge, and nothing is ever drawn left of point i
+        const cs = document.documentElement.getAttribute('data-lang') === 'cs';
+        const processLabels = cs ? {
+            isothermal: 'Izotermický',
+            isobaric:   'Izobarický',
+            isochoric:  'Izochorický',
+            adiabatic:  'Adiabatický',
+        } : {
             isothermal: 'Isothermal',
             isobaric:   'Isobaric',
             isochoric:  'Isochoric',
@@ -1060,8 +1132,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         ctx.fillStyle = col.acc;
         ctx.font = '12px "JetBrains Mono", monospace';
-        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-        ctx.fillText(processLabels[process] || process, ox + plotW - 4, PAD_T + 4);
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText(processLabels[process] || process, ox + 8, PAD_T + 4);
 
         // ── Readout ──
         const W_J    = computeWork();
@@ -1072,8 +1144,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if ($('r-process')) $('r-process').textContent = processLabels[process] || process;
         if ($('r-W'))       $('r-W').textContent       = W_J.toFixed(0) + ' J';
         if ($('r-dU'))      $('r-dU').textContent      = dU_J.toFixed(0) + ' J';
+        if ($('r-Q'))       $('r-Q').textContent       = (dU_J + W_J).toFixed(0) + ' J';
         if ($('r-Tratio'))  $('r-Tratio').textContent  = Tratio.toFixed(3);
     }
+
+    /* ── The process names in the drop-down cannot be sibling spans, so they
+          are swapped by hand whenever the language changes. ── */
+    function localiseOptions() {
+        const cs = document.documentElement.getAttribute('data-lang') === 'cs';
+        document.querySelectorAll('#p-process option').forEach(o => {
+            const t = o.getAttribute(cs ? 'data-cs' : 'data-en');
+            if (t) o.textContent = t;
+        });
+    }
+    document.addEventListener('langchange', () => { col = readCol(); localiseOptions(); });
+    localiseOptions();
 
     /* ── RAF loop ── */
     let lastT = 0, frames = 0;
