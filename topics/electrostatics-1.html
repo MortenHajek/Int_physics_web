@@ -399,7 +399,7 @@
     }
 
     /* ── The movie's log strip: the method beside where the exercises use it ── */
-    .fl-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; }
+    .fl-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
     .fl-col { border: 1.5px solid var(--ink); background: var(--paper); }
     .fl-head {
         display: flex; align-items: baseline; gap: 12px; padding: 11px 20px;
@@ -425,19 +425,6 @@
         text-align: right; letter-spacing: 0.02em; white-space: nowrap;
         padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
     }
-    .fl-real { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin: 0; }
-    .fl-real strong { color: var(--ink); font-weight: 600; }
-    .fl-stamp {
-        font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
-        text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px;
-        padding-bottom: 10px; border-bottom: 1px solid var(--ink-faint);
-    }
-    .fl-verdict {
-        margin-top: 16px; padding: 12px 14px; border: 1px solid var(--accent);
-        background: var(--paper-deep); font-size: 13px; line-height: 1.6; color: var(--ink);
-    }
-    .fl-verdict b { color: var(--accent); }
-    @media (max-width: 900px) { .fl-grid { grid-template-columns: 1fr; } }
 
     #lab3 .canvas-wrap { min-height: 540px; }
 
@@ -908,17 +895,6 @@
                     <p class="fl-text" id="fl-text"></p>
                     <div class="fl-eq" id="fl-eq"></div>
                     <div class="fl-rows" id="fl-rows"></div>
-                </div>
-            </div>
-            <div class="fl-col">
-                <div class="fl-head">
-                    <span class="accent-pip"></span>
-                    <span class="fl-kicker"><span lang="en">Where the exercises use it</span><span lang="cs">Kde to úlohy potřebují</span></span>
-                </div>
-                <div class="fl-body">
-                    <p class="fl-stamp" id="fl-stamp">—</p>
-                    <p class="fl-real" id="fl-real"></p>
-                    <div class="fl-verdict" id="fl-verdict" style="display:none;"></div>
                 </div>
             </div>
         </div>
@@ -3070,13 +3046,6 @@ const PPE = (function () {
         set('fl-rows', st.rows().map(function (r) {
             return '<div class="fl-k">' + PPE.T(r[0][0], r[0][1]) + '</div><div class="fl-v">' + r[1] + '</div>';
         }).join(''));
-        set('fl-stamp', PPE.T(st.when[0], st.when[1]));
-        set('fl-real', fill(PPE.T(st.real[0], st.real[1])));
-        const vd = $('fl-verdict');
-        if (vd) {
-            if (st.verdict) { vd.style.display = ''; vd.innerHTML = fill(PPE.T(st.verdict[0], st.verdict[1])); }
-            else vd.style.display = 'none';
-        }
         const prev = $('mv-prev'), next = $('mv-next');
         if (prev) prev.disabled = step === 0;
         if (next) next.innerHTML = step === STEPS.length - 1
