@@ -97,7 +97,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="F = \dfrac{\mu_0 I_1 I_2 L}{2\pi r}"></div>
-                <div class="sim-hint"><span lang="en">shrink a · the near side wins the tug-of-war</span><span lang="cs">zmenšete a · bližší strana vyhrává přetahovanou</span></div>
             </div>
         </div>
 
@@ -415,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
         ctx.fillText('F', x, y);
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.fillText(sub, x + 9, y + 4);
     }
 
@@ -425,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
         ctx.fillText('I', x, y);
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.fillText(sub, x + 6, y + 4);
     }
 
@@ -435,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const f = forces();
 
         /* geometry: vertical scale fits a(max) + b = 13 cm */
-        const pxPerCm = (H * 0.62) / 13.0;
+        const pxPerCm = (H * 0.52) / 13.0;   /* leaves the bottom strip to the equation badge */
         const yWire = H * 0.22;
         const yTop  = yWire + state.a * pxPerCm;
         const yBot  = yTop + B_DEPTH * pxPerCm;
@@ -499,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
             arrow(xL, yMid, xL - 26, yMid, col.faint, 1.5);
             arrow(xR, yMid, xR + 26, yMid, col.faint, 1.5);
             ctx.fillStyle = col.faint;
-            ctx.font = '8.5px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText('cancel', xL - 13, yMid + 8);
             ctx.fillText('cancel', xR + 13, yMid + 8);

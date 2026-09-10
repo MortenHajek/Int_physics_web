@@ -89,7 +89,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="\mathrm{d}I = J(r)\,2\pi r\,\mathrm{d}r"></div>
-                <div class="sim-hint"><span lang="en">slide the ring outward · J grows toward the surface</span><span lang="cs">posouvejte prstenec ven · J roste směrem k povrchu</span></div>
             </div>
         </div>
 
@@ -291,8 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const f = physics();
 
         /* ── left: cross-section with J shading ─────────────────── */
-        const cx = W * 0.28, cy = H * 0.5;
-        const Rpx = Math.min(W * 0.42, H * 0.78) / 2;
+        const cx = W * 0.28, cy = (H - 96) * 0.5;          /* leaves the bottom strip to the equation badge */
+        const Rpx = Math.min(W * 0.42, (H - 96) * 0.78) / 2;
 
         /* shaded rings: darkness ∝ J ∝ r */
         for (let i = 24; i >= 1; i--) {

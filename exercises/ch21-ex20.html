@@ -97,7 +97,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="2\,\dfrac{k|Q_1 Q_3|}{(d/\cos\theta)^2}\cos\theta = \dfrac{k|Q_1 Q_2|}{(d+D)^2}"></div>
-                <div class="sim-hint"><span lang="en">slide particle 2 until the net force on particle 1 vanishes</span><span lang="cs">posouvejte částici 2, dokud výslednice na částici 1 nezmizí</span></div>
             </div>
         </div>
 
@@ -406,8 +405,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const th = state.th * Math.PI / 180;
 
         /* geometry: particle 1 left, origin at y-axis, 2 at +D */
-        const scale = Math.min(W, H) * 0.115;          /* px per cm */
-        const oy = H * 0.5;
+        const BAND = 96;                                /* bottom strip owned by the badge */
+        const scale = Math.min(W, H - BAND) * 0.115;    /* px per cm */
+        const oy = (H - BAND) * 0.5;
         const ox = W * 0.42;                            /* origin (y axis) */
         const x1 = ox - d * scale;                      /* particle 1 */
         const x2 = ox + state.D * scale;                /* particle 2 */
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
         /* axes */
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(24, oy); ctx.lineTo(W - 24, oy); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(ox, 26); ctx.lineTo(ox, H - 26); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ox, 26); ctx.lineTo(ox, H - BAND); ctx.stroke();
         ctx.fillStyle = col.faint;
         ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';

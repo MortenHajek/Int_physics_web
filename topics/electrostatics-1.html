@@ -269,96 +269,177 @@
         color: var(--ink-soft);
     }
 
-    /* ── Flow schematic above the E-field sandbox ───────────────────── */
-    .flow-panel {
-        margin-top: 72px;
-        border: 1.5px solid var(--ink);
-        background: var(--paper-vol);
+    /* ══ THE MOVIE — cinematic stage ═══════════════════════════════════
+       #lab2 sits in the text column like any other section and only breaks
+       out to the window when the play gate is opened. ONLY the margins move:
+       the canvas keeps its height, so nothing below the panel shifts and the
+       play button stays under the pointer. The 12px is not decoration —
+       50vw counts the scrollbar and the content box does not, so a flush
+       100vw turns the page's vertical scrollbar into a horizontal one. */
+    #lab2.movie {
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        transition: margin 520ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .flow-head {
-        display: flex;
-        align-items: center;
-        padding: 10px 16px;
-        border-bottom: 1.5px solid var(--ink-faint);
-        font-family: var(--f-mono);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        color: var(--ink-soft);
+    #lab2.movie.wide {
+        margin-left: calc(-50vw + 50% + 12px);
+        margin-right: calc(-50vw + 50% + 12px);
     }
-    .flow-body { padding: 26px 28px 22px; }
-    .flow-grid {
-        display: grid;
-        grid-template-columns: 1.18fr auto 1fr auto 0.82fr;
-        gap: 18px;
-        align-items: stretch;
+    #lab2.movie .canvas-panel { min-height: 0; }
+    #lab2.movie .canvas-wrap {
+        flex: 0 0 auto;             /* or `height` is ignored and it collapses */
+        min-height: 0;
+        height: clamp(400px, 66vh, 760px);
+        background: #0d1024;
     }
-    .flow-step {
-        border: 1.5px solid var(--ink);
-        background: var(--paper);
-        padding: 16px 18px 18px;
-        display: grid;
-        gap: 13px;
-        align-content: start;
-        justify-items: center;
-        text-align: center;
+    .gate {
+        position: absolute; inset: 0; z-index: 4;
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 20px; cursor: pointer;
+        background: rgba(13, 16, 36, 0.55);
+        backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+        transition: opacity 900ms ease, backdrop-filter 900ms ease,
+                    -webkit-backdrop-filter 900ms ease, background 900ms ease;
     }
-    .fs-num {
-        font-family: var(--f-mono);
-        font-size: 11px;
-        color: var(--accent);
-        letter-spacing: 0.05em;
+    .gate.away {
+        opacity: 0; pointer-events: none; background: rgba(13, 16, 36, 0);
+        backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
     }
-    .fs-name {
-        font-size: 13px;
-        color: var(--ink-soft);
-        line-height: 1.45;
-        min-height: 38px;
+    .gate-btn {
+        width: 84px; height: 84px; border-radius: 50%;
+        border: 1.5px solid #cfc7ee; background: rgba(207, 199, 238, 0.10);
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background 220ms ease;
     }
-    .fs-eq {
-        font-family: var(--f-serif);
-        font-size: 19px;
-        color: var(--ink);
+    .gate:hover .gate-btn { transform: scale(1.07); background: rgba(207, 199, 238, 0.20); }
+    .gate-btn::after {
+        content: ''; width: 0; height: 0; margin-left: 6px;
+        border-left: 24px solid #ece8fb;
+        border-top: 15px solid transparent; border-bottom: 15px solid transparent;
     }
-    .fs-sub {
-        font-family: var(--f-serif);
-        font-size: 15px;
-        color: var(--ink-faint);
+    .gate-title {
+        font-family: var(--f-serif); font-size: clamp(20px, 2.4vw, 30px);
+        color: #ece8fb; text-align: center; padding: 0 24px;
     }
-    .flow-arrow {
-        align-self: center;
-        font-size: 30px;
-        color: var(--accent);
-        line-height: 1;
-        user-select: none;
+    .gate-sub {
+        font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.2em;
+        text-transform: uppercase; color: #a49cc6; text-align: center;
     }
-    .flow-arrow::before { content: "⟶"; }
-    .flow-vars {
-        margin-top: 24px;
-        padding-top: 18px;
-        border-top: 1px dashed var(--ink-faint);
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px 44px;
+    .canvas-wrap.armed canvas { filter: blur(10px); }
+    #lab2.movie .canvas-wrap canvas { transition: filter 900ms ease; }
+    @media (prefers-reduced-motion: reduce) {
+        .gate, .gate-btn, #lab2.movie, #lab2.movie .canvas-wrap canvas { transition: none; }
     }
-    .fv-row {
-        display: grid;
-        grid-template-columns: 96px 1fr;
-        gap: 12px;
-        align-items: baseline;
+    #lab2.movie .canvas-formula-badge {
+        top: auto; bottom: 16px; left: 16px; right: auto;
+        background: rgba(13, 16, 36, 0.86); border-color: #443e78;
+        color: #ece8fb; font-size: 20px; padding: 9px 16px;
     }
-    .fv-sym {
-        font-family: var(--f-serif);
-        font-size: 15px;
-        color: var(--ink);
-        white-space: nowrap;
+    #lab2.movie .sim-hint { color: #8880ab; }
+
+    /* ── The step rail ───────────────────────────────────────────────── */
+    .movie-bar {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--ink); border-top: none; background: var(--paper);
     }
-    .fv-txt {
-        font-size: 12.5px;
-        color: var(--ink-soft);
-        line-height: 1.5;
+    .bar-btn {
+        flex: 0 0 auto; font-family: var(--f-mono); font-size: 11px;
+        letter-spacing: 0.14em; text-transform: uppercase; padding: 0 20px;
+        border: none; border-right: 1.5px solid var(--ink);
+        background: var(--paper); color: var(--ink-soft); cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
     }
-    #lab2 .canvas-wrap { min-height: 540px; }
+    .bar-btn.next {
+        border-right: none; border-left: 1.5px solid var(--ink);
+        background: var(--accent); color: var(--paper);
+    }
+    .bar-btn:hover:not(:disabled) { background: var(--paper-deep); }
+    .bar-btn.next:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    .bar-btn:disabled { color: var(--ink-faint); cursor: not-allowed; }
+    .ms-rail { flex: 1 1 auto; display: flex; overflow-x: auto; scrollbar-width: thin; }
+    .ms-chip {
+        flex: 1 1 0; min-width: 104px; display: flex; flex-direction: column; gap: 3px;
+        padding: 11px 14px 12px; border-right: 1px dashed var(--ink-faint);
+        cursor: pointer; color: var(--ink-faint);
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .ms-chip:last-child { border-right: none; }
+    .ms-chip:hover { background: var(--paper-deep); color: var(--ink-soft); }
+    .ms-chip.on { background: var(--paper-deep); color: var(--ink); }
+    .ms-chip.on .ms-num { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .ms-num {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.06em;
+        width: 19px; height: 16px; line-height: 15px; text-align: center;
+        border: 1px solid currentColor;
+    }
+    .ms-name { font-size: 12.5px; line-height: 1.25; }
+    .ms-reads {
+        flex: 0 0 auto; display: flex; align-items: center; gap: 22px;
+        padding: 0 22px; border-left: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .ms-read { display: flex; flex-direction: column; gap: 3px; }
+    .ms-read-k {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint);
+    }
+    .ms-read-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        letter-spacing: 0.02em; white-space: nowrap;
+    }
+    .movie-note {
+        margin: 10px 0 0; font-size: 11.5px; line-height: 1.5;
+        color: var(--ink-faint); text-align: center;
+    }
+    @media (max-width: 900px) {
+        #lab2.movie.wide { margin-left: -48px; margin-right: -48px; }
+        .ms-reads { display: none; }
+        .ms-chip { min-width: 96px; }
+    }
+
+    /* ── The movie's log strip: the method beside where the exercises use it ── */
+    .fl-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; }
+    .fl-col { border: 1.5px solid var(--ink); background: var(--paper); }
+    .fl-head {
+        display: flex; align-items: baseline; gap: 12px; padding: 11px 20px;
+        border-bottom: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .fl-head .accent-pip { align-self: center; }
+    .fl-kicker {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.16em; color: var(--ink-faint);
+    }
+    .fl-title { font-family: var(--f-serif); font-size: 19px; color: var(--ink); line-height: 1.15; }
+    .fl-body { padding: 20px 20px 18px; }
+    .fl-text { font-size: 14.5px; line-height: 1.72; color: var(--ink-soft); margin: 0 0 16px; }
+    .fl-text em { font-style: italic; color: var(--ink); }
+    .fl-eq {
+        font-size: 18px; color: var(--ink); border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 18px; margin: 0 0 16px; overflow-x: auto;
+    }
+    .fl-rows { display: grid; grid-template-columns: 1fr auto; gap: 0 18px; }
+    .fl-k { font-size: 13.5px; color: var(--ink-soft); padding: 8px 0; border-bottom: 1px dashed var(--ink-faint); }
+    .fl-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        text-align: right; letter-spacing: 0.02em; white-space: nowrap;
+        padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
+    }
+    .fl-real { font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); margin: 0; }
+    .fl-real strong { color: var(--ink); font-weight: 600; }
+    .fl-stamp {
+        font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px;
+        padding-bottom: 10px; border-bottom: 1px solid var(--ink-faint);
+    }
+    .fl-verdict {
+        margin-top: 16px; padding: 12px 14px; border: 1px solid var(--accent);
+        background: var(--paper-deep); font-size: 13px; line-height: 1.6; color: var(--ink);
+    }
+    .fl-verdict b { color: var(--accent); }
+    @media (max-width: 900px) { .fl-grid { grid-template-columns: 1fr; } }
+
+    #lab3 .canvas-wrap { min-height: 540px; }
 
     /* ── Object menu (radio rows, E-field sandbox) ──────────────────── */
     .obj-row .toggle-box { border-radius: 50%; }
@@ -374,11 +455,6 @@
         @media (max-width: 900px) {
                                         .topic-nav { grid-template-columns: 1fr; }
                                         .core-formula { grid-template-columns: 1fr; gap: 8px; }
-                                        .flow-grid { grid-template-columns: 1fr; }
-                                        .flow-arrow { justify-self: center; }
-                                        .flow-arrow::before { content: "↓"; }
-                                        .flow-vars { grid-template-columns: 1fr; }
-                                        .fs-name { min-height: 0; }
     }
 
     /* ── Core concept ─────────────────────────────────────────────────── */
@@ -531,12 +607,7 @@
         <div>
             <div class="num">§ II.01 · electrostatics-1</div>
             <h1><span lang="en">Electrostatics&nbsp;1</span><span lang="cs">Elektrostatika&nbsp;1</span></h1>
-            <p class="lede">
-                <span lang="en">Two invisible charges — one positive, one negative — exert a force across empty space.
-                At the same time, a charge creates an electric field <span data-tex="\vec{E}"></span> in the space around it.</span>
-                <span lang="cs">Dva neviditelné náboje — jeden kladný, druhý záporný — na sebe působí silou napříč
-                prázdným prostorem. Náboj zároveň tvoří v prostoru elektrické pole <span data-tex="\vec{E}"></span>.</span>
-            </p>
+
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="|\vec{F}| = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q_1 Q_2}{r^2}"></div>
@@ -550,106 +621,39 @@
         </div>
         <div class="core-concept">
             <div class="core-concept-text">
-                <span lang="en">Charged particles exert forces on each other — like charges repel, opposite
-                charges attract, and the <em>electrostatic force</em> between them is given by Coulomb's law.
-                The explanation is the <em>electric field</em>: every charge creates a field around itself,
-                described by the <em>electric intensity</em> <span data-tex="\vec{E}"></span> — the force
-                acting on a unit positive test charge. A particle sitting in the field of other charges
-                therefore feels a force given by that field and by its own charge; field lines visualise
-                the field — they run tangent to <span data-tex="\vec{E}"></span> and their density mirrors
-                its magnitude.</span>
-                <span lang="cs">Nabité částice na sebe působí <em>elektrostatickou silou</em> — souhlasné náboje
-                se odpuzují, opačné se přitahují a sílu mezi nimi udává Coulombův zákon. Vysvětlením je
-                <em>elektrické pole</em>: každý náboj kolem sebe vytváří pole, které popisujeme
-                <em>elektrickou intenzitou</em> <span data-tex="\vec{E}"></span> — silou působící na
-                jednotkový kladný testovací náboj. Na částici v poli ostatních nábojů tedy působí síla
-                daná tímto polem a jejím vlastním nábojem; pole znázorňují siločáry — jsou tečné
-                k <span data-tex="\vec{E}"></span> a jejich hustota odpovídá velikosti pole.</span>
+                <span lang="en">Charged particles attract and repel one another — like charges apart, opposite charges together — and the size of that force is given by Coulomb’s law. More useful than the force itself is the idea of the <em>electric field</em>: every charge creates a field around it, described by the <em>electric intensity</em> <span data-tex="\vec{E}"></span>, the force acting on a unit positive test charge ([E] = N/C = V/m). A charge placed in that field then feels the force <span data-tex="\vec{F} = Q\vec{E}"></span>. Field lines show how the field runs: they are tangent to <span data-tex="\vec{E}"></span> and their density corresponds to its magnitude.</span>
+                <span lang="cs">Nabité částice se navzájem přitahují a odpuzují — souhlasné náboje od sebe, opačné k sobě — a velikost té síly udává Coulombův zákon. Užitečnější než síla samotná je ale pojem <em>elektrického pole</em>: každý náboj kolem sebe vytváří pole, které popisuje <em>elektrická intenzita</em> <span data-tex="\vec{E}"></span>, tedy síla působící na jednotkový kladný testovací náboj ([E] = N/C = V/m). Na náboj vložený do tohoto pole pak působí síla <span data-tex="\vec{F} = Q\vec{E}"></span>. Průběh pole znázorňují siločáry: jsou tečné k <span data-tex="\vec{E}"></span> a jejich hustota odpovídá velikosti pole.</span>
             </div>
             <div class="core-formulas">
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Coulomb's law — force</span><span lang="cs">Coulombův zákon — síla</span></span>
-                        <span class="cf-eq" data-tex="|\vec{F}| = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q_1 Q_2}{r^2}"></span>
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where every calculation starts</span><span lang="cs">Odkud každý výpočet začíná</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="|\vec{F}| = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q_1 Q_2}{r^2}"></span>
+                        <span class="ck-eq" data-tex="\vec{E} = \dfrac{1}{4\pi\varepsilon_0}\int\dfrac{\mathrm{d}Q}{r^{2}}\,\vec{r}_0"></span>
                     </div>
-                    <p class="cf-note">
-                        <span lang="en">The electrostatic force between two point charges: proportional to the
-                        product of the charges, falling with the square of their separation. Like signs repel,
-                        opposite signs attract; k = 1/4πε₀ = 8.99·10⁹ N·m²/C².</span>
-                        <span lang="cs">Elektrostatická síla mezi dvěma bodovými náboji: úměrná součinu nábojů,
-                        klesá s druhou mocninou vzdálenosti. Souhlasná znaménka se odpuzují, opačná se
-                        přitahují; k = 1/4πε₀ = 8,99·10⁹ N·m²/C².</span>
+                    <p class="ck-note">
+                        <span lang="en">Coulomb’s law, and beside it the calculation of the field <span data-tex="\vec{E}"></span>. The field arises from the contributions of small charge elements dQ. <span data-tex="\vec{r}_0"></span> is only a direction: the unit vector pointing from the charge element to the place at which the field is calculated.</span>
+                        <span lang="cs">Coulombův zákon a vedle výpočet pole <span data-tex="\vec{E}"></span>. Pole vzniká příspěvky od malých kousků náboje dQ. <span data-tex="\vec{r}_0"></span> je jen směr: jednotkový vektor mířící od kousku náboje do místa, ve kterém pole počítáme.</span>
                     </p>
                 </div>
                 <div class="core-formula">
                     <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Electric intensity — field</span><span lang="cs">Elektrická intenzita — pole</span></span>
-                        <span class="cf-eq" data-tex="|\vec{E}| = \dfrac{|\vec{F}|}{Q_0} = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q}{r^2}"></span>
+                        <span class="cf-desc"><span lang="en">Cutting a body into elements</span><span lang="cs">Řez tělesa na elementy</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}Q = \varrho_e\,\mathrm{d}V = \sigma_e\,\mathrm{d}S = \tau_e\,\mathrm{d}\ell"></span>
                     </div>
                     <p class="cf-note">
-                        <span lang="en">The field is described by the intensity <span data-tex="\vec{E}"></span> —
-                        the force acting on a unit positive test charge Q₀ ([E] = N/C = V/m). The second equality
-                        is the field of a point charge Q: radial, pointing away from a positive charge and toward
-                        a negative one.</span>
-                        <span lang="cs">Pole popisuje intenzita <span data-tex="\vec{E}"></span> — síla působící
-                        na jednotkový kladný testovací náboj Q₀ ([E] = N/C = V/m). Druhá rovnost je pole bodového
-                        náboje Q: radiální, míří od kladného náboje a k zápornému.</span>
+                        <span lang="en">The element dQ depends on how many dimensions the charge is spread over: a 1D charge is set by a length element and the linear density τₑ (C/m), a 2D surface by an area element and the density σₑ (C/m²), a 3D body by a volume element and the density ϱₑ (C/m³).</span>
+                        <span lang="cs">Element dQ je závislý na tom, přes kolik rozměrů je náboj rozprostřen: 1D náboj je určen délkovým elementem a délkovou hustotou τₑ (C/m), 2D plocha plošným a hustotou σₑ (C/m²), 3D těleso objemovým a hustotou ϱₑ (C/m³).</span>
                     </p>
                 </div>
                 <div class="core-formula">
                     <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Force in a field</span><span lang="cs">Síla v poli</span></span>
-                        <span class="cf-eq" data-tex="\vec{F} = Q\vec{E}"></span>
+                        <span class="cf-desc"><span lang="en">Gauss’s law</span><span lang="cs">Gaussova věta</span></span>
+                        <span class="cf-eq" data-tex="\oiint_{\mathcal{S}} \vec{E}\cdot \mathrm{d}\vec{S} = \dfrac{Q_c}{\varepsilon_0}"></span>
                     </div>
                     <p class="cf-note">
-                        <span lang="en">Once the field is known, the force on any charge placed in it follows
-                        directly: a positive charge is pushed along <span data-tex="\vec{E}"></span>, a negative
-                        one against it. This is the bridge between the field and mechanics.</span>
-                        <span lang="cs">Známe-li pole, síla na libovolný náboj do něj umístěný plyne přímo:
-                        kladný náboj je tlačen po směru <span data-tex="\vec{E}"></span>, záporný proti němu.
-                        Tohle je most mezi polem a mechanikou.</span>
-                    </p>
-                </div>
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Superposition</span><span lang="cs">Superpozice</span></span>
-                        <span class="cf-eq" data-tex="\vec{E}_{cel} = \textstyle\sum\vec{E}_i = \int d\vec{E}"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Fields add as vectors: the total field of several charges is the sum of
-                        the individual contributions, and for a continuously charged body the sum becomes an
-                        integral.</span>
-                        <span lang="cs">Pole se sčítají jako vektory: celkové pole několika nábojů je součtem
-                        jednotlivých příspěvků a u spojitě nabitého tělesa přechází součet v integrál.</span>
-                    </p>
-                </div>
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Charge element</span><span lang="cs">Element náboje</span></span>
-                        <span class="cf-eq" data-tex="dQ = \varrho_e\,dV = \sigma_e\,dS = \tau_e\,dx"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">A continuous body is sliced into infinitesimal charge elements according
-                        to its dimension: volume density ϱₑ (C/m³), surface density σₑ (C/m²), or linear density
-                        τₑ (C/m).</span>
-                        <span lang="cs">Spojité těleso krájíme na nekonečně malé elementy náboje podle jeho
-                        rozměru: objemová hustota ϱₑ (C/m³), plošná σₑ (C/m²), nebo délková τₑ (C/m).</span>
-                    </p>
-                </div>
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Gauss's law</span><span lang="cs">Gaussova věta</span></span>
-                        <span class="cf-eq" data-tex="\oiint_{\mathcal{S}} \vec{E}\cdot d\vec{S} = \dfrac{Q_c}{\varepsilon_0}"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">The surface integral of <span data-tex="\vec{E}"></span> over any closed
-                        (Gaussian) surface <span data-tex="\mathcal{S}"></span> is set solely by the charge
-                        enclosed inside it. For symmetric bodies (sphere, cylinder, plane) it gives the field
-                        with no integration at all.</span>
-                        <span lang="cs">Plošný integrál intenzity <span data-tex="\vec{E}"></span> přes
-                        libovolnou uzavřenou (Gaussovu) plochu <span data-tex="\mathcal{S}"></span> je určen
-                        výhradně nábojem uzavřeným uvnitř. U symetrických těles (koule, válec, rovina) z ní
-                        pole plyne úplně bez integrování.</span>
+                        <span lang="en">The flux of <span data-tex="\vec{E}"></span> through any closed (Gaussian) surface depends only on the charge enclosed within it. For symmetric bodies — sphere, cylinder, infinite plane — a surface can be chosen on which E is constant; the integral then reduces to the product E·S and the field follows without integration.</span>
+                        <span lang="cs">Tok <span data-tex="\vec{E}"></span> libovolnou uzavřenou (Gaussovou) plochou závisí pouze na náboji uzavřeném uvnitř. U symetrických těles — koule, válec, nekonečná rovina — lze zvolit plochu, na níž je E konstantní; integrál pak přejde v součin E·S a pole vyjde bez integrování.</span>
                     </p>
                 </div>
             </div>
@@ -728,7 +732,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="|\vec{F}| = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q_1 Q_2}{r^2}"></div>
-                <div class="sim-hint"><span lang="en">change signs to see attraction/repulsion · the third charge can be dragged</span><span lang="cs">změňte znaménka pro přitahování/odpuzování · třetí náboj lze táhnout myší</span></div>
             </div>
         </div>
 
@@ -845,55 +848,83 @@
         </div>
     </section>
 
-    <!-- ════ § 6  E-FIELD OF CHARGED OBJECTS ════ -->
-    <div class="flow-panel">
-        <div class="flow-head">
-            <span class="accent-pip"></span>
-            <span><span lang="en">Computing the field of a continuous body</span><span lang="cs">Výpočet pole spojitého tělesa</span></span>
-        </div>
-        <div class="flow-body">
-            <div class="flow-grid">
-                <div class="flow-step">
-                    <div class="fs-num">01</div>
-                    <div class="fs-name"><span lang="en">Slice the body into charge elements</span><span lang="cs">Rozřež těleso na elementy náboje</span></div>
-                    <div class="fs-eq" style="font-size:17px;" data-tex="dQ = \overset{\mathrm{3D}}{\varrho_e\,dV} = \overset{\mathrm{2D}}{\sigma_e\,dS} = \overset{\mathrm{1D}}{\tau_e\,dx}"></div>
-                    <div class="fs-sub" data-tex="Q = \int dQ"></div>
-                </div>
-                <div class="flow-arrow" aria-hidden="true"></div>
-                <div class="flow-step">
-                    <div class="fs-num">02</div>
-                    <div class="fs-name"><span lang="en">Each element is a tiny point charge</span><span lang="cs">Každý element je malinký bodový náboj</span></div>
-                    <div class="fs-eq" data-tex="dE = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{dQ}{r^2}"></div>
-                </div>
-                <div class="flow-arrow" aria-hidden="true"></div>
-                <div class="flow-step">
-                    <div class="fs-num">03</div>
-                    <div class="fs-name"><span lang="en">Sum every contribution — superposition</span><span lang="cs">Sečti všechny příspěvky — superpozice</span></div>
-                    <div class="fs-eq" data-tex="\vec{E} = \int d\vec{E}"></div>
-                    <div class="fs-sub" data-tex="\rightarrow\ \vec{F} = Q\vec{E}"></div>
-                </div>
+    <!-- ════════════════════════════════════════════════════════════════
+         § 6  THE MOVIE — computing the field of a continuous body
+         Eight steps, in the order of the lecturer's week-2 lesson: one law,
+         then the cut (1D / 2D / 3D), then the rod (Ex. 22-27), the two
+         semicircles, the ring, the disk built out of rings, the
+         two limits, and finally the sphere (Ex. 23-55).
+         ════════════════════════════════════════════════════════════════ -->
+    <section id="lab2" class="lab movie" style="margin-top:72px; margin-bottom:0;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">Computing the field of a continuous body</span><span lang="cs">Výpočet pole spojitého tělesa</span></span>
+                <span style="display:flex;gap:16px;align-items:baseline;">
+                    <span id="mv-clock" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+                    <button id="mv-reset" class="panel-reset">restart</button>
+                </span>
             </div>
-            <div class="flow-vars">
-                <div class="fv-row">
-                    <span class="fv-sym" data-tex="dQ,\ d\vec{E}"></span>
-                    <span class="fv-txt"><span lang="en">charge of one element and its field contribution at the point P</span><span lang="cs">náboj jednoho elementu a jeho příspěvek k poli v bodě P</span></span>
+            <div class="canvas-wrap armed" id="mv-wrap">
+                <canvas id="mv-canvas"></canvas>
+                <div class="gate" id="mv-gate">
+                    <div class="gate-btn"></div>
+                    <div class="gate-title"><span lang="en">Computing the field <span data-tex="\vec{E}"></span> of a continuous body</span><span lang="cs">Výpočet pole <span data-tex="\vec{E}"></span> spojitého tělesa</span></div>
+                    <div class="gate-sub"><span lang="en">eight steps · 1D · 2D · 3D · in three dimensions</span><span lang="cs">osm kroků · 1D · 2D · 3D · v prostoru</span></div>
                 </div>
-                <div class="fv-row">
-                    <span class="fv-sym" data-tex="\varrho_e,\ \sigma_e,\ \tau_e"></span>
-                    <span class="fv-txt"><span lang="en">volume · surface · linear charge density (C/m³ · C/m² · C/m)</span><span lang="cs">objemová · plošná · délková hustota náboje (C/m³ · C/m² · C/m)</span></span>
-                </div>
-                <div class="fv-row">
-                    <span class="fv-sym" data-tex="r"></span>
-                    <span class="fv-txt"><span lang="en">distance from the element to the point P</span><span lang="cs">vzdálenost elementu od bodu P</span></span>
-                </div>
-                <div class="fv-row">
-                    <span class="fv-sym" data-tex="\varepsilon_0"></span>
-                    <span class="fv-txt"><span lang="en">vacuum permittivity, 8.85·10⁻¹² F/m</span><span lang="cs">permitivita vakua, 8,85·10⁻¹² F/m</span></span>
-                </div>
+                <div class="canvas-formula-badge" id="mv-eq"></div>
+                <div class="sim-hint"><span lang="en">the bar top left is the integral adding up</span><span lang="cs">pruh vlevo nahoře je sčítající se integrál</span></div>
             </div>
         </div>
-    </div>
-    <section id="lab2" class="lab" style="margin-top:24px;">
+        <div class="movie-bar">
+            <button id="mv-prev" class="bar-btn">←</button>
+            <div class="ms-rail" id="mv-list"></div>
+            <div class="ms-reads">
+                <div class="ms-read">
+                    <span class="ms-read-k" id="mv-k-a">—</span>
+                    <span class="ms-read-v" id="mv-r-a">—</span>
+                </div>
+                <div class="ms-read">
+                    <span class="ms-read-k" id="mv-k-b">—</span>
+                    <span class="ms-read-v" id="mv-r-b">—</span>
+                </div>
+                <div class="ms-read">
+                    <span class="ms-read-k" id="mv-k-c">—</span>
+                    <span class="ms-read-v" id="mv-r-c">—</span>
+                </div>
+            </div>
+            <button id="mv-next" class="bar-btn next"><span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→</button>
+        </div>
+    </section>
+
+    <section id="mvlog" style="margin-top:24px;">
+        <div class="fl-grid">
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker" id="fl-kicker">—</span>
+                    <span class="fl-title" id="fl-title">—</span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-text" id="fl-text"></p>
+                    <div class="fl-eq" id="fl-eq"></div>
+                    <div class="fl-rows" id="fl-rows"></div>
+                </div>
+            </div>
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker"><span lang="en">Where the exercises use it</span><span lang="cs">Kde to úlohy potřebují</span></span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-stamp" id="fl-stamp">—</p>
+                    <p class="fl-real" id="fl-real"></p>
+                    <div class="fl-verdict" id="fl-verdict" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ════ § 7  SANDBOX — the field of named objects ════ -->
+    <section id="lab3" class="lab" style="margin-top:72px;">
 
         <div class="canvas-panel">
             <div class="canvas-head">
@@ -903,7 +934,6 @@
             <div class="canvas-wrap">
                 <canvas id="efield-canvas"></canvas>
                 <div class="canvas-formula-badge" id="e2-badge" data-tex="E = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{Q}{r^2}"></div>
-                <div class="sim-hint"><span lang="en">choose an object in the menu · slide the distance</span><span lang="cs">vyberte těleso v menu · posouvejte vzdálenost</span></div>
             </div>
         </div>
 
@@ -1020,10 +1050,7 @@
             <a class="ex-tab" href="../exercises/ch21-ex14.html"><span lang="en">Ch. 21 · <span class="ex-no">Ex. 14</span></span><span lang="cs">Kap. 21 · <span class="ex-no">Úl. 14</span></span></a>
             <a class="ex-tab" href="../exercises/ch21-ex20.html"><span lang="en">Ch. 21 · <span class="ex-no">Ex. 20</span></span><span lang="cs">Kap. 21 · <span class="ex-no">Úl. 20</span></span></a>
             <a class="ex-tab" href="../exercises/ch22-ex10.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 10</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 10</span></span></a>
-            <a class="ex-tab" href="../exercises/ch22-ex25.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 25</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 25</span></span></a>
             <a class="ex-tab" href="../exercises/ch22-ex27.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 27</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 27</span></span></a>
-            <a class="ex-tab" href="../exercises/ch22-ex56.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 56</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 56</span></span></a>
-            <a class="ex-tab" href="../exercises/ch22-ex60.html"><span lang="en">Ch. 22 · <span class="ex-no">Ex. 60</span></span><span lang="cs">Kap. 22 · <span class="ex-no">Úl. 60</span></span></a>
             <a class="ex-tab" href="../exercises/ch23-ex03.html"><span lang="en">Ch. 23 · <span class="ex-no">Ex. 3</span></span><span lang="cs">Kap. 23 · <span class="ex-no">Úl. 3</span></span></a>
             <a class="ex-tab" href="../exercises/ch23-ex22.html"><span lang="en">Ch. 23 · <span class="ex-no">Ex. 22</span></span><span lang="cs">Kap. 23 · <span class="ex-no">Úl. 22</span></span></a>
             <a class="ex-tab" href="../exercises/ch23-ex52.html"><span lang="en">Ch. 23 · <span class="ex-no">Ex. 52</span></span><span lang="cs">Kap. 23 · <span class="ex-no">Úl. 52</span></span></a>
@@ -1172,6 +1199,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = canvas.getBoundingClientRect();
         third.fx = Math.min(0.96, Math.max(0.04, (e.clientX - rect.left) / W));
         third.fy = Math.min(0.92, Math.max(0.06, (e.clientY - rect.top) / H));
+
+        /* the legend owns the top-left corner — slide the charge clear of it
+           rather than letting the legend be drawn over the top of it */
+        const kb = keyBounds();
+        if (kb) {
+            const R = 22;
+            let px = third.fx * W, py = third.fy * H;
+            const x2 = kb.x2 + R, y2 = kb.y2 + R;
+            if (px < x2 && py < y2) {
+                if (x2 - px <= y2 - py) px = x2; else py = y2;
+                third.fx = px / W;
+                third.fy = py / H;
+            }
+        }
         updateReadout();
     });
     ['pointerup', 'pointercancel'].forEach(ev =>
@@ -1281,6 +1322,59 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
     }
 
+    /* ── Legend ───────────────────────────────────────────────────────
+       Names each arrow family beside a sample of the mark itself, in the mark's
+       own colour and line weight. Drawn last, so it sits on top of everything;
+       drawField() skips the grid points underneath it rather than a plate being
+       laid over them. */
+    const KEY = { x: 16, y1: 30, pitch: 32, arrow: 34, gap: 12, size: 24 };
+
+    function keyRows() {
+        /* only E: the force arrows are already labelled F1/F2/F3 at their tips */
+        return show.field ? [{ sym: 'E', color: col.accent, lw: 1.2 }] : [];
+    }
+
+    function keyBounds() {
+        const n = keyRows().length;
+        if (!n) return null;
+        return { x2: KEY.x + KEY.arrow + KEY.gap + 20,
+                 y2: KEY.y1 + (n - 1) * KEY.pitch + 14 };
+    }
+
+    /* the canvas equivalent of \vec{} — a small arrow set over a symbol */
+    function vecBar(cx, y, w, color) {
+        const half = w / 2;
+        ctx.save();
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = 1.4; ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(cx - half, y); ctx.lineTo(cx + half - 3, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx + half, y);
+        ctx.lineTo(cx + half - 4.5, y - 2.6);
+        ctx.lineTo(cx + half - 4.5, y + 2.6);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+    }
+
+    function drawKey() {
+        keyRows().forEach(function (r, i) {
+            const y = KEY.y1 + i * KEY.pitch;
+            drawArrow(KEY.x, y, KEY.x + KEY.arrow, y, r.color, r.lw);
+            const lx = KEY.x + KEY.arrow + KEY.gap;
+            ctx.save();
+            ctx.font = 'italic ' + KEY.size + 'px "Source Serif 4", Georgia, serif';
+            ctx.fillStyle = r.color;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(r.sym, lx, y);
+            const w = ctx.measureText(r.sym).width;
+            ctx.restore();
+            vecBar(lx + w / 2, y - KEY.size * 0.62, w + 4, r.color);
+        });
+    }
+
     /* Charge circle */
     function drawCharge(cx, cy, q, label) {
         const R = 18;
@@ -1316,6 +1410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!show.field) return;
         const GRID_N = 7;
         const margin = 60;
+        const kb = keyBounds();
         const gW = W - margin * 2;
         const gH = H - margin * 2;
 
@@ -1326,6 +1421,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 /* Skip if too close to a charge */
                 if (ch.some(c => Math.hypot(px - c.x, py - c.y) < 30)) continue;
+
+                /* keep the legend's corner clear (MAX_LEN/2 = the arrow's reach) */
+                if (kb && px - 25 < kb.x2 && py - 25 < kb.y2) continue;
 
                 /* E direction via superposition (pixel-space magnitudes) */
                 let Ex = 0, Ey = 0;
@@ -1414,6 +1512,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.textBaseline = 'top';
         ctx.fillText('r = ' + state.r_cm.toFixed(1) + ' cm', W / 2, H / 2 + 28);
         ctx.restore();
+
+        drawKey();
     }
 
     /* RAF loop */
@@ -1849,7 +1949,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* ── graph |E| vs distance (bottom strip left clear for the badge) ── */
         const gx0 = 56, gx1 = W - 24;
-        const gy0 = skH + 26, gy1 = H - 78;
+        const gy0 = skH + 26, gy1 = H - 108;   /* axis and its caption clear the badge */
         const csMode = document.documentElement.getAttribute('data-lang') === 'cs';
         ctx.font = '10px "JetBrains Mono", monospace';
         ctx.fillStyle = col.soft;
@@ -1919,6 +2019,1135 @@ document.addEventListener('DOMContentLoaded', () => {
     // KaTeX is loaded with defer, so it is not defined while this inline script
     // runs and the badge would stay blank until the first slider move.
     if (!window.katex) document.addEventListener('DOMContentLoaded', renderBadge);
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   § II.01 — shared helpers for the movie sandbox (#lab2)
+   ══════════════════════════════════════════════════════════════════════ */
+const PPE = (function () {
+    'use strict';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        d = d === undefined ? 2 : d;
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d);
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    /* one formatter for a film whose numbers run from femtocoulombs to
+       tens of newtons per coulomb */
+    const PFX = [[1e12, 'T'], [1e9, 'G'], [1e6, 'M'], [1e3, 'k'], [1, ''],
+                 [1e-3, 'm'], [1e-6, 'μ'], [1e-9, 'n'], [1e-12, 'p'], [1e-15, 'f']];
+    function si(v, unit, dec) {
+        const a = Math.abs(v);
+        if (!isFinite(v)) return '—';
+        if (a < 1e-18) return '0 ' + unit;
+        let p = PFX[PFX.length - 1];
+        for (let i = 0; i < PFX.length; i++) { if (a >= PFX[i][0]) { p = PFX[i]; break; } }
+        const x = v / p[0];
+        const d = dec !== undefined ? dec
+                : (Math.abs(x) >= 100 ? 0 : Math.abs(x) >= 10 ? 1 : 2);
+        return num(x, d) + ' ' + p[1] + unit;
+    }
+
+    function mount(id, drawFn) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return null;
+        const ctx = canvas.getContext('2d');
+        const wrap = canvas.parentElement;
+        const o = { canvas: canvas, ctx: ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 240), H = Math.max(r.height, 200);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        o.redraw = function () {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(function () {
+                queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); drawFn(o);
+            });
+        };
+        size();
+        new ResizeObserver(function () { size(); o.redraw(); }).observe(wrap);
+        document.addEventListener('langchange', function () { o.redraw(); });
+        return o;
+    }
+    function mono(ctx, text, x, y, col, size, align) {
+        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+    }
+    /* a haloed label stays readable over the wireframes without blanking them */
+    function halo(ctx, bg, text, x, y, col, size, italic, align) {
+        ctx.font = (italic ? 'italic ' : '') + (size || 12) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3.6;
+        ctx.strokeStyle = bg; ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+    function arrow(ctx, x1, y1, x2, y2, col, lw) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 2.5) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.52;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+        ctx.setLineDash([]); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+    /* KaTeX is deferred: never cache a render that did not happen */
+    function katexInto(el, tex) {
+        if (!el) return false;
+        if (!window.katex) { el.textContent = tex; return false; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+        return true;
+    }
+    function whenReady(fn) {
+        if (window.katex) fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+    }
+    return { isCS: isCS, T: T, num: num, si: si, mount: mount,
+             mono: mono, halo: halo, arrow: arrow,
+             katexInto: katexInto, whenReady: whenReady };
+}());
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   THE MOVIE — "Computing the field of a continuous body"
+
+   The lecturer's week-2 lesson, filmed in three dimensions. Eight steps:
+   the only law there is, the cut (1D / 2D / 3D), then four bodies taken in
+   the order the notes take them — the rod on its axis (Ex. 22-27), the two
+   semicircles, the ring, the disk built out of rings — the two
+   limits that check the answer, and finally a solid with a density that
+   varies (Ex. 23-55).
+
+   EVERY NUMBER IS COMPUTED. The bodies share one centimetre scale, the
+   accumulating bar top left is the partial integral evaluated in closed
+   form, and each step's final value is its exercise's answer key.
+
+   Scale discipline on the canvas: within one step, every arrow drawn to a
+   numeric scale shares that scale. Where a picture needs to show DIRECTIONS
+   that are equal by symmetry (step 4), the arrows are drawn at one fixed
+   length and the canvas says so; the numbers live on the bar instead.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const V = PPE.mount('mv-canvas', draw);
+    if (!V) return;
+    const $ = function (id) { return document.getElementById(id); };
+    const N = PPE.num, SI = PPE.si;
+
+    /* ── the stage: the topic accent lifted to read on a dark ground ──── */
+    const SKY = {
+        bg: '#0d1024', ink: '#e8e4f7', soft: '#a9a2cb', faint: '#7b739e',
+        acc: '#b79cff',            /* the field E */
+        pos: '#ff7a63', neg: '#5f9bff',
+        elem: '#ffc75c',           /* the element under the knife, always */
+        ghost: '#3a3663', bar: '#221d42', box: 'rgba(16,19,44,0.90)', edge: '#443e78'
+    };
+
+    /* ── constants and the four bodies, all from this topic's exercises ── */
+    /* the exercise keys are all worked with k = 8.99e9, so ε₀ is DERIVED from
+       it rather than rounded separately — otherwise the disk (which goes
+       through σ/2ε₀) and the ring (which goes through k) disagree by 0.03 %,
+       and step 7 exists to compare exactly such numbers */
+    const K = 8.99e9, EPS0 = 1 / (4 * Math.PI * K);
+    const M = function (cm) { return cm / 100; };          /* cm → m */
+
+    /* Ex. 22-27 — a rod of length d, charge −Q, P on its own axis at a */
+    const ROD = { d: 8.15, a: 12.00, Q: 4.23e-15 };
+    ROD.tau = -ROD.Q / M(ROD.d);
+    ROD.E = K * ROD.Q / (M(ROD.a) * M(ROD.a + ROD.d));
+    ROD.far = 50.0;                                        /* metres, part (d) */
+    ROD.Efar = K * ROD.Q / (ROD.far * (ROD.far + M(ROD.d)));
+    ROD.Epoint = K * ROD.Q / Math.pow(ROD.far + M(ROD.d) / 2, 2);
+
+    /* Two semicircles of radius R, +Q above and −Q below */
+    const ARC = { R: 8.50, Q: 15.0e-12 };
+    ARC.tau = ARC.Q / (Math.PI * M(ARC.R));
+    ARC.E = 4 * K * ARC.Q / (Math.PI * M(ARC.R) * M(ARC.R));
+
+    /* the ring and the disk: the same charge on the same radius, P on the
+       axis, so the two results can be put side by side */
+    const DSK = { R: 8.50, Q: 15.0e-12, z: 6.00 };
+    DSK.tau = DSK.Q / (2 * Math.PI * M(DSK.R));
+    DSK.sigma = DSK.Q / (Math.PI * M(DSK.R) * M(DSK.R));
+    DSK.plane = DSK.sigma / (2 * EPS0);
+    const ringE = function (zcm) {
+        const r = M(DSK.R), z = M(zcm);
+        return K * DSK.Q * z / Math.pow(r * r + z * z, 1.5);
+    };
+    const diskE = function (zcm, rcm) {
+        const r = M(rcm === undefined ? DSK.R : rcm), z = M(zcm);
+        return DSK.plane * (1 - z / Math.sqrt(r * r + z * z));
+    };
+    const pointE = function (zcm) { return K * DSK.Q / (M(zcm) * M(zcm)); };
+    DSK.Ering = ringE(DSK.z);
+    DSK.Edisk = diskE(DSK.z);
+
+    /* Ex. 23-55 — a solid sphere whose density rises linearly to the rim */
+    const SPH = { R: 5.60, rho0: 14.1e-12 };
+    SPH.Q = SPH.rho0 * Math.PI * Math.pow(M(SPH.R), 3);
+    SPH.qOf = function (rcm) { return SPH.Q * Math.pow(rcm / SPH.R, 4); };
+    SPH.EOf = function (rcm) {
+        if (rcm <= 0) return 0;
+        const q = rcm <= SPH.R ? SPH.qOf(rcm) : SPH.Q;
+        return K * q / (M(rcm) * M(rcm));
+    };
+    SPH.ER = SPH.EOf(SPH.R);
+
+    /* the sweep variable of each step, and the partial integral it drives */
+    const zSweep = function (u) { return 0.40 * Math.pow(160 / 0.40, u); };
+    function partial(u) {
+        switch (step) {
+        case 2: {
+            const x1 = ROD.a + ROD.d * u;
+            return K * (ROD.Q / M(ROD.d)) * (1 / M(ROD.a) - 1 / M(x1));
+        }
+        case 3: return ARC.E * Math.sin(u * Math.PI / 2);
+        case 4: return ringVec(u * 2 * Math.PI)[2];
+        case 5: return diskE(DSK.z, DSK.R * u);
+        case 7: return SPH.qOf(SPH.R * u);
+        default: return 0;
+        }
+    }
+    /* the ring's running vector sum — it starts off the axis and swings back
+       onto it exactly as the ring closes; that IS the cancellation */
+    function ringVec(phi) {
+        const r = M(DSK.R), z = M(DSK.z), s = Math.sqrt(r * r + z * z);
+        const pre = K * DSK.tau * r / (s * s * s);
+        return [pre * (-r * Math.sin(phi)), pre * (r * (Math.cos(phi) - 1)), pre * (z * phi)];
+    }
+
+    /* ── 3D ───────────────────────────────────────────────────────────── */
+    const v3 = function (a, b, c) { return [a, b, c]; };
+    const sub3 = function (a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; };
+    const add3 = function (a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; };
+    const mul3 = function (a, k) { return [a[0] * k, a[1] * k, a[2] * k]; };
+    const dot3 = function (a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; };
+    const cross3 = function (a, b) {
+        return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    };
+    const len3 = function (a) { return Math.sqrt(dot3(a, a)); };
+    const unit3 = function (a) { const L = len3(a); return L < 1e-12 ? [0, 0, 0] : mul3(a, 1 / L); };
+
+    const cam = { at: [0, 0, 6], az: -1.30, el: 0.44, d: 46 };
+    const camT = { at: [0, 0, 6], az: -1.30, el: 0.44, d: 46 };
+    let PR = null;
+
+    function basis() {
+        const ce = Math.cos(cam.el), se = Math.sin(cam.el);
+        const pos = add3(cam.at, v3(cam.d * ce * Math.cos(cam.az), cam.d * ce * Math.sin(cam.az), cam.d * se));
+        const fwd = unit3(sub3(cam.at, pos));
+        const up0 = Math.abs(fwd[2]) > 0.98 ? v3(1, 0, 0) : v3(0, 0, 1);
+        const right = unit3(cross3(fwd, up0));
+        return { pos: pos, fwd: fwd, right: right, up: cross3(right, fwd) };
+    }
+    function projector(bs, W, H) {
+        const f = (H * 0.5) / Math.tan(26 * Math.PI / 180);
+        return function (p) {
+            const v = sub3(p, bs.pos), z = dot3(v, bs.fwd);
+            if (z < 0.05) return null;
+            return { x: W / 2 + f * dot3(v, bs.right) / z, y: H / 2 - f * dot3(v, bs.up) / z, z: z };
+        };
+    }
+
+    /* ── drawing on top of the projector ──────────────────────────────── */
+    function path3(ctx, pts, col, w, dash, close) {
+        ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(dash || []);
+        ctx.beginPath();
+        let open = false;
+        for (let i = 0; i < pts.length; i++) {
+            const q = PR(pts[i]);
+            if (!q) { open = false; continue; }
+            if (open) ctx.lineTo(q.x, q.y); else { ctx.moveTo(q.x, q.y); open = true; }
+        }
+        if (close) ctx.closePath();
+        ctx.stroke(); ctx.setLineDash([]);
+    }
+    function fill3(ctx, pts, col) {
+        ctx.fillStyle = col; ctx.beginPath();
+        let open = false;
+        for (let i = 0; i < pts.length; i++) {
+            const q = PR(pts[i]);
+            if (!q) continue;
+            if (open) ctx.lineTo(q.x, q.y); else { ctx.moveTo(q.x, q.y); open = true; }
+        }
+        ctx.closePath(); ctx.fill();
+    }
+    function seg3(ctx, a, b, col, w, dash) { path3(ctx, [a, b], col, w, dash, false); }
+    /* plane: 'xy' | 'xz' | 'yz' */
+    function ringPts(c, R, plane, n, a0, a1) {
+        n = n || 72; a0 = a0 === undefined ? 0 : a0; a1 = a1 === undefined ? Math.PI * 2 : a1;
+        const out = [];
+        for (let i = 0; i <= n; i++) {
+            const t = a0 + (a1 - a0) * i / n, C = Math.cos(t) * R, S = Math.sin(t) * R;
+            if (plane === 'xz') out.push([c[0] + C, c[1], c[2] + S]);
+            else if (plane === 'yz') out.push([c[0], c[1] + C, c[2] + S]);
+            else out.push([c[0] + C, c[1] + S, c[2]]);
+        }
+        return out;
+    }
+    function dot3D(ctx, p, r, col) {
+        const q = PR(p); if (!q) return;
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    function tag3(ctx, p, text, col, size, dx, dy, italic) {
+        const q = PR(p); if (!q) return;
+        PPE.halo(ctx, SKY.bg, text, q.x + (dx || 0), q.y + (dy || 0), col, size || 13, italic !== false);
+    }
+    /* the field point P — an open ring, never filled, so it is never mistaken
+       for a charge */
+    function markP(ctx, p, label) {
+        const q = PR(p); if (!q) return;
+        ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(q.x, q.y, 5.2, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = SKY.bg; ctx.beginPath(); ctx.arc(q.x, q.y, 3.6, 0, Math.PI * 2); ctx.fill();
+        if (label !== false) PPE.halo(ctx, SKY.bg, 'P', q.x + 13, q.y - 11, SKY.ink, 14, true);
+    }
+    /* an arrow whose DIRECTION is the true 3D direction projected, and whose
+       LENGTH is a chosen scale in pixels — never the other way round */
+    function arrow3(ctx, from, dir, px, col, w) {
+        const a = PR(from), b = PR(add3(from, mul3(unit3(dir), 1)));
+        if (!a || !b) return null;
+        const dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy);
+        if (L < 1e-6) return null;
+        const ux = dx / L, uy = dy / L;
+        PPE.arrow(ctx, a.x, a.y, a.x + ux * px, a.y + uy * px, col, w || 2.2);
+        return { x0: a.x, y0: a.y, x: a.x + ux * px, y: a.y + uy * px, ux: ux, uy: uy };
+    }
+    function dashRay(ctx, a, b, col) { seg3(ctx, a, b, col, 0.9, [3, 4]); }
+
+    /* ── the accumulating bar: this film's signature ──────────────────── */
+    function bar(v, ctx, label, now, full, unit, dec) {
+        const x = 16, y = 64, w = Math.min(258, Math.max(150, v.W * 0.26)), h = 8;
+        PPE.mono(ctx, label, x, y, SKY.soft, 9.5);
+        const by = y + 16;
+        ctx.setLineDash([]);
+        ctx.fillStyle = SKY.bar; ctx.fillRect(x, by, w, h);
+        const f = full !== 0 ? Math.max(0, Math.min(1, now / full)) : 0;
+        ctx.fillStyle = SKY.acc; ctx.fillRect(x, by, w * f, h);
+        ctx.strokeStyle = SKY.edge; ctx.lineWidth = 1;
+        ctx.strokeRect(x + 0.5, by + 0.5, w - 1, h - 1);
+        PPE.mono(ctx, SI(now, unit, dec), x, by + 20, SKY.acc, 12);
+        PPE.mono(ctx, '/ ' + SI(full, unit, dec), x + w, by + 20, SKY.faint, 10, 'right');
+    }
+
+    /* ══ 1 · THE SCRIPT ═══════════════════════════════════════════════ */
+    const STEPS = [
+    {
+        dur: 7, cam: { at: [0, 0, 6], az: -1.30, el: 0.44, d: 46 },
+        t: ['One law, and only one', 'Jediný zákon'],
+        when: ['Ch. 22 · where every one of them starts', 'Kap. 22 · odkud všechny začínají'],
+        body: ['Coulomb’s law holds only for point charges. It is therefore enough to take a single infinitesimal piece of the body: a piece small enough that all of it lies at one distance from P <em>is</em> a point charge, and the law holds for it exactly.<br><br>Two symbols deserve attention. <em>s</em> is that distance — measured from the element dQ to the point P at which the field is being calculated, and it is what appears in the denominator. It has a letter of its own because <em>r</em> is already taken: r is measured from the centre of the body (the radius of the ring, the distance from the centre of the sphere) and stays fixed, while s changes according to where on the body the element lies. <em>ŝ</em> is a unit vector — it carries no magnitude, only the direction from the element to P, the direction in which this element acts on a positive charge placed at P. The fraction therefore gives the magnitude, ŝ the direction.<br><br>Everything that follows simply traces this one line — which element, how far, in which direction.',
+               'Coulombův zákon platí jen pro bodové náboje. Postačí proto vzít jediný nekonečně malý kousek tělesa: kousek tak malý, že celý leží v jedné vzdálenosti od bodu P, <em>je</em> bodovým nábojem a zákon pro něj platí přesně.<br><br>Dva symboly stojí za pozornost. <em>s</em> je právě ta vzdálenost — měřená od elementu dQ k bodu P, ve kterém pole počítáme, a vystupuje ve jmenovateli. Vlastní písmeno má proto, že <em>r</em> je už obsazené: r se měří od středu tělesa (poloměr mezikruží, vzdálenost od středu koule) a zůstává na místě, zatímco s se mění podle toho, kde na tělese element leží. <em>ŝ</em> je jednotkový vektor — nenese žádnou velikost, jen směr od elementu k bodu P, tedy směr, kterým tento element působí na kladný náboj umístěný v P. Zlomek tak udává velikost, ŝ směr.<br><br>Všechno další už jen sleduje tento jediný řádek — který element, jak daleko, kterým směrem.'],
+        eq: 'd\\vec{E} = \\dfrac{1}{4\\pi\\varepsilon_0}\\,\\dfrac{dQ}{s^2}\\,\\hat{s}',
+        clock: function (u) { return 's = ' + N(sLaw(u), 2) + ' cm'; },
+        reads: function (u) { return [
+            [['distance s', 'vzdálenost s'], N(sLaw(u), 2) + ' cm'],
+            [['k = 1/4πε₀', 'k = 1/4πε₀'], '8.99·10⁹'],
+            [['element', 'element'], 'dQ']]; },
+        rows: function () { return [
+            [['Coulomb constant k', 'Coulombova konstanta k'], '8.99·10⁹ N·m²/C²'],
+            [['the element carries', 'element nese'], 'dQ'],
+            [['its field at P points', 'jeho pole v P míří'], PPE.T('along ŝ', 'podél ŝ')]]; },
+        real: ['Every body in this film — the rod, the semicircles, the ring, the disk, the sphere — begins on exactly this line. They differ only in how the body is cut and which components survive.',
+               'Každé těleso v tomto filmu — tyč, půlkružnice, prstenec, disk, koule — začíná přesně tímhle řádkem. Liší se jen tím, jak těleso rozřežeme a které složky přežijí.']
+    },
+    {
+        dur: 7, cam: { at: [0, 0, 0], az: 0.16, el: 0.40, d: 96 },
+        t: ['Cut it: 1D, 2D, 3D', 'Rozřežte: 1D, 2D, 3D'],
+        when: ['The charge element', 'Element náboje'],
+        body: ['How you cut follows from how many dimensions the charge is spread over. A wire gets a length element, a sheet an area element, a solid a volume element — and each carries its own density. The density is the exchange rate between geometry and charge, and the check that you cut correctly is that the pieces add back up to <em>Q</em>.',
+               'Jak řežete, plyne z toho, přes kolik rozměrů je náboj rozprostřen. Drát dostane délkový element, plocha plošný, těleso objemový — a každý si nese svou hustotu. Hustota je kurz mezi geometrií a nábojem a kontrolou správného řezu je, že se kousky sečtou zpátky na <em>Q</em>.'],
+        eq: 'dQ = \\tau_e\\,d\\ell = \\sigma_e\\,dS = \\varrho_e\\,dV\\,,\\qquad Q=\\int dQ',
+        clock: function (u) { return PPE.T('slices ', 'řezů ') + slices(u); },
+        reads: function () { return [
+            [['1D · τₑ', '1D · τₑ'], SI(ROD.tau, 'C/m')],
+            [['2D · σₑ', '2D · σₑ'], SI(DSK.sigma, 'C/m²')],
+            [['3D · ϱₑ', '3D · ϱₑ'], SI(SPH.rho0, 'C/m³')]]; },
+        rows: function () { return [
+            [['rod, Ex. 22-27 — linear τₑ', 'tyč, úl. 22-27 — délková τₑ'], SI(ROD.tau, 'C/m')],
+            [['disk — surface σₑ', 'disk — plošná σₑ'], SI(DSK.sigma, 'C/m²')],
+            [['sphere, Ex. 23-55 — volume ϱₑ', 'koule, úl. 23-55 — objemová ϱₑ'], SI(SPH.rho0, 'C/m³') + ' · r/R'],
+            [['every cut must return', 'každý řez musí vrátit'], 'Q = ∫dQ']]; },
+        real: ['The rod of <strong>Ex. 22-27</strong> is 1D. The disk is 2D. The sphere of <strong>Ex. 23-55</strong> is 3D and its density is not even constant — it rises linearly to the rim, which is the whole difficulty of that exercise.',
+               'Tyč z <strong>úl. 22-27</strong> je 1D. Disk je 2D. Koule z <strong>úl. 23-55</strong> je 3D a její hustota není ani konstantní — lineárně roste k okraji, a v tom je celá obtížnost té úlohy.']
+    },
+    {
+        dur: 8, cam: { at: [-8.5, 0, 1.2], az: -1.50, el: 0.20, d: 38 },
+        t: ['The rod: a scalar integral', 'Tyč: skalární integrál'],
+        when: ['Ex. 22-27 · P on the rod\u2019s own axis', 'Úl. 22-27 · P na ose tyče'],
+        body: ['Put P on the rod\u2019s own axis and every element\u2019s field points the same way, so there is nothing to resolve: the integral is over numbers. Only the distance changes, and <em>dE ∝ 1/x²</em> integrates in one line. Watch the total build as the far end of the rod is reached — the last, most distant slices add almost nothing.',
+               'Položte P na osu tyče a pole každého elementu míří stejným směrem, takže není co rozkládat: integruje se přes čísla. Mění se jen vzdálenost a <em>dE ∝ 1/x²</em> se zintegruje na jeden řádek. Sledujte, jak součet roste, než se dojde ke vzdálenému konci — poslední, nejvzdálenější řezy přidávají skoro nic.'],
+        eq: 'E=\\int_{a}^{a+d}\\dfrac{k\\,|\\tau_e|\\,dx}{x^{2}}=\\dfrac{kQ}{a\\,(a+d)}',
+        clock: function (u) { return 'x = ' + N(ROD.a + ROD.d * u, 2) + ' cm'; },
+        reads: function (u) { return [
+            [['upper limit x', 'horní mez x'], N(ROD.a + ROD.d * u, 2) + ' cm'],
+            [['E so far', 'E zatím'], SI(partial(u), 'N/C')],
+            [['E total', 'E celkem'], SI(ROD.E, 'N/C')]]; },
+        rows: function () { return [
+            [['linear density τₑ', 'délková hustota τₑ'], SI(ROD.tau, 'C/m')],
+            [['near end a', 'bližší konec a'], N(ROD.a, 2) + ' cm'],
+            [['rod length d', 'délka tyče d'], N(ROD.d, 2) + ' cm'],
+            [['E at P', 'E v bodě P'], SI(ROD.E, 'N/C')],
+            [['direction', 'směr'], PPE.T('180° from +x', '180° od +x')]]; },
+        real: ['<strong>Ex. 22-27</strong> (a) τₑ = −51.9 fC/m, (b) E = 1.57 mN/C, (c) at 180° from +x — toward the rod, because the rod is negative. Parts (d) and (e) then move P out to 50 m and ask whether the rod is still a rod.',
+               '<strong>Úl. 22-27</strong> (a) τₑ = −51,9 fC/m, (b) E = 1,57 mN/C, (c) pod úhlem 180° od +x — k tyči, protože tyč je záporná. Části (d) a (e) pak odsunou P na 50 m a ptají se, jestli je tyč pořád tyč.'],
+        verdict: ['At <b>a = 50 m</b> the rod gives <b>{RODFAR}</b> and a point charge −Q sitting where the rod\u2019s centre was gives <b>{RODPT}</b>. The two denominators are <em>a(a+d)</em> and <em>(a+d/2)²</em> — they differ by <em>d²/4</em>, which is 17 cm² out of 2504 m².',
+                  'Ve vzdálenosti <b>a = 50 m</b> dá tyč <b>{RODFAR}</b> a bodový náboj −Q v místě, kde býval střed tyče, dá <b>{RODPT}</b>. Ty dva jmenovatele jsou <em>a(a+d)</em> a <em>(a+d/2)²</em> — liší se o <em>d²/4</em>, tedy o 17 cm² z 2504 m².']
+    },
+    {
+        dur: 8, cam: { at: [0, 0, 0], az: -1.42, el: 0.55, d: 32 },
+        t: ['Symmetry does half the work', 'Symetrie udělá půlku práce'],
+        when: ['Two semicircles, P at the centre', 'Dvě půlkružnice, P ve středu'],
+        body: ['Two elements placed symmetrically about an axis contribute fields of equal size, and their components <em>across</em> that axis are equal and opposite. Cancel them before integrating, not after: <em>Eₓ = 0</em> is an argument, not an arithmetic result. Here both rods drive the field the same way — down — because the upper one is positive and the lower one negative.',
+               'Dva elementy umístěné symetricky kolem osy přispívají stejně velkými poli a jejich složky <em>napříč</em> touto osou jsou stejně velké a opačné. Vyrušte je před integrací, ne po ní: <em>Eₓ = 0</em> je úvaha, ne výsledek počítání. Tady ženou obě tyče pole stejným směrem — dolů — protože horní je kladná a dolní záporná.'],
+        eq: 'E_x=0\\ \\text{(symmetry)}\\,,\\qquad E=2\\cdot\\dfrac{2k\\tau_e}{R}=\\dfrac{4kQ}{\\pi R^{2}}',
+        clock: function (u) { return 'φ = ' + N(u * 90, 0) + '°'; },
+        reads: function (u) { return [
+            [['arc swept φ', 'zameteno φ'], N(u * 90, 0) + '°'],
+            [['Ex', 'Ex'], N(0, 2) + ' N/C'],
+            [['Ey so far', 'Ey zatím'], SI(-partial(u), 'N/C')]]; },
+        rows: function () { return [
+            [['linear density τₑ', 'délková hustota τₑ'], SI(ARC.tau, 'C/m')],
+            [['radius R', 'poloměr R'], N(ARC.R, 2) + ' cm'],
+            [['Eₓ, at every φ', 'Eₓ, při každém φ'], '0.00 N/C'],
+            [['E at the centre', 'E ve středu'], SI(ARC.E, 'N/C')],
+            [['direction', 'směr'], PPE.T('−90° (straight down)', '−90° (přímo dolů)')]]; },
+        real: ['<strong>Two semicircles</strong>: 23.8 N/C at −90° from +x — straight down, toward the negative rod. Note what the answer does <em>not</em> contain: no integral over the x-components was ever done, because it was argued away first.',
+               '<strong>Dvě půlkružnice</strong>: 23,8 N/C pod úhlem −90° od +x — přímo dolů, k záporné tyči. Všimněte si, co ve výsledku <em>není</em>: žádný integrál přes x-ové složky se nikdy nepočítal, protože byl předem odargumentován.']
+    },
+    {
+        dur: 9, cam: { at: [0, 0, 3.2], az: -1.35, el: 0.40, d: 36 },
+        t: ['The ring: only the axis survives', 'Mezikruží: přežije jen osa'],
+        when: ['The lecturer\u2019s "Nabité mezikruží"', 'Přednáškové "Nabité mezikruží"'],
+        body: ['Move P off the plane and onto the axis. Now every element sits at the same distance <em>s</em> and tilts its field at the same angle <em>β</em>, so <em>cos β = z/s</em> is a constant and steps straight out of the integral. The running sum drawn here starts tilted off the axis and swings back onto it exactly as the ring closes — the cancellation happening, not being asserted.',
+               'Posuňte P z roviny na osu. Teď je každý element ve stejné vzdálenosti <em>s</em> a naklání své pole o stejný úhel <em>β</em>, takže <em>cos β = z/s</em> je konstanta a vystoupí rovnou z integrálu. Průběžný součet zde vykreslený začíná nakloněný mimo osu a vrací se na ni přesně v okamžiku, kdy se prstenec uzavře — vyrušení se děje, netvrdí se.'],
+        eq: 'E_z=\\int dE\\cos\\beta=\\dfrac{1}{4\\pi\\varepsilon_0}\\,\\dfrac{Qz}{(R^{2}+z^{2})^{3/2}}',
+        clock: function (u) { return 'φ = ' + N(u * 360, 0) + '°'; },
+        reads: function (u) { return [
+            [['ring swept φ', 'zameteno φ'], N(u * 360, 0) + '°'],
+            [['cos β', 'cos β'], N(cosBeta(), 3)],
+            [['Ez so far', 'Ez zatím'], SI(partial(u), 'N/C')]]; },
+        rows: function () { return [
+            [['radius R', 'poloměr R'], N(DSK.R, 2) + ' cm'],
+            [['height z', 'výška z'], N(DSK.z, 2) + ' cm'],
+            [['distance s = √(R²+z²)', 'vzdálenost s = √(R²+z²)'], N(Math.sqrt(DSK.R * DSK.R + DSK.z * DSK.z), 2) + ' cm'],
+            [['cos β = z/s', 'cos β = z/s'], N(cosBeta(), 3)],
+            [['E on the axis', 'E na ose'], SI(DSK.Ering, 'N/C')]]; },
+        real: ['This is the result the notes box on page 11 — and it is also the brick the next step builds the disk out of. Set <em>z ≫ R</em> in it and it collapses to <em>kQ/z²</em>; set <em>z = 0</em> and it gives zero, which is right, because at the centre of a ring every element is cancelled by the one opposite.',
+               'Tohle je výsledek, který si přednáška na straně 11 zarámuje — a je to zároveň cihla, ze které příští krok postaví disk. Dosaďte <em>z ≫ R</em> a smrskne se na <em>kQ/z²</em>; dosaďte <em>z = 0</em> a dá nulu, což je správně, protože ve středu prstence každý element vyruší ten protilehlý.']
+    },
+    {
+        dur: 9, cam: { at: [0, 0, 3.2], az: -1.25, el: 0.44, d: 38 },
+        t: ['The disk is a stack of rings', 'Disk je soubor mezikruží'],
+        when: ['The lecturer\u2019s "Zjednodušení"', 'Přednáškové "Zjednodušení"'],
+        body: ['A ring already has a formula, so cut the disk into rings and reuse it. The area element is the unrolled strip <em>dS = 2πr dr</em>, its charge <em>σₑ 2πr dr</em>, and only the radial limits change. Choosing the element whose field you already know is the whole of the simplification the notes make here — a patch <em>r dr dα</em> would give the same answer after twice the work.',
+               'Prstenec už vzorec má, tak disk rozřežte na prstence a vzorec použijte znovu. Plošný element je rozvinutý proužek <em>dS = 2πr dr</em>, jeho náboj <em>σₑ 2πr dr</em>, a mění se jen radiální meze. Zvolit element, jehož pole už znáte, je celé to zjednodušení, které tu přednáška dělá — ploška <em>r dr dα</em> by dala týž výsledek za dvojnásobek práce.'],
+        eq: 'E_z=\\dfrac{\\sigma_e}{2\\varepsilon_0}\\left(1-\\dfrac{z}{\\sqrt{R^{2}+z^{2}}}\\right)',
+        clock: function (u) { return 'r = ' + N(DSK.R * u, 2) + ' cm'; },
+        reads: function (u) { return [
+            [['outer radius r', 'vnější poloměr r'], N(DSK.R * u, 2) + ' cm'],
+            [['E so far', 'E zatím'], SI(partial(u), 'N/C')],
+            [['E total', 'E celkem'], SI(DSK.Edisk, 'N/C')]]; },
+        rows: function () { return [
+            [['surface density σₑ', 'plošná hustota σₑ'], SI(DSK.sigma, 'C/m²')],
+            [['radius R', 'poloměr R'], N(DSK.R, 2) + ' cm'],
+            [['height z', 'výška z'], N(DSK.z, 2) + ' cm'],
+            [['E of the disk', 'E disku'], SI(DSK.Edisk, 'N/C')],
+            [['E of the ring, same Q', 'E prstence, totéž Q'], SI(DSK.Ering, 'N/C')]]; },
+        real: ['With the same 15.0 pC on the same 8.50 cm radius, the disk gives <strong>15.8 N/C</strong> at z = 6.00 cm against the ring\u2019s <strong>7.18 N/C</strong>. A disk keeps most of its charge closer to the axis, where <em>s</em> is shorter and <em>cos β</em> is nearer one — and both of those help.',
+               'Se stejnými 15,0 pC na stejném poloměru 8,50 cm dá disk <strong>15,8 N/C</strong> ve výšce z = 6,00 cm proti <strong>7,18 N/C</strong> prstence. Disk drží většinu náboje blíž k ose, kde je <em>s</em> kratší a <em>cos β</em> blíž jedné — a obojí pomáhá.']
+    },
+    {
+        dur: 10, cam: null,
+        t: ['Two limits, and both are checks', 'Dvě limity, a obě jsou kontrola'],
+        when: ['Remarks II and III of the notes', 'Poznámky II a III z přednášky'],
+        body: ['Slide P along the axis. Close in, the disk fills the sky and the field flattens to <em>σₑ/2ε₀</em> — the infinite plane, and the place where Gauss\u2019s law will pick the story up next week. Far out, the disk is a point charge and nothing about its shape survives. Any result that fails these two limits is wrong, and checking them costs one line each.',
+               'Posouvejte P po ose. Zblízka disk zaplní oblohu a pole se zplošťuje na <em>σₑ/2ε₀</em> — nekonečnou rovinu, tedy místo, kde příští týden příběh převezme Gaussova věta. Zdaleka je disk bodový náboj a z jeho tvaru nepřežije nic. Každý výsledek, který tyhle dvě limity neprojde, je špatně, a jejich kontrola stojí po jednom řádku.'],
+        eq: 'z\\ll R:\\ E\\to\\dfrac{\\sigma_e}{2\\varepsilon_0}\\,;\\qquad z\\gg R:\\ E\\to\\dfrac{1}{4\\pi\\varepsilon_0}\\dfrac{Q}{z^{2}}',
+        clock: function (u) { return 'z = ' + N(zSweep(u), 2) + ' cm'; },
+        reads: function (u) { return [
+            [['height z', 'výška z'], N(zSweep(u), 2) + ' cm'],
+            [['E of the disk', 'E disku'], SI(diskE(zSweep(u)), 'N/C')],
+            [['point charge kQ/z²', 'bodový náboj kQ/z²'], SI(pointE(zSweep(u)), 'N/C')]]; },
+        rows: function () { return [
+            [['plane limit σₑ/2ε₀', 'limita roviny σₑ/2ε₀'], SI(DSK.plane, 'N/C')],
+            [['disk at z = 0.40 cm', 'disk při z = 0,40 cm'], SI(diskE(0.40), 'N/C')],
+            [['disk at z = 100 cm', 'disk při z = 100 cm'], SI(diskE(100), 'N/C')],
+            [['point charge at z = 100 cm', 'bodový náboj při z = 100 cm'], SI(pointE(100), 'N/C')]]; },
+        real: ['<strong>Ex. 22-27</strong> (d) and (e) run exactly this check on the rod: at a = 50 m the rod and a point charge agree to three figures. It is the cheapest way there is of catching an algebra slip.',
+               '<strong>Úl. 22-27</strong> (d) a (e) dělají přesně tuhle kontrolu na tyči: ve vzdálenosti a = 50 m se tyč a bodový náboj shodnou na tři platné číslice. Levnější způsob, jak chytit chybu v algebře, není.'],
+        verdict: ['At <b>z = 1.00 m</b> the disk gives <b>{DFAR}</b> and a point charge <b>{PFAR}</b> — a gap of <b>{DGAP}</b>. At <b>z = 0.40 cm</b> the disk gives <b>{DNEAR}</b> against the infinite plane\u2019s <b>{PLANE}</b>, within <b>{NGAP}</b>.',
+                  'Ve výšce <b>z = 1,00 m</b> dá disk <b>{DFAR}</b> a bodový náboj <b>{PFAR}</b> — rozdíl <b>{DGAP}</b>. Ve výšce <b>z = 0,40 cm</b> dá disk <b>{DNEAR}</b> proti <b>{PLANE}</b> nekonečné roviny, tedy na <b>{NGAP}</b>.']
+    },
+    {
+        dur: 8, cam: { at: [0, 0, 0], az: -1.35, el: 0.24, d: 25 },
+        t: ['Three dimensions, and a density that varies', 'Tři rozměry a proměnná hustota'],
+        when: ['Ex. 23-55 · a solid sphere, ϱₑ ∝ r', 'Úl. 23-55 · plná koule, ϱₑ ∝ r'],
+        body: ['A solid is cut into shells: <em>dV = 4πr² dr</em>, so <em>dQ = ϱₑ·4πr² dr</em>. Nothing insists that ϱₑ be constant, and here it is not — it rises linearly to the rim, so the outer shells, which are also the roomiest, carry nearly all the charge. Stop the integral at <em>r</em> instead of at <em>R</em> and you have the charge a Gaussian sphere of that radius encloses, which is the only thing Gauss\u2019s law asks you for.',
+               'Těleso se řeže na slupky: <em>dV = 4πr² dr</em>, takže <em>dQ = ϱₑ·4πr² dr</em>. Nic netrvá na tom, aby ϱₑ byla konstantní, a tady není — lineárně roste k okraji, takže vnější slupky, které jsou zároveň nejprostornější, nesou skoro celý náboj. Zastavte integrál u <em>r</em> místo u <em>R</em> a máte náboj, který uzavírá Gaussova koule toho poloměru — a to je jediné, oč Gaussova věta žádá.'],
+        eq: 'Q=\\int_0^R \\varrho_e\\,4\\pi r^{2}\\,dr=\\varrho_0\\pi R^{3}\\,,\\qquad q(r)=Q\\left(\\dfrac{r}{R}\\right)^{4}',
+        clock: function (u) { return 'r = ' + N(SPH.R * u, 2) + ' cm'; },
+        reads: function (u) { return [
+            [['shell radius r', 'poloměr slupky r'], N(SPH.R * u, 2) + ' cm'],
+            [['charge inside q(r)', 'náboj uvnitř q(r)'], SI(partial(u), 'C')],
+            [['E there', 'E tam'], SI(SPH.EOf(SPH.R * u), 'N/C')]]; },
+        rows: function () { return [
+            [['density at the rim ϱ₀', 'hustota na okraji ϱ₀'], SI(SPH.rho0, 'C/m³')],
+            [['radius R', 'poloměr R'], N(SPH.R, 2) + ' cm'],
+            [['total charge Q', 'celkový náboj Q'], SI(SPH.Q, 'C')],
+            [['E(R/2)', 'E(R/2)'], SI(SPH.EOf(SPH.R / 2), 'N/C')],
+            [['E(R)', 'E(R)'], SI(SPH.ER, 'N/C')]]; },
+        real: ['<strong>Ex. 23-55</strong>: (a) Q = 7.78 fC, (b) E(0) = 0, (c) E(R/2) = 5.58 mN/C, (d) E(R) = 22.3 mN/C. Inside the sphere E grows as <em>r²</em>, not linearly — because the density grows too, and the two effects compound. Outside, it is a point charge again.',
+               '<strong>Úl. 23-55</strong>: (a) Q = 7,78 fC, (b) E(0) = 0, (c) E(R/2) = 5,58 mN/C, (d) E(R) = 22,3 mN/C. Uvnitř koule roste E jako <em>r²</em>, ne lineárně — protože roste i hustota a oba účinky se skládají. Vně je to zase bodový náboj.']
+    }];
+
+    /* numbers written into prose come from the same place the rows do, so
+       they cannot drift apart */
+    function fill(t) {
+        return t
+            .replace(/\{RODFAR\}/g, SI(ROD.Efar, 'N/C', 3))
+            .replace(/\{RODPT\}/g, SI(ROD.Epoint, 'N/C', 3))
+            .replace(/\{DFAR\}/g, SI(diskE(100), 'N/C', 4))
+            .replace(/\{PFAR\}/g, SI(pointE(100), 'N/C', 4))
+            .replace(/\{DGAP\}/g, N(Math.abs(pointE(100) / diskE(100) - 1) * 100, 1) + ' %')
+            .replace(/\{DNEAR\}/g, SI(diskE(0.40), 'N/C', 1))
+            .replace(/\{PLANE\}/g, SI(DSK.plane, 'N/C', 1))
+            .replace(/\{NGAP\}/g, N(Math.abs(diskE(0.40) / DSK.plane - 1) * 100, 1) + ' %');
+    }
+
+    /* small quantities the script above reads */
+    function cosBeta() {
+        return DSK.z / Math.sqrt(DSK.R * DSK.R + DSK.z * DSK.z);
+    }
+    function lawElem(u) {
+        const a = 0.75 + 1.15 * u, r = 5.4;
+        return [r * Math.cos(a), r * Math.sin(a), 0];
+    }
+    function sLaw(u) { return len3(sub3([0, 0, 14], lawElem(u))); }
+    function slices(u) { return 4 + Math.round(u * 20); }
+
+    /* ══ 2 · THE SCENES ═══════════════════════════════════════════════ */
+    function scLaw(v, ctx, u) {
+        const P = [0, 0, 14], e = lawElem(u);
+        /* the body, faint: it does not matter which one it is */
+        path3(ctx, ringPts([0, 0, 0], DSK.R, 'xy', 84), SKY.ghost, 1.4);
+        for (let i = 1; i <= 4; i++)
+            path3(ctx, ringPts([0, 0, 0], DSK.R * i / 5, 'xy', 60), SKY.ghost, 0.7, [3, 4]);
+        for (let i = 0; i < 12; i++) {
+            const a = i / 12 * Math.PI * 2;
+            seg3(ctx, [0, 0, 0], [DSK.R * Math.cos(a), DSK.R * Math.sin(a), 0], SKY.ghost, 0.6, [2, 5]);
+        }
+        seg3(ctx, [0, 0, 0], P, SKY.edge, 0.9, [4, 5]);
+        /* the element: a real patch of the surface, r dα by dr */
+        const a0 = 0.75 + 1.15 * u, dr = 1.05, da = 0.15, r0 = 5.4;
+        const quad = [];
+        for (let i = 0; i <= 6; i++) { const t = a0 - da + 2 * da * i / 6; quad.push([(r0 + dr) * Math.cos(t), (r0 + dr) * Math.sin(t), 0]); }
+        for (let i = 6; i >= 0; i--) { const t = a0 - da + 2 * da * i / 6; quad.push([(r0 - dr) * Math.cos(t), (r0 - dr) * Math.sin(t), 0]); }
+        fill3(ctx, quad, 'rgba(255,199,92,0.55)');
+        path3(ctx, quad, SKY.elem, 1.5, [], true);
+        dashRay(ctx, e, P, SKY.elem);
+        tag3(ctx, e, 'dQ', SKY.elem, 15, 0, 20);
+        const mid = mul3(add3(e, P), 0.5);
+        tag3(ctx, mid, 's', SKY.soft, 15, 16, 0);
+        markP(ctx, P);
+        const A = arrow3(ctx, P, sub3(P, e), 78, SKY.acc, 2.6);
+        if (A) PPE.halo(ctx, SKY.bg, 'dE', A.x + A.ux * 16, A.y + A.uy * 16 - 4, SKY.acc, 16, true);
+        note(v, ctx, PPE.T('one element, one point charge, one law',
+                           'jeden element, jeden bodový náboj, jeden zákon'));
+    }
+
+    function scCut(v, ctx, u) {
+        const n = slices(u);
+        /* 1D — the rod of Ex. 22-27, laid along y */
+        const y0 = -26 - ROD.d / 2, y1 = -26 + ROD.d / 2;
+        seg3(ctx, [0, y0, 0], [0, y1, 0], SKY.neg, 5);
+        for (let i = 0; i <= n; i++) {
+            const y = y0 + (y1 - y0) * i / n;
+            seg3(ctx, [0, y, -1.3], [0, y, 1.3], SKY.elem, i % 2 === 0 ? 1.2 : 0.7);
+        }
+        /* 2D — the disk, cut into rings */
+        path3(ctx, ringPts([0, 0, 0], DSK.R, 'xy', 88), SKY.pos, 2.2);
+        for (let i = 1; i < n; i++)
+            path3(ctx, ringPts([0, 0, 0], DSK.R * i / n, 'xy', 64), SKY.elem, 0.8);
+        /* 3D — the sphere, cut into shells */
+        const c = [0, 26, 0];
+        path3(ctx, ringPts(c, SPH.R, 'xy', 72), SKY.pos, 1.6);
+        path3(ctx, ringPts(c, SPH.R, 'xz', 72), SKY.pos, 1.6);
+        path3(ctx, ringPts(c, SPH.R, 'yz', 72), SKY.pos, 1.6);
+        for (let i = 1; i < n; i++)
+            path3(ctx, ringPts(c, SPH.R * i / n, 'yz', 56), SKY.elem, 0.8);
+        /* one caption per body, on the picture */
+        tag3(ctx, [0, -26, -9.5], PPE.T('1D  ·  dQ = τₑ dℓ', '1D  ·  dQ = τₑ dℓ'), SKY.ink, 15, 0, 0);
+        tag3(ctx, [0, 0, -11.5], PPE.T('2D  ·  dQ = σₑ dS', '2D  ·  dQ = σₑ dS'), SKY.ink, 15, 0, 0);
+        tag3(ctx, [0, 26, -9.5], PPE.T('3D  ·  dQ = ϱₑ dV', '3D  ·  dQ = ϱₑ dV'), SKY.ink, 15, 0, 0);
+        note(v, ctx, PPE.T('the cut follows the body\u2019s dimension — ' + n + ' slices and counting',
+                           'řez se řídí rozměrem tělesa — ' + n + ' řezů a přibývá'));
+    }
+
+    function scRod(v, ctx, u) {
+        const P = [0, 0, 0], x1 = ROD.a + ROD.d * u;
+        seg3(ctx, [-24, 0, 0], [4.5, 0, 0], SKY.edge, 0.9, [4, 5]);
+        /* the rod: ghosted where the integral has not reached */
+        seg3(ctx, [-(ROD.a + ROD.d), 0, 0], [-ROD.a, 0, 0], SKY.ghost, 7);
+        seg3(ctx, [-x1, 0, 0], [-ROD.a, 0, 0], SKY.neg, 7);
+        for (let i = 0; i <= 24; i++) {
+            const x = ROD.a + ROD.d * i / 24;
+            if (x > x1) break;
+            seg3(ctx, [-x, 0, -1.5], [-x, 0, 1.5], 'rgba(255,199,92,0.30)', 0.8);
+        }
+        seg3(ctx, [-x1, 0, -2.2], [-x1, 0, 2.2], SKY.elem, 2.4);
+        tag3(ctx, [-x1, 0, 3.2], 'dx', SKY.elem, 14, 0, -6);
+        /* the dimension marks the exercise gives */
+        dim(ctx, [-ROD.a, 0, -4.2], [0, 0, -4.2], 'a', SKY.soft);
+        dim(ctx, [-(ROD.a + ROD.d), 0, 4.6], [-ROD.a, 0, 4.6], 'd', SKY.soft);
+        markP(ctx, P);
+        /* one scale: 104 px is the whole integral */
+        const FULL = 104, f = partial(u) / ROD.E;
+        const tip = PR(P);
+        if (tip) {
+            ctx.setLineDash([3, 4]); ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(tip.x, tip.y - 13); ctx.lineTo(tip.x, tip.y + 13); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        const A = arrow3(ctx, P, [-1, 0, 0], Math.max(2, FULL * f), SKY.acc, 3);
+        if (A) {
+            ctx.setLineDash([3, 4]); ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(A.x0 + A.ux * FULL, A.y0 + A.uy * FULL - 15);
+            ctx.lineTo(A.x0 + A.ux * FULL, A.y0 + A.uy * FULL + 15);
+            ctx.stroke(); ctx.setLineDash([]);
+            PPE.halo(ctx, SKY.bg, 'E', A.x0 + A.ux * FULL, A.y0 + A.uy * FULL - 26, SKY.faint, 14, true);
+            if (f > 0.05) PPE.halo(ctx, SKY.bg, '∫dE', A.x - A.ux * 22, A.y - 24, SKY.acc, 15, true);
+        }
+        bar(v, ctx, PPE.T('E ACCUMULATED  ·  ∫dE', 'NASČÍTANÉ E  ·  ∫dE'), partial(u), ROD.E, 'N/C');
+        note(v, ctx, PPE.T('the rod is negative, so E points at it',
+                           'tyč je záporná, takže E míří k ní'));
+    }
+
+    function scArc(v, ctx, u) {
+        const P = [0, 0, 0], R = ARC.R, phi = u * Math.PI / 2;
+        path3(ctx, ringPts([0, 0, 0], R, 'xy', 60, 0, Math.PI), SKY.pos, 5);
+        path3(ctx, ringPts([0, 0, 0], R, 'xy', 60, Math.PI, Math.PI * 2), SKY.neg, 5);
+        tag3(ctx, [0, R + 2.6, 0], '+Q', SKY.pos, 15, 0, 0);
+        tag3(ctx, [0, -R - 2.6, 0], '−Q', SKY.neg, 15, 0, 0);
+        /* The mirror pair on the positive rod, and the pair opposite it on the
+           negative one. The two contributions point exactly the SAME way — a
+           positive element pushes away, its negative twin pulls toward, and the
+           twin is on the far side — so they are laid head to tail rather than on
+           top of each other, and the factor 2 in E = 2(2kτₑ/R) is the picture. */
+        const th = [Math.PI / 2 - phi, Math.PI / 2 + phi];
+        const LEN = 58;
+        for (let i = 0; i < 2; i++) {
+            const t = th[i], dir = [-Math.cos(t), -Math.sin(t), 0];
+            dot3D(ctx, [R * Math.cos(t), R * Math.sin(t), 0], 4.4, SKY.elem);
+            dot3D(ctx, [-R * Math.cos(t), -R * Math.sin(t), 0], 4.4, SKY.elem);
+            const A = arrow3(ctx, P, dir, LEN * 2, SKY.neg, 2.4);
+            arrow3(ctx, P, dir, LEN, SKY.pos, 2.4);
+            /* the components of the pair: same world directions, one scale */
+            arrow3(ctx, P, [-Math.cos(t), 0, 0], 2 * LEN * Math.abs(Math.cos(t)), SKY.faint, 1.2);
+            arrow3(ctx, P, [0, -Math.sin(t), 0], 2 * LEN * Math.abs(Math.sin(t)), SKY.faint, 1.2);
+            if (A && i === 1 && phi > 0.10) {
+                PPE.mono(ctx, PPE.T('from +Q', 'od +Q'),
+                         A.x0 + A.ux * LEN * 0.55 + 9, A.y0 + A.uy * LEN * 0.55, SKY.pos, 9.5);
+                PPE.mono(ctx, PPE.T('from −Q', 'od −Q'),
+                         A.x0 + A.ux * LEN * 1.55 + 9, A.y0 + A.uy * LEN * 1.55, SKY.neg, 9.5);
+            }
+        }
+        markP(ctx, P);
+        bar(v, ctx, PPE.T('Ey ACCUMULATED  ·  ∫dEy', 'NASČÍTANÉ Ey  ·  ∫dEy'), partial(u), ARC.E, 'N/C');
+        /* the honest caption: these arrows carry direction, not size */
+        note(v, ctx, PPE.T('the pair is drawn one length — by symmetry it IS one length; Ex = 0 at every φ',
+                           'dvojice je kreslena stejně dlouhá — symetrie říká, že stejně dlouhá JE; Ex = 0 při každém φ'));
+    }
+
+    function scRing(v, ctx, u) {
+        const P = [0, 0, DSK.z], R = DSK.R, phi = u * Math.PI * 2;
+        path3(ctx, ringPts([0, 0, 0], R, 'xy', 90), SKY.ghost, 2);
+        if (phi > 0.01) path3(ctx, ringPts([0, 0, 0], R, 'xy', 90, 0, phi), SKY.pos, 4.5);
+        seg3(ctx, [0, 0, 0], [0, 0, DSK.z + 4], SKY.edge, 0.9, [4, 5]);
+        /* the rays are geometry, not field: they are s */
+        const RAYS = 14;
+        for (let i = 0; i <= RAYS; i++) {
+            const t = phi * i / RAYS;
+            if (phi < 0.01) break;
+            const e = [R * Math.cos(t), R * Math.sin(t), 0];
+            dashRay(ctx, e, P, 'rgba(122,115,158,0.55)');
+        }
+        const eNow = [R * Math.cos(phi), R * Math.sin(phi), 0];
+        dot3D(ctx, eNow, 5, SKY.elem);
+        dashRay(ctx, eNow, P, SKY.elem);
+        tag3(ctx, mul3(add3(eNow, P), 0.5), 's', SKY.soft, 14, 14, 0);
+        markP(ctx, P);
+        /* one scale for every arrow here: 118 px is the closed ring's field */
+        const E = ringVec(phi), full = DSK.Ering, S = 118 / full;
+        const mag = len3(E);
+        if (mag > 1e-9) {
+            const A = arrow3(ctx, P, E, mag * S, SKY.acc, 3);
+            arrow3(ctx, P, [0, 0, 1], Math.abs(E[2]) * S, SKY.soft, 1.3);
+            const rad = [E[0], E[1], 0];
+            if (len3(rad) * S > 3) arrow3(ctx, P, rad, len3(rad) * S, SKY.soft, 1.3);
+            if (A) PPE.halo(ctx, SKY.bg, '∫dE', A.x + A.ux * 18, A.y + A.uy * 18 - 6, SKY.acc, 15, true);
+        }
+        const q = PR(P);
+        if (q) PPE.mono(ctx, 'cos β = z/s = ' + N(cosBeta(), 3), q.x + 18, q.y + 22, SKY.soft, 10.5);
+        bar(v, ctx, PPE.T('Ez ACCUMULATED  ·  ∫dE cos β', 'NASČÍTANÉ Ez  ·  ∫dE cos β'), E[2], full, 'N/C');
+        note(v, ctx, PPE.T('the running sum leaves the axis and comes back to it as the ring closes',
+                           'průběžný součet opustí osu a vrátí se na ni, jak se prstenec uzavírá'));
+    }
+
+    function scDisk(v, ctx, u) {
+        const P = [0, 0, DSK.z], R = DSK.R, r1 = R * u, NR = 26;
+        seg3(ctx, [0, 0, 0], [0, 0, DSK.z + 4], SKY.edge, 0.9, [4, 5]);
+        for (let i = 1; i <= NR; i++) {
+            const r = R * i / NR;
+            path3(ctx, ringPts([0, 0, 0], r, 'xy', 72), r <= r1 ? SKY.pos : SKY.ghost,
+                  r <= r1 ? 1.7 : 0.7, r <= r1 ? [] : [3, 4]);
+        }
+        path3(ctx, ringPts([0, 0, 0], R, 'xy', 90), SKY.ghost, 1.6);
+        /* the annulus under the knife: the unrolled strip dS = 2πr dr */
+        if (r1 > 0.15) {
+            const dr = Math.max(0.28, R / NR);
+            const band = ringPts([0, 0, 0], r1, 'xy', 72).concat(
+                ringPts([0, 0, 0], Math.max(0, r1 - dr), 'xy', 72).reverse());
+            fill3(ctx, band, 'rgba(255,199,92,0.45)');
+            path3(ctx, ringPts([0, 0, 0], r1, 'xy', 72), SKY.elem, 2);
+            for (let i = 0; i < 10; i++) {
+                const t = i / 10 * Math.PI * 2;
+                dashRay(ctx, [r1 * Math.cos(t), r1 * Math.sin(t), 0], P, 'rgba(255,199,92,0.45)');
+            }
+            tag3(ctx, [r1 + 1.4, 0, 0], 'dr', SKY.elem, 13, 0, 14);
+        }
+        markP(ctx, P);
+        const S = 118 / DSK.Edisk, Enow = partial(u);
+        const A = arrow3(ctx, P, [0, 0, 1], Math.max(2, Enow * S), SKY.acc, 3);
+        if (A) {
+            const fx = A.x0 + A.ux * 118, fy = A.y0 + A.uy * 118;
+            ctx.setLineDash([3, 4]); ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(fx + A.uy * 13, fy - A.ux * 13);
+            ctx.lineTo(fx - A.uy * 13, fy + A.ux * 13);
+            ctx.stroke(); ctx.setLineDash([]);
+            PPE.halo(ctx, SKY.bg, 'E', fx + A.uy * 26, fy - A.ux * 26, SKY.faint, 14, true);
+            PPE.halo(ctx, SKY.bg, '∫dE', A.x + A.uy * 24, A.y - A.ux * 24, SKY.acc, 15, true);
+        }
+        bar(v, ctx, PPE.T('E ACCUMULATED  ·  ring by ring', 'NASČÍTANÉ E  ·  prstenec po prstenci'),
+            Enow, DSK.Edisk, 'N/C');
+        note(v, ctx, PPE.T('every ring already has a formula — only the radial limits change',
+                           'každý prstenec už vzorec má — mění se jen radiální meze'));
+    }
+
+    function scLimits(v, ctx, u) {
+        const z = zSweep(u), P = [0, 0, z], R = DSK.R;
+        for (let i = 1; i <= 8; i++)
+            path3(ctx, ringPts([0, 0, 0], R * i / 8, 'xy', 72), i === 8 ? SKY.pos : SKY.ghost, i === 8 ? 2 : 0.8);
+        seg3(ctx, [0, 0, 0], [0, 0, z], SKY.edge, 1, [4, 5]);
+        markP(ctx, P);
+        const q = PR(P);
+        if (q) PPE.mono(ctx, 'z = ' + N(z, 2) + ' cm', q.x + 16, q.y + 16, SKY.soft, 10.5);
+        graph(v, ctx, {
+            title: PPE.T('E on the axis  ·  log–log', 'E na ose  ·  log–log'),
+            x0: 0.3, x1: 200, y0: 1e-2, y1: 1e4,
+            xlab: 'z (cm)', ytop: SI(1e4, 'N/C', 0),
+            curves: [
+                { f: function (zz) { return diskE(zz); }, col: SKY.acc, w: 2, dash: [] },
+                { f: function () { return DSK.plane; }, col: SKY.pos, w: 1.1, dash: [5, 4] },
+                { f: function (zz) { return pointE(zz); }, col: SKY.neg, w: 1.1, dash: [5, 4] }
+            ],
+            keys: [[PPE.T('the disk', 'disk'), SKY.acc],
+                   ['σₑ/2ε₀', SKY.pos],
+                   ['kQ/z²', SKY.neg]],
+            mx: z, my: diskE(z)
+        });
+        note(v, ctx, PPE.T('close in it is a plane, far out it is a point — and in between only the integral knows',
+                           'zblízka je to rovina, zdaleka bod — a mezi tím to ví jen integrál'));
+    }
+
+    function scSphere(v, ctx, u) {
+        const R = SPH.R, r1 = R * u, NS = 14;
+        /* the cut face in the xz plane, painted by the density it carries */
+        for (let i = NS; i >= 1; i--) {
+            const ro = R * i / NS, ri = R * (i - 1) / NS;
+            const band = ringPts([0, 0, 0], ro, 'xz', 64).concat(ringPts([0, 0, 0], ri, 'xz', 64).reverse());
+            const w = (i - 0.5) / NS;                    /* ϱₑ ∝ r, so the rim is the darkest */
+            const on = ro <= r1 + 1e-9;
+            fill3(ctx, band, on
+                ? 'rgba(255,122,99,' + (0.14 + 0.55 * w).toFixed(3) + ')'
+                : 'rgba(58,54,99,' + (0.16 + 0.30 * w).toFixed(3) + ')');
+        }
+        /* the wireframe that says it is a ball and not a disc */
+        path3(ctx, ringPts([0, 0, 0], R, 'xy', 80), SKY.edge, 1.2);
+        path3(ctx, ringPts([0, 0, 0], R, 'yz', 80), SKY.edge, 1.2);
+        path3(ctx, ringPts([0, 0, 0], R, 'xz', 80), SKY.pos, 1.8);
+        for (let k = -2; k <= 2; k++) {
+            if (k === 0) continue;
+            const zz = R * k / 3, rr = Math.sqrt(Math.max(0, R * R - zz * zz));
+            path3(ctx, ringPts([0, 0, zz], rr, 'xy', 64), SKY.ghost, 0.7);
+        }
+        /* the shell under the knife */
+        if (r1 > 0.1) {
+            path3(ctx, ringPts([0, 0, 0], r1, 'xz', 72), SKY.elem, 2.2);
+            path3(ctx, ringPts([0, 0, 0], r1, 'xy', 72), SKY.elem, 1.1, [4, 4]);
+            seg3(ctx, [0, 0, 0], [r1, 0, 0], SKY.elem, 1, [3, 4]);
+            tag3(ctx, [r1 / 2, 0, 0], 'r', SKY.elem, 14, 0, -12);
+        }
+        bar(v, ctx, PPE.T('CHARGE ENCLOSED  ·  ∫ϱₑ 4πr² dr', 'UZAVŘENÝ NÁBOJ  ·  ∫ϱₑ 4πr² dr'),
+            partial(u), SPH.Q, 'C');
+        graph(v, ctx, {
+            title: PPE.T('E(r)  ·  inside r², outside 1/r²', 'E(r)  ·  uvnitř r², vně 1/r²'),
+            x0: 0, x1: 3 * R, y0: 0, y1: SPH.ER * 1.18, lin: true,
+            xlab: 'r (cm)', ytop: SI(SPH.ER * 1.18, 'N/C', 1),
+            curves: [{ f: function (rr) { return SPH.EOf(rr); }, col: SKY.acc, w: 2, dash: [] }],
+            keys: [['R = ' + N(R, 2) + ' cm', SKY.pos]],
+            vline: R, mx: r1, my: SPH.EOf(r1)
+        });
+        note(v, ctx, PPE.T('the outer shells are both denser and roomier — they carry nearly all of Q',
+                           'vnější slupky jsou hustší i prostornější — nesou skoro celé Q'));
+    }
+
+    /* ── shared chrome: the caption line, a dimension bracket, a graph ── */
+    /* The caption sits above the equation badge, and on the two steps that
+       carry an inset graph it must also stop short of it — at a narrow canvas
+       the two share the same band, so the text is condensed into what is left
+       and dropped altogether when that is too little to read. */
+    function note(v, ctx, text) {
+        const gw = step >= 6 ? Math.min(276, Math.max(196, v.W * 0.24)) + 28 : 0;
+        const max = v.W - 32 - gw;
+        if (max < 210) return;
+        ctx.font = '10px "JetBrains Mono",monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = SKY.faint;
+        ctx.fillText(text, 16, v.H - 104, max);
+    }
+    function dim(ctx, a, b, label, col) {
+        seg3(ctx, a, b, col, 1);
+        const n = [0, 0, 1];
+        seg3(ctx, sub3(a, mul3(n, 0.9)), add3(a, mul3(n, 0.9)), col, 1);
+        seg3(ctx, sub3(b, mul3(n, 0.9)), add3(b, mul3(n, 0.9)), col, 1);
+        tag3(ctx, mul3(add3(a, b), 0.5), label, col, 14, 0, -12);
+    }
+    /* the inset graph, bottom right, clear of the hint strip. Its legend
+       runs along ONE row under the axis — stacking it walked out of the box. */
+    function graph(v, ctx, o) {
+        const w = Math.min(276, Math.max(196, v.W * 0.24)), h = Math.min(172, Math.max(126, v.H * 0.30));
+        const x = v.W - w - 16, y = v.H - h - 52;
+        ctx.save();
+        ctx.setLineDash([]);
+        ctx.fillStyle = SKY.box; ctx.strokeStyle = SKY.edge; ctx.lineWidth = 1.2;
+        ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+        ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+        PPE.mono(ctx, o.title, x + 10, y + 14, SKY.soft, 9.5);
+        const px = x + 30, py = y + 28, pw = w - 44, ph = h - 66;
+        const lg = function (t) { return Math.log(t) / Math.LN10; };
+        const sx = o.lin
+            ? function (t) { return px + pw * (t - o.x0) / (o.x1 - o.x0); }
+            : function (t) { return px + pw * (lg(Math.max(t, o.x0)) - lg(o.x0)) / (lg(o.x1) - lg(o.x0)); };
+        const sy = o.lin
+            ? function (t) { return py + ph - ph * (t - o.y0) / (o.y1 - o.y0); }
+            : function (t) { return py + ph - ph * (lg(Math.max(t, o.y0)) - lg(o.y0)) / (lg(o.y1) - lg(o.y0)); };
+        /* on a log plot the decade rules are what make a slope readable */
+        if (!o.lin) {
+            ctx.strokeStyle = 'rgba(68,62,120,0.65)'; ctx.lineWidth = 0.6;
+            for (let e = Math.ceil(lg(o.x0)); e <= lg(o.x1); e++) {
+                const X = sx(Math.pow(10, e));
+                ctx.beginPath(); ctx.moveTo(X, py); ctx.lineTo(X, py + ph); ctx.stroke();
+            }
+            for (let e = Math.ceil(lg(o.y0)); e <= lg(o.y1); e++) {
+                const Y = sy(Math.pow(10, e));
+                ctx.beginPath(); ctx.moveTo(px, Y); ctx.lineTo(px + pw, Y); ctx.stroke();
+            }
+        }
+        ctx.strokeStyle = SKY.edge; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(px, py); ctx.lineTo(px, py + ph); ctx.lineTo(px + pw, py + ph);
+        ctx.stroke();
+        if (o.vline !== undefined) {
+            ctx.setLineDash([3, 4]); ctx.strokeStyle = SKY.pos; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(sx(o.vline), py); ctx.lineTo(sx(o.vline), py + ph); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        for (let c = 0; c < o.curves.length; c++) {
+            const cv = o.curves[c];
+            ctx.strokeStyle = cv.col; ctx.lineWidth = cv.w; ctx.setLineDash(cv.dash || []);
+            ctx.beginPath();
+            for (let i = 0; i <= 160; i++) {
+                const t = o.lin ? o.x0 + (o.x1 - o.x0) * i / 160
+                                : o.x0 * Math.pow(o.x1 / o.x0, i / 160);
+                const Y = Math.max(py - 4, Math.min(py + ph + 4, sy(cv.f(t))));
+                if (i === 0) ctx.moveTo(sx(t), Y); else ctx.lineTo(sx(t), Y);
+            }
+            ctx.stroke(); ctx.setLineDash([]);
+        }
+        if (o.mx !== undefined) {
+            const X = sx(o.mx), Y = Math.max(py, Math.min(py + ph, sy(o.my)));
+            ctx.fillStyle = SKY.elem;
+            ctx.beginPath(); ctx.arc(X, Y, 3.6, 0, Math.PI * 2); ctx.fill();
+        }
+        PPE.mono(ctx, o.ytop, px + 4, py + 7, SKY.faint, 9);
+        PPE.mono(ctx, o.xlab, px + pw, py + ph + 12, SKY.faint, 9, 'right');
+        /* legend: one row, laid left to right */
+        let kx = x + 10;
+        for (let i = 0; i < o.keys.length; i++) {
+            ctx.strokeStyle = o.keys[i][1]; ctx.lineWidth = 2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(kx, y + h - 12); ctx.lineTo(kx + 11, y + h - 12); ctx.stroke();
+            PPE.mono(ctx, o.keys[i][0], kx + 15, y + h - 12, SKY.soft, 9);
+            ctx.font = '9px "JetBrains Mono",monospace';
+            kx += 15 + ctx.measureText(o.keys[i][0]).width + 13;
+        }
+        ctx.restore();
+    }
+
+    /* ── the close-up: one element, drawn big enough to see ──────────── */
+    const ELEM = [
+        { k: 'patch', m: 'dS', q: 'dQ = σₑ dS' },
+        { k: 'three', m: '', q: 'dQ = τₑ dℓ = σₑ dS = ϱₑ dV' },
+        { k: 'seg', m: 'dx', q: 'dQ = τₑ dx' },
+        { k: 'arc', m: 'dℓ = R dα', q: 'dQ = τₑ R dα' },
+        { k: 'arc', m: 'dℓ = R dα', q: 'dQ = τₑ R dα' },
+        { k: 'annulus', m: 'dS = 2πr dr', q: 'dQ = σₑ 2πr dr' },
+        { k: 'far', m: '', q: 'z ≫ R  →  Q' },
+        { k: 'shell', m: 'dV = 4πr² dr', q: 'dQ = ϱₑ 4πr² dr' }
+    ];
+    function closeUp(v, ctx) {
+        const e = ELEM[step];
+        const w = Math.min(276, Math.max(190, v.W * 0.23)), h = w * 0.62;
+        const x = v.W - w - 16, y = 16;
+        ctx.save();
+        ctx.fillStyle = SKY.box; ctx.strokeStyle = SKY.edge; ctx.lineWidth = 1.2;
+        ctx.setLineDash([]);
+        ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+        ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+        PPE.mono(ctx, PPE.T('THE ELEMENT', 'ELEMENT'), x + 11, y + 14, SKY.soft, 9.5);
+        const cx = x + w / 2, cy = y + h * 0.50, S = h * 0.30;
+        ctx.lineWidth = 1.6; ctx.setLineDash([]);
+        if (e.k === 'seg') {
+            ctx.strokeStyle = SKY.neg; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(cx - S * 1.6, cy); ctx.lineTo(cx + S * 1.6, cy); ctx.stroke();
+            ctx.fillStyle = SKY.elem; ctx.fillRect(cx - 5, cy - 10, 10, 20);
+            ctx.strokeStyle = SKY.elem; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(cx - 5, cy + 18); ctx.lineTo(cx + 5, cy + 18); ctx.stroke();
+        } else if (e.k === 'arc') {
+            ctx.strokeStyle = SKY.pos; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(cx, cy + S * 0.5, S, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
+            ctx.strokeStyle = SKY.elem; ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.arc(cx, cy + S * 0.5, S, Math.PI * 1.44, Math.PI * 1.56); ctx.stroke();
+            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(cx, cy + S * 0.5); ctx.lineTo(cx, cy + S * 0.5 - S); ctx.stroke();
+            ctx.setLineDash([]);
+        } else if (e.k === 'annulus') {
+            ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.ellipse(cx, cy, S * 1.5, S * 0.62, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = SKY.elem; ctx.lineWidth = 7;
+            ctx.beginPath(); ctx.ellipse(cx, cy, S * 1.0, S * 0.41, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + S * 1.0, cy); ctx.stroke();
+        } else if (e.k === 'shell') {
+            ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.arc(cx, cy, S * 1.45, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = SKY.elem; ctx.lineWidth = 7;
+            ctx.beginPath(); ctx.arc(cx, cy, S * 1.0, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + S * 1.0, cy); ctx.stroke();
+        } else if (e.k === 'far') {
+            ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.ellipse(cx - S * 1.1, cy, S * 0.9, S * 0.36, 0, 0, Math.PI * 2); ctx.stroke();
+            PPE.arrow(ctx, cx - S * 0.05, cy, cx + S * 0.75, cy, SKY.faint, 1.4);
+            ctx.fillStyle = SKY.pos;
+            ctx.beginPath(); ctx.arc(cx + S * 1.2, cy, 5, 0, Math.PI * 2); ctx.fill();
+        } else if (e.k === 'three') {
+            ctx.strokeStyle = SKY.neg; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(cx - S * 1.9, cy); ctx.lineTo(cx - S * 0.9, cy); ctx.stroke();
+            ctx.strokeStyle = SKY.pos; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.ellipse(cx, cy, S * 0.62, S * 0.26, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx + S * 1.5, cy, S * 0.52, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = SKY.elem; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(cx + S * 1.5, cy, S * 0.32, 0, Math.PI * 2); ctx.stroke();
+            PPE.mono(ctx, '1D', cx - S * 1.4, cy + S * 0.95, SKY.soft, 9, 'center');
+            PPE.mono(ctx, '2D', cx, cy + S * 0.95, SKY.soft, 9, 'center');
+            PPE.mono(ctx, '3D', cx + S * 1.5, cy + S * 0.95, SKY.soft, 9, 'center');
+        } else {                                    /* patch */
+            ctx.strokeStyle = SKY.ghost; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.ellipse(cx, cy, S * 1.5, S * 0.62, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,199,92,0.60)'; ctx.strokeStyle = SKY.elem; ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(cx + S * 0.55, cy - S * 0.30); ctx.lineTo(cx + S * 1.05, cy - S * 0.38);
+            ctx.lineTo(cx + S * 1.05, cy - S * 0.12); ctx.lineTo(cx + S * 0.55, cy - S * 0.06);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+        if (e.m) PPE.mono(ctx, e.m, x + 11, y + h - 26, SKY.elem, 11);
+        PPE.mono(ctx, e.q, x + 11, y + h - 11, SKY.ink, 11.5);
+        ctx.restore();
+    }
+
+    /* ══ 3 · MACHINERY ════════════════════════════════════════════════ */
+    let step = 0, u = 0, playing = false, raf = 0, last = 0, started = false;
+
+    function camFor() {
+        const st = STEPS[step];
+        if (st.cam) return st.cam;
+        /* step 7 pulls back as z grows, so P stays on the picture */
+        const z = zSweep(u);
+        return { at: [0, 0, z * 0.50], az: -1.35, el: 0.30, d: 24 + z * 1.70 };
+    }
+    function aim(instant) {
+        const c = camFor();
+        camT.at = c.at; camT.az = c.az; camT.el = c.el; camT.d = c.d;
+        if (instant) { cam.at = c.at.slice(); cam.az = c.az; cam.el = c.el; cam.d = c.d; }
+    }
+    function ease(dt) {
+        const k = 1 - Math.exp(-dt * 2.4);
+        for (let i = 0; i < 3; i++) cam.at[i] += (camT.at[i] - cam.at[i]) * k;
+        cam.az += (camT.az - cam.az) * k;
+        cam.el += (camT.el - cam.el) * k;
+        cam.d += (camT.d - cam.d) * k;
+    }
+
+    function draw(v) {
+        const ctx = v.ctx, st = STEPS[step];
+        ctx.fillStyle = SKY.bg; ctx.fillRect(0, 0, v.W, v.H);
+        PR = projector(basis(), v.W, v.H);
+        switch (step) {
+        case 0: scLaw(v, ctx, u); break;
+        case 1: scCut(v, ctx, u); break;
+        case 2: scRod(v, ctx, u); break;
+        case 3: scArc(v, ctx, u); break;
+        case 4: scRing(v, ctx, u); break;
+        case 5: scDisk(v, ctx, u); break;
+        case 6: scLimits(v, ctx, u); break;
+        default: scSphere(v, ctx, u); break;
+        }
+        /* the caption owns the top-left strip; the bar sits under it */
+        PPE.mono(ctx, PPE.T('STEP', 'KROK') + ' ' + (step + 1) + ' / ' + STEPS.length, 16, 18, SKY.soft, 10);
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = SKY.ink;
+        ctx.fillText(PPE.T(st.t[0], st.t[1]), 16, 39);
+        closeUp(v, ctx);
+    }
+
+    function buildList() {
+        const list = $('mv-list');
+        if (!list) return;
+        list.innerHTML = '';
+        for (let i = 0; i < STEPS.length; i++) {
+            const row = document.createElement('div');
+            row.className = 'ms-chip' + (i === step ? ' on' : '');
+            row.innerHTML = '<span class="ms-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+                            '<span class="ms-name">' + PPE.T(STEPS[i].t[0], STEPS[i].t[1]) + '</span>';
+            (function (idx) { row.addEventListener('click', function () { goTo(idx); }); }(i));
+            list.appendChild(row);
+        }
+    }
+    function markList() {
+        const rows = document.querySelectorAll('#mv-list .ms-chip');
+        for (let i = 0; i < rows.length; i++) rows[i].classList.toggle('on', i === step);
+        const on = rows[step];
+        if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    function panels() {
+        const st = STEPS[step];
+        const set = function (id, html) { const el = $(id); if (el) el.innerHTML = html; };
+        set('fl-kicker', PPE.T('Step', 'Krok') + ' ' + String(step + 1).padStart(2, '0') + ' / ' + STEPS.length);
+        set('fl-title', PPE.T(st.t[0], st.t[1]));
+        set('fl-text', fill(PPE.T(st.body[0], st.body[1])));
+        PPE.katexInto($('fl-eq'), st.eq);
+        PPE.katexInto($('mv-eq'), st.eq);
+        set('fl-rows', st.rows().map(function (r) {
+            return '<div class="fl-k">' + PPE.T(r[0][0], r[0][1]) + '</div><div class="fl-v">' + r[1] + '</div>';
+        }).join(''));
+        set('fl-stamp', PPE.T(st.when[0], st.when[1]));
+        set('fl-real', fill(PPE.T(st.real[0], st.real[1])));
+        const vd = $('fl-verdict');
+        if (vd) {
+            if (st.verdict) { vd.style.display = ''; vd.innerHTML = fill(PPE.T(st.verdict[0], st.verdict[1])); }
+            else vd.style.display = 'none';
+        }
+        const prev = $('mv-prev'), next = $('mv-next');
+        if (prev) prev.disabled = step === 0;
+        if (next) next.innerHTML = step === STEPS.length - 1
+            ? '<span lang="en">Start again</span><span lang="cs">Znovu od začátku</span>'
+            : '<span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→';
+    }
+    function readouts() {
+        const st = STEPS[step], r = st.reads(u);
+        const put = function (id, t) { const el = $(id); if (el) el.textContent = t; };
+        const keys = ['mv-k-a', 'mv-k-b', 'mv-k-c'], vals = ['mv-r-a', 'mv-r-b', 'mv-r-c'];
+        for (let i = 0; i < 3; i++) {
+            if (i < r.length) { put(keys[i], PPE.T(r[i][0][0], r[i][0][1])); put(vals[i], r[i][1]); }
+            else { put(keys[i], ''); put(vals[i], ''); }
+        }
+        const cl = $('mv-clock');
+        if (cl) cl.textContent = st.clock(u);
+    }
+
+    function loop(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        if (playing) { u += dt / STEPS[step].dur; if (u >= 1) { u = 1; playing = false; } }
+        aim(false); ease(dt);
+        V.redraw(); readouts();
+        const moving = playing ||
+            Math.abs(camT.d - cam.d) > 0.02 ||
+            Math.abs(camT.az - cam.az) > 1e-3 ||
+            Math.abs(camT.el - cam.el) > 1e-3 ||
+            Math.abs(camT.at[2] - cam.at[2]) > 0.02 ||
+            Math.abs(camT.at[1] - cam.at[1]) > 0.02 ||
+            Math.abs(camT.at[0] - cam.at[0]) > 0.02;
+        if (moving) raf = requestAnimationFrame(loop);
+        else { raf = 0; last = 0; }
+    }
+    function kick() { if (!raf) { last = 0; raf = requestAnimationFrame(loop); } }
+    function goTo(i) {
+        step = Math.max(0, Math.min(STEPS.length - 1, i));
+        u = 0; playing = true;
+        markList(); panels(); aim(false); kick();
+    }
+
+    const bNext = $('mv-next'), bPrev = $('mv-prev'), bReset = $('mv-reset');
+    if (bNext) bNext.addEventListener('click', function () { goTo(step === STEPS.length - 1 ? 0 : step + 1); });
+    if (bPrev) bPrev.addEventListener('click', function () { goTo(step - 1); });
+    if (bReset) bReset.addEventListener('click', function () { goTo(0); });
+
+    /* the gate: the film holds still behind a blur until it is opened */
+    const gate = $('mv-gate'), wrap = V.canvas.parentElement;
+    function open() {
+        if (started) return;
+        started = true;
+        if (gate) gate.classList.add('away');
+        wrap.classList.remove('armed');
+        const stage = $('lab2');
+        if (stage) stage.classList.add('wide');
+        setTimeout(function () { if (gate && gate.parentNode) gate.parentNode.removeChild(gate); }, 1000);
+        goTo(0);
+    }
+    if (gate) {
+        gate.tabIndex = 0;
+        gate.setAttribute('role', 'button');
+        gate.addEventListener('click', open);
+        gate.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') open(); });
+    }
+
+    document.addEventListener('langchange', function () {
+        buildList(); panels(); readouts(); V.redraw();
+    });
+
+    buildList(); panels(); aim(true); readouts(); V.redraw();
+    PPE.whenReady(panels);
 }());
 </script>
 

@@ -90,8 +90,7 @@
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="\oint \vec{E}\cdot d\vec{S} = q_{\text{enc}}/\varepsilon_0"></div>
-                <div class="sim-hint"><span lang="en">slide r through the wall · watch E jump</span><span lang="cs">protáhněte r stěnou · sledujte skok E</span></div>
+                <div class="canvas-formula-badge" data-tex="\oint \vec{E}\cdot d\vec{S} = Q_{\text{enc}}/\varepsilon_0"></div>
             </div>
         </div>
 
@@ -138,7 +137,7 @@
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Gaussian surface</span><span lang="cs">Gaussova plocha</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="q_{\text{enc}}/L"></span>
+                        <span class="readout-label" data-tex="Q_{\text{enc}}/L"></span>
                         <span class="readout-val" id="r-qenc">—</span>
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Electric field</span><span lang="cs">Elektrické pole</span></div>
@@ -186,11 +185,11 @@
                     <span lang="en">Choose a coaxial cylindrical Gaussian surface of radius
                     <span data-tex="r"></span> and length <span data-tex="L"></span>. By symmetry
                     <span data-tex="\vec{E}"></span> is radial and uniform on the curved wall, so
-                    <span data-tex="\Phi = E\cdot 2\pi r L = q_{\text{enc}}/\varepsilon_0"></span>.</span>
+                    <span data-tex="\Phi = E\cdot 2\pi r L = Q_{\text{enc}}/\varepsilon_0"></span>.</span>
                     <span lang="cs">Zvolíme souosou válcovou Gaussovu plochu o poloměru
                     <span data-tex="r"></span> a délce <span data-tex="L"></span>. Ze symetrie je
                     <span data-tex="\vec{E}"></span> radiální a na plášti všude stejně velké, takže
-                    <span data-tex="\Phi = E\cdot 2\pi r L = q_{\text{enc}}/\varepsilon_0"></span>.</span>
+                    <span data-tex="\Phi = E\cdot 2\pi r L = Q_{\text{enc}}/\varepsilon_0"></span>.</span>
                 </div>
             </div>
 
@@ -198,11 +197,11 @@
                 <span class="sol-step-num">02</span>
                 <div class="sol-step-text">
                     <span lang="en"><strong>Inside</strong> (<span data-tex="r &lt; R"></span>): the tube's charge lies
-                    entirely outside the surface, <span data-tex="q_{\text{enc}} = 0"></span>, so
+                    entirely outside the surface, <span data-tex="Q_{\text{enc}} = 0"></span>, so
                     <span data-tex="E = 0"></span> everywhere inside — including
                     <span data-tex="r = R/2"></span>.</span>
                     <span lang="cs"><strong>Uvnitř</strong> (<span data-tex="r &lt; R"></span>): náboj trubky leží
-                    celý vně plochy, <span data-tex="q_{\text{enc}} = 0"></span>, takže
+                    celý vně plochy, <span data-tex="Q_{\text{enc}} = 0"></span>, takže
                     <span data-tex="E = 0"></span> všude uvnitř — včetně
                     <span data-tex="r = R/2"></span>.</span>
                 </div>
@@ -212,11 +211,11 @@
                 <span class="sol-step-num">03</span>
                 <div class="sol-step-text">
                     <span lang="en"><strong>Outside</strong> (<span data-tex="r &gt; R"></span>):
-                    <span data-tex="q_{\text{enc}} = \tau L"></span>, giving
+                    <span data-tex="Q_{\text{enc}} = \tau L"></span>, giving
                     <span data-tex="E = \dfrac{\tau}{2\pi\varepsilon_0 r} = \dfrac{2k\tau}{r}"></span>
                     — as if all the charge sat on the axis.</span>
                     <span lang="cs"><strong>Vně</strong> (<span data-tex="r &gt; R"></span>):
-                    <span data-tex="q_{\text{enc}} = \tau L"></span>, tedy
+                    <span data-tex="Q_{\text{enc}} = \tau L"></span>, tedy
                     <span data-tex="E = \dfrac{\tau}{2\pi\varepsilon_0 r} = \dfrac{2k\tau}{r}"></span>
                     — jako by všechen náboj seděl na ose.</span>
                 </div>
@@ -390,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const csLang = document.documentElement.getAttribute('data-lang') === 'cs';
         ctx.fillStyle = col.faint;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(csLang ? 'ŘEZ TRUBKOU' : 'TUBE CROSS-SECTION', 24, 26);
 
@@ -421,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath(); ctx.moveTo(cx, cy);
         ctx.lineTo(cx + Math.cos(thR) * Rpx, cy + Math.sin(thR) * Rpx); ctx.stroke();
         ctx.fillStyle = col.faint;
-        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
         ctx.fillText('R', cx + Math.cos(thR) * Rpx * 0.6 - 8, cy + Math.sin(thR) * Rpx * 0.6 - 4);
 
@@ -448,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const Y = E  => py1 - (E / yTop) * (py1 - py0);
 
         ctx.fillStyle = col.faint;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(csLang ? 'PRŮBĚH POLE E(r)' : 'FIELD PROFILE E(r)', px0, py0 - 14);
 

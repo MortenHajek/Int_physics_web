@@ -94,7 +94,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="U_H = v_d B\,w,\qquad n = \dfrac{IB}{e\,t\,U_H}"></div>
-                <div class="sim-hint"><span lang="en">electrons drift against I · the field piles them on one edge</span><span lang="cs">elektrony driftují proti I · pole je hromadí na jednom okraji</span></div>
             </div>
         </div>
 
@@ -122,6 +121,21 @@
                         <input class="sim-control-range" type="range"
                                id="p-b" min="0.2" max="3" step="0.05" value="1.5">
                     </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Playback</span><span lang="cs">Přehrávání</span></span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-play" class="btn-play">
+                        <span lang="en">▶  Switch the current on again</span><span lang="cs">▶  Znovu zapnout proud</span>
+                    </button>
+                    <p class="play-note">
+                        <span lang="en">Watch the carriers curve, charge the edges, and straighten out once the two forces balance.</span>
+                        <span lang="cs">Sledujte, jak se nosiče stáčejí, nabijí hrany a po vyrovnání sil se narovnají.</span>
+                    </p>
                 </div>
             </div>
 
@@ -317,92 +331,190 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.closePath(); ctx.fill();
     }
 
-    let eShift = 0;
+    /* ── The Hall effect as it actually happens ──────────────────
+       The strip does not start in equilibrium. At switch-on the only
+       transverse force is magnetic, so every carrier curves toward one
+       edge; the edges charge like the plates of a capacitor; the field
+       they build pushes back; and once eE equals ev_dB the carriers run
+       straight again. q is how far along that settling the strip is.   */
+    const TAU_MS  = 1100;          /* edge-charging time constant        */
+    const VD0     = 3.0 / (N_FIX * E_CH * WID * THK);  /* vd at the printed values */
+    const SPEED   = 74;            /* px/s along the strip at vd = VD0   */
+    const DEFLECT = 105;           /* px/s across it, before any E       */
+    const NE      = 9;
+
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+
+    /* a canvas label with a real subscript, e.g. F with a small B */
+    function subLabel(x, y, main, sub, colour, align) {
+        ctx.fillStyle = colour;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
+        const wMain = ctx.measureText(main).width;
+        ctx.fillText(main, x, y);
+        ctx.font = 'italic 10px "Source Serif 4", Georgia, serif';
+        ctx.fillText(sub, x + wMain + 1, y + 4);
+    }
+
+    let t0 = 0, last = 0, parts = [];
+
+    function seed() {
+        parts = [];
+        for (let i = 0; i < NE; i++)
+            parts.push({ u: i / NE, v: ((i % 3) - 1) * 0.42, trail: [] });
+    }
+    seed();
+
+    function replay() { t0 = 0; seed(); }
+    const btnPlay = document.getElementById('btn-play');
+    if (btnPlay) btnPlay.addEventListener('click', replay);
 
     function draw(ts) {
         ctx.clearRect(0, 0, W, H);
         const f = physics();
+        if (!t0) { t0 = ts; last = ts; }
+        const dt = Math.min(0.05, Math.max(0, (ts - last) / 1000));
+        last = ts;
 
-        /* strip seen face-on: length → x, width → y, B out of page */
-        const sx = W * 0.14, sw = W * 0.6;
-        const syT = H * 0.32, syB = H * 0.68;
+        /* how charged the edges are: 0 at switch-on, 1 in equilibrium */
+        const q = 1 - Math.exp(-(ts - t0) / TAU_MS);
 
-        /* B out-of-page dots around the strip */
-        ctx.strokeStyle = col.faint; ctx.fillStyle = col.faint;
+        /* ── geometry: the bottom strip belongs to the equation badge ── */
+        const sx = W * 0.16, sw = W * 0.56;
+        const cyS = (H - 96) * 0.52;
+        const hh  = Math.min(74, (H - 96) * 0.21);
+        const syT = cyS - hh, syB = cyS + hh;
+
+        /* ── B, out of the page, above and below the strip ── */
+        ctx.strokeStyle = col.faint; ctx.fillStyle = col.faint; ctx.lineWidth = 1;
         for (let i = 0; i < 6; i++) {
-            for (let j = 0; j < 3; j++) {
-                const x = sx + sw * (i + 0.5) / 6;
-                const y = H * 0.12 + j * (H * 0.76) / 2.15;
-                if (y > syT - 14 && y < syB + 14) continue;
-                ctx.lineWidth = 1;
+            const x = sx + sw * (i + 0.5) / 6;
+            [syT - 34, syB + 34].forEach(y => {
                 ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.stroke();
                 ctx.beginPath(); ctx.arc(x, y, 1.4, 0, Math.PI * 2); ctx.fill();
-            }
+            });
         }
         ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('B out of page · ' + state.b.toFixed(2) + ' T', sx + sw + 16, H * 0.13);
+        ctx.fillText((isCS() ? 'B z papíru · ' : 'B out of page · ')
+                     + state.b.toFixed(2) + ' T', sx + sw + 16, syB + 34);
 
-        /* strip body */
-        ctx.fillStyle = 'rgba(90,104,120,0.16)';
+        /* ── the strip ── */
+        ctx.fillStyle = 'rgba(90,104,120,0.14)';
         ctx.fillRect(sx, syT, sw, syB - syT);
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
         ctx.strokeRect(sx, syT, sw, syB - syT);
 
-        /* edge charge accumulation: electrons pushed to BOTTOM edge
-           (I → +x, B out of page, v(e) = -x, F = -e v×B = down)          */
-        ctx.font = '12px "JetBrains Mono", monospace';
+        /* ── charge collected on the two edges, growing with q ── */
+        const nMark = Math.round(9 * q);
+        ctx.font = '13px "JetBrains Mono", monospace';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < nMark; i++) {
             const x = sx + sw * (i + 0.5) / 9;
-            ctx.fillStyle = col.acc;
-            ctx.fillText('−', x, syB - 9);
-            ctx.fillStyle = col.soft;
-            ctx.fillText('+', x, syT + 9);
+            ctx.fillStyle = col.acc;  ctx.fillText('−', x, syB - 10);
+            ctx.fillStyle = col.soft; ctx.fillText('+', x, syT + 10);
         }
 
-        /* drifting electrons */
-        eShift = (eShift + f.vd * 4e4) % 40;
-        ctx.fillStyle = col.ink;
-        for (let i = 0; i < 8; i++) {
-            const x = sx + ((i * 40 + (40 - eShift)) % (sw - 20)) + 10;
-            const y = (syT + syB) / 2 + ((i % 3) - 1) * 16;
-            ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+        /* ── the field those edges build: + on top, so E points down ── */
+        if (q > 0.04) {
+            const eLen = (syB - syT - 34) * Math.min(1, q * 1.15);
+            for (let i = 0; i < 4; i++) {
+                const x = sx + sw * (i + 1) / 5;
+                arrow(x, syT + 17, x, syT + 17 + eLen, col.faint, 1.1);
+            }
+            subLabel(sx + sw / 5 + 7, syT + 17 + eLen * 0.5, 'E', '', col.faint);
         }
-        ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('electrons drift ← (I points →)', sx + sw / 2, syT - 8);
 
-        /* current arrows */
-        arrow(sx - 46, (syT + syB) / 2, sx - 8, (syT + syB) / 2, col.acc, 2.2);
-        arrow(sx + sw + 8, (syT + syB) / 2, sx + sw + 46, (syT + syB) / 2, col.acc, 2.2);
+        /* ── the carriers ──
+           Along the strip they drift at v_d, against the current. Across it
+           they feel ev_dB down and eE up, and E has reached only q of its
+           settled value, so the net push across goes as (1 − q).          */
+        const vx = SPEED * (f.vd / VD0);
+        const vy = DEFLECT * (1 - q);
+        let pick = null, pickD = 1e9;
+        parts.forEach(p => {
+            p.u += (vx * dt) / sw;
+            p.v += (vy * dt) / hh;
+            if (p.v > 1) p.v = 1;                        /* joined the edge */
+            if (p.u > 1) { p.u = 0; p.v = (Math.random() * 2 - 1) * 0.5; p.trail = []; }
+            /* u runs with the drift, which is leftward: x = right edge − u */
+            const x = sx + sw - p.u * sw;
+            const y = cyS + p.v * hh;
+            p.trail.push([x, y]); if (p.trail.length > 14) p.trail.shift();
+            const d = Math.abs(p.v) * 2 + Math.abs(x - (sx + sw * 0.5)) / sw;
+            if (d < pickD) { pickD = d; pick = { x, y }; }
+        });
+        parts.forEach(p => {
+            if (p.trail.length < 2) return;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(p.trail[0][0], p.trail[0][1]);
+            for (let i = 1; i < p.trail.length; i++) ctx.lineTo(p.trail[i][0], p.trail[i][1]);
+            ctx.stroke();
+            const pt = p.trail[p.trail.length - 1];
+            ctx.fillStyle = col.ink;
+            ctx.beginPath(); ctx.arc(pt[0], pt[1], 3.4, 0, Math.PI * 2); ctx.fill();
+        });
+
+        /* ── the two forces on one carrier, drawn to a single scale ──
+           F_B is constant; F_E grows with q; at q = 1 they are equal and
+           opposite, which is the whole of the Hall effect.               */
+        if (pick) {
+            const LF = 40;
+            arrow(pick.x, pick.y, pick.x, pick.y + LF, col.ink, 2);
+            subLabel(pick.x + 7, pick.y + LF - 7, 'F', 'B', col.ink);
+            if (q > 0.05) {
+                arrow(pick.x, pick.y, pick.x, pick.y - LF * q, col.acc, 2);
+                subLabel(pick.x + 7, pick.y - LF * q + 7, 'F', 'E', col.acc);
+            }
+        }
+
+        /* ── current, drawn against the drift ── */
+        arrow(sx - 46, cyS, sx - 10, cyS, col.acc, 2.2);
+        arrow(sx + sw + 10, cyS, sx + sw + 46, cyS, col.acc, 2.2);
         ctx.fillStyle = col.acc;
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('I = ' + state.i.toFixed(1) + ' A', sx + sw + 10, (syT + syB) / 2 - 8);
+        ctx.fillText('I = ' + state.i.toFixed(1) + ' A', sx + sw + 12, cyS - 8);
 
-        /* Hall voltmeter */
-        const vx = sx + sw * 0.82;
+        /* ── voltmeter across the width ── */
+        const vX = sx + sw * 0.80, vR = 13, vCx = vX + 62;
         ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(vx, syT); ctx.lineTo(vx, syT - 26); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(vx, syB); ctx.lineTo(vx, syB + 26); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(vx, syT - 26); ctx.lineTo(vx + 62, syT - 26); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(vx, syB + 26); ctx.lineTo(vx + 62, syB + 26); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(vx + 62, syT - 26); ctx.lineTo(vx + 62, (syT + syB) / 2 - 13); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(vx + 62, syB + 26); ctx.lineTo(vx + 62, (syT + syB) / 2 + 13); ctx.stroke();
-        ctx.beginPath(); ctx.arc(vx + 62, (syT + syB) / 2, 13, 0, Math.PI * 2); ctx.stroke();
+        [[syT, syT - 26], [syB, syB + 26]].forEach(pair => {
+            ctx.beginPath(); ctx.moveTo(vX, pair[0]); ctx.lineTo(vX, pair[1]); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(vX, pair[1]); ctx.lineTo(vCx, pair[1]); ctx.stroke();
+        });
+        ctx.beginPath(); ctx.moveTo(vCx, syT - 26); ctx.lineTo(vCx, cyS - vR); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(vCx, syB + 26); ctx.lineTo(vCx, cyS + vR); ctx.stroke();
+        ctx.beginPath(); ctx.arc(vCx, cyS, vR, 0, Math.PI * 2); ctx.stroke();
         ctx.fillStyle = col.soft;
         ctx.font = '11px "JetBrains Mono", monospace';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('V', vx + 62, (syT + syB) / 2);
-
-        /* UH readout on canvas */
+        ctx.fillText('V', vCx, cyS);
         ctx.fillStyle = col.acc;
         ctx.font = '12px "JetBrains Mono", monospace';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('U_H = ' + (f.uh * 1e6).toFixed(1) + ' µV', vx + 62, (syT + syB) / 2 + 20);
+        ctx.textBaseline = 'top';
+        ctx.fillText((f.uh * q * 1e6).toFixed(1) + ' µV', vCx, cyS + vR + 8);
 
-        /* readouts */
+        /* ── what stage the story is at ── */
+        const cs = isCS();
+        const caption = q < 0.35
+            ? (cs ? 'Jen magnetická síla — elektrony stáčí k dolní hraně'
+                  : 'Only the magnetic force — the carriers veer to the lower edge')
+            : q < 0.85
+              ? (cs ? 'Nabité hrany budí pole E, které se vychýlení brání'
+                    : 'The charged edges build E, and E opposes the deflection')
+              : (cs ? 'Síly se vyrovnaly — dráhy jsou zase rovné, U_H se ustálilo'
+                    : 'The forces balance — the paths are straight again, U_H has settled');
+        ctx.fillStyle = q < 0.85 ? col.soft : col.acc;
+        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText(caption, sx, 16);
+        ctx.fillStyle = col.faint;
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillText((cs ? 'nabíjení hran · ' : 'edge charging · ')
+                     + (q * 100).toFixed(0) + '%', sx, 35);
+
+        /* ── readouts: the settled values, which is what the exercise asks ── */
         const $ = id => document.getElementById(id);
         $('r-n').textContent  = (f.n / 1e29).toFixed(2) + ' ×10²⁹ m⁻³';
         $('r-vd').textContent = (f.vd * 1e3).toFixed(3) + ' mm/s';
@@ -410,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function frame(ts) {
-        draw(ts || 0);
+        draw(ts || performance.now());
         requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);

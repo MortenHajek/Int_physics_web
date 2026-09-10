@@ -97,7 +97,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="L\dfrac{\mathrm{d}I_3}{\mathrm{d}t} = U_A - I_3 R_3"></div>
-                <div class="sim-hint"><span lang="en">flip the switch · the inductor refuses to jump</span><span lang="cs">přepněte spínač · cívka odmítá skokovou změnu</span></div>
             </div>
         </div>
 
@@ -445,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText('I₂↓ ' + s.i2.toFixed(2) + ' A', mx + 12, midY + 22);
 
         /* ── strip chart (bottom half) ───────────────────────────── */
-        const gT = H * 0.52, gB = H - 40;
+        const gT = H * 0.52, gB = H - 108;   /* leaves the bottom strip to the equation badge */
         const gL = 56, gR = W - 26;
         const IMAX = 5.2, IMIN = -2.6;
         const yPix = i => gT + (IMAX - i) / (IMAX - IMIN) * (gB - gT);

@@ -85,7 +85,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="d\sin\theta = m\lambda"></div>
-                <div class="sim-hint"><span lang="en">widen the slits · the fringes crowd together</span><span lang="cs">rozšiřte štěrbiny · proužky se přibližují k sobě</span></div>
             </div>
         </div>
 
@@ -349,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function mono(text, x, y, color, align) {
         ctx.fillStyle = color;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = align || 'center'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(text, x, y);
     }
@@ -358,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw() {
         ctx.clearRect(0, 0, W, H);
 
-        const top = 20, bottom = H - 20, cy = H / 2;
+        const top = 20, bottom = H - 100, cy = (H - 80) / 2;   /* leaves the bottom strip to the equation badge */
         const barrierX = Math.max(64, W * 0.13);
         const screenX  = W - Math.max(88, W * 0.135);
         const sw = 14;                       /* screen strip width, px  */

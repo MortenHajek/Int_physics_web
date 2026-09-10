@@ -88,7 +88,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="C = \dfrac{\varepsilon_0 S}{d-b},\qquad E_{\text{stored}} = \dfrac{Q^2}{2C}"></div>
-                <div class="sim-hint"><span lang="en">thicken the slab · watch the stored energy drain</span><span lang="cs">zvětšete tloušťku desky · sledujte pokles uložené energie</span></div>
             </div>
         </div>
 
@@ -116,6 +115,21 @@
                         <input class="sim-control-range" type="range"
                                id="p-q" min="1" max="6" step="0.05" value="3.4">
                     </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-head">
+                    <span><span class="accent-pip"></span><span lang="en">Part (d)</span><span lang="cs">Část (d)</span></span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-play" class="btn-play">
+                        <span lang="en">▶  Release the slab</span><span lang="cs">▶  Pustit desku</span>
+                    </button>
+                    <p class="play-note">
+                        <span lang="en">The slab is integrated from the stored-energy gradient, not scripted. It moves inward because the energy falls as it enters.</span>
+                        <span lang="cs">Pohyb desky se integruje z gradientu uložené energie, není naskriptovaný. Míří dovnitř proto, že energie při zasouvání klesá.</span>
+                    </p>
                 </div>
             </div>
 
@@ -313,19 +327,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    function physics() {
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+
+    function arrowL(x1, y1, x2, y2, colour, lw) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len, hl = Math.min(10, len * 0.35), hw = hl * 0.44;
+        ctx.strokeStyle = colour; ctx.fillStyle = colour; ctx.lineWidth = lw; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function physics(ins) {
+        if (ins === undefined) ins = 1;
         const d = D_MM * 1e-3, b = state.b * 1e-3;
         const Q = state.q * 1e-6;
-        const c  = E0 * S / (d - b);
+        /* covered and uncovered stretches sit side by side, so they add */
+        const c  = E0 * S * ((1 - ins) / d + ins / (d - b));
         const c0 = E0 * S / d;
         const eB = Q * Q / (2 * c0);
         const eA = Q * Q / (2 * c);
         return { c, c0, eB, eA, ratio: eB / eA, w: eA - eB };
     }
 
-    function draw() {
+    /* Part (d): let go of the slab and see which way it moves.
+       At fixed Q the stored energy is Q^2/2C, and C grows as the slab covers
+       more of the plates, so the energy falls and the generalised force
+       -dU/d(ins) is inward. Nothing here is scripted: the slab is integrated
+       from that force, so if the physics said "push" it would not move in. */
+    let ins = 1, insV = 0, playing = false, lastTs = 0;
+    const K_PULL = 1.3;              /* sets the pace, not the direction */
+
+    function pullAccel(x) {
+        const h = 1e-3;
+        const u = i => physics(Math.min(1, Math.max(0, i))).eA;
+        return -K_PULL * (u(x + h) - u(x - h)) / (2 * h) / physics(0).eA;
+    }
+
+    const btnPlay = document.getElementById('btn-play');
+    if (btnPlay) btnPlay.addEventListener('click', () => {
+        ins = 0; insV = 0; playing = true;
+    });
+
+    function draw(ts) {
         ctx.clearRect(0, 0, W, H);
-        const f = physics();
+        if (!lastTs) lastTs = ts;
+        const dt = Math.min(0.05, Math.max(0, (ts - lastTs) / 1000));
+        lastTs = ts;
+        if (playing) {
+            insV += pullAccel(ins) * dt;
+            ins  += insV * dt;
+            if (ins >= 1) { ins = 1; insV = 0; playing = false; }
+        }
+        const f = physics(ins);
 
         const cw = Math.min(W * 0.5, 340);
         const cx = W * 0.30 - cw / 2 + 40;
@@ -345,22 +402,30 @@ document.addEventListener('DOMContentLoaded', () => {
         /* field lines in the two air gaps (E is same, just shorter) */
         const nE = 7;
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        const xIn = cx + cw * (1 - ins);        /* leading edge of the slab */
         for (let i = 0; i < nE; i++) {
             const x = cx + cw * (i + 0.5) / nE;
-            ctx.beginPath(); ctx.moveTo(x, cy - gap / 2); ctx.lineTo(x, cy - bPx / 2); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(x, cy + bPx / 2); ctx.lineTo(x, cy + gap / 2); ctx.stroke();
+            if (x >= xIn && bPx > 1) {
+                ctx.beginPath(); ctx.moveTo(x, cy - gap / 2); ctx.lineTo(x, cy - bPx / 2); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x, cy + bPx / 2); ctx.lineTo(x, cy + gap / 2); ctx.stroke();
+            } else {
+                ctx.beginPath(); ctx.moveTo(x, cy - gap / 2); ctx.lineTo(x, cy + gap / 2); ctx.stroke();
+            }
         }
 
         /* copper slab */
         if (bPx > 1) {
             ctx.fillStyle = 'rgba(162,90,40,0.65)';
-            ctx.fillRect(cx - 4, cy - bPx / 2, cw + 8, bPx);
+            const slabW = cx + cw + 4 - (xIn - 4);
+            ctx.fillRect(xIn - 4, cy - bPx / 2, slabW, bPx);
             ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
-            ctx.strokeRect(cx - 4, cy - bPx / 2, cw + 8, bPx);
+            ctx.strokeRect(xIn - 4, cy - bPx / 2, slabW, bPx);
             ctx.fillStyle = col.paper;
             ctx.font = '11px "JetBrains Mono", monospace';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            if (bPx > 14) ctx.fillText('copper · E = 0', cx + cw / 2, cy);
+            if (bPx > 14 && slabW > 108)
+                ctx.fillText(isCS() ? 'měď · E = 0' : 'copper · E = 0',
+                             (xIn + cx + cw) / 2, cy);
         }
 
         /* labels: charges on plates */
@@ -384,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* ── energy bar (right) ─────────────────────────────────── */
         const bx = W * 0.74, bw = 54;
-        const bh = H * 0.62, by = H * 0.82;
+        const bh = H * 0.62, by = Math.min(H * 0.82, H - 112);   /* clears the badge */
         const eMax = f.eB * 1.15;
         const hNow = bh * f.eA / eMax;
         const hBefore = bh * f.eB / eMax;
@@ -406,12 +471,26 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.textBaseline = 'bottom';
         ctx.fillText('b = 0 level', bx + bw / 2, by - hBefore - 4);
 
-        /* pulled-in arrow */
+        /* which way it goes, and why */
         if (state.b > 0.1) {
+            const cs = isCS();
+            if (playing) {
+                const ay = cy - gap / 2 - plateH - 20;
+                arrowL(xIn + 44, ay, xIn + 6, ay, col.acc, 2.2);
+                ctx.fillStyle = col.acc;
+                ctx.font = '11px "JetBrains Mono", monospace';
+                ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                ctx.fillText('F', xIn + 50, ay);
+            }
             ctx.fillStyle = col.acc;
             ctx.font = '11px "JetBrains Mono", monospace';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText('slab is pulled in ⇦', cx + cw / 2, cy + gap / 2 + plateH + 12);
+            ctx.fillText(playing
+                ? (cs ? 'puštěna — pole ji vtahuje dovnitř'
+                      : 'released — the field pulls it in')
+                : (cs ? 'zasunuta · energie klesla, deska je tedy vtahována'
+                      : 'fully in · the energy fell, so the slab is pulled in'),
+                cx + cw / 2, cy + gap / 2 + plateH + 12);
         }
 
         /* readouts */
@@ -423,8 +502,8 @@ document.addEventListener('DOMContentLoaded', () => {
         $('r-w').textContent     = f.w.toFixed(2) + ' J';
     }
 
-    function frame() {
-        draw();
+    function frame(ts) {
+        draw(ts || performance.now());
         requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);

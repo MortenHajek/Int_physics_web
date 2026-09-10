@@ -325,6 +325,21 @@
     }
     .cm-step strong { color: var(--ink); }
 
+    /* ── Small inline button (panel and canvas heads) ─────────────────── */
+    .btn-mini {
+        font-family: var(--f-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 0;
+    }
+    .btn-mini:hover { color: var(--accent); }
+    .head-tools { display: flex; align-items: center; gap: 14px; }
+
     /* ── Exercise tabs ────────────────────────────────────────────────── */
     .ex-tabs {
         display: flex;
@@ -380,13 +395,6 @@
         <div>
             <div class="num">§ I.01 · vectors</div>
             <h1><span lang="en">Vectors</span><span lang="cs">Vektory</span></h1>
-            <p class="lede">
-                <span lang="en">A vector carries both <em>magnitude</em> and <em>direction</em>. Add them component by
-                component, project one onto another with the dot product, or find their perpendicular axis with the
-                cross product.</span>
-                <span lang="cs">Vektor nese <em>velikost</em> i <em>směr</em>. Sčítají se po složkách, skalární
-                součin promítne jeden do druhého a vektorový součin najde jejich kolmou osu.</span>
-            </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="\vec{c} = \vec{a} + \vec{b}"></div>
@@ -399,145 +407,7 @@
         <div class="section-head">
             <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
         </div>
-        <div class="core-concept">
-            <div class="core-concept-text">
-                <span lang="en">Physics needs two kinds of quantity. A <em>scalar</em> is one number — mass, temperature, time.
- A <em>vector</em> is a number and a direction, and writing it as a triple of components is the move that
- turns geometry into arithmetic: once <span data-tex="\vec a = a_x\hat\imath + a_y\hat\jmath + a_z\hat k"></span>,
- every question about lengths and angles becomes a calculation you cannot get wrong by mis-drawing. Two
- products do almost all the work: one multiplies the parts of two vectors that lie <em>along</em> each other
- and returns a scalar, the other multiplies the parts that lie <em>across</em> each other and returns a vector
- perpendicular to both.</span><span lang="cs">Fyzika potřebuje dva druhy veličin. <em>Skalár</em> je jedno číslo — hmotnost, teplota, čas.
- <em>Vektor</em> je číslo a směr a zápis po složkách je právě ten krok, který promění geometrii v počítání:
- jakmile máte <span data-tex="\vec a = a_x\hat\imath + a_y\hat\jmath + a_z\hat k"></span>, stane se z každé
- otázky o délkách a úhlech výpočet, který nezkazíte špatným náčrtkem. Skoro všechnu práci zastanou dva
- součiny: jeden násobí ty části vektorů, které leží <em>podél</em> sebe, a vrací skalár, druhý ty, které leží
- <em>napříč</em>, a vrací vektor kolmý k oběma.</span>
-            </div>
-
-            <div class="core-formulas">
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Components</span><span lang="cs">Složky</span></span>
-                        <span class="cf-eq" data-tex="\vec a = a_x\hat\imath + a_y\hat\jmath + a_z\hat k"></span>
-                        <span class="cf-eq" data-tex="|\vec a| = \sqrt{a_x^2+a_y^2+a_z^2}"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">The coordinate triple <em>is</em> the decomposition into unit vectors — there is nothing more to it.
-      Adding vectors means adding matching components, and the length follows from Pythagoras in three
-      dimensions.</span><span lang="cs">Trojice souřadnic <em>je</em> rozklad do jednotkových vektorů — nic víc v tom není. Sčítat vektory
-      znamená sčítat odpovídající složky a délka plyne z Pythagorovy věty ve třech rozměrech.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Dot product</span><span lang="cs">Skalární součin</span></span>
-                        <span class="cf-eq" data-tex="\vec a \cdot \vec b = a_x b_x + a_y b_y + a_z b_z"></span>
-                        <span class="cf-eq" data-tex="\vec a \cdot \vec b = |\vec a||\vec b|\cos\varphi"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Returns a <em>number</em>. It measures how much of one vector lies along the other, so it vanishes for
-      perpendicular vectors — which is the quickest test for a right angle there is. Both forms give the same
-      answer, so equating them extracts the angle.</span><span lang="cs">Vrací <em>číslo</em>. Měří, kolik jednoho vektoru leží podél druhého, takže pro kolmé vektory je nulový
-      — a to je nejrychlejší test pravého úhlu, jaký existuje. Oba tvary dávají totéž, takže jejich porovnáním
-      vytáhnete úhel.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Cross product</span><span lang="cs">Vektorový součin</span></span>
-                        <span class="cf-eq" data-tex="\vec a \times \vec b = \begin{vmatrix}\hat\imath & \hat\jmath & \hat k\\ a_x & a_y & a_z\\ b_x & b_y & b_z\end{vmatrix}"></span>
-                        <span class="cf-eq" data-tex="|\vec a \times \vec b| = |\vec a||\vec b|\sin\varphi"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Returns a <em>vector</em>, perpendicular to both, with a direction given by the right hand. Its length
-      is the area of the parallelogram the two vectors span, so it vanishes for parallel vectors. Order matters:
-      swapping the two reverses the result.</span><span lang="cs">Vrací <em>vektor</em> kolmý k oběma, se směrem podle pravé ruky. Jeho velikost je obsah rovnoběžníku,
-      který oba vektory napínají, takže pro rovnoběžné vektory je nulový. Na pořadí záleží: prohození obou
-      výsledek otočí.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Scalar triple product</span><span lang="cs">Smíšený součin</span></span>
-                        <span class="cf-eq" data-tex="\vec a \cdot (\vec b \times \vec c)"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">A number again, and geometrically the volume of the box built on the three vectors. Zero means the three
-      lie in one plane. Compute it inside out: the cross product first, then the dot — never the other way
-      round, which is not even defined.</span><span lang="cs">Opět číslo a geometricky objem rovnoběžnostěnu postaveného na těch třech vektorech. Nula znamená, že
-      všechny tři leží v jedné rovině. Počítejte zevnitř ven: nejdřív vektorový součin, pak skalární — nikdy
-      obráceně, to ani není definované.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Distributive over addition</span><span lang="cs">Distributivnost vůči sčítání</span></span>
-                        <span class="cf-eq" data-tex="\vec a \cdot (\vec b + \vec c) = \vec a\cdot\vec b + \vec a\cdot\vec c"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Both products distribute, so an expression like <span data-tex="\vec a\cdot(\vec b+\vec c)"></span> can
-      be attacked either way: add first and then multiply once, or multiply twice and add. Adding first is
-      usually less arithmetic and fewer chances to slip.</span><span lang="cs">Oba součiny jsou distributivní, takže výraz jako <span data-tex="\vec a\cdot(\vec b+\vec c)"></span>
-      lze vzít z obou stran: nejdřív sečíst a pak jednou násobit, nebo dvakrát násobit a sečíst. Sečíst nejdřív
-      je obvykle méně počítání a méně příležitostí udělat chybu.</span>
-                    </p>
-                </div>
-
-            </div>
-
-            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
-            <div class="core-method">
-
-                <div class="cm-step">
-                    <span class="cm-num">01</span>
-                    <span><span lang="en"><strong>Write everything in components first.</strong> Before any product, put each vector down as
-       three numbers. Nearly every mistake in this topic is a component copied wrong, not a rule
-       misremembered.</span><span lang="cs"><strong>Nejdřív vše rozepište do složek.</strong> Před jakýmkoli součinem si každý vektor napište jako
-       tři čísla. Skoro každá chyba v tomto tématu je špatně opsaná složka, ne špatně zapamatované
-       pravidlo.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">02</span>
-                    <span><span lang="en"><strong>Simplify inside the brackets.</strong> For <span data-tex="\vec a\cdot(\vec b+\vec c)"></span>
-       add <span data-tex="\vec b"></span> and <span data-tex="\vec c"></span> component by component, then
-       take one product.</span><span lang="cs"><strong>Zjednodušte, co je v závorce.</strong> U <span data-tex="\vec a\cdot(\vec b+\vec c)"></span>
-       sečtěte <span data-tex="\vec b"></span> a <span data-tex="\vec c"></span> po složkách a pak udělejte
-       jediný součin.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">03</span>
-                    <span><span lang="en"><strong>Dot: multiply and add. Cross: the determinant.</strong> Write the 3×3 determinant with the
-       unit vectors on the top row and expand it — that ordering is what keeps the signs right.</span><span lang="cs"><strong>Skalární: násob a sečti. Vektorový: determinant.</strong> Napište determinant 3×3
-       s jednotkovými vektory v prvním řádku a rozviňte ho — právě to pořadí udrží znaménka správně.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">04</span>
-                    <span><span lang="en"><strong>A triple product goes inside out.</strong>
-       <span data-tex="\vec a\cdot(\vec b\times\vec c)"></span> means cross first, dot second. The bracket is
-       not decoration.</span><span lang="cs"><strong>Smíšený součin počítejte zevnitř.</strong>
-       <span data-tex="\vec a\cdot(\vec b\times\vec c)"></span> znamená nejdřív vektorový, pak skalární.
-       Závorka není ozdoba.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">05</span>
-                    <span><span lang="en"><strong>Check the type of the answer.</strong> A dot product must come out as a single number and a
-       cross product as three. If you have written three numbers where one was wanted, you have used the wrong
-       product.</span><span lang="cs"><strong>Zkontrolujte typ výsledku.</strong> Skalární součin musí vyjít jako jedno číslo, vektorový
-       jako tři. Máte-li tři čísla tam, kde mělo být jedno, použili jste špatný součin.</span></span>
-                </div>
-
-            </div>
-        </div>
+        <div class="wip">work in progress</div>
     </section>
 
     <!-- ════ § 3  LAB 1 — VECTOR ADDITION ════ -->
@@ -545,7 +415,7 @@
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Addition sandbox</span><span lang="cs">Sandbox: sčítání vektorů</span></span>
+                <span><span class="accent-pip"></span><span lang="en">Addition sandbox</span><span lang="cs">Sandbox: sčítání vektorů</span><span class="wip-tag">work in progress</span></span>
                 <span id="add-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap" id="add-wrap">
@@ -596,7 +466,7 @@
 
             <!-- Display -->
             <div class="side-panel">
-                <div class="panel-head"><span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span></div>
+                <div class="panel-head"><span><span class="accent-pip"></span><span lang="en">Display</span><span lang="cs">Zobrazení</span></span><button id="add-reset" class="btn-mini" type="button"><span lang="en">reset vectors</span><span lang="cs">reset vektorů</span></button></div>
                 <div class="panel-body">
                     <div class="toggle-row" id="tgl-components">
                         <div class="toggle-box on"></div>
@@ -616,7 +486,7 @@
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Dot product sandbox</span><span lang="cs">Sandbox: skalární součin</span></span>
+                <span><span class="accent-pip"></span><span lang="en">Dot product sandbox</span><span lang="cs">Sandbox: skalární součin</span><span class="wip-tag">work in progress</span></span>
                 <span id="dot-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap" id="dot-wrap">
@@ -632,7 +502,7 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                    <span class="head-tools"><span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span><button id="dot-reset" class="btn-mini" type="button"><span lang="en">reset vectors</span><span lang="cs">reset vektorů</span></button></span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">components</span><span lang="cs">složky</span></div>
@@ -663,7 +533,7 @@
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Cross product sandbox · isometric 3D</span><span lang="cs">Sandbox: vektorový součin · izometrické 3D</span></span>
+                <span><span class="accent-pip"></span><span lang="en">Cross product sandbox · isometric 3D</span><span lang="cs">Sandbox: vektorový součin · izometrické 3D</span><span class="wip-tag">work in progress</span></span>
                 <span id="cross-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap" id="cross-wrap">
@@ -745,9 +615,7 @@
         <div class="section-head">
             <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
         </div>
-        <div class="ex-tabs">
-            <a class="ex-tab" href="../exercises/ch03-ex57.html"><span lang="en">Ch. 3 · <span class="ex-no">Ex. 57</span></span><span lang="cs">Kap. 3 · <span class="ex-no">Úl. 57</span></span></a>
-        </div>
+        <div class="wip">work in progress</div>
     </section>
 
     <!-- ════ § 7  PREV / NEXT ════ -->
@@ -981,6 +849,13 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
     canvas.addEventListener('pointercancel', ()=>{dragging=null;});
 
+    const btnReset = document.getElementById('add-reset');
+    if (btnReset) btnReset.addEventListener('click', () => {
+        dragging = null;
+        initPositions();          /* the same defaults resize() lays down */
+        canvas.style.cursor = 'crosshair';
+    });
+
     function wireToggle(id,get,set) {
         const row=document.getElementById(id); if(!row) return;
         const box=row.querySelector('.toggle-box');
@@ -1175,6 +1050,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
     canvas.addEventListener('pointercancel', ()=>{dragging=null;});
+
+    const btnReset = document.getElementById('dot-reset');
+    if (btnReset) btnReset.addEventListener('click', () => {
+        dragging = null;
+        initPositions();          /* the same defaults resize() lays down */
+        canvas.style.cursor = 'crosshair';
+    });
 
     let lastT=0, frames=0;
     const fpsEl=document.getElementById('dot-fps');

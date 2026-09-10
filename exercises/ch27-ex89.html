@@ -83,7 +83,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="q = C\,U_C,\quad I = \dfrac{\varepsilon_2-\varepsilon_1}{R_1+R_2}"></div>
-                <div class="sim-hint"><span lang="en">no current flows through a settled capacitor — only around it</span><span lang="cs">ustáleným kondenzátorem proud neprotéká — pouze kolem něj</span></div>
             </div>
         </div>
 
@@ -348,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ucDisplay += (f.uc - ucDisplay) * 0.08;
 
         const lx = W * 0.18, mx = W * 0.5, rx = W * 0.82;
-        const ty = H * 0.2, byy = H * 0.82;
+        const ty = H * 0.2, byy = Math.min(H * 0.82, H - 110);   /* leaves the bottom strip to the equation badge */
 
         /* rails */
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;

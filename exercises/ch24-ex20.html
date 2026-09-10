@@ -92,8 +92,7 @@
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="\varphi(x) = \dfrac{kQ_1}{d} + \dfrac{kQ_2}{x}"></div>
-                <div class="sim-hint"><span lang="en">tune Q₂ until the curve crosses zero at the printed point</span><span lang="cs">nastavte Q₂ tak, aby křivka protla nulu v uvedeném bodě</span></div>
+                <div class="canvas-formula-badge top-left" data-tex="\varphi(x) = \dfrac{kQ_1}{d} + \dfrac{kQ_2}{x}"></div>
             </div>
         </div>
 
@@ -310,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, W, H);
         const matched = isMatched();
 
-        const mL = 70, mR = 28, mT = 34, mB = 46;
+        const mL = 70, mR = 28, mT = 96, mB = 52;   /* mT clears the equation badge */
         const pw = W - mL - mR, ph = H - mT - mB;
         const PHI_MIN = -10e-7, PHI_MAX = 6e-7;
         const xPix = x => mL + (x / XS) * pw;

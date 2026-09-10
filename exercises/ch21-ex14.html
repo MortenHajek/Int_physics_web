@@ -91,8 +91,7 @@
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="F_{3x}(x) = k Q_3\!\left[\dfrac{Q_1}{x^2} - \dfrac{Q_2}{(L-x)^2}\right]"></div>
-                <div class="sim-hint"><span lang="en">tune the ratio until the zero crossing hits the printed one</span><span lang="cs">laďte poměr, dokud nulový bod nepadne na tištěný</span></div>
+                <div class="canvas-formula-badge top-left" data-tex="F_{3x}(x) = k Q_3\!\left[\dfrac{Q_1}{x^2} - \dfrac{Q_2}{(L-x)^2}\right]"></div>
             </div>
         </div>
 
@@ -343,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function draw() {
         ctx.clearRect(0, 0, W, H);
 
-        const mL = 64, mR = 30, mT = 42, mB = 46;
+        const mL = 64, mR = 30, mT = 100, mB = 52;   /* mT clears the equation badge */
         const pw = W - mL - mR, ph = H - mT - mB;
         const xPix = x => mL + (x / L) * pw;
         const yPix = f => mT + ph / 2 - (f / 1.1) * (ph / 2);

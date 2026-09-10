@@ -87,7 +87,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="\varphi = k\!\int_0^{L}\!\dfrac{cx\,\mathrm{d}x}{x+d} = kc\!\left[L - d\ln\dfrac{L+d}{d}\right]"></div>
-                <div class="sim-hint"><span lang="en">move P₁ closer · watch the integral rebuild</span><span lang="cs">přibližte P₁ · sledujte, jak se integrál skládá</span></div>
             </div>
         </div>
 
@@ -366,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.lineTo(ex, sy - 18); ctx.stroke();
             ctx.setLineDash([]);
             ctx.fillStyle = col.acc;
-            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
             ctx.fillText('x + d', (pX + ex) / 2, sy - 21);
         }
@@ -374,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         /* ── φ(d) graph (bottom half) ─────────────────────────────── */
         if (show.graph) {
             const mL2 = 64, mR2 = 26;
-            const gT = H * 0.52, gB = H - 44;
+            const gT = H * 0.52, gB = H - 108;   /* leaves the bottom strip to the equation badge */
             const pw = W - mL2 - mR2, ph = gB - gT;
             const dMax = 12;
             const phiMax = phiOf(1, state.c) * 1.08;

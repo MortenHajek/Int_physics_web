@@ -81,7 +81,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="E_n = \dfrac{n^2 h^2}{8mL^2}"></div>
-                <div class="sim-hint"><span lang="en">squeeze L · confinement costs energy</span><span lang="cs">zmenšete L · omezení stojí energii</span></div>
             </div>
         </div>
 
@@ -395,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ph = physics();
 
         const wallTop = 30;
-        const floorY  = H - 66;
+        const floorY  = H - 112;   /* leaves the bottom strip to the equation badge */
         const topY    = 56;
         const usable  = floorY - topY - 4;
         const cx   = W * 0.46;
@@ -404,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* caption */
         ctx.fillStyle = col.faint;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         ctx.fillText('PROTON LEVELS SIT 1836× LOWER', 14, 12);
 
@@ -443,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
             line(xl + 2, y, xr - 2, y);
             ctx.globalAlpha = 1;
             ctx.fillStyle = sel ? col.acc : col.faint;
-            ctx.font = '9.5px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
             ctx.fillText('n = ' + k + ' · ' + fmtE(k * k * ph.e1eV), xr - 8, y - 3);
         }
@@ -469,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
             ctx.fillText('ψ', xl + 9, y0 - A - 4);
-            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.fillText(String(state.n), xl + 18, y0 - A - 2);
         }
 
@@ -478,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = col.soft; ctx.lineWidth = 1.4;
         line(xl + 6, pty, xl + 20, pty);
         const note = 'proton n=1 (×1/1836)';
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         const nw = ctx.measureText(note).width;
         ctx.fillStyle = col.paper; ctx.globalAlpha = 0.85;
         ctx.fillRect(xl + 24, pty - 6, nw + 4, 12);

@@ -382,6 +382,90 @@ a.brand {
     letter-spacing: 0.14em;
 }
 
+/* ---------- Core concept — the key law ----------
+   The one or two equations a topic's calculations actually start from, lifted
+   out of the list below it. Same two devices as .core-concept one level in —
+   an ink frame and the accent spine — so it reads as nesting rather than as a
+   new kind of box. Parchment ground is the tonal step that lifts it off the
+   concept block's own paper. */
+
+.core-key {
+    position: relative;
+    border: 1.5px solid var(--ink);
+    background: var(--paper-deep);
+    padding: 20px 26px 18px 30px;
+}
+.core-key::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: var(--accent);
+}
+.ck-label {
+    display: block;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+}
+.ck-eqs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 34px;
+    margin: 17px 0 15px;
+}
+.ck-eq {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: clamp(18px, 1.9vw, 25px);
+    white-space: nowrap;
+}
+.ck-eqs .ck-eq + .ck-eq {
+    border-left: 1px dashed var(--ink-faint);
+    padding-left: 34px;
+}
+.ck-note {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    max-width: 68ch;
+    margin: 0;
+}
+@media (max-width: 720px) {
+    .core-key { padding: 18px 18px 16px 22px; }
+    .ck-eqs .ck-eq + .ck-eq { border-left: none; padding-left: 0; }
+}
+
+/* ---------- Work in progress ----------
+   Stands in for Vol I content that is not finalised yet. Deliberately quieter
+   than the block it replaces: a dashed hairline is the drafting convention for
+   provisional, and withholding the topic accent is the signal that nothing
+   here is finished. */
+
+.wip {
+    border: 1.5px dashed var(--ink-faint);
+    background: var(--paper-deep);
+    padding: 38px 24px;
+    text-align: center;
+    font-family: var(--f-mono);
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+}
+.wip-tag {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    border: 1px dashed var(--ink-faint);
+    padding: 2px 6px;
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
 /* ============================================================
    Topic cards — the "color palette windows"
    ============================================================ */
@@ -642,6 +726,30 @@ footer.foot {
     color: var(--ink-faint);
     letter-spacing: 0.12em;
     text-transform: uppercase;
+}
+
+/* A quiet second line under the footer's first item. It is a sentence, not a
+   label, so it steps out of the footer's uppercase mono tracking; block display
+   is what puts it on its own line inside the flex item. */
+.foot-note {
+    display: block;
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    max-width: 54ch;
+}
+
+/* Subpages carry three footer items where the home page carries one, and at
+   20px they wrap into each other. Every body but the home page has a topic
+   class, so that is the hook. */
+body[class] footer.foot {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    gap: 24px;
+    flex-wrap: wrap;
+    row-gap: 8px;
 }
 
 /* ============================================================

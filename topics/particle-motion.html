@@ -322,7 +322,19 @@
         width: 66px;
         padding: 7px 4px;
         text-align: right;
+        cursor: default;
+        caret-color: transparent;
     }
+    /* The value is stepped, never typed, so the arrows are the whole control
+       and have to be visible without hovering. */
+    .ch-angle-input::-webkit-outer-spin-button,
+    .ch-angle-input::-webkit-inner-spin-button {
+        -webkit-appearance: inner-spin-button;
+        opacity: 1;
+        height: 30px;
+        cursor: pointer;
+    }
+    .ch-angle-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .ch-angle-unit { font-family: var(--f-mono); font-size: 16px; color: var(--ink-soft); }
     .ch-verdict {
         padding: 11px 16px;
@@ -487,12 +499,6 @@
         <div>
             <div class="num">§ I.02 · particle motion</div>
             <h1><span lang="en">Particle motion</span><span lang="cs">Pohyb hmotného bodu</span></h1>
-            <p class="lede">
-                <span lang="en">Track a particle through space and time. Two coupled coordinates, two independent
-                stories — and a parabola that emerges as soon as gravity enters the picture.</span>
-                <span lang="cs">Sledujte hmotný bod prostorem a časem. Dvě svázané souřadnice, dva nezávislé
-                příběhy — a parabola, která se objeví, jakmile do hry vstoupí tíže.</span>
-            </p>
         </div>
         <div class="eq-wrap">
             <div class="eq-big" data-tex="\vec{r}(t) = \bigl(x(t),\, y(t)\bigr)"></div>
@@ -504,168 +510,7 @@
         <div class="section-head">
             <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
         </div>
-        <div class="core-concept">
-            <div class="core-concept-text">
-                <span lang="en">Motion is bookkeeping between three quantities and the clock: position, velocity, acceleration, each the
- derivative of the one before. Differentiate to go one way, integrate to come back, and the constants of
- integration are the starting position and starting velocity. That is the whole of kinematics in one
- sentence — and it works one axis at a time, which is why two-dimensional motion is never harder than two
- one-dimensional problems sharing a clock. <em>Only the time is common to both axes.</em> That single fact
- solves projectiles, and it is why a stone thrown sideways and one simply dropped hit the ground
- together.</span><span lang="cs">Pohyb je účetnictví mezi třemi veličinami a hodinami: poloha, rychlost, zrychlení, každá derivací té
- předchozí. Derivováním jdete jedním směrem, integrováním zpátky, a integrační konstanty jsou počáteční poloha
- a počáteční rychlost. To je celá kinematika v jedné větě — a funguje po jedné ose, a proto není pohyb ve dvou
- rozměrech nikdy těžší než dvě jednorozměrné úlohy sdílející hodiny. <em>Osám je společný jedině čas.</em>
- Tenhle jediný fakt vyřeší vrhy a je důvod, proč kámen hozený do strany a kámen prostě upuštěný dopadnou
- zároveň.</span>
-            </div>
-
-            <div class="core-formulas">
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">The chain of derivatives</span><span lang="cs">Řetěz derivací</span></span>
-                        <span class="cf-eq" data-tex="v_x = \dfrac{\mathrm{d}x}{\mathrm{d}t}\,,\qquad a_x = \dfrac{\mathrm{d}v_x}{\mathrm{d}t}"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Given <span data-tex="x(t)"></span> as a formula, everything else is differentiation; given
-      <span data-tex="a(t)"></span>, everything else is integration. On a graph the same relation reads as a
-      slope, which is how a question can be answered without any algebra at all.</span><span lang="cs">Máte-li <span data-tex="x(t)"></span> jako vzorec, všechno ostatní je derivování; máte-li
-      <span data-tex="a(t)"></span>, všechno ostatní je integrování. V grafu je týž vztah směrnicí — a tak lze
-      otázku zodpovědět úplně bez algebry.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Average versus instantaneous</span><span lang="cs">Průměrná a okamžitá</span></span>
-                        <span class="cf-eq" data-tex="\bar v = \dfrac{\Delta x}{\Delta t}"></span>
-                        <span class="cf-eq" data-tex="v(t) = \lim_{\Delta t\to 0}\dfrac{\Delta x}{\Delta t}"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Two different questions that look alike. The average over an interval is the straight line joining the
-      endpoints of the <span data-tex="x(t)"></span> graph; the instantaneous value is the tangent at one
-      instant. Read the wording carefully — "during the first three seconds" is an average.</span><span lang="cs">Dvě různé otázky, které vypadají stejně. Průměr přes interval je přímka spojující krajní body grafu
-      <span data-tex="x(t)"></span>; okamžitá hodnota je tečna v jednom okamžiku. Čtěte zadání pozorně —
-      „během prvních tří sekund" je průměr.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Constant acceleration</span><span lang="cs">Rovnoměrně zrychlený pohyb</span></span>
-                        <span class="cf-eq" data-tex="v = v_0 + at"></span>
-                        <span class="cf-eq" data-tex="x = x_0 + v_0 t + \dfrac{1}{2}at^2"></span>
-                        <span class="cf-eq" data-tex="v^2 = v_0^2 + 2a(x-x_0)"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">The three standard forms, all following from the derivative chain with
-      <span data-tex="a"></span> constant. The third has no <span data-tex="t"></span> in it, which makes it the
-      right one whenever the time is neither given nor wanted.</span><span lang="cs">Tři standardní tvary, všechny plynoucí z řetězu derivací při konstantním
-      <span data-tex="a"></span>. Ve třetím není <span data-tex="t"></span>, a proto je ten pravý vždy, když
-      čas není zadaný ani hledaný.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Free fall</span><span lang="cs">Volný pád</span></span>
-                        <span class="cf-eq" data-tex="a = -g\,,\qquad g = 9{,}81\ \mathrm{m\,s^{-2}}"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Free fall is constant acceleration with a known value, nothing more. Fix the positive direction once and
-      keep it: if up is positive then <span data-tex="g"></span> enters with a minus sign, and a downward throw
-      has a negative <span data-tex="v_0"></span>.</span><span lang="cs">Volný pád je rovnoměrně zrychlený pohyb se známou hodnotou, nic víc. Zvolte jednou kladný směr a držte
-      se ho: je-li nahoru kladné, vstupuje <span data-tex="g"></span> se záporným znaménkem a hod dolů má
-      záporné <span data-tex="v_0"></span>.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Two dimensions share only the clock</span><span lang="cs">Osy sdílejí jen hodiny</span></span>
-                        <span class="cf-eq" data-tex="\vec r(t) = \vec r_0 + \vec v_0 t + \dfrac{1}{2}\vec a t^2"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">One vector equation is really two independent scalar ones, coupled solely through
-      <span data-tex="t"></span>. Solve the axis you know most about first, get the time from it, and feed that
-      time into the other.</span><span lang="cs">Jedna vektorová rovnice jsou ve skutečnosti dvě nezávislé skalární, spojené jedině přes
-      <span data-tex="t"></span>. Vyřešte nejdřív osu, o níž víte nejvíc, získejte z ní čas a ten dosaďte do
-      druhé.</span>
-                    </p>
-                </div>
-
-                <div class="core-formula">
-                    <div class="cf-head">
-                        <span class="cf-desc"><span lang="en">Uniform circular motion</span><span lang="cs">Rovnoměrný pohyb po kružnici</span></span>
-                        <span class="cf-eq" data-tex="a_c = \dfrac{v^2}{r}"></span>
-                    </div>
-                    <p class="cf-note">
-                        <span lang="en">Constant speed is not constant velocity: the direction keeps turning, so there is an acceleration, and
-      it points at the centre. It changes only where the motion is heading, never how fast — which is why the
-      speed can be recovered from a projectile launched when the string snaps.</span><span lang="cs">Konstantní velikost rychlosti není konstantní rychlost: směr se stále otáčí, takže zrychlení existuje
-      a míří do středu. Mění jen kam pohyb směřuje, nikdy jak rychle — a proto lze velikost rychlosti zjistit
-      z vrhu, který nastane po přetržení provázku.</span>
-                    </p>
-                </div>
-
-            </div>
-
-            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
-            <div class="core-method">
-
-                <div class="cm-step">
-                    <span class="cm-num">01</span>
-                    <span><span lang="en"><strong>Decide: formula, or graph?</strong> A given <span data-tex="x(t)"></span> means differentiate;
-       a given graph means read slopes and areas. Questions often ask for both routes to the same number as a
-       check.</span><span lang="cs"><strong>Rozhodněte: vzorec, nebo graf?</strong> Zadané <span data-tex="x(t)"></span> znamená derivovat;
-       zadaný graf znamená odečítat směrnice a plochy. Úlohy často žádají obě cesty k témuž číslu jako
-       kontrolu.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">02</span>
-                    <span><span lang="en"><strong>Average or instantaneous?</strong> "Over the first three seconds" is
-       <span data-tex="\Delta x/\Delta t"></span>; "at three seconds" is the derivative evaluated there. They
-       are different numbers and both are usually asked.</span><span lang="cs"><strong>Průměrná, nebo okamžitá?</strong> „Za první tři sekundy" je
-       <span data-tex="\Delta x/\Delta t"></span>; „ve třetí sekundě" je derivace v tom okamžiku. Jsou to
-       různá čísla a obvykle se ptají na obě.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">03</span>
-                    <span><span lang="en"><strong>Fix a positive direction and never revisit it.</strong> Write it on the sketch. Most free-fall
-       errors are a sign changed halfway through rather than a formula misremembered.</span><span lang="cs"><strong>Zvolte kladný směr a už ho neměňte.</strong> Napište si ho do náčrtku. Většina chyb ve volném
-       pádu je znaménko změněné v půli cesty, ne špatně zapamatovaný vzorec.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">04</span>
-                    <span><span lang="en"><strong>Split two-dimensional motion by axis.</strong> Write the x-row and the y-row separately. The
-       only thing they share is <span data-tex="t"></span> — find it on one axis, use it on the other.</span><span lang="cs"><strong>Rozdělte pohyb ve dvou rozměrech po osách.</strong> Napište zvlášť řádek pro x a pro y. Jediné,
-       co sdílejí, je <span data-tex="t"></span> — najděte ho na jedné ose a použijte na druhé.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">05</span>
-                    <span><span lang="en"><strong>"Highest point" means one component is zero.</strong> At the peak of a trajectory
-       <span data-tex="v_y = 0"></span> while <span data-tex="v_x"></span> carries on unchanged. Turning points
-       in any direction are found the same way.</span><span lang="cs"><strong>„Nejvyšší bod" znamená, že jedna složka je nulová.</strong> Ve vrcholu dráhy je
-       <span data-tex="v_y = 0"></span>, zatímco <span data-tex="v_x"></span> pokračuje beze změny. Body obratu
-       se v libovolném směru hledají stejně.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">06</span>
-                    <span><span lang="en"><strong>Circular motion joined to a throw.</strong> When something is released from a circle, the
-       speed it had becomes the launch speed of a projectile. Solve the flight backwards to get that speed, then
-       put it into <span data-tex="a_c = v^2/r"></span>.</span><span lang="cs"><strong>Kruhový pohyb navázaný na vrh.</strong> Uvolní-li se těleso z kružnice, stane se z jeho
-       rychlosti počáteční rychlost vrhu. Vyřešte let pozpátku, získejte tu rychlost a dosaďte ji do
-       <span data-tex="a_c = v^2/r"></span>.</span></span>
-                </div>
-
-            </div>
-        </div>
+        <div class="wip">work in progress</div>
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -676,7 +521,7 @@
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Cannon sandbox</span><span lang="cs">Sandbox: dělo</span></span>
+                <span><span class="accent-pip"></span><span lang="en">Cannon sandbox</span><span lang="cs">Sandbox: dělo</span><span class="wip-tag">work in progress</span></span>
                 <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
@@ -815,7 +660,7 @@
 
             <div class="canvas-panel">
                 <div class="canvas-head">
-                    <span><span class="accent-pip"></span><span lang="en">Shooting range</span><span lang="cs">Střelnice</span></span>
+                    <span><span class="accent-pip"></span><span lang="en">Shooting range</span><span lang="cs">Střelnice</span><span class="wip-tag">work in progress</span></span>
                     <span id="ch-status" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">ready</span>
                 </div>
                 <div class="canvas-wrap">
@@ -895,7 +740,9 @@
                         <span class="ch-angle-label"><span lang="en">Launch angle</span><span lang="cs">Elevační úhel</span></span>
                         <div class="ch-angle-input-wrap">
                             <input type="number" id="ch-angle-input" class="ch-angle-input"
-                                   min="1" max="89" step="0.1" placeholder="45">
+                                   min="1" max="89" step="0.1" value="45.0"
+                                   inputmode="none" autocomplete="off"
+                                   aria-label="Launch angle in degrees, adjust with the arrows">
                             <span class="ch-angle-unit">°</span>
                         </div>
                         <button id="ch-fire-btn" class="btn-fire">▲ <span lang="en">Fire</span><span lang="cs">Pal</span></button>
@@ -912,12 +759,7 @@
         <div class="section-head">
             <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
         </div>
-        <div class="ex-tabs">
-            <a class="ex-tab" href="../exercises/ch02-ex78.html"><span lang="en">Ch. 2 · <span class="ex-no">Ex. 78</span></span><span lang="cs">Kap. 2 · <span class="ex-no">Úl. 78</span></span></a>
-            <a class="ex-tab" href="../exercises/ch02-ex87.html"><span lang="en">Ch. 2 · <span class="ex-no">Ex. 87</span></span><span lang="cs">Kap. 2 · <span class="ex-no">Úl. 87</span></span></a>
-            <a class="ex-tab" href="../exercises/ch04-ex15.html"><span lang="en">Ch. 4 · <span class="ex-no">Ex. 15</span></span><span lang="cs">Kap. 4 · <span class="ex-no">Úl. 15</span></span></a>
-            <a class="ex-tab" href="../exercises/ch04-ex67.html"><span lang="en">Ch. 4 · <span class="ex-no">Ex. 67</span></span><span lang="cs">Kap. 4 · <span class="ex-no">Úl. 67</span></span></a>
-        </div>
+        <div class="wip">work in progress</div>
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -1952,10 +1794,23 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ── Input wiring ───────────────────────────────────────────── */
     const angleInp = document.getElementById('ch-angle-input');
     if (angleInp) {
+        /* Arrows only. A free-text field can hold anything a visitor types, so
+           the angle is stepped instead — the value can never leave [1, 89] or
+           the 0.1 grid, and every reader of it downstream gets a real number. */
+        const A_STEP = 0.1, A_LO = 1, A_HI = 89;
+        const snap = v => Math.round(Math.min(A_HI, Math.max(A_LO, v)) / A_STEP) * A_STEP;
+        angleInp.addEventListener('keydown', e => {
+            if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'Tab') e.preventDefault();
+        });
+        angleInp.addEventListener('paste', e => e.preventDefault());
+        angleInp.addEventListener('drop',  e => e.preventDefault());
         angleInp.addEventListener('input', () => {
             const v = parseFloat(angleInp.value);
-            if (!isNaN(v) && v > 0 && v < 90) sim.angle = v;
+            const a = snap(isNaN(v) ? 45 : v);
+            angleInp.value = a.toFixed(1);
+            sim.angle = a;
         });
+        sim.angle = snap(parseFloat(angleInp.value));
     }
 
     document.getElementById('ch-fire-btn')?.addEventListener('click', () => {

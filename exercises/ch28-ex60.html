@@ -94,8 +94,7 @@
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="E_{\mathrm{p}}(\varphi) = -\mu B\cos\varphi"></div>
-                <div class="sim-hint"><span lang="en">raise the launch energy · the total-energy line meets the curve at the turning point</span><span lang="cs">zvyšte počáteční energii · přímka celkové energie protne křivku v bodě obratu</span></div>
+                <div class="canvas-formula-badge top-left" data-tex="E_{\mathrm{p}}(\varphi) = -\mu B\cos\varphi"></div>
             </div>
         </div>
 
@@ -309,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, W, H);
         const f = physics();
 
-        const mL = 66, mR = 26, mT = 34, mB = 46;
+        const mL = 66, mR = 26, mT = 96, mB = 52;   /* mT clears the equation badge */
         const pw = W - mL - mR, ph = H - mT - mB;
         const EMAX = 5.2e-4;
         const xPix = deg => mL + ((deg + 180) / 360) * pw;
@@ -395,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.lineTo(ix + Math.cos(a) * 18, iy - Math.sin(a) * 18);
             ctx.stroke();
             ctx.fillStyle = col.faint;
-            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText('B ↑', ix, iy + 30);
         }

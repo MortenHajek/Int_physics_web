@@ -94,8 +94,7 @@
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="E(r) = \dfrac{k\,q_{\text{enc}}(r)}{r^2}"></div>
-                <div class="sim-hint"><span lang="en">tune both charges until your curve sits on the printed one</span><span lang="cs">laďte oba náboje, dokud vaše křivka nesedne na tištěnou</span></div>
+                <div class="canvas-formula-badge top-left" data-tex="E(r) = \dfrac{k\,q_{\text{enc}}(r)}{r^2}"></div>
             </div>
         </div>
 
@@ -343,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, W, H);
         const matched = isMatched();
 
-        const mL = 64, mR = 26, mT = 30, mB = 46;
+        const mL = 64, mR = 26, mT = 96, mB = 52;   /* mT clears the equation badge */
         const pw = W - mL - mR, ph = H - mT - mB;
         const EMAX = 10.0e7;
         const xPix = r => mL + (r / R_MAX) * pw;
@@ -443,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillStyle = col.acc;
             ctx.beginPath(); ctx.arc(ccx, ccy, 4, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = col.soft;
-            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText(csLang ? 'q · vrstva Q' : 'q · shell Q', ccx, iy + ih - 14);
         }

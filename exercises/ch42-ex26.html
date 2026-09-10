@@ -85,7 +85,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="N(t) = N_0 \cdot 2^{-t/T_{1/2}}"></div>
-                <div class="sim-hint"><span lang="en">slide t · every T½ cuts the sample in half</span><span lang="cs">posouvejte t · každý poločas rozpolí vzorek</span></div>
             </div>
         </div>
 
@@ -365,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tmax = 8 * state.th;
         const px0 = 64, px1 = W - 26;
         const py0 = 30;
-        const py1 = show.grid ? H - 188 : H - 60;
+        const py1 = show.grid ? H - 188 : H - 116;   /* leaves the bottom strip to the equation badge */
         const X = t => px0 + (t / tmax) * (px1 - px0);
         const Y = f => py1 - (f / 1.06) * (py1 - py0);
 
@@ -376,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* axis annotations */
         ctx.fillStyle = col.faint;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('N (·10¹⁹ ATOMS)', px0, py0 - 8);
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
@@ -450,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             const bx = px0 + 20 * cell + 18;
-            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.fillStyle = col.faint;
             ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             ctx.fillText('SAMPLE OF 200 DOTS',        bx, gy0 + 6);

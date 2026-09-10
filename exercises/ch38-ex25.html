@@ -87,7 +87,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="p = eBr,\qquad E_{\text{f}} = \dfrac{hc}{\lambda} = E_k + W"></div>
-                <div class="sim-hint"><span lang="en">Br measures momentum · the photon budget pays for KE and escape</span><span lang="cs">Br udává hybnost · energie fotonu se dělí mezi KE a výstupní práci</span></div>
             </div>
         </div>
 
@@ -302,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* ── left: foil + orbit ──────────────────────────────────── */
         const foilX = W * 0.16;
-        const foilY0 = H * 0.2, foilY1 = H * 0.86;
+        const foilY0 = H * 0.2, foilY1 = Math.min(H * 0.86, H - 108);   /* leaves the bottom strip to the equation badge */
 
         /* B out-of-page dots */
         ctx.strokeStyle = col.faint; ctx.fillStyle = col.faint; ctx.lineWidth = 1;
@@ -356,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* ── right: energy budget bars ───────────────────────────── */
         const bx = W * 0.68, bw = 60;
-        const bh = H * 0.6, byB = H * 0.84;
+        const bh = H * 0.6, byB = Math.min(H * 0.84, H - 108);   /* leaves the bottom strip to the equation badge */
         const eMax = Math.max(f.ephKeV * 1.1, 5);
 
         /* photon bar */

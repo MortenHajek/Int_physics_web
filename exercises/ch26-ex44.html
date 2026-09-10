@@ -87,7 +87,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="P = \dfrac{U^2}{R}"></div>
-                <div class="sim-hint"><span lang="en">tune U until your line hits the target</span><span lang="cs">nastavujte U, dokud vaše přímka nezasáhne cíl</span></div>
             </div>
         </div>
 
@@ -379,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(cxs + 1, y0 - 4);
         ctx.lineTo(cxs + 1, y0 + 4);
         ctx.closePath(); ctx.fill();
-        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
         ctx.fillText('I', cxs - 8, y0 - 6);
     }
@@ -389,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const px0 = W * 0.32 + 46;
         const px1 = W - 26;
         const py0 = 34;
-        const py1 = H - 48;
+        const py1 = H - 112;   /* leaves the bottom strip to the equation badge */
         const xOf = t => px0 + (t / T_MAX) * (px1 - px0);
         const yOf = q => py1 - (q / Q_MAX) * (py1 - py0);
 

@@ -101,7 +101,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="E = \dfrac{kQ}{a(a+d)}"></div>
-                <div class="sim-hint"><span lang="en">slide a outward · watch the two curves merge</span><span lang="cs">zvětšujte a · sledujte, jak obě křivky splývají</span></div>
             </div>
         </div>
 
@@ -418,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const cs = document.documentElement.getAttribute('data-lang') === 'cs';
         ctx.fillStyle = col.faint;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(cs ? 'BOČNÍ POHLED — POLE NA OSE TYČE'
                         : 'SIDE VIEW — FIELD ON THE ROD AXIS', 24, 26);
@@ -426,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         /* axis with +x arrowhead */
         arrow(20, axisY, W - 22, axisY, col.faint, 1);
         ctx.fillStyle = col.faint;
-        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
+        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
         ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
         ctx.fillText('x', W - 26, axisY - 8);
 
@@ -476,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.beginPath(); ctx.moveTo(xa, dimY - 4); ctx.lineTo(xa, dimY + 4); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(xb, dimY - 4); ctx.lineTo(xb, dimY + 4); ctx.stroke();
             ctx.fillStyle = col.faint;
-            ctx.font = '9px "JetBrains Mono", monospace';
+            ctx.font = '10px "JetBrains Mono", monospace';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText(label, (xa + xb) / 2, dimY + 7);
         }
@@ -485,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* ---- plot: E(a), rod vs point charge, log scale ---- */
         const px0 = 58, px1 = W - 30;
-        const py0 = Math.max(axisY + 78, H * 0.40), py1 = H - 62;
+        const py0 = Math.max(axisY + 78, H * 0.40), py1 = H - 116;  /* tick row clears the badge */
         const A0 = 4, A1 = 60;
         const eTop = ePoint(A0), eBot = eRod(A1);
         const lmin = Math.log10(eBot) - 0.10;
@@ -494,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const Y = E  => py1 - (Math.log10(E) - lmin) / (lmax - lmin) * (py1 - py0);
 
         ctx.fillStyle = col.faint;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(cs ? 'E(a) — TYČ VS BODOVÝ NÁBOJ · LOG. MĚŘÍTKO'
                         : 'E(a) — ROD VS POINT CHARGE · LOG SCALE', px0, py0 - 12);
@@ -537,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /* curve tags where the gap is widest */
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = col.acc;
         ctx.fillText(cs ? 'TYČ' : 'ROD', X(6) + 4, Y(eRod(6)) + 16);

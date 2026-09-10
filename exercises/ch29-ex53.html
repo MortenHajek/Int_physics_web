@@ -89,7 +89,6 @@
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="\tan\theta = \dfrac{B_{\text{wire}}}{B_{\text{sol}}} = \dfrac{\mu_0 I_w/2\pi r}{\mu_0 n I_s}"></div>
-                <div class="sim-hint"><span lang="en">slide the probe outward · the wire's field fades, the solenoid's doesn't</span><span lang="cs">posuňte sondu ven · pole vodiče slábne, pole solenoidu ne</span></div>
             </div>
         </div>
 
@@ -324,8 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* side cutaway: axis horizontal, solenoid body */
         const sx0 = W * 0.08, sx1 = W * 0.66;
-        const cy = H * 0.5;
-        const Rpx = H * 0.34;
+        const cy = (H - 96) * 0.5;   /* leaves the bottom strip to the equation badge */
+        const Rpx = (H - 96) * 0.34;
 
         /* solenoid winding dots (top: current out, bottom: in) */
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
@@ -389,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(px + 76, py - 76); ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = col.faint;
-        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.font = '10px "JetBrains Mono", monospace';
         ctx.fillText('45° target', px + 80, py - 80);
 
         /* probe dot */
