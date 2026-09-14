@@ -129,7 +129,7 @@
 
             /* ── Which way each component runs ───────────────────────────── */
             ctx.save();
-            ctx.font = '11px "JetBrains Mono","Courier New",monospace';
+            ctx.font = '11px "Geist",ui-sans-serif,sans-serif';
             ctx.fillStyle = col.soft; ctx.globalAlpha = 0.7;
             ctx.textBaseline = 'middle';
             ctx.textAlign = 'center';

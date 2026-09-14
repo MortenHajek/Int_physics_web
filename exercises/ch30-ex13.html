@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -354,17 +355,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = color;
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         const t1 = 'target ε', t3 = ' = 150 V';
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         const w1 = ctx.measureText(t1).width;
         const w3 = ctx.measureText(t3).width;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         const w2 = ctx.measureText('m').width;
         let x = xRight - (w1 + w2 + w3);
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.fillText(t1, x, y); x += w1;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.fillText('m', x, y + 2); x += w2;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.fillText(t3, x, y);
     }
 
@@ -388,8 +389,12 @@ document.addEventListener('DOMContentLoaded', () => {
            world x runs across the screen, y up, z into the picture with a
            0.34 foreshortening, the same convention the torsion sandbox on
            the rotation topic page uses.                                 */
-        const cx = W * 0.17, cy = H * 0.44;
-        const R  = Math.min(W * 0.11, H * 0.26);
+        /* A phone-width canvas cannot hold the coil and the chart side by
+           side; there the coil takes the top band (which the equation badge
+           no longer needs) and the chart runs full width underneath it. */
+        const narrow = W < 520;
+        const cx = narrow ? W * 0.5 : W * 0.17, cy = narrow ? 82 : H * 0.44;
+        const R  = narrow ? Math.min(W * 0.16, 56) : Math.min(W * 0.11, H * 0.26);
         const KZ = 0.34;                       /* depth foreshortening    */
         const aHalf = R * 0.92, bHalf = R * 0.68;
         const proj = (x, y, z) => [cx + x + z * KZ * 0.55, cy - y + z * KZ];
@@ -480,15 +485,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!REDUCED) {
             ctx.fillStyle = col.faint;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
             ctx.fillText(isCS30() ? 'zpomaleno pro zobrazení' : 'slowed for display',
                          cx, cy + bHalf + 62);
         }
 
         /* ══ Right two-thirds — scrolling emf strip chart ═════════ */
-        const chartL = W * 0.37, chartR = W - 22;
-        const chartT = 96,       chartB = H - 44;   /* chartT clears the equation badge */
+        const chartL = narrow ? 54 : W * 0.37, chartR = W - 22;
+        const chartT = narrow ? cy + 122 : 96,  chartB = H - 44;   /* chartT clears the equation badge, or on a phone the coil */
         const y0     = (chartT + chartB) / 2;
         const yScale = (chartB - chartT) / 2 / 200;   /* ±200 V full scale */
         const chartW = chartR - chartL;
@@ -498,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath(); ctx.moveTo(chartL, chartT); ctx.lineTo(chartL, chartB); ctx.stroke();
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(chartL, y0); ctx.lineTo(chartR, y0); ctx.stroke();
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.fillStyle = col.faint;
         ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         [200, 100, 0, -100, -200].forEach(v => {
@@ -547,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* chart caption */
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(REDUCED ? 'one period, static' : 'ε(t) — scrolling', chartL + 6, chartB + 16);
 

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -35,7 +36,7 @@
         height: 100%;
         display: block;
     }
-    #pg-canvas { cursor: crosshair; touch-action: none; }
+    #pg-canvas { cursor: crosshair; touch-action: manipulation; }
     /* The playground draws its own lattice, so the graph-paper ruling would
        only fight it — this is the one sandbox without it. */
     #lab .canvas-wrap { background: var(--paper-deep); }
@@ -1109,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : [nodeIdx(c.i, c.j), nodeIdx(c.i, c.j + 1)];
     }
 
-    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const MONO  = '"Geist", ui-sans-serif, system-ui, sans-serif';
     const SERIF = '"Source Serif 4", Georgia, serif';
 
     let comps   = new Map();      /* edge key → component                */
@@ -1654,7 +1655,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (c.kind === 'capacitor') l2 = fmtSI(Math.abs(U), 'V', 2) + ' · ' + fmtSI(Math.abs(U) * c.Cap * 1e-6, 'C', 1);
                 else if (I !== undefined && c.kind !== 'switch') l2 = fmtSI(Math.abs(I), 'A', 2) + ' · ' + fmtSI(Math.abs(U || 0), 'V', 2);
                 label(l1, mx + ox, my + oy, 10, col.soft, vert ? 'left' : 'center', col.paper);
-                if (l2) label(l2, mx + ox, my + oy + (vert ? 13 : -13), 10, col.acc, vert ? 'left' : 'center', col.paper);
+                /* a phone-width board has cells too narrow for "I · U" on one line
+                   beside a part: there it is stacked, current over voltage */
+                const parts = l2 && W < 520 ? l2.split(' · ') : [l2];
+                parts.forEach((p, i) => {
+                    if (p) label(p, mx + ox, my + oy + (vert ? 13 : -13) * (i + 1), 10, col.acc, vert ? 'left' : 'center', col.paper);
+                });
             }
         }
 
@@ -1740,7 +1746,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (k !== hoverKey) { hoverKey = k; request(); }
     });
     canvas.addEventListener('pointerleave', () => { hoverKey = null; request(); });
+    /* A mouse acts on press. A finger acts only on a tap that ends where it
+       began: the board fills a phone screen, and a touch that turns into a
+       scroll must not drop a part where it happened to start. */
+    let tap = null;
     canvas.addEventListener('pointerdown', ev => {
+        if (ev.pointerType === 'touch') { tap = { id: ev.pointerId, x: ev.clientX, y: ev.clientY }; return; }
+        place(ev);
+    });
+    canvas.addEventListener('pointerup', ev => {
+        if (tap && tap.id === ev.pointerId &&
+            Math.hypot(ev.clientX - tap.x, ev.clientY - tap.y) < 12) place(ev);
+        tap = null;
+    });
+    canvas.addEventListener('pointercancel', () => { tap = null; });
+    function place(ev) {
         const p = pos(ev), L = layout();
         const e = edgeAt(p.x, p.y, L);
         if (!e) { selKey = null; refresh(); return; }
@@ -1758,7 +1778,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selKey = k;
         }
         refresh();
-    });
+    }
 
     function radios(attr, cb) {
         const rows = [].slice.call(document.querySelectorAll('[data-' + attr + ']'));
@@ -2000,7 +2020,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath(); ctx.arc(sx + 13, y1, 2.6, 0, Math.PI * 2); ctx.fill();
 
         /* charge on the plates, growing with U_C */
-        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.font = '12px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.globalAlpha = 0.25 + 0.75 * frac;
@@ -2030,7 +2050,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /* labels */
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.fillStyle = col.soft;
         ctx.textAlign = 'center';
         ctx.fillText('R', rx0 + rw / 2, y0 - 18);
@@ -2038,12 +2058,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText('ε', x0 - 18, bm);
         ctx.textAlign = 'left';
         ctx.fillText('C', x1 + 18, bm);
+        /* the two live values sit beside the parts they belong to; a phone-width
+           canvas has no room out there, so they go under the circuit's corners */
+        const under = x0 < 96;
         ctx.fillStyle = col.acc;
-        ctx.textAlign = 'left';
-        ctx.fillText('U_C = ' + uc.toFixed(2) + ' V', x1 + 18, bm + 16);
+        ctx.textAlign = under ? 'right' : 'left';
+        ctx.fillText('U_C = ' + uc.toFixed(2) + ' V', under ? x1 + 4 : x1 + 18, under ? y1 + 18 : bm + 16);
         ctx.fillStyle = col.faint;
-        ctx.textAlign = 'right';
-        ctx.fillText('I = ' + (ic * 1000).toFixed(2) + ' mA', x0 - 18, bm + 16);
+        ctx.textAlign = under ? 'left' : 'right';
+        ctx.fillText('I = ' + (ic * 1000).toFixed(2) + ' mA', under ? x0 - 4 : x0 - 18, under ? y1 + 18 : bm + 16);
         ctx.restore();
     }
 
@@ -2081,7 +2104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
             ctx.setLineDash([]);
             ctx.fillStyle = col.acc + '90';
-            ctx.font = '12px "JetBrains Mono", monospace';
+            ctx.font = '12px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'bottom';
             ctx.fillText('ε = ' + state.emf.toFixed(1) + ' V', ox + 6, yEpsilon - 3);
@@ -2100,7 +2123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
             ctx.setLineDash([]);
             ctx.fillStyle = col.faint;
-            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
             ctx.fillText('τ', xTau, oy + 6);
@@ -2181,7 +2204,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Y axis ticks & labels
         ctx.fillStyle = col.faint;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         [0, 0.25, 0.5, 0.75, 1.0].forEach(frac => {
@@ -2193,7 +2216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // X axis label
         ctx.fillStyle = col.faint;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(document.documentElement.getAttribute('data-lang') === 'cs'

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -375,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* axis annotations */
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('N (·10¹⁹ ATOMS)', px0, py0 - 8);
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
@@ -397,7 +398,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.setLineDash([]);
             ctx.fillStyle = col.faint;
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            for (let k = 1; k <= 7; k++) ctx.fillText(fmtH(k * state.th), X(k * state.th), py1 + 7);
+            /* every half-life when there is room; on a narrow plot every second one,
+               and never on top of the end label */
+            const every = X(state.th) - X(0) < 44 ? 2 : 1;
+            for (let k = every; k <= 7; k += every)
+                if (X(k * state.th) < px1 - 40) ctx.fillText(fmtH(k * state.th), X(k * state.th), py1 + 7);
             const names = ['N₀/2', 'N₀/4', 'N₀/8', 'N₀/16'];
             ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
             for (let k = 1; k <= 4; k++) ctx.fillText(names[k - 1], px1 - 2, Y(Math.pow(0.5, k)) - 2);
@@ -426,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = col.acc; ctx.fill();
         ctx.strokeStyle = col.paper; ctx.lineWidth = 1.5; ctx.stroke();
         ctx.fillStyle = col.acc;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textBaseline = 'bottom';
         if (mx > px1 - 50) { ctx.textAlign = 'right'; ctx.fillText('N(t)', mx - 8, my - 6); }
         else               { ctx.textAlign = 'left';  ctx.fillText('N(t)', mx + 8, my - 6); }
@@ -436,8 +441,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const gy0 = H - 146, gy1 = H - 56;
             const cell = (gy1 - gy0) / 10;
             const alive = Math.round(200 * frac);
+            const gx = W < 520 ? 16 : px0;   /* narrow: from the edge, so its legend fits beside it */
             for (let i = 0; i < 200; i++) {
-                const dx = px0 + ((i % 20) + 0.5) * cell;
+                const dx = gx + ((i % 20) + 0.5) * cell;
                 const dy = gy0 + (Math.floor(i / 20) + 0.5) * cell;
                 if (rank[i] < alive) {
                     ctx.beginPath(); ctx.arc(dx, dy, 2.8, 0, Math.PI * 2);
@@ -448,14 +454,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.globalAlpha = 0.55; ctx.stroke(); ctx.globalAlpha = 1;
                 }
             }
-            const bx = px0 + 20 * cell + 18;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            const bx = gx + 20 * cell + 18;
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.fillStyle = col.faint;
             ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             ctx.fillText('SAMPLE OF 200 DOTS',        bx, gy0 + 6);
             ctx.fillText('1 DOT ≈ 0.24·10¹⁹ ATOMS',   bx, gy0 + 20);
             ctx.fillStyle = col.acc;
-            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
             ctx.fillText(alive + ' / 200 REMAIN',      bx, gy0 + 42);
         }
 

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -828,7 +829,7 @@ const PP7 = (function () {
     }
 
     function mono(ctx, text, x, y, col, size, align) {
-        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.font = (size || 10) + 'px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = col; ctx.fillText(text, x, y);
     }
@@ -1793,6 +1794,10 @@ const PP7 = (function () {
     $('ap-reset')?.addEventListener('click', () => { userAz = userEl = 0; userZoom = 1; goto(0); });
 
     const wrap = V.canvas.parentElement;
+    /* On glass a vertical swipe scrolls the page and a sideways one turns the
+       camera; the browser decides at the first movement and cancels the
+       pointer if it chose to scroll, which `stop` already handles. */
+    V.canvas.style.touchAction = 'pan-y';
     V.canvas.addEventListener('pointerdown', e => {
         drag = { x: e.clientX, y: e.clientY };
         V.canvas.setPointerCapture(e.pointerId);

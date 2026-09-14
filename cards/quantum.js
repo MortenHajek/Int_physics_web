@@ -210,7 +210,7 @@
                put one that is not under the card's colour label, and the rung
                labels name the ladder well enough. */
             ctx.save();
-            ctx.font = '9px "JetBrains Mono","Courier New",monospace';
+            ctx.font = '9px "Geist",ui-sans-serif,sans-serif';
             ctx.fillStyle = col.faint;
             ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
             ctx.fillText('0', ladR + 3, ladTop);
@@ -226,7 +226,7 @@
                 ctx.globalAlpha = here ? 1 : 0.5;
                 ctx.lineWidth = here ? 2 : 1.2;
                 ctx.beginPath(); ctx.moveTo(ladL, y); ctx.lineTo(ladR, y); ctx.stroke();
-                ctx.font = '9px "JetBrains Mono","Courier New",monospace';
+                ctx.font = '9px "Geist",ui-sans-serif,sans-serif';
                 ctx.fillStyle = here ? col.acc : col.faint;
                 ctx.globalAlpha = 1;
                 ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
@@ -255,7 +255,7 @@
                 ctx.lineTo(ax - 3.6, yB + (up ? 7 : -7));
                 ctx.lineTo(ax + 3.6, yB + (up ? 7 : -7));
                 ctx.closePath(); ctx.fill();
-                ctx.font = '9px "JetBrains Mono","Courier New",monospace';
+                ctx.font = '9px "Geist",ui-sans-serif,sans-serif';
                 ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
                 ctx.fillText(gap(seg.from, seg.to).toFixed(2), ax - 6, (yA + yB) / 2);
                 ctx.restore();

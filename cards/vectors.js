@@ -126,7 +126,7 @@
             rail(cx, oy, cx, cy);
 
             ctx.save();
-            ctx.font = '10px "JetBrains Mono","Courier New",monospace';
+            ctx.font = '10px "Geist",ui-sans-serif,sans-serif';
             ctx.fillStyle = col.acc; ctx.globalAlpha = 0.75;
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText('cx', (ox + cx) / 2, oy + 7);

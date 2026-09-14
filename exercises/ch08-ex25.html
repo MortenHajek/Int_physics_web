@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -420,8 +421,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ctx.clearRect(0, 0, W, H);
         const px = W * 0.52, pyv = H * 0.10;         /* pivot */
-        const s = (H * 0.66) / state.L;              /* px per metre */
         const phi0 = sim.phi0;
+        /* px per metre: the vine fills the height, unless its swing would carry
+           the ledge and h-dimension off the left edge or into the gauge on the
+           right — which on a phone-width canvas it does */
+        const reach = Math.max(Math.sin(phi0), 0.05) * state.L;
+        const s = W < 520 ? Math.min(H * 0.66 / state.L, (px - 100) / reach, (W - 80 - px) / reach)
+                          : H * 0.66 / state.L;
         const groundY = pyv + state.L * s + 26;
 
         /* ground */
@@ -450,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.beginPath(); ctx.moveTo(x, ly + 56); ctx.lineTo(x - 7, ly + 64); ctx.stroke();
         }
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.fillText('LEDGE', lx - 26, ly + 68);
 
@@ -496,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tx = px + sim.x * s, ty = pyv + sim.y * s;
             if (ty < groundY - 4) tarzan(tx, ty, Math.atan2(sim.vx, 40) * 0.5);
             ctx.fillStyle = col.acc;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
             ctx.fillText('SNAP!', px, pyv - 8);
         }
@@ -517,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.beginPath(); ctx.moveTo(gx - 6, lyv); ctx.lineTo(gx + 20, lyv); ctx.stroke();
             ctx.setLineDash([]);
             ctx.fillStyle = col.soft;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText('T', gx + 7, gy1 + 6);
             ctx.textBaseline = 'bottom';

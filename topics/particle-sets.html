@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -877,7 +878,7 @@ const PP5 = (function () {
     }
 
     function mono(ctx, text, x, y, col, size, align) {
-        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.font = (size || 10) + 'px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = col;
         ctx.fillText(text, x, y);
@@ -1179,7 +1180,7 @@ const PP5 = (function () {
         ctx.beginPath(); ctx.moveTo(tx, y + 24); ctx.lineTo(tx, y + h - 26); ctx.stroke();
         ctx.setLineDash([]);
         const lab = 'Σp = ' + PP5.num(S.a.p, 2) + ' kg·m/s';
-        ctx.font = '10px "JetBrains Mono",monospace';
+        ctx.font = '10px "Geist",ui-sans-serif,sans-serif';
         const lw = ctx.measureText(lab).width + 10;
         const lx = Math.min(Math.max(tx, x + lw / 2), x + w - lw / 2);
         ctx.fillStyle = c.paper; ctx.fillRect(lx - lw / 2, y + h - 32, lw, 16);

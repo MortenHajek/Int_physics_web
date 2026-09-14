@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -677,10 +678,10 @@
                     <span class="cm-num">04</span>
                     <span><span lang="en"><strong>Add the components.</strong> Sum X and Y separately, then
                     <span data-tex="|\vec{E}| = \sqrt{E_x^2+E_y^2}"></span>. The force on a charge placed
-                    in the field is <span data-tex="\vec{F} = Q\vec{E}"></span> — from there it is mechanics.</span>
+                    in the field is <span data-tex="\vec{F} = Q\vec{E}"></span>.</span>
                     <span lang="cs"><strong>Sečtěte složky.</strong> Sečtěte zvlášť X a Y, pak
                     <span data-tex="|\vec{E}| = \sqrt{E_x^2+E_y^2}"></span>. Síla na náboj umístěný
-                    v poli je <span data-tex="\vec{F} = Q\vec{E}"></span> — a dál už je to mechanika.</span></span>
+                    v poli je <span data-tex="\vec{F} = Q\vec{E}"></span>.</span></span>
                 </div>
                 <div class="cm-step">
                     <span class="cm-num">05</span>
@@ -1193,6 +1194,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     ['pointerup', 'pointercancel'].forEach(ev =>
         canvas.addEventListener(ev, () => { dragging = false; }));
+    /* A finger on the third charge drags it; anywhere else the page scrolls.
+       pointerdown has already decided by the time the touch event arrives. */
+    canvas.addEventListener('touchstart', e => { if (dragging) e.preventDefault(); }, { passive: false });
 
     /* Toggle display */
     function wireToggle(id, key) {
@@ -1482,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* Separation label */
         ctx.save();
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.fillStyle = col.faint;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
@@ -1915,7 +1919,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pxP = ox + dpx + (obj === 'plane' ? 17 : 0);
         ctx.fillStyle = col.ink;
         ctx.beginPath(); ctx.arc(pxP, oy, 3.2, 0, Math.PI * 2); ctx.fill();
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.fillStyle = col.soft;
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('P', pxP + 6, oy - 6);
@@ -1927,7 +1931,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gx0 = 56, gx1 = W - 24;
         const gy0 = skH + 26, gy1 = H - 108;   /* axis and its caption clear the badge */
         const csMode = document.documentElement.getAttribute('data-lang') === 'cs';
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.fillStyle = col.soft;
         ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
         ctx.fillText(csMode ? 'VELIKOST ELEKTRICKÉ INTENZITY V BODĚ P' : 'MAGNITUDE OF ELECTRIC INTENSITY',
@@ -1957,7 +1961,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.setLineDash([3, 3]);
             ctx.beginPath(); ctx.moveTo(X(p.R), gy0); ctx.lineTo(X(p.R), gy1); ctx.stroke();
             ctx.setLineDash([]);
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.fillStyle = col.faint;
             ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             ctx.fillText('R', X(p.R) + 6, gy0 + 4);
@@ -1977,7 +1981,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.arc(X(Math.max(p.d, dmin)), Y(Math.min(Ep, Emax)), 3, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.fillStyle = col.faint;
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         ctx.fillText('|E|', gx0 + 4, gy0);
@@ -2057,7 +2061,7 @@ const PPE = (function () {
         return o;
     }
     function mono(ctx, text, x, y, col, size, align) {
-        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.font = (size || 10) + 'px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = col; ctx.fillText(text, x, y);
     }
@@ -2233,7 +2237,10 @@ const PPE = (function () {
         return { pos: pos, fwd: fwd, right: right, up: cross3(right, fwd) };
     }
     function projector(bs, W, H) {
-        const f = (H * 0.5) / Math.tan(26 * Math.PI / 180);
+        /* the lens is set by the height — every scene was framed on a wide
+           stage. A phone's stage is taller than it is wide, and there the
+           width sets it instead, or the sides of each scene fall off it. */
+        const f = (Math.min(H, W) * 0.5) / Math.tan(26 * Math.PI / 180);
         return function (p) {
             const v = sub3(p, bs.pos), z = dot3(v, bs.fwd);
             if (z < 0.05) return null;
@@ -2805,7 +2812,7 @@ const PPE = (function () {
         const gw = step >= 6 ? Math.min(276, Math.max(196, v.W * 0.24)) + 28 : 0;
         const max = v.W - 32 - gw;
         if (max < 210) return;
-        ctx.font = '10px "JetBrains Mono",monospace';
+        ctx.font = '10px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = SKY.faint;
         ctx.fillText(text, 16, v.H - 104, max);
@@ -2882,7 +2889,7 @@ const PPE = (function () {
             ctx.strokeStyle = o.keys[i][1]; ctx.lineWidth = 2; ctx.setLineDash([]);
             ctx.beginPath(); ctx.moveTo(kx, y + h - 12); ctx.lineTo(kx + 11, y + h - 12); ctx.stroke();
             PPE.mono(ctx, o.keys[i][0], kx + 15, y + h - 12, SKY.soft, 9);
-            ctx.font = '9px "JetBrains Mono",monospace';
+            ctx.font = '9px "Geist",ui-sans-serif,sans-serif';
             kx += 15 + ctx.measureText(o.keys[i][0]).width + 13;
         }
         ctx.restore();

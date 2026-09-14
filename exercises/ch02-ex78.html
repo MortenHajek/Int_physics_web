@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -363,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ── Drawing helpers ────────────────────────────────────────── */
     function axisLabel(txt, x, y, align) {
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = align || 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(txt, x, y);
@@ -398,13 +399,13 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let xx = xstep; xx <= xmax; xx += xstep) {
             ctx.beginPath(); ctx.moveTo(mx0 - 4, SY(xx)); ctx.lineTo(mx0, SY(xx)); ctx.stroke();
             ctx.fillStyle = col.faint;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
             ctx.fillText(xx + '', mx0 - 7, SY(xx));
         }
         ctx.save();
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('x (m)', mx0 + 4, my0 + 2);
         ctx.restore();
@@ -428,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke(); ctx.setLineDash([]);
             const mtx = SX(t * 0.55), mty = SY(xf(t) * 0.55 / (t > 0 ? 1 : 1) * 1);
             ctx.fillStyle = col.soft;
-            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
             ctx.fillText('v̄ = ' + (xf(t) / t).toFixed(1) + ' m/s', mtx + 8, mty - 4);
         }
@@ -444,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.lineTo(SX(tB), SY(x0 + vt * (tB - t)));
             ctx.stroke();
             ctx.fillStyle = col.acc;
-            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'top';
             ctx.fillText('v = ' + vt.toFixed(1) + ' m/s', SX(tB) - 78, SY(x0 + vt * (tB - t)) + 8);
         }
@@ -471,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
             axisLabel('t (s)', mx1 - 6, gy1 + 7, 'right');
             ctx.fillStyle = col.faint;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
             ctx.fillText('vx (m/s)', mx0 + 4, gy0 + 2);
 
@@ -482,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
 
             ctx.fillStyle = col.soft;
-            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
             ctx.fillText('slope = a = ' + (2 * state.B).toFixed(1) + ' m/s²',
                          SX(1.1), VY(vf(1.1)) - 8);

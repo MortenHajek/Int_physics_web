@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -321,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(cx + 10, wy - 17); ctx.lineTo(cx + 10, wy - 7);
         ctx.closePath(); ctx.fill();
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('I', cx + 30, wy - 8);
 
@@ -329,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(x0, wy + 16); ctx.lineTo(x1, wy + 16); ctx.stroke();
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.fillText('L = ' + state.l.toFixed(1) + ' cm', cx, wy + 20);
 
@@ -356,12 +357,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
         ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
         ctx.fillText('P₁', cx - 16, py - 4);
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('B out of page', cx + 18, py - 4);
 
         /* B comparison bars */
-        const bx = W - 100, bw = 26, bh = H * 0.4, by = H * 0.16;
+        /* on a phone-width canvas the bars would stand in the triangle: they
+           shrink into the top-right corner instead */
+        const narrow = W < 520;
+        const bx = W - 100, bw = 26, bh = narrow ? 84 : H * 0.4, by = narrow ? 18 : H * 0.16;
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
         ctx.strokeRect(bx, by, bw, bh);
         ctx.strokeRect(bx + 40, by, bw, bh);
@@ -371,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = col.faint;
         ctx.fillRect(bx + 40, by, bw, bh);
         ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.fillText('finite', bx + bw / 2, by + bh + 6);
         ctx.fillText('∞ wire', bx + 40 + bw / 2, by + bh + 6);

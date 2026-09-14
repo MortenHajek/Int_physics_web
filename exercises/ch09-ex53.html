@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -323,9 +324,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const tau = (ts / 1000) % (T1 + T2 + T3 + 0.6);
 
         const gy = H * 0.64;
-        const b1x0 = W * 0.34, b2x0 = W * 0.62;   /* initial block positions */
         const bw1 = 64, bw2 = 72, bh = 52;
-        const pxPerMS = 60;                        /* px per (m/s · s) for block drift */
+        const pxPerMS = 60 * Math.min(1, W / 640); /* px per (m/s · s) for block drift */
+        /* initial block positions — on a narrow canvas pulled left so block 2
+           still ends its drift on the canvas, and block 1 kept clear of it */
+        const b2x0 = Math.min(W * 0.62, W - bw2 - 16 - state.v2 * pxPerMS * 2.0);
+        const b1x0 = Math.min(W * 0.34, b2x0 - bw1 - 40);
 
         /* block positions over the phases */
         let b1x = b1x0, b2x = b2x0, bulletX = null, bulletIn2 = false;
@@ -346,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
         ctx.beginPath(); ctx.moveTo(16, gy); ctx.lineTo(W - 16, gy); ctx.stroke();
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'right'; ctx.textBaseline = 'top';
         ctx.fillText('frictionless', W - 22, gy + 8);
 
@@ -362,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.lineWidth = 1.5;
                 ctx.beginPath(); ctx.moveTo(x + w / 2, gy - bh - 14);
                 ctx.lineTo(x + w / 2 + 22 + vel * 16, gy - bh - 14); ctx.stroke();
-                ctx.font = '10px "JetBrains Mono", monospace';
+                ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
                 ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
                 ctx.fillText(vel.toFixed(2) + ' m/s', x + w / 2 + 26 + vel * 16, gy - bh - 14);
             }
@@ -394,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.closePath(); ctx.fill();
             if (show.labels) {
                 ctx.fillStyle = col.acc;
-                ctx.font = '10px "JetBrains Mono", monospace';
+                ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
                 ctx.fillText(tau < T1 ? 'v₀ = ' + v0.toFixed(0) + ' m/s'
                                       : 'v = ' + vMid.toFixed(0) + ' m/s',

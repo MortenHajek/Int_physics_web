@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -393,12 +394,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* markers: U and the peak */
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        const narrow = W < 520;   /* phone: level names sit on their lines, not beside the bars */
         [[yU, 'U (release)'], [yTop, 'top · h above U']].forEach(([y, name]) => {
             ctx.beginPath(); ctx.moveTo(cx - 90, y); ctx.lineTo(cx + 90, y); ctx.stroke();
             ctx.fillStyle = col.soft;
-            ctx.font = '10px "JetBrains Mono", monospace';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-            ctx.fillText(name, cx + 96, y);
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = narrow ? 'bottom' : 'middle';
+            if (narrow) ctx.fillText(name, cx - 90, y - 4);
+            else ctx.fillText(name, cx + 96, y);
         });
         ctx.setLineDash([]);
 
@@ -412,25 +416,26 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.stroke();
 
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         ctx.fillText(note, 26, 22);
 
         /* energy bars — fractions of the release-point store E_p */
         if (show.bars) {
-            const bx = W - 96, by1 = H * 0.72, span = H * 0.44;
+            const pitch = narrow ? 40 : 26;   /* room for each bar's name under it */
+            const bx = narrow ? W - 2 * pitch - 29 : W - 96, by1 = H * 0.72, span = H * 0.44;
             const xNow = Math.max(0, (springTop - natTop)) / pxPerC;   /* current compression, m */
             const elastic = Math.min(1, (xNow / xt) ** 2);
             const grav = Math.max(0, Math.min(1, (yU - stoneY) / (yU - yTop)));
             const kinetic = Math.max(0, 1 - elastic - grav);
-            [[elastic, 'spring', 0], [grav, 'grav', 26], [kinetic, 'kin', 52]]
+            [[elastic, 'spring', 0], [grav, 'grav', pitch], [kinetic, 'kin', 2 * pitch]]
             .forEach(([f, name, off]) => {
                 ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
                 ctx.strokeRect(bx + off, by1 - span, 15, span);
                 ctx.fillStyle = col.acc;
                 ctx.fillRect(bx + off, by1 - f * span, 15, f * span);
                 ctx.fillStyle = col.soft;
-                ctx.font = '10px "JetBrains Mono", monospace';
+                ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'top';
                 ctx.fillText(name, bx + off + 7, by1 + 5);
             });

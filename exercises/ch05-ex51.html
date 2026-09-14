@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -351,13 +352,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x - 8, gy + 9); ctx.stroke();
         }
 
-        /* blocks sized by mass */
+        /* blocks sized by mass; on a narrow canvas the whole train (blocks,
+           gaps, pull arrow and its slide) shrinks to fit, the lettering does not */
         const sizes = [state.m1, state.m2, state.m3].map(m => 34 + m * 1.1);
-        const gapPx = 46;
-        let x = W * 0.06 + drift;
+        const train = sizes.reduce((s, v) => s + Math.min(v, 84), 0) + 2 * 46 + 54 + state.t3 * 0.9;
+        const k = Math.min(1, (W * 0.94 - 94) / train);
+        const gapPx = 46 * k;
+        let x = W * 0.06 + drift * k;
         const rects = [];
         sizes.forEach((s, i) => {
-            const bh = Math.min(s, 74), bw = Math.min(s, 84);
+            const bh = Math.min(s, 74) * k, bw = Math.min(s, 84) * k;
             rects.push([x, gy - bh, bw, bh]);
             x += bw + gapPx;
         });
@@ -378,11 +382,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         /* pulling force */
         const [x3, y3, w3, h3] = rects[2];
-        arrow(x3 + w3, gy - 18, x3 + w3 + 30 + state.t3 * 0.9, gy - 18, col.acc, 2.6);
+        arrow(x3 + w3, gy - 18, x3 + w3 + (30 + state.t3 * 0.9) * k, gy - 18, col.acc, 2.6);
         ctx.fillStyle = col.acc;
         ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('T₃', x3 + w3 + 34 + state.t3 * 0.9, gy - 24);
+        ctx.fillText('T₃', x3 + w3 + (34 + state.t3 * 0.9) * k, gy - 24);
 
         /* draw blocks on top */
         rects.forEach(([bx, by, bw, bh], i) => {

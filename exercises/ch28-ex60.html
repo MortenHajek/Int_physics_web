@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -328,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* labels */
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         [-180, -90, 0, 90, 180].forEach(d =>
             ctx.fillText(d + '°', xPix(d), mT + ph + 8));
@@ -353,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.moveTo(mL, yPix(f.eTot)); ctx.lineTo(mL + pw, yPix(f.eTot));
         ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle = eLineCol;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('E total = ' + (f.eTot * 1e4).toFixed(1) + '·10⁻⁴ J' +
                      (f.over ? '  — clears the top!' : ''), mL + 8, yPix(f.eTot) - 4);
@@ -366,8 +367,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.beginPath(); ctx.arc(xPix(d), yPix(f.eTot), 5, 0, Math.PI * 2); ctx.fill();
             });
             ctx.fillStyle = col.acc;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            ctx.fillText('φmax = ' + pd.toFixed(1) + '°', xPix(pd), yPix(f.eTot) - 10);
+            ctx.textAlign = 'center';
+            /* a narrow plot puts it under the line, clear of the E total label */
+            if (pw < 360) { ctx.textBaseline = 'top'; ctx.fillText('φmax = ' + pd.toFixed(1) + '°', xPix(pd), yPix(f.eTot) + 10); }
+            else { ctx.textBaseline = 'bottom'; ctx.fillText('φmax = ' + pd.toFixed(1) + '°', xPix(pd), yPix(f.eTot) - 10); }
         }
 
         /* swinging dipole marker on the curve */
@@ -384,7 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
             ctx.beginPath(); ctx.arc(xPix(d), yPix(e), 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
             /* dipole arrow inset */
-            const ix = mL + pw - 64, iy = mT + 38;
+            /* on a phone the badge band above the frame is empty: the inset moves up into it */
+            const ix = mL + pw - 64, iy = pw < 360 ? mT - 50 : mT + 38;
             ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
             ctx.beginPath(); ctx.arc(ix, iy, 26, 0, Math.PI * 2); ctx.stroke();
             const a = -d * Math.PI / 180 - Math.PI / 2;   /* phi from B (up) */
@@ -394,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.lineTo(ix + Math.cos(a) * 18, iy - Math.sin(a) * 18);
             ctx.stroke();
             ctx.fillStyle = col.faint;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText('B ↑', ix, iy + 30);
         }

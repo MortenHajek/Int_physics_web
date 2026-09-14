@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -1007,7 +1008,7 @@ const PP8 = (function () {
         return o;
     }
     function mono(ctx, text, x, y, col, size, align) {
-        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.font = (size || 10) + 'px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = col; ctx.fillText(text, x, y);
     }
@@ -1189,7 +1190,10 @@ const PP8 = (function () {
         /* the two bars: what friction must supply, and what it can */
         const need = P.m * Math.abs(P.k * x / (P.M + P.m));
         const have = P.mu * P.m * G;
-        const barX = W - 108, barY = 34, barH = H * 0.46, barW = 26;
+        /* on a phone-width canvas the bodies swing under the bars: the bars
+           are shortened to end, labels and all, above the passenger's roof */
+        const barX = W - 108, barY = 34, barW = 26;
+        const barH = W < 520 ? Math.min(H * 0.46, y0 - bh - ph - barY - 44) : H * 0.46;
         const top = Math.max(need, have) * 1.15 || 1;
         const bar = (ox, val, col, lab) => {
             const h = barH * val / top;
@@ -1373,10 +1377,11 @@ const PP8 = (function () {
         const A = Math.sin(ph);
         ctx.lineCap = 'round';
         if (S.k === 'spring') {
-            const y = cy, x = cx + A * 70;
-            PP8.hatch(ctx, cx - 210, y + 44, cx + 210, y + 44, SKY.faint, 9);
-            PP8.hatch(ctx, cx - 190, y + 44, cx - 190, y - 40, SKY.faint, -9);
-            PP8.coil(ctx, cx - 190, y, x - 32, y, 10, 9, SKY.soft);
+            const sp = Math.min(1, (W / 2 - 16) / 210);   /* a phone's stage is narrower than the floor */
+            const y = cy, x = cx + A * 70 * sp;
+            PP8.hatch(ctx, cx - 210 * sp, y + 44, cx + 210 * sp, y + 44, SKY.faint, 9);
+            PP8.hatch(ctx, cx - 190 * sp, y + 44, cx - 190 * sp, y - 40, SKY.faint, -9);
+            PP8.coil(ctx, cx - 190 * sp, y, x - 32, y, 10, 9, SKY.soft);
             ctx.fillStyle = '#25303f'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6;
             ctx.fillRect(x - 32, y - 26, 64, 52); ctx.strokeRect(x - 32, y - 26, 64, 52);
             PP8.halo(ctx, SKY.bg, 'm', x, y, SKY.ink, 15, true);
@@ -1554,7 +1559,10 @@ const PP8 = (function () {
 
         if (st.sys >= 0) {
             const q = pair(st.sys), w = wOf(st.sys);
-            const bw = Math.min(300, W * 0.28), x = W - bw - 16, y = 16, bh = 104;
+            /* never narrower than its numbers: on a phone 28 % of the stage is
+               too thin for a label and a value side by side */
+            const bw = Math.min(300, Math.max(W * 0.28, 196)), x = W - bw - 16, y = 16, bh = 104;
+            const tight = bw < 250;
             ctx.fillStyle = 'rgba(20,25,36,0.90)';
             ctx.strokeStyle = '#4a5666'; ctx.lineWidth = 1.2; ctx.setLineDash([]);
             ctx.fillRect(x, y, bw, bh); ctx.strokeRect(x, y, bw, bh);
@@ -1565,7 +1573,7 @@ const PP8 = (function () {
             PP8.mono(ctx, PP8.num(q.I, q.I < 0.01 ? 6 : 4), x + bw - 12, y + 60, SKY.acc, 12, 'right');
             ctx.strokeStyle = '#4a5666'; ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(x + 12, y + 74); ctx.lineTo(x + bw - 12, y + 74); ctx.stroke();
-            PP8.mono(ctx, 'ω = √(' + PP8.T('restoring/inertia', 'vratná/setrvačnost') + ')', x + 12, y + 90, SKY.faint, 9.5);
+            PP8.mono(ctx, tight ? 'ω' : 'ω = √(' + PP8.T('restoring/inertia', 'vratná/setrvačnost') + ')', x + 12, y + 90, SKY.faint, 9.5);
             PP8.mono(ctx, PP8.num(w, 2) + ' rad/s', x + bw - 12, y + 90, SKY.ink, 12, 'right');
         }
     }
@@ -1774,7 +1782,7 @@ const PP8 = (function () {
         /* the projectile */
         if (!after) {
             const q = t / T_IMPACT;
-            const px = bx - bw / 2 - (1 - q) * (W * 0.42);
+            const px = bx - bw / 2 - (1 - q) * (W < 520 ? Math.min(W * 0.42, cx - bw / 2 - 70) : W * 0.42);   /* on a phone, starts clear of the wall */
             ctx.fillStyle = c.acc;
             ctx.beginPath(); ctx.ellipse(px, y0 - bh / 2, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
             PP8.arrow(ctx, px - 46, y0 - bh / 2 - 24, px - 8, y0 - bh / 2 - 24, c.acc, 1.8);

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
                                 
@@ -922,9 +923,23 @@ const PP3 = (function () {
         return o;
     }
     function mono(ctx, text, x, y, col, size, align) {
-        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
-        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        const sz = size || 10, al = align || 'left';
+        ctx.font = sz + 'px "Geist",ui-sans-serif,sans-serif';
+        ctx.textAlign = al; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col;
+        /* one line on a wide stage; on a phone a long note breaks at word
+           boundaries and runs on below instead of off the edge */
+        const W = ctx.canvas.width / ctx.getTransform().a;
+        const room = al === 'center' ? 2 * Math.min(x, W - x) - 24 : al === 'right' ? x - 12 : W - x - 12;
+        if (ctx.measureText(text).width <= room) { ctx.fillText(text, x, y); return; }
+        let line = '', row = 0;
+        for (const word of String(text).split(' ')) {
+            const next = line ? line + ' ' + word : word;
+            if (line && ctx.measureText(next).width > room) {
+                ctx.fillText(line, x, y + row * (sz + 4)); row++; line = word;
+            } else line = next;
+        }
+        ctx.fillText(line, x, y + row * (sz + 4));
     }
     function halo(ctx, bg, text, x, y, col, size, italic, align) {
         ctx.font = (italic ? 'italic ' : '') + (size || 12) + 'px "Source Serif 4",Georgia,serif';
@@ -1172,12 +1187,15 @@ const PP3 = (function () {
             });
         } else if (k === 'T') {
             PP3.hatch(ctx, 40, y0 + 26, W - 40, y0 + 26, SKY.faint, 9);
-            const xs = [W * 0.24, W * 0.46, W * 0.68];
+            /* a phone's stage is too narrow for the desktop spacing: the train
+               spreads to the edges and the tension arrows are drawn half as long */
+            const narrowT = W < 520;
+            const xs = narrowT ? [W * 0.14, W * 0.40, W * 0.66] : [W * 0.24, W * 0.46, W * 0.68];
             const ms = [F.m3, F.m2, F.m1], tn = [F.T3, F.T2, F.T1], nm = ['T₃', 'T₂', 'T₁'];
             xs.forEach((cx, i) => {
                 block(ctx, cx, y0 + 26, 58, 46, 0, '#243026');
                 PP3.halo(ctx, SKY.bg, N(ms[i], 1) + ' kg', cx, y0 + 3, SKY.ink, 12, true);
-                const ax = cx + 29, L = tn[i] * 1.6;
+                const ax = cx + 29, L = tn[i] * (narrowT ? 0.9 : 1.6);
                 PP3.arrow(ctx, ax, y0 - 2, ax + L, y0 - 2, SKY.acc, 2.2);
                 PP3.halo(ctx, SKY.bg, nm[i] + ' = ' + N(tn[i], 1) + ' N', ax + L / 2, y0 - 20, SKY.acc, 12, true);
                 if (i < 2) { ctx.strokeStyle = SKY.soft; ctx.lineWidth = 1.4; ctx.setLineDash([]);
@@ -1185,7 +1203,10 @@ const PP3 = (function () {
             });
             PP3.mono(ctx, 'a = ' + N(F.a, 3) + ' m/s²', W * 0.46, y0 + 62, SKY.faint, 10, 'center');
         } else if (k === 'f') {
-            const cx = W * 0.30, rot = -F.slopeTh;
+            /* on a phone the bars cannot stand beside the slope: they go into the
+               band under the caption, and the slope takes the middle of the stage */
+            const narrowF = W < 520;
+            const cx = narrowF ? W * 0.5 : W * 0.30, rot = -F.slopeTh;
             const sx = Math.cos(rot) * 130, sy = Math.sin(rot) * 130;
             PP3.hatch(ctx, cx - sx, y0 - sy, cx + sx, y0 + sy, SKY.faint, 9);
             block(ctx, cx, y0, 58, 44, rot, '#243026');
@@ -1198,7 +1219,9 @@ const PP3 = (function () {
             PP3.arrow(ctx, cx, y0 - 22, cx + ux * F.fmax * FS, y0 - 22 + uy * F.fmax * FS, '#c96a6a', 2.4);
             PP3.halo(ctx, SKY.bg, 'f = ' + N(F.fmax, 1) + ' N',
                      cx + ux * (F.fmax * FS + 40), y0 - 22 + uy * (F.fmax * FS + 40) - 14, '#c96a6a', 12, true);
-            const bx = W * 0.60, by = H * 0.26, bw = Math.min(W * 0.30, 300), bh = 22;
+            const bx = narrowF ? 16 : W * 0.60, by = narrowF ? 118 : H * 0.26;
+            const bw = narrowF ? W - 110 : Math.min(W * 0.30, 300), bh = 22;
+
             [[PP3.T('needed to hold it', 'nutné k udržení'), F.need, SKY.acc],
              [PP3.T('static can give (limit)', 'statické dá nejvýš'), F.fmax, SKY.acc2],
              [PP3.T('kinetic gives', 'dynamické dává'), F.fkin, SKY.ghost]].forEach(([lab, val, col], i) => {
@@ -1228,7 +1251,8 @@ const PP3 = (function () {
                     PP3.arrow(ctx, eq + d * 640, y, eq + d * 640 + Fv * 0.9, y, SKY.acc, 2.2);
                     PP3.halo(ctx, SKY.bg, N(Fv, 1) + ' N', eq + d * 640 + Fv * 0.45, y - 18, SKY.acc, 12, true);
                 }
-                PP3.mono(ctx, 'x = ' + N(d, 2) + ' m', W * 0.20, y, SKY.faint, 10);
+                /* on a phone the coil fills the gap this label sat in: it goes above the coil */
+                PP3.mono(ctx, 'x = ' + N(d, 2) + ' m', W * 0.20, W < 520 ? y - 17 : y, SKY.faint, 10);
             });
         } else if (k === 'F') {
             PP3.hatch(ctx, 40, y0 + 30, W - 40, y0 + 30, SKY.faint, 9);

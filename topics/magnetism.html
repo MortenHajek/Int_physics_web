@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -35,7 +36,7 @@
         height: 100%;
         display: block;
     }
-    #bs-canvas { cursor: crosshair; touch-action: none; }
+    #bs-canvas { cursor: crosshair; }
     #lab  .canvas-wrap { min-height: 460px; }
     #lab2 .canvas-wrap { min-height: 540px; }
     /* The builder draws its own sources and field symbols; graph paper behind
@@ -1063,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
        and E up the screen (+y), so the two forces oppose for a charge moving
        to the right — the velocity-selector geometry.  At v = E/B they cancel.  */
 
-    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const MONO  = '"Geist", ui-sans-serif, system-ui, sans-serif';
     const SERIF = '"Source Serif 4", Georgia, serif';
 
     const canvas = document.getElementById('sim-canvas');
@@ -1346,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const MU0 = 4 * Math.PI * 1e-7;
     const PXCM = 9;                    /* px per cm on the board */
-    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const MONO  = '"Geist", ui-sans-serif, system-ui, sans-serif';
     const SERIF = '"Source Serif 4", Georgia, serif';
 
     let srcs = [];                     /* {kind:'wire'|'loop', ...}   */
@@ -1704,16 +1705,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const r = canvas.getBoundingClientRect();
         return { x: wx(ev.clientX - r.left), y: wy(ev.clientY - r.top) };
     }
-    canvas.addEventListener('pointerdown', ev => {
-        const p = at(ev);
-        canvas.setPointerCapture(ev.pointerId);
-        if (tool === 'probe') { drag = { what: 'probe' }; probe = p; refresh(); return; }
-        if (tool === 'wire')  { ghost = { x1: p.x, y1: p.y, x2: p.x, y2: p.y }; drag = { what: 'ghost' }; return; }
+    /* Placing a loop and erasing act on press with a mouse, but only on a
+       finished tap with a finger — a touch that becomes a scroll must not
+       leave a loop behind where it started. */
+    let tap = null;
+    function tapTool(p) {
         if (tool === 'loop')  {
             srcs.push(loop(p.x, p.y, +($('bs-R') ? $('bs-R').value : 4), 10, 1));
             sel = srcs.length - 1; refresh(); return;
         }
-        if (tool === 'erase') { const i = pick(p); if (i >= 0) { srcs.splice(i, 1); sel = -1; } refresh(); return; }
+        const i = pick(p); if (i >= 0) { srcs.splice(i, 1); sel = -1; } refresh();
+    }
+    canvas.addEventListener('pointerdown', ev => {
+        const p = at(ev);
+        if (tool === 'loop' || tool === 'erase') {
+            if (ev.pointerType === 'touch') tap = { id: ev.pointerId, x: ev.clientX, y: ev.clientY };
+            else tapTool(p);
+            return;
+        }
+        canvas.setPointerCapture(ev.pointerId);
+        if (tool === 'probe') { drag = { what: 'probe' }; probe = p; refresh(); return; }
+        if (tool === 'wire')  { ghost = { x1: p.x, y1: p.y, x2: p.x, y2: p.y }; drag = { what: 'ghost' }; return; }
         /* select */
         const e = pickEnd(p);
         if (e) { sel = e.i; drag = { what: 'end', i: e.i, end: e.end }; refresh(); return; }
@@ -1750,6 +1762,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     canvas.addEventListener('pointerup', endDrag);
     canvas.addEventListener('pointercancel', endDrag);
+    canvas.addEventListener('pointerup', ev => {
+        if (tap && tap.id === ev.pointerId &&
+            Math.hypot(ev.clientX - tap.x, ev.clientY - tap.y) < 12) tapTool(at(ev));
+        tap = null;
+    });
+    canvas.addEventListener('pointercancel', () => { tap = null; });
+    /* A finger that grabs something — the probe, a wire being drawn, a source
+       being moved — keeps the touch; anywhere else the page scrolls. */
+    canvas.addEventListener('touchstart', ev => { if (drag) ev.preventDefault(); }, { passive: false });
 
     function radios(attr, cb) {
         const rows = [].slice.call(document.querySelectorAll('[data-' + attr + ']'));

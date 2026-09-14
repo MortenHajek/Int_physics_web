@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -35,7 +36,7 @@
         height: 100%;
         display: block;
     }
-    #phi-canvas   { cursor: grab; touch-action: none; }
+    #phi-canvas   { cursor: grab; }
     #phi-canvas:active { cursor: grabbing; }
     #slice-canvas, #sim-canvas, #net-canvas { cursor: default; }
     #lab2 .canvas-wrap { min-height: 440px; }
@@ -587,69 +588,6 @@
                     <span data-tex="U = \int \vec{E}\cdot\mathrm{d}\vec{s} = Ed"></span>, (III) vydělte,
                     <span data-tex="C = Q/U"></span>. Neznámé <span data-tex="Q"></span> se pokaždé vykrátí —
                     to je právě důkaz, že <span data-tex="C"></span> je čirá geometrie.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">06</span>
-                    <span><span lang="en"><strong>Networks: collapse, then expand back.</strong> Reduce the
-                    circuit to a single equivalent capacitor (parallel add <span data-tex="C"></span>, series
-                    add <span data-tex="1/C"></span>), find its charge from
-                    <span data-tex="Q = C_{ekv}U"></span>, then walk back out step by step — a parallel node
-                    shares the voltage, a series string shares the charge.</span>
-                    <span lang="cs"><strong>Sítě: sbalit a zase rozbalit.</strong> Obvod nahraďte jediným
-                    ekvivalentním kondenzátorem (paralelně sčítáme <span data-tex="C"></span>, sériově
-                    <span data-tex="1/C"></span>), z <span data-tex="Q = C_{ekv}U"></span> určete jeho náboj
-                    a pak se krok po kroku vracejte zpět — v paralelní větvi je společné napětí, v sériové
-                    náboj.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">07</span>
-                    <span><span lang="en"><strong>Something inserted in the gap.</strong> A dielectric layer is
-                    a capacitor of its own thickness with its own
-                    <span data-tex="\varepsilon_r"></span>; a metal slab of thickness
-                    <span data-tex="b"></span> carries no field inside, so the gap simply shrinks to
-                    <span data-tex="d-b"></span>. Layers stacked along <span data-tex="\vec{E}"></span> are in
-                    series, layers side by side are in parallel.</span>
-                    <span lang="cs"><strong>Něco vloženého do mezery.</strong> Vrstva dielektrika je kondenzátor
-                    o své tloušťce s vlastním <span data-tex="\varepsilon_r"></span>; kovová deska tloušťky
-                    <span data-tex="b"></span> nemá uvnitř pole, mezera se tedy jen zmenší na
-                    <span data-tex="d-b"></span>. Vrstvy nad sebou ve směru <span data-tex="\vec{E}"></span>
-                    jsou sériově, vrstvy vedle sebe paralelně.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">08</span>
-                    <span><span lang="en"><strong>Energy, work, and the pull.</strong> The two forms
-                    <span data-tex="E_{el} = Q^2/2C"></span> and <span data-tex="\dfrac{1}{2}CU^2"></span>
-                    agree for any single state, but the moment <span data-tex="C"></span> changes it matters
-                    which quantity is held fixed — an isolated capacitor keeps its
-                    <span data-tex="Q"></span>, one wired to a battery keeps its <span data-tex="U"></span>.
-                    Work done on the system is <span data-tex="W = \Delta E_{el}"></span>; at fixed charge the
-                    field pulls an object into the gap, because that is the direction of <em>lower</em> stored
-                    energy.</span>
-                    <span lang="cs"><strong>Energie, práce a přitahování.</strong> Tvary
-                    <span data-tex="E_{el} = Q^2/2C"></span> a <span data-tex="\dfrac{1}{2}CU^2"></span> dávají
-                    pro jeden daný stav totéž, jakmile se však mění <span data-tex="C"></span>, záleží na tom,
-                    co je konstantní — izolovaný kondenzátor si drží <span data-tex="Q"></span>, kondenzátor
-                    připojený k baterii <span data-tex="U"></span>. Práce vykonaná na soustavě je
-                    <span data-tex="W = \Delta E_{el}"></span>; při konstantním náboji pole těleso do mezery
-                    vtahuje, protože tím uloženou energii <em>sníží</em>.</span></span>
-                </div>
-
-                <div class="cm-step">
-                    <span class="cm-num">09</span>
-                    <span><span lang="en"><strong>Voltage ratings.</strong> <span data-tex="n"></span> identical
-                    capacitors in series divide the applied voltage between them, so the string survives
-                    <span data-tex="n\,U_{max}"></span> and has capacitance
-                    <span data-tex="C_1/n"></span>; putting <span data-tex="m"></span> such strings in parallel
-                    multiplies the capacitance by <span data-tex="m"></span> without changing what the bank can
-                    withstand.</span>
-                    <span lang="cs"><strong>Napěťová odolnost.</strong> <span data-tex="n"></span> stejných
-                    kondenzátorů v sérii si napětí rozdělí — větev tedy vydrží
-                    <span data-tex="n\,U_{max}"></span> a má kapacitu <span data-tex="C_1/n"></span>;
-                    <span data-tex="m"></span> takových větví paralelně kapacitu
-                    <span data-tex="m"></span>-krát znásobí, aniž by se změnilo, co sestava vydrží.</span></span>
                 </div>
 
             </div>
@@ -1237,15 +1175,21 @@ const PP = (function () {
             const r = canvas.getBoundingClientRect();
             return { x: ev.clientX - r.left, y: ev.clientY - r.top };
         }
+        let held = false;
         canvas.addEventListener('pointerdown', function (ev) {
             if (handlers.down(pos(ev))) {
+                held = true;
                 canvas.setPointerCapture(ev.pointerId);
                 ev.preventDefault();
             }
         });
         canvas.addEventListener('pointermove', function (ev) { handlers.move(pos(ev)); });
-        canvas.addEventListener('pointerup',     function () { handlers.up(); });
-        canvas.addEventListener('pointercancel', function () { handlers.up(); });
+        canvas.addEventListener('pointerup',     function () { held = false; handlers.up(); });
+        canvas.addEventListener('pointercancel', function () { held = false; handlers.up(); });
+        /* A finger that picks something up drags it; anywhere else the page
+           scrolls. pointerdown runs first, so `held` is already decided. */
+        canvas.addEventListener('touchstart', function (ev) { if (held) ev.preventDefault(); },
+                                { passive: false });
     }
 
     /* Small canvas helpers */
@@ -1254,7 +1198,7 @@ const PP = (function () {
         ctx.save();
         ctx.font = (opt.size || 11) + 'px ' + (opt.mono === false
             ? 'Source Serif 4, Georgia, serif'
-            : 'JetBrains Mono, ui-monospace, monospace');
+            : 'Geist, ui-sans-serif, sans-serif');
         ctx.textAlign    = opt.align  || 'center';
         ctx.textBaseline = opt.base   || 'middle';
         if (opt.bg) {
@@ -1530,11 +1474,12 @@ const PP = (function () {
 
     /* ── dragging ───────────────────────────────────────────────────── */
     let held = null;
+    const FINGER = window.matchMedia('(pointer: coarse)').matches ? 10 : 0;   /* a fingertip is wider than a cursor */
     PP.drag(view.canvas, {
         down: function (p) {
-            if (Math.hypot(p.x - sx(st.probe.x), p.y - sy(st.probe.y)) < 16) { held = { probe: true }; return true; }
+            if (Math.hypot(p.x - sx(st.probe.x), p.y - sy(st.probe.y)) < 16 + FINGER) { held = { probe: true }; return true; }
             for (let i = 0; i < st.q.length; i++) {
-                if (Math.hypot(p.x - sx(st.q[i].x), p.y - sy(st.q[i].y)) < 18) { held = { i: i }; return true; }
+                if (Math.hypot(p.x - sx(st.q[i].x), p.y - sy(st.q[i].y)) < 18 + FINGER) { held = { i: i }; return true; }
             }
             return false;
         },

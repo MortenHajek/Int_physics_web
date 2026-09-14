@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -386,13 +387,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
         ctx.beginPath(); ctx.moveTo(20, gy); ctx.lineTo(W - 20, gy); ctx.stroke();
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         ctx.fillText('μ = 0 (smooth floor)', 26, gy + 8);
 
         /* slab */
-        const sw = 250, sh = 34;
-        const sx = W * 0.60 - dSlab, sy = gy - sh;
+        const narrow = W < 520;                                /* phone: narrower, and never past the edge */
+        const sw = narrow ? W * 0.62 : 250, sh = 34;
+        const sx = (narrow ? W - sw - 24 : W * 0.60) - dSlab;
+        const sy = gy - sh;
         ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
         ctx.fillRect(sx, sy, sw, sh); ctx.strokeRect(sx, sy, sw, sh);
         ctx.fillStyle = col.ink;
@@ -427,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
             arrow(bx + bw / 2, sy - 4, bx + bw / 2 + fLen, sy - 4, col.soft, 1.7);
             arrow(bx + bw / 2, sy + 6, bx + bw / 2 - fLen, sy + 6, col.soft, 1.7);
             ctx.fillStyle = col.soft;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
             ctx.fillText('f on block', bx + bw / 2 + fLen + 8, sy - 4);
             ctx.textAlign = 'right';
@@ -436,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (ph.slips) {
             ctx.fillStyle = col.acc;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
             ctx.fillText('SLIPPING', bx + bw / 2, by - 8);
         }

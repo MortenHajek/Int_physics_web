@@ -205,7 +205,7 @@
             ctx.strokeStyle = col.ink;
             ctx.lineWidth = 1.2;
             ctx.stroke();
-            ctx.font = '600 10px "JetBrains Mono", ui-monospace, monospace';
+            ctx.font = '600 10px "Geist", ui-sans-serif, system-ui, sans-serif';
             ctx.fillStyle = col.paper;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -289,7 +289,7 @@
                 ctx.stroke();
             }
             ctx.fillStyle = col.faint;
-            ctx.font = '8px "JetBrains Mono", ui-monospace, monospace';
+            ctx.font = '8px "Geist", ui-sans-serif, system-ui, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('0', 0, -dR + 13);
             /* needle */

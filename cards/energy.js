@@ -174,7 +174,7 @@
 
             /* ── Bar annotations ─────────────────────────────────────────── */
             ctx.save();
-            ctx.font = '9px "JetBrains Mono","Courier New",monospace';
+            ctx.font = '9px "Geist",ui-sans-serif,sans-serif';
             ctx.fillStyle = col.faint;
             ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
             ctx.fillText('E', barX + BAR_W + 5, barTop + 5);

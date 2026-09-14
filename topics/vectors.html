@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <style>
     /* ================================================================
        VECTORS · § I.01 — built on the Vol II topic-page pattern
@@ -765,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.strokeStyle=col.soft+'80'; ctx.lineWidth=0.9;
             ctx.strokeRect(ha.x+sx-s, O.y-s, s, s);
             ctx.fillStyle=col.soft;
-            ctx.font='11px "JetBrains Mono",monospace';
+            ctx.font='11px "Geist",ui-sans-serif,sans-serif';
             ctx.textAlign='center'; ctx.textBaseline='top';
             ctx.fillText('aₓ', (O.x+ha.x)/2, O.y+5);
             ctx.textAlign=ay<0?'left':'right'; ctx.textBaseline='middle';
@@ -779,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.strokeStyle=color; ctx.lineWidth=1; ctx.setLineDash([3,3]);
                 ctx.beginPath(); ctx.arc(O.x,O.y,r,0,end,end<0); ctx.stroke(); ctx.setLineDash([]);
                 const mid=end/2;
-                ctx.fillStyle=color; ctx.font='11px "JetBrains Mono",monospace';
+                ctx.fillStyle=color; ctx.font='11px "Geist",ui-sans-serif,sans-serif';
                 ctx.textAlign='center'; ctx.textBaseline='middle';
                 ctx.fillText(Math.abs(Math.round(end*180/Math.PI))+'°',
                     O.x+(r+16)*Math.cos(mid), O.y+(r+16)*Math.sin(mid));
@@ -848,6 +849,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
     canvas.addEventListener('pointercancel', ()=>{dragging=null;});
+    /* A finger that lands on a handle drags it; anywhere else the page scrolls.
+       pointerdown runs first and has already decided, and only cancelling the
+       touch itself stops the browser from turning the drag into a scroll. */
+    canvas.addEventListener('touchstart', e => { if (dragging) e.preventDefault(); }, { passive: false });
 
     const btnReset = document.getElementById('add-reset');
     if (btnReset) btnReset.addEventListener('click', () => {
@@ -997,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.setLineDash([]);
             const midAng=(angA+angB)/2;
             ctx.fillStyle=col.acc;
-            ctx.font='13px "JetBrains Mono",monospace';
+            ctx.font='13px "Geist",ui-sans-serif,sans-serif';
             ctx.textAlign='center'; ctx.textBaseline='middle';
             ctx.fillText(Math.round(theta*180/Math.PI)+'°',
                 O.x+(R+20)*Math.cos(midAng), O.y+(R+20)*Math.sin(midAng));
@@ -1050,6 +1055,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
     canvas.addEventListener('pointercancel', ()=>{dragging=null;});
+    /* a finger on a handle drags it, anywhere else scrolls — see #lab */
+    canvas.addEventListener('touchstart', e => { if (dragging) e.preventDefault(); }, { passive: false });
 
     const btnReset = document.getElementById('dot-reset');
     if (btnReset) btnReset.addEventListener('click', () => {
@@ -1187,7 +1194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { cx, cy } = getOrigin();
         const p = iso({ x:v.x*1.20, y:v.y*1.20, z:v.z*1.20 }, scale, cx, cy);
         ctx.fillStyle=color;
-        ctx.font='bold 12px "JetBrains Mono",monospace';
+        ctx.font='bold 12px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(text, p.x, p.y);
     }

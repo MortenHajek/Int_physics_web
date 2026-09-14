@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -421,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
             ctx.strokeRect(xIn - 4, cy - bPx / 2, slabW, bPx);
             ctx.fillStyle = col.paper;
-            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             if (bPx > 14 && slabW > 108)
                 ctx.fillText(isCS() ? 'měď · E = 0' : 'copper · E = 0',
@@ -430,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* labels: charges on plates */
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
         ctx.fillText('+Q', cx + cw + 20, cy - gap / 2 - plateH / 2);
         ctx.fillText('−Q', cx + cw + 20, cy + gap / 2 + plateH / 2);
@@ -465,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.globalAlpha = 1;
 
         ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.fillText('stored energy', bx + bw / 2, by + 8);
         ctx.textBaseline = 'bottom';
@@ -478,19 +479,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ay = cy - gap / 2 - plateH - 20;
                 arrowL(xIn + 44, ay, xIn + 6, ay, col.acc, 2.2);
                 ctx.fillStyle = col.acc;
-                ctx.font = '11px "JetBrains Mono", monospace';
+                ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
                 ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
                 ctx.fillText('F', xIn + 50, ay);
             }
             ctx.fillStyle = col.acc;
-            ctx.font = '11px "JetBrains Mono", monospace';
+            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText(playing
+            const msg = playing
                 ? (cs ? 'puštěna — pole ji vtahuje dovnitř'
                       : 'released — the field pulls it in')
                 : (cs ? 'zasunuta · energie klesla, deska je tedy vtahována'
-                      : 'fully in · the energy fell, so the slab is pulled in'),
-                cx + cw / 2, cy + gap / 2 + plateH + 12);
+                      : 'fully in · the energy fell, so the slab is pulled in');
+            /* wrapped to the space left of the energy bar — on a phone it is
+               wider than that, and than the canvas */
+            const room = bx - 16, lines = [];
+            let line = '';
+            for (const word of msg.split(' ')) {
+                const next = line ? line + ' ' + word : word;
+                if (line && ctx.measureText(next).width > room) { lines.push(line); line = word; }
+                else line = next;
+            }
+            lines.push(line);
+            const mx = lines.length > 1 ? 8 + room / 2 : cx + cw / 2;
+            lines.forEach((l, i) => ctx.fillText(l, mx, cy + gap / 2 + plateH + 12 + i * 15));
         }
 
         /* readouts */

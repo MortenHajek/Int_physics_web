@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
                                 
@@ -1288,7 +1289,7 @@ const PP4 = (function () {
             ctx.fillStyle = c.paper; ctx.fill();
             ctx.strokeStyle = c.ink; ctx.lineWidth = 1.4; ctx.stroke();
             ctx.fillStyle = c.ink;
-            ctx.font = '12px "JetBrains Mono",monospace';
+            ctx.font = '12px "Geist",ui-sans-serif,sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(lab, p.x, p.y - 55);
         });
@@ -1335,15 +1336,15 @@ const PP4 = (function () {
         ctx.strokeStyle = c.ink; ctx.lineWidth = 1.4; ctx.strokeRect(x, top, w, hgt);
 
         ctx.fillStyle = c.faint;
-        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.font = '9.5px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(PP4.T('ENERGY', 'ENERGIE'), x + w / 2, top - 12);
         ctx.fillStyle = c.soft;
-        ctx.font = '11px "JetBrains Mono",monospace';
+        ctx.font = '11px "Geist",ui-sans-serif,sans-serif';
         ctx.fillText(PP4.num(e.ke + e.pe + e.el, 1) + ' J', x + w / 2, top + hgt + 18);
         if (lost > 1e-6) {
             ctx.fillStyle = c.faint;
-            ctx.font = '9.5px "JetBrains Mono",monospace';
+            ctx.font = '9.5px "Geist",ui-sans-serif,sans-serif';
             ctx.fillText('−' + PP4.num(lost, 1) + ' J', x + w / 2, top + hgt + 33);
         }
     }
@@ -1668,7 +1669,7 @@ const PP4 = (function () {
         ctx.fillRect(sx(S.x) - 13, bandY - 15, 26, 15);
         ctx.strokeRect(sx(S.x) - 13, bandY - 15, 26, 15);
         ctx.fillStyle = c.faint;
-        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.font = '9.5px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
         ctx.fillText('x = ' + PP4.num(S.x, 2) + ' m', topBox.x, bandY + 6);
         ctx.textAlign = 'right';
@@ -1679,7 +1680,7 @@ const PP4 = (function () {
         ctx.strokeStyle = c.faint + '77'; ctx.lineWidth = 1; ctx.setLineDash([]);
         ctx.strokeRect(b.x, b.y, b.w, b.h);
         ctx.fillStyle = c.faint;
-        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.font = '9.5px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(label.toUpperCase(), b.x, b.y - 9);
     }
@@ -1836,8 +1837,15 @@ const PP4 = (function () {
         ctx.clearRect(0, 0, V.W, V.H);
         const st = mode === 'push' ? pushState() : swingState();
 
-        const piv = { x: V.W * 0.5, y: 62 };
-        const sc = Math.min((V.H - 150) / P.L, (V.W * 0.42) / Math.max(Math.sin(st.th), 0.35));
+        /* On a phone-width canvas the work bars (top left) reach the ceiling,
+           and a crate pushed out to the side takes its F arrow off the edge:
+           the ceiling drops below the bars and the swing is fitted to what
+           is left either side of the pivot. */
+        const narrow = V.W < 520;
+        const piv = { x: V.W * 0.5, y: narrow ? 132 : 62 };
+        const sc = narrow
+            ? Math.min((V.H - piv.y - 96) / P.L, (V.W / 2 - 104) / Math.max(Math.sin(Math.abs(st.th)), 0.35))
+            : Math.min((V.H - 150) / P.L, (V.W * 0.42) / Math.max(Math.sin(st.th), 0.35));
         const bob = { x: piv.x + P.L * sc * Math.sin(st.th),
                       y: piv.y + P.L * sc * Math.cos(st.th) };
 
@@ -1899,7 +1907,7 @@ const PP4 = (function () {
         const big = Math.max.apply(null, rows.map(r => Math.abs(r[1])).concat([1]));
 
         ctx.fillStyle = c.faint;
-        ctx.font = '9.5px "JetBrains Mono",monospace';
+        ctx.font = '9.5px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(PP4.T('WORK DONE (J)', 'VYKONANÁ PRÁCE (J)'), x, y - 6);
 
@@ -1918,7 +1926,7 @@ const PP4 = (function () {
             ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
             ctx.fillText(lab.replace('_', ''), x, cy);
             ctx.fillStyle = c.faint;
-            ctx.font = '10px "JetBrains Mono",monospace';
+            ctx.font = '10px "Geist",ui-sans-serif,sans-serif';
             ctx.textAlign = 'left';
             ctx.fillText(PP4.num(val, 0), x + 42 + w + 8, cy);
         });

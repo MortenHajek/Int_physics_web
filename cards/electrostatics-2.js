@@ -76,7 +76,7 @@
             : String(str);
     }
 
-    const MONO  = '"JetBrains Mono", ui-monospace, monospace';
+    const MONO  = '"Geist", ui-sans-serif, system-ui, sans-serif';
     const SERIF = '"Source Serif 4", Georgia, serif';
 
     function mount(canvas) {

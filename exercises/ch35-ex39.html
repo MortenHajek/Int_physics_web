@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -299,21 +300,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const matched = I < 0.004;
 
         /* ── left: film cross-section with two reflected rays ────── */
-        const fx = W * 0.07, fw = W * 0.36;
-        const airB = H * 0.34;
-        const filmH = Math.max(10, state.l * 0.28);
+        /* A phone-width canvas cannot hold the film and the plot side by side:
+           there the film is a band across the top and the plot runs underneath. */
+        const narrow = W < 520;
+        const fx = narrow ? 16 : W * 0.07, fw = narrow ? W - 32 : W * 0.36;
+        const airB = narrow ? 132 : H * 0.34;
+        const filmH = Math.max(10, state.l * (narrow ? 0.16 : 0.28));
         const glassT = airB + filmH;
+        const glassB = narrow ? glassT + 30 : H - 16;
 
         /* media */
         ctx.fillStyle = 'rgba(212,164,24,0.28)';
         ctx.fillRect(fx, airB, fw, filmH);
         ctx.fillStyle = 'rgba(90,104,120,0.16)';
-        ctx.fillRect(fx, glassT, fw, H - glassT - 16);
+        ctx.fillRect(fx, glassT, fw, glassB - glassT);
         ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
         ctx.strokeRect(fx, airB, fw, filmH);
 
         ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
         ctx.fillText('air n=1.00', fx + 6, airB - 6);
         ctx.textBaseline = 'middle';
@@ -322,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText('glass n=1.50', fx + 6, glassT + 8);
 
         /* incoming ray + two reflections */
-        const hitX = fx + fw * 0.55;
+        const hitX = fx + fw * (narrow ? 0.62 : 0.55);
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
         ctx.beginPath(); ctx.moveTo(hitX - 70, airB - 90); ctx.lineTo(hitX, airB); ctx.stroke();
         /* r1: reflection at top surface */
@@ -337,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath(); ctx.moveTo(hitX + filmH * 0.7, airB);
         ctx.lineTo(hitX + filmH * 0.7 + 70, airB - 90); ctx.stroke();
         ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
         ctx.fillText('r₁', hitX + 40, airB - 52);
         ctx.fillText('r₂', hitX + filmH * 0.7 + 46, airB - 48);
@@ -350,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fill();
 
         /* ── right: I(L) curve with dips ─────────────────────────── */
-        const mL = W * 0.52, mR = 26, mT = 36, mB = 50;
+        const mL = narrow ? 56 : W * 0.52, mR = 26, mT = narrow ? glassB + 34 : 36, mB = 50;
         const pw = W - mL - mR, ph = H - mT - mB;
         const LMAX = 450;
         const xPix = l => mL + (l / LMAX) * pw;
@@ -364,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeRect(mL, mT, pw, ph);
 
         ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         [0, 100, 200, 300, 400].forEach(l => ctx.fillText(l.toFixed(0), xPix(l), mT + ph + 6));
         ctx.fillText('L (nm)', mL + pw / 2, mT + ph + 22);
@@ -392,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.beginPath(); ctx.moveTo(xPix(l), mT); ctx.lineTo(xPix(l), mT + ph); ctx.stroke();
             ctx.setLineDash([]);
             ctx.fillStyle = col.soft;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
             ctx.fillText(l.toFixed(0), xPix(l), mT - 3);
         }

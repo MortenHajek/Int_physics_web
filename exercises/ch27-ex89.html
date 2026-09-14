@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -279,6 +280,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let state = { ...DEFAULTS };
     let ucDisplay = -3.0;   /* animated toward the target voltage */
 
+    /* flowing charge, drawn the way the circuits playground draws it. The
+       real time constant is C·R₁R₂/(R₁+R₂) ≈ 1 µs; the film slows it to TAU
+       but keeps its shape, because every branch current below is computed
+       from the capacitor voltage actually on screen. */
+    const TAU      = 0.5;          /* s, displayed charging time constant */
+    const I_REF    = 2.0 / 0.60;   /* A, the exercise's loop current */
+    const DOT_GAP  = 25;           /* px between dots, 3 per 74 px cell */
+    const DOT_V    = 37;           /* px/s at I_REF, the playground's top speed */
+    const flow = { L: 0, R: 0, C: 0 };   /* accumulated offsets along each path, px */
+
     const SLIDERS = [
         ['p-e1', 'e1', v => v.toFixed(1) + ' V'],
         ['p-e2', 'e2', v => v.toFixed(1) + ' V'],
@@ -323,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineWidth = 2.6;
         ctx.beginPath(); ctx.moveTo(x - 11, y + 4); ctx.lineTo(x + 11, y + 4); ctx.stroke();
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = flip ? 'right' : 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(label, x + (flip ? -18 : 18), y);
@@ -335,16 +346,62 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4;
         ctx.strokeRect(x - 6, y - 12, 12, 24);
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = flip ? 'right' : 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(label, x + (flip ? -14 : 14), y);
     }
 
-    function draw() {
+    /* branch currents at capacitor voltage U (top plate against the bottom rail).
+       L: bottom rail → up the left branch → through S → junction, i.e. against ε₁.
+       R: junction → down the right branch → bottom rail.
+       C: junction → down into the top plate.  KCL: iL = iR + iC. */
+    function branchCurrents(U) {
+        const iL = state.closed ? -(U + state.e1) / R1 : 0;
+        const iR = (U + state.e2) / R2;
+        return { L: iL, R: iR, C: iL - iR };
+    }
+
+    function pathLength(pts) {
+        let s = 0;
+        for (let k = 1; k < pts.length; k++)
+            s += Math.hypot(pts[k].x - pts[k - 1].x, pts[k].y - pts[k - 1].y);
+        return s;
+    }
+    function pointAt(pts, s) {
+        for (let k = 1; k < pts.length; k++) {
+            const a = pts[k - 1], b = pts[k];
+            const len = Math.hypot(b.x - a.x, b.y - a.y);
+            if (s <= len) return { x: a.x + (b.x - a.x) * s / len, y: a.y + (b.y - a.y) * s / len };
+            s -= len;
+        }
+        return pts[pts.length - 1];
+    }
+
+    /* dots along a polyline; skip(p) hides the ones inside a gap */
+    function drawDots(key, pts, I, dt, skip) {
+        if (Math.abs(I) < 0.01) return;
+        const speed = Math.max(6, Math.min(60, DOT_V * Math.abs(I) / I_REF));
+        const total = pathLength(pts);
+        flow[key] = (flow[key] + Math.sign(I) * speed * dt) % DOT_GAP;
+        let s0 = flow[key];
+        if (s0 < 0) s0 += DOT_GAP;
+        ctx.fillStyle = col.acc;
+        ctx.globalAlpha = 0.85 * Math.min(1, Math.abs(I) / 0.3);
+        for (let s = s0; s < total; s += DOT_GAP) {
+            const p = pointAt(pts, s);
+            if (skip && skip(p)) continue;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    function draw(dt) {
         ctx.clearRect(0, 0, W, H);
         const f = physics();
-        ucDisplay += (f.uc - ucDisplay) * 0.08;
+        ucDisplay += (f.uc - ucDisplay) * (1 - Math.exp(-dt / TAU));
 
         const lx = W * 0.18, mx = W * 0.5, rx = W * 0.82;
         const ty = H * 0.2, byy = Math.min(H * 0.82, H - 110);   /* leaves the bottom strip to the equation badge */
@@ -369,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.beginPath(); ctx.arc(x, ty, 3, 0, Math.PI * 2); ctx.fill();
         });
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
         ctx.fillText('S · ' + (state.closed ? 'closed' : 'open'), (sw0 + sw1) / 2, ty - 26);
 
@@ -395,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
         /* plate charge dots: top plate negative here (uc < 0) */
         const qMag = Math.min(6, Math.abs(ucDisplay) * 2);
         ctx.fillStyle = col.acc;
-        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.font = '12px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         for (let i = 0; i < Math.round(qMag); i++) {
             const x = mx - 12 + 24 * (i + 0.5) / qMag;
@@ -403,17 +460,21 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillText(ucDisplay < 0 ? '+' : '−', x, cyM + 15);
         }
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left';
         ctx.fillText('C', mx + 24, cyM);
 
-        /* loop current arrows when closed */
-        if (state.closed && f.i > 0.01) {
+        /* flowing charge — none crosses the gap between the plates */
+        const ib = branchCurrents(ucDisplay);
+        drawDots('L', [{ x: mx, y: byy }, { x: lx, y: byy }, { x: lx, y: ty }, { x: mx, y: ty }], ib.L, dt);
+        drawDots('R', [{ x: mx, y: ty }, { x: rx, y: ty }, { x: rx, y: byy }, { x: mx, y: byy }], ib.R, dt);
+        drawDots('C', [{ x: mx, y: ty }, { x: mx, y: byy }], ib.C, dt,
+                 p => Math.abs(p.y - cyM) < 22);   /* clears the plates and their ± marks */
+
+        if (state.closed && Math.abs(f.i) > 0.01) {
             ctx.fillStyle = col.acc;
-            ctx.font = '13px "JetBrains Mono", monospace';
+            ctx.font = '13px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('→', (lx + sw0) / 2, ty - 12);
-            ctx.fillText('←', (mx + rx) / 2, byy + 14);
             ctx.fillText('I = ' + f.i.toFixed(2) + ' A', (lx + mx) / 2, byy + 14);
         }
 
@@ -422,11 +483,14 @@ document.addEventListener('DOMContentLoaded', () => {
         $('r-i').textContent  = f.i.toFixed(2) + ' A';
         $('r-uc').textContent = f.uc.toFixed(2) + ' V';
         $('r-q').textContent  = (f.q * 1e6).toFixed(1) + ' µC';
-        $('r-dq').textContent = '+' + (f.dq * 1e6).toFixed(1) + ' µC';
+        $('r-dq').textContent = (f.dq < 0 ? '−' : '+') + Math.abs(f.dq * 1e6).toFixed(1) + ' µC';
     }
 
-    function frame() {
-        draw();
+    let last = null;
+    function frame(ts) {
+        const dt = last === null ? 0 : Math.min(0.05, (ts - last) / 1000);
+        last = ts;
+        draw(dt);
         requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -756,15 +757,29 @@ const PP9 = (function () {
         return o;
     }
     function mono(ctx, text, x, y, col, size, align) {
-        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
-        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        const sz = size || 10, al = align || 'left';
+        ctx.font = sz + 'px "Geist",ui-sans-serif,sans-serif';
+        ctx.textAlign = al; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col;
+        /* A scene caption is one line on a wide stage. On a phone it is wider
+           than the stage, so it breaks at word boundaries and runs on below. */
+        const W = ctx.canvas.width / ctx.getTransform().a;
+        const room = al === 'center' ? 2 * Math.min(x, W - x) - 24 : al === 'right' ? x - 12 : W - x - 12;
+        if (ctx.measureText(text).width <= room) { ctx.fillText(text, x, y); return; }
+        let line = '', row = 0;
+        for (const word of String(text).split(' ')) {
+            const next = line ? line + ' ' + word : word;
+            if (line && ctx.measureText(next).width > room) {
+                ctx.fillText(line, x, y + row * (sz + 4)); row++; line = word;
+            } else line = next;
+        }
+        ctx.fillText(line, x, y + row * (sz + 4));
     }
     /* the same, on a paper backdrop, for a caption that sits over a painted
        field where bare ink would be unreadable */
     function plate(ctx, bg, text, x, y, col, size) {
         const sz = size || 10;
-        ctx.font = sz + 'px "JetBrains Mono",monospace';
+        ctx.font = sz + 'px "Geist",ui-sans-serif,sans-serif';
         const w = ctx.measureText(text).width;
         ctx.fillStyle = bg;
         ctx.fillRect(x - 4, y - sz * 0.85, w + 8, sz * 1.7);

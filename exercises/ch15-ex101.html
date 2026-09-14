@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -342,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = W * 0.24, dy = H * 0.42, dr = Math.min(W, H) * 0.16;
         /* clamp + wire hint */
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
         ctx.fillText('DISC · TOP VIEW', dx, dy - dr - 14);
         ctx.beginPath(); ctx.arc(dx, dy, dr, 0, Math.PI * 2);
@@ -361,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.beginPath(); ctx.arc(dx, dy, 3, 0, Math.PI * 2);
         ctx.fillStyle = col.ink; ctx.fill();
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.fillText('θ = ' + th.toFixed(3) + ' rad (drawn ×3)', dx, dy + dr + 10);
 
@@ -375,9 +376,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.moveTo(gx0, g1y0 - 4); ctx.lineTo(gx0, g1y1); ctx.lineTo(gx1 + 4, g1y1);
             ctx.stroke();
             ctx.fillStyle = col.faint;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText('(a)  M vs θ', gx0 + 4, g1y0 + 10);
+            /* a narrow graph has no room for its title beside the M_s label: lift it over the axis */
+            if (gx1 - gx0 < 260) ctx.fillText('(a)  M vs θ', gx0 - 6, g1y0 - 10);
+            else ctx.fillText('(a)  M vs θ', gx0 + 4, g1y0 + 10);
             ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
             ctx.beginPath(); ctx.moveTo(gx0, g1y1);
             ctx.lineTo(gx1, g1y0 + 8); ctx.stroke();

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -417,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const cs = document.documentElement.getAttribute('data-lang') === 'cs';
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(cs ? 'BOČNÍ POHLED — POLE NA OSE TYČE'
                         : 'SIDE VIEW — FIELD ON THE ROD AXIS', 24, 26);
@@ -461,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         /* P marker */
         ctx.beginPath(); ctx.arc(xP, axisY, 3.2, 0, Math.PI * 2);
         ctx.fillStyle = col.ink; ctx.fill();
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
         ctx.fillText('P', xP, axisY - 12);
 
@@ -475,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.beginPath(); ctx.moveTo(xa, dimY - 4); ctx.lineTo(xa, dimY + 4); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(xb, dimY - 4); ctx.lineTo(xb, dimY + 4); ctx.stroke();
             ctx.fillStyle = col.faint;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText(label, (xa + xb) / 2, dimY + 7);
         }
@@ -493,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const Y = E  => py1 - (Math.log10(E) - lmin) / (lmax - lmin) * (py1 - py0);
 
         ctx.fillStyle = col.faint;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(cs ? 'E(a) — TYČ VS BODOVÝ NÁBOJ · LOG. MĚŘÍTKO'
                         : 'E(a) — ROD VS POINT CHARGE · LOG SCALE', px0, py0 - 12);
@@ -536,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         /* curve tags where the gap is widest */
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = col.acc;
         ctx.fillText(cs ? 'TYČ' : 'ROD', X(6) + 4, Y(eRod(6)) + 16);

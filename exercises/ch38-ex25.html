@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -320,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
         ctx.strokeRect(foilX - 5, foilY0, 10, foilY1 - foilY0);
         ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.fillText('gold foil', foilX, foilY1 + 8);
 
@@ -338,7 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText('X-ray λ = ' + state.lam.toFixed(0) + ' pm', 20, hitY - 12);
 
         /* electron circular orbit; radius ∝ Br */
-        const orbR = 30 + state.br * 42;
+        /* on a narrow canvas the bars come in from the right, so the whole
+           Br range of orbits is scaled down to end short of them */
+        const narrow = W < 520;
+        const barsX = narrow ? W - 120 : W * 0.68;
+        const orbR = (30 + state.br * 42) * (narrow ? Math.min(1, (barsX - 24 - foilX) / 2 / (30 + 3.5 * 42)) : 1);
         const ocx = foilX + orbR, ocy = hitY;
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]);
         ctx.beginPath(); ctx.arc(ocx, ocy, orbR, 0, Math.PI * 2); ctx.stroke();
@@ -354,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText('r ∝ Br', ocx, ocy - orbR - 6);
 
         /* ── right: energy budget bars ───────────────────────────── */
-        const bx = W * 0.68, bw = 60;
+        const bx = barsX, bw = narrow ? 40 : 60;
         const bh = H * 0.6, byB = Math.min(H * 0.84, H - 108);   /* leaves the bottom strip to the equation badge */
         const eMax = Math.max(f.ephKeV * 1.1, 5);
 
@@ -366,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillRect(bx, byB - hP, bw, hP);
 
         /* split bar: W below, KE on top */
-        const bx2 = bx + 100;
+        const bx2 = bx + (narrow ? 64 : 100);
         ctx.strokeRect(bx2, byB - bh, bw, bh);
         const hW = bh * Math.max(0, f.wKeV) / eMax;
         const hK = bh * f.keKeV / eMax;
@@ -376,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillRect(bx2, byB - hW - hK, bw, hK);
 
         ctx.fillStyle = col.soft;
-        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         ctx.fillText('photon', bx + bw / 2, byB + 8);
         ctx.fillText(f.ephKeV.toFixed(1) + ' keV', bx + bw / 2, byB + 21);

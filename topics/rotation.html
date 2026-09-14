@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
 
     <style>
     /* ================================================================
@@ -1198,7 +1199,7 @@ const PP6 = (function () {
     }
 
     function mono(ctx, text, x, y, col, size, align) {
-        ctx.font = (size || 10) + 'px "JetBrains Mono",monospace';
+        ctx.font = (size || 10) + 'px "Geist",ui-sans-serif,sans-serif';
         ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = col;
         ctx.fillText(text, x, y);
@@ -1332,14 +1333,19 @@ const PP6 = (function () {
         const n2 = { x: Math.sin(a2), y: -Math.cos(a2) };
         const w1 = boxPx(P.m1), w2 = boxPx(P.m2), Rpx = rimPx(P.R);
 
-        /* the axle is pinned, so the corners of the canvas stay free */
-        const pc = { x: W * 0.5, y: H * 0.30 };
+        /* the axle is pinned, so the corners of the canvas stay free. On a
+           phone-width canvas the boxes and their force arrows reach as high as
+           the caption, so the axle drops below it and the travel is fitted to
+           the height that is left underneath. */
+        const narrow = W < 520;
+        const pc = { x: W * 0.5, y: narrow ? Math.max(H * 0.30, 196) : H * 0.30 };
 
         /* metres per pixel for the travel only */
         const marg = Math.max(w1, w2) / 2 + 30;
+        const below = narrow ? H - pc.y - marg - 40 : H * 0.60 - marg;
         const sc = Math.min(300, Math.max(38,
             Math.min((W * 0.46 - marg) / Math.max(L * Math.cos(a1), L * Math.cos(a2), 0.12),
-                     (H * 0.60 - marg) / Math.max(L * Math.sin(a1), L * Math.sin(a2), 0.12))));
+                     below / Math.max(L * Math.sin(a1), L * Math.sin(a2), 0.12))));
 
         /* THE FIX: each straight run of cord leaves the rim tangentially, so
            everything on that side is measured from the tangent point — not
@@ -1871,7 +1877,8 @@ const PP6 = (function () {
 
     /* a scrolling three-period window of theta(t), so T is something you see */
     function trace(ctx, c, W, S) {
-        const bw = 168, bh = 60, bx = W - bw - 16, by = 14;
+        /* narrower on a phone, so it ends short of the ceiling clamp at centre */
+        const bw = Math.min(168, W / 2 - 70), bh = 60, bx = W - bw - 16, by = 14;
         const win = 3 * S.T;
         ctx.fillStyle = c.paper; ctx.fillRect(bx, by, bw, bh);
         ctx.strokeStyle = c.ink; ctx.lineWidth = 1; ctx.setLineDash([]);
@@ -2083,7 +2090,7 @@ const PP6 = (function () {
     /* Paper-backed caption, so it survives the graph-paper grid. */
     function caption(text, x, y, align) {
         ctx.save();
-        ctx.font = '11px "JetBrains Mono","Courier New",monospace';
+        ctx.font = '11px "Geist",ui-sans-serif,sans-serif';
         const w  = ctx.measureText(text).width;
         const bx = align === 'right' ? x - w : x;
         ctx.globalAlpha = 0.88; ctx.fillStyle = col.paper;

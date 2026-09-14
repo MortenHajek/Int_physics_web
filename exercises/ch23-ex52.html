@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="exercise.css" />
     <script src="../lang.js"></script>
+    <script defer src="../mobile.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 </head>
@@ -367,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* labels */
         ctx.fillStyle = col.soft;
-        ctx.font = '11px "JetBrains Mono", monospace';
+        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'top';
         for (let g = 0; g <= 5; g++) ctx.fillText(g.toFixed(0), xPix(g), mT + ph + 8);
         ctx.fillText('r (cm)', mL + pw / 2, mT + ph + 24);
@@ -423,11 +424,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const csLang = document.documentElement.getAttribute('data-lang') === 'cs';
         if (show.target) {
             ctx.fillStyle = matched ? col.acc : col.soft;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-            ctx.fillText((matched ? '✓ ' : '') + (csLang
+            const legend = (matched ? '✓ ' : '') + (csLang
                              ? 'čárkovaně: tištěná křivka'
-                             : 'dashed: printed curve'), mL + 10, mT + 8);
+                             : 'dashed: printed curve');
+            /* a narrow plot has no room for it beside the inset: it goes above the frame */
+            const crowded = show.sketch && mL + 10 + ctx.measureText(legend).width > mL + pw - 114;
+            ctx.fillText(legend, crowded ? mL : mL + 10, crowded ? mT - 18 : mT + 8);
         }
 
         /* shell cross-section inset */
@@ -442,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fillStyle = col.acc;
             ctx.beginPath(); ctx.arc(ccx, ccy, 4, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = col.soft;
-            ctx.font = '10px "JetBrains Mono", monospace';
+            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.fillText(csLang ? 'q · vrstva Q' : 'q · shell Q', ccx, iy + ih - 14);
         }
