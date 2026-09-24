@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>02 Hilbert space and unbounded operators · Advanced QM — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="adv-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Advanced QM</span><span lang="cs">Pokročilá KM</span></small>
+        </a>
+        <nav class="nav">
+            <a href="adv-quantum.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 02 · Course notes 2 · Sakurai 1.6</span><span lang="cs">Kapitola 02 · Skripta 2 · Sakurai 1.6</span></div>
+            <h1><span lang="en">Hilbert space and unbounded operators</span><span lang="cs">Hilbertův prostor a neomezené operátory</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="U(t) = \mathrm{e}^{-\mathrm{i}tA}\;\Leftrightarrow\;A = A^\dagger"></div>
+            <div class="eq-caption"><span lang="en">Stone’s theorem — continuous unitary groups and self-adjoint generators correspond one to one</span><span lang="cs">Stoneova věta — spojité unitární grupy a samosdružené generátory si odpovídají jedna ku jedné</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">In infinite dimensions two questions arise that never appear for matrices: do limits exist, and on which vectors is an operator defined? The first leads to Hilbert spaces — inner-product spaces in which every Cauchy sequence converges — and makes infinite sums such as <span data-tex="\sum_n c_n|n\rangle"></span> meaningful. The second leads to the distinction between bounded and unbounded operators, and position and momentum are necessarily of the second kind.</span><span lang="cs">V nekonečné dimenzi vyvstávají dvě otázky, které se u matic nikdy neobjeví: existují limity a na kterých vektorech je operátor definován? První vede k Hilbertovým prostorům — prostorům se skalárním součinem, v nichž každá cauchyovská posloupnost konverguje — a dává smysl nekonečným součtům jako <span data-tex="\sum_n c_n|n\rangle"></span>. Druhá vede k rozlišení omezených a neomezených operátorů, přičemž poloha a hybnost jsou nutně toho druhého druhu.</span></p>
+                <p><span lang="en">Sakurai handles continuous spectra by analogy with the discrete case (section 1.6); this chapter, which follows the course notes, supplies what that analogy rests on. The practical lessons are few but important: an observable is a self-adjoint operator, not merely a “Hermitian” formula, its boundary conditions are part of its definition, and a spectrum need not consist of eigenvalues.</span><span lang="cs">Sakurai spojitá spektra zpracovává analogií s diskrétním případem (oddíl 1.6); tato kapitola, která sleduje skripta kurzu, dodává to, na čem ta analogie stojí. Praktických ponaučení je málo, ale jsou důležitá: pozorovatelná je samosdružený operátor, ne jen „hermitovský“ vzorec, jeho okrajové podmínky jsou součástí jeho definice a spektrum nemusí sestávat z vlastních hodnot.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="|\psi\rangle = \sum_n\langle e_n|\psi\rangle\,|e_n\rangle"></span>
+                        <span class="ck-eq" data-tex="\|\psi\|^2 = \sum_n|\langle e_n|\psi\rangle|^2"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">In a complete orthonormal basis every vector is the norm-convergent sum of its components (left), and the norm is the sum of their squared moduli (Parseval, right). Completeness of the space supplies the limit; without it the expansion used in every calculation would have nothing to converge to.</span><span lang="cs">V úplné ortonormální bázi je každý vektor normově konvergentním součtem svých složek (vlevo) a norma je součtem jejich kvadrátů absolutních hodnot (Parseval, vpravo). Úplnost prostoru dodá limitu; bez ní by rozvoj užívaný v každém výpočtu neměl k čemu konvergovat.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The two model spaces</span><span lang="cs">Dva modelové prostory</span></span>
+                        <span class="cf-eq" data-tex="\ell^2:\ \sum_n|c_n|^2 &lt; \infty"></span>
+                        <span class="cf-eq" data-tex="L^2:\ \int|\psi(\vec x)|^2\,\mathrm{d}^3x &lt; \infty"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Square-summable sequences and square-integrable functions, each with its natural inner product. Elements of <span data-tex="L^2"></span> are strictly classes of functions that differ only on a set of measure zero, so the value of an <span data-tex="L^2"></span> function at a single point is meaningless; completeness of <span data-tex="L^2"></span> (Riesz–Fischer) holds only with the Lebesgue integral.</span>
+                        <span lang="cs">Posloupnosti s konečným součtem čtverců a funkce s integrovatelným čtvercem, každý prostor se svým přirozeným skalárním součinem. Prvky <span data-tex="L^2"></span> jsou přesně vzato třídy funkcí, které se liší jen na množině nulové míry, takže hodnota funkce z <span data-tex="L^2"></span> v jediném bodě nemá smysl; úplnost <span data-tex="L^2"></span> (Riesz–Fischer) platí jen s Lebesgueovým integrálem.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">All separable Hilbert spaces are alike</span><span lang="cs">Všechny separabilní Hilbertovy prostory jsou stejné</span></span>
+                        <span class="cf-eq" data-tex="U:\ |\psi\rangle \;\mapsto\; \big(\langle e_1|\psi\rangle,\ \langle e_2|\psi\rangle,\ \dots\big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Every separable Hilbert space has a countable orthonormal basis, and the map to its components is a unitary isomorphism onto <span data-tex="\ell^2"></span>. This settles the old dispute between Heisenberg’s matrix mechanics (vectors in <span data-tex="\ell^2"></span>, operators as infinite matrices) and Schrödinger’s wave mechanics (vectors in <span data-tex="L^2"></span>, differential operators): they are two coordinate descriptions of one abstract space.</span>
+                        <span lang="cs">Každý separabilní Hilbertův prostor má spočetnou ortonormální bázi a zobrazení na složky je unitární izomorfismus na <span data-tex="\ell^2"></span>. To rozhoduje starý spor mezi Heisenbergovou maticovou mechanikou (vektory v <span data-tex="\ell^2"></span>, operátory jako nekonečné matice) a Schrödingerovou vlnovou mechanikou (vektory v <span data-tex="L^2"></span>, diferenciální operátory): jsou to dva souřadnicové popisy jednoho abstraktního prostoru.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Riesz’s theorem and the position bra</span><span lang="cs">Rieszova věta a bra polohy</span></span>
+                        <span class="cf-eq" data-tex="|f(\psi)| \le C\|\psi\|\;\;\Rightarrow\;\;f(\psi) = \langle u|\psi\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Every bounded (continuous) linear functional is the bra of a unique ket, so bras and kets correspond one to one — as long as the bra is continuous. The evaluation <span data-tex="\psi \mapsto \psi(x&#x27;)"></span> is not: normalized Gaussians of shrinking width have <span data-tex="\psi(0) \to \infty"></span>. This is why there is no ket <span data-tex="|x&#x27;\rangle"></span> in the Hilbert space and why <span data-tex="\langle x&#x27;|"></span> needs the larger setting of chapter 03.</span>
+                        <span lang="cs">Každý omezený (spojitý) lineární funkcionál je bra jediného ketu, takže bra a kety si odpovídají jedna ku jedné — pokud je bra spojité. Vyhodnocení <span data-tex="\psi \mapsto \psi(x&#x27;)"></span> spojité není: normované gaussovky se zužující se šířkou mají <span data-tex="\psi(0) \to \infty"></span>. Proto v Hilbertově prostoru neexistuje ket <span data-tex="|x&#x27;\rangle"></span> a <span data-tex="\langle x&#x27;|"></span> potřebuje širší rámec kapitoly 03.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">No bounded canonical pair</span><span lang="cs">Žádná omezená kanonická dvojice</span></span>
+                        <span class="cf-eq" data-tex="[A,B] = c\cdot1\;\;\Rightarrow\;\;[A,B^n] = nc\,B^{n-1}"></span>
+                        <span class="cf-eq" data-tex="n|c|\,\|B^{n-1}\| \le 2\|A\|\,\|B\|\,\|B^{n-1}\|"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">If both operators were bounded, the inequality would have to hold for every <span data-tex="n"></span>, which is impossible for <span data-tex="c \ne 0"></span> (Wintner–Wielandt). Hence at least one of <span data-tex="x"></span>, <span data-tex="p"></span> is unbounded, and by the Hellinger–Toeplitz theorem an unbounded symmetric operator cannot be defined on the whole space: <span data-tex="[x,p] = \mathrm{i}\hbar"></span> holds only on a dense domain, such as the Schwartz space of chapter 03.</span>
+                        <span lang="cs">Kdyby byly oba operátory omezené, musela by nerovnost platit pro každé <span data-tex="n"></span>, což pro <span data-tex="c \ne 0"></span> nejde (Wintner–Wielandt). Aspoň jeden z <span data-tex="x"></span>, <span data-tex="p"></span> je tedy neomezený a podle Hellingerovy–Toeplitzovy věty nelze neomezený symetrický operátor definovat na celém prostoru: <span data-tex="[x,p] = \mathrm{i}\hbar"></span> platí jen na hustém definičním oboru, například na Schwartzově prostoru z kapitoly 03.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Symmetric against self-adjoint</span><span lang="cs">Symetrický a samosdružený</span></span>
+                        <span class="cf-eq" data-tex="\langle\phi|p\psi\rangle - \langle p\phi|\psi\rangle = -\mathrm{i}\hbar\big[\phi^*\psi\big]_0^L"></span>
+                        <span class="cf-eq" data-tex="\psi(L) = \mathrm{e}^{\mathrm{i}\theta}\psi(0),\qquad p_n = \dfrac{\hbar(\theta + 2\pi n)}{L}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">On an interval, <span data-tex="p = -\mathrm{i}\hbar\,\mathrm{d}/\mathrm{d}x"></span> on functions vanishing at both ends is symmetric but not self-adjoint: its adjoint needs no boundary condition. Its self-adjoint versions are labelled by a phase <span data-tex="\theta"></span>, each with its own spectrum — a particle on a ring threaded by a magnetic flux, or a Bloch phase. On a half-line momentum has no self-adjoint version at all. The physicist’s “Hermitian” usually means symmetric; only self-adjoint operators have real spectra and generate unitary evolution.</span>
+                        <span lang="cs">Na intervalu je <span data-tex="p = -\mathrm{i}\hbar\,\mathrm{d}/\mathrm{d}x"></span> na funkcích nulových v obou koncích symetrický, ale ne samosdružený: jeho sdružený operátor žádnou okrajovou podmínku nepotřebuje. Jeho samosdružené verze jsou označeny fází <span data-tex="\theta"></span>, každá s vlastním spektrem — částice na kroužku protknutém magnetickým tokem nebo Blochova fáze. Na polopřímce hybnost samosdruženou verzi vůbec nemá. Fyzikální „hermitovský“ obvykle znamená symetrický; jen samosdružené operátory mají reálné spektrum a generují unitární vývoj.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The spectrum</span><span lang="cs">Spektrum</span></span>
+                        <span class="cf-eq" data-tex="z \in \sigma(T)\;\;\Leftrightarrow\;\;\|(T - z)\psi_n\| \to 0,\quad \|\psi_n\| = 1"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For a self-adjoint <span data-tex="T"></span> the spectrum is a closed subset of the real axis, and <span data-tex="z"></span> belongs to it exactly when there is a sequence of unit vectors on which <span data-tex="T - z"></span> becomes arbitrarily small (a Weyl sequence). The position operator has the whole real axis as spectrum but no eigenvalue: narrow normalized wave packets approach any <span data-tex="x&#x27;"></span> as closely as desired, but no normalizable state reaches it.</span>
+                        <span lang="cs">Pro samosdružený <span data-tex="T"></span> je spektrum uzavřenou podmnožinou reálné osy a <span data-tex="z"></span> do něj patří právě tehdy, když existuje posloupnost jednotkových vektorů, na nichž je <span data-tex="T - z"></span> libovolně malé (Weylova posloupnost). Operátor polohy má za spektrum celou reálnou osu, ale žádnou vlastní hodnotu: úzké normované vlnové balíky se přiblíží k libovolnému <span data-tex="x&#x27;"></span>, jak blízko je třeba, žádný normovatelný stav jej však nedosáhne.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The spectral theorem and Stone’s theorem</span><span lang="cs">Spektrální věta a Stoneova věta</span></span>
+                        <span class="cf-eq" data-tex="A = \int\lambda\,\mathrm{d}E_A(\lambda),\qquad \mu_\psi(B) = \langle\psi|E_A(B)|\psi\rangle"></span>
+                        <span class="cf-eq" data-tex="A\psi = \mathrm{i}\lim_{t\to0}\dfrac{U(t)\psi - \psi}{t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Every self-adjoint operator is an integral over a projection-valued measure <span data-tex="E_A"></span>; for a discrete spectrum it reduces to <span data-tex="\sum a&#x27;\Lambda_{a&#x27;}"></span> of chapter 01, and <span data-tex="\mu_\psi"></span> is exactly the Born probability distribution of chapter 04. Stone’s theorem (the title) is the rigorous reason why the Hamiltonian must be self-adjoint, why momentum generates translations and angular momentum rotations: every continuous one-parameter unitary group has a unique self-adjoint generator, given by the limit on the second line.</span>
+                        <span lang="cs">Každý samosdružený operátor je integrálem přes projektorovou míru <span data-tex="E_A"></span>; pro diskrétní spektrum přejde v součet <span data-tex="\sum a&#x27;\Lambda_{a&#x27;}"></span> z kapitoly 01 a <span data-tex="\mu_\psi"></span> je přesně Bornovo rozdělení pravděpodobnosti z kapitoly 04. Stoneova věta (záhlaví) je přesným důvodem, proč musí být hamiltonián samosdružený, proč hybnost generuje posunutí a moment hybnosti rotace: každá spojitá jednoparametrická unitární grupa má jediný samosdružený generátor daný limitou na druhém řádku.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="adv-quantum-01.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">01 · <span lang="en">Kets, bras and operators</span><span lang="cs">Kety, bra a operátory</span></div>
+        </a>
+        <a href="adv-quantum-03.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">03 · <span lang="en">From kets to wave functions</span><span lang="cs">Od ketů k vlnovým funkcím</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="adv-quantum.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

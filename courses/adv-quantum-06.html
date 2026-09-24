@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>06 The harmonic oscillator · Advanced QM — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="adv-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Advanced QM</span><span lang="cs">Pokročilá KM</span></small>
+        </a>
+        <nav class="nav">
+            <a href="adv-quantum.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 06 · Sakurai 2.3</span><span lang="cs">Kapitola 06 · Sakurai 2.3</span></div>
+            <h1><span lang="en">The harmonic oscillator</span><span lang="cs">Harmonický oscilátor</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="E_n = \hbar\omega\Big(n + \dfrac12\Big)"></div>
+            <div class="eq-caption"><span lang="en">The equally spaced levels of the oscillator, above the zero-point energy ħω/2</span><span lang="cs">Ekvidistantní hladiny oscilátoru nad energií nulových kmitů ħω/2</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">The harmonic oscillator is the one system solved in every representation at once, and it is the building block of phonons, photons and quantum fields (chapter 15). Following Sakurai it is solved algebraically: two non-Hermitian operators built from <span data-tex="x"></span> and <span data-tex="p"></span> obey <span data-tex="[a,a^\dagger] = 1"></span>, and everything — the spectrum, the eigenkets, the matrix elements — follows from that single relation.</span><span lang="cs">Harmonický oscilátor je jediný systém řešený ve všech reprezentacích najednou a je stavebním kamenem fononů, fotonů i kvantových polí (kapitola 15). Podle Sakuraie se řeší algebraicky: dva nehermitovské operátory složené z <span data-tex="x"></span> a <span data-tex="p"></span> splňují <span data-tex="[a,a^\dagger] = 1"></span> a vše — spektrum, vlastní kety, maticové elementy — plyne z této jediné relace.</span></p>
+                <p><span lang="en">The wave functions appear only at the end, from a first-order differential equation for the ground state. Coherent states, the eigenkets of the annihilation operator, are the superpositions that behave most like a classical oscillator: their expectation values swing exactly classically and their spread stays minimal.</span><span lang="cs">Vlnové funkce se objeví až nakonec, z diferenciální rovnice prvního řádu pro základní stav. Koherentní stavy, vlastní kety anihilačního operátoru, jsou superpozice, které se chovají nejvíce jako klasický oscilátor: jejich střední hodnoty kmitají přesně klasicky a jejich rozptyl zůstává minimální.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="a = \sqrt{\dfrac{m\omega}{2\hbar}}\Big(x + \dfrac{\mathrm{i}p}{m\omega}\Big),\qquad [a,a^\dagger] = 1"></span>
+                        <span class="ck-eq" data-tex="H = \hbar\omega\Big(N + \dfrac12\Big),\qquad N = a^\dagger a"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The annihilation operator (<span data-tex="a^\dagger"></span> has the opposite sign of the <span data-tex="p"></span> term), its commutator, which follows from <span data-tex="[x,p] = \mathrm{i}\hbar"></span>, and the Hamiltonian <span data-tex="p^2/2m + m\omega^2x^2/2"></span> rewritten with the number operator <span data-tex="N"></span>.</span><span lang="cs">Anihilační operátor (<span data-tex="a^\dagger"></span> má opačné znaménko u členu s <span data-tex="p"></span>), jeho komutátor, který plyne z <span data-tex="[x,p] = \mathrm{i}\hbar"></span>, a hamiltonián <span data-tex="p^2/2m + m\omega^2x^2/2"></span> přepsaný pomocí operátoru počtu kvant <span data-tex="N"></span>.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The spectrum from the algebra</span><span lang="cs">Spektrum z algebry</span></span>
+                        <span class="cf-eq" data-tex="a|n\rangle = \sqrt n\,|n - 1\rangle,\qquad a^\dagger|n\rangle = \sqrt{n + 1}\,|n + 1\rangle"></span>
+                        <span class="cf-eq" data-tex="|n\rangle = \dfrac{(a^\dagger)^n}{\sqrt{n!}}\,|0\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en"><span data-tex="N"></span> is non-negative, since <span data-tex="\langle n|N|n\rangle = \|a|n\rangle\|^2"></span>, and <span data-tex="[N,a] = -a"></span> makes <span data-tex="a"></span> lower the eigenvalue by one. The descent must stop, which happens only if the eigenvalues are the integers <span data-tex="0, 1, 2, \dots"></span>; <span data-tex="a^\dagger"></span> climbs back without end. For one degree of freedom each level is non-degenerate, because <span data-tex="a|0\rangle = 0"></span> has a single solution. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                        <span lang="cs"><span data-tex="N"></span> je nezáporný, neboť <span data-tex="\langle n|N|n\rangle = \|a|n\rangle\|^2"></span>, a <span data-tex="[N,a] = -a"></span> znamená, že <span data-tex="a"></span> snižuje vlastní hodnotu o jedničku. Sestup se musí zastavit, což je možné jen tehdy, jsou-li vlastní hodnoty celá čísla <span data-tex="0, 1, 2, \dots"></span>; <span data-tex="a^\dagger"></span> stoupá zpět bez konce. Pro jeden stupeň volnosti je každá hladina nedegenerovaná, protože <span data-tex="a|0\rangle = 0"></span> má jediné řešení. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Position and momentum in ladder form</span><span lang="cs">Poloha a hybnost pomocí posunovacích operátorů</span></span>
+                        <span class="cf-eq" data-tex="x = \sqrt{\dfrac{\hbar}{2m\omega}}\,(a + a^\dagger),\qquad p = \mathrm{i}\sqrt{\dfrac{m\hbar\omega}{2}}\,(a^\dagger - a)"></span>
+                        <span class="cf-eq" data-tex="\langle n|x^2|n\rangle = \dfrac{\hbar}{2m\omega}(2n + 1)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Matrix elements of any polynomial in <span data-tex="x"></span> and <span data-tex="p"></span> follow by moving annihilation operators to the right. <span data-tex="x"></span> and <span data-tex="p"></span> connect only neighbouring levels, which is the oscillator’s dipole selection rule <span data-tex="\Delta n = \pm1"></span>. The mean kinetic and potential energies in <span data-tex="|n\rangle"></span> are equal, each half of <span data-tex="E_n"></span> (the virial theorem). <span class="cf-ref">(Sakurai 2.3)</span></span>
+                        <span lang="cs">Maticové elementy libovolného polynomu v <span data-tex="x"></span> a <span data-tex="p"></span> plynou přesunutím anihilačních operátorů doprava. <span data-tex="x"></span> a <span data-tex="p"></span> spojují jen sousední hladiny, což je dipólové výběrové pravidlo oscilátoru <span data-tex="\Delta n = \pm1"></span>. Střední kinetická a potenciální energie v <span data-tex="|n\rangle"></span> jsou si rovny, každá je polovinou <span data-tex="E_n"></span> (viriálová věta). <span class="cf-ref">(Sakurai 2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The wave functions</span><span lang="cs">Vlnové funkce</span></span>
+                        <span class="cf-eq" data-tex="\langle x&#x27;|0\rangle = \Big(\dfrac{m\omega}{\pi\hbar}\Big)^{1/4}\mathrm{e}^{-m\omega x&#x27;^2/2\hbar}"></span>
+                        <span class="cf-eq" data-tex="\langle x&#x27;|n\rangle = \dfrac{\langle x&#x27;|0\rangle}{\sqrt{2^nn!}}\,H_n\Big(x&#x27;\sqrt{\dfrac{m\omega}{\hbar}}\Big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In the position basis <span data-tex="a|0\rangle = 0"></span> is the first-order equation <span data-tex="\big(x&#x27; + \tfrac{\hbar}{m\omega}\tfrac{\mathrm d}{\mathrm dx&#x27;}\big)\langle x&#x27;|0\rangle = 0"></span>, whose solution is a Gaussian; repeated action of <span data-tex="a^\dagger"></span> produces the Hermite polynomials (<span data-tex="H_0 = 1"></span>, <span data-tex="H_1 = 2\xi"></span>, <span data-tex="H_2 = 4\xi^2 - 2"></span>). These functions form an orthonormal basis of <span data-tex="L^2(\mathbb R)"></span>, so <span data-tex="|\alpha\rangle \mapsto \langle n|\alpha\rangle"></span> is an explicit unitary map onto <span data-tex="\ell^2"></span> (chapter 02). <span class="cf-ref">(Sakurai 2.3)</span></span>
+                        <span lang="cs">V bázi polohy je <span data-tex="a|0\rangle = 0"></span> rovnicí prvního řádu <span data-tex="\big(x&#x27; + \tfrac{\hbar}{m\omega}\tfrac{\mathrm d}{\mathrm dx&#x27;}\big)\langle x&#x27;|0\rangle = 0"></span>, jejímž řešením je gaussovka; opakované působení <span data-tex="a^\dagger"></span> vytváří Hermitovy polynomy (<span data-tex="H_0 = 1"></span>, <span data-tex="H_1 = 2\xi"></span>, <span data-tex="H_2 = 4\xi^2 - 2"></span>). Tyto funkce tvoří ortonormální bázi <span data-tex="L^2(\mathbb R)"></span>, takže <span data-tex="|\alpha\rangle \mapsto \langle n|\alpha\rangle"></span> je explicitní unitární zobrazení na <span data-tex="\ell^2"></span> (kapitola 02). <span class="cf-ref">(Sakurai 2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The Heisenberg picture</span><span lang="cs">Heisenbergův obraz</span></span>
+                        <span class="cf-eq" data-tex="a(t) = a(0)\,\mathrm{e}^{-\mathrm{i}\omega t}"></span>
+                        <span class="cf-eq" data-tex="x(t) = x(0)\cos\omega t + \dfrac{p(0)}{m\omega}\sin\omega t"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The Heisenberg equations for <span data-tex="a"></span> and <span data-tex="a^\dagger"></span> decouple, and the operators <span data-tex="x(t)"></span>, <span data-tex="p(t)"></span> oscillate exactly like the classical coordinates. Yet the expectation value of <span data-tex="x"></span> in any energy eigenstate <span data-tex="|n\rangle"></span> is zero at all times: classical-looking oscillation requires a superposition of neighbouring levels. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                        <span lang="cs">Heisenbergovy rovnice pro <span data-tex="a"></span> a <span data-tex="a^\dagger"></span> se rozpojí a operátory <span data-tex="x(t)"></span>, <span data-tex="p(t)"></span> kmitají přesně jako klasické souřadnice. Střední hodnota <span data-tex="x"></span> v libovolném vlastním stavu energie <span data-tex="|n\rangle"></span> je přesto stále nulová: kmitání, které vypadá klasicky, vyžaduje superpozici sousedních hladin. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The zero-point energy</span><span lang="cs">Energie nulových kmitů</span></span>
+                        <span class="cf-eq" data-tex="\langle(\Delta x)^2\rangle_0\,\langle(\Delta p)^2\rangle_0 = \dfrac{\hbar^2}{4}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The ground state is not at rest: it is a minimum-uncertainty Gaussian with energy <span data-tex="\hbar\omega/2"></span>. In a quantum field every mode contributes such a term and the sum diverges; it is removed by normal ordering (chapter 15), because only energy differences are measured there. The two statements do not contradict each other. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                        <span lang="cs">Základní stav není v klidu: je to gaussovka s minimální neurčitostí a energií <span data-tex="\hbar\omega/2"></span>. V kvantovém poli přispívá takovým členem každý mód a součet diverguje; odstraňuje se normálním uspořádáním (kapitola 15), protože se tam měří jen rozdíly energií. Obě tvrzení si neodporují. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Coherent states</span><span lang="cs">Koherentní stavy</span></span>
+                        <span class="cf-eq" data-tex="a|\lambda\rangle = \lambda|\lambda\rangle,\qquad |\lambda\rangle = \mathrm{e}^{-|\lambda|^2/2}\sum_n\dfrac{\lambda^n}{\sqrt{n!}}|n\rangle"></span>
+                        <span class="cf-eq" data-tex="|\lambda\rangle = \mathrm{e}^{\lambda a^\dagger - \lambda^*a}|0\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Sakurai’s answer to “which superposition imitates the classical oscillator”: the eigenkets of the non-Hermitian <span data-tex="a"></span>, with any complex <span data-tex="\lambda"></span>. The number of quanta is Poisson-distributed with mean <span data-tex="|\lambda|^2"></span>; the displacement operator on the second line follows from the Baker–Campbell–Hausdorff formula (chapter 01). Under time evolution <span data-tex="\lambda \to \lambda\mathrm{e}^{-\mathrm{i}\omega t}"></span>: the state stays coherent, its <span data-tex="\langle x\rangle"></span> and <span data-tex="\langle p\rangle"></span> oscillate classically and its uncertainties stay minimal. Laser light is well described by such states. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                        <span lang="cs">Sakuraiova odpověď na otázku, „která superpozice napodobí klasický oscilátor“: vlastní kety nehermitovského <span data-tex="a"></span> s libovolným komplexním <span data-tex="\lambda"></span>. Počet kvant má Poissonovo rozdělení se střední hodnotou <span data-tex="|\lambda|^2"></span>; posunovací operátor na druhém řádku plyne z Bakerova–Campbellova–Hausdorffova vzorce (kapitola 01). Při časovém vývoji <span data-tex="\lambda \to \lambda\mathrm{e}^{-\mathrm{i}\omega t}"></span>: stav zůstává koherentní, jeho <span data-tex="\langle x\rangle"></span> a <span data-tex="\langle p\rangle"></span> kmitají klasicky a neurčitosti zůstávají minimální. Takovými stavy se dobře popisuje světlo laseru. <span class="cf-ref">(Sakurai 2.3)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="adv-quantum-05.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">05 · <span lang="en">Time evolution</span><span lang="cs">Časový vývoj</span></div>
+        </a>
+        <a href="adv-quantum-07.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">07 · <span lang="en">Angular momentum</span><span lang="cs">Moment hybnosti</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="adv-quantum.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

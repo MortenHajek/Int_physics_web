@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>04 States, measurement and uncertainty · Advanced QM — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="adv-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Advanced QM</span><span lang="cs">Pokročilá KM</span></small>
+        </a>
+        <nav class="nav">
+            <a href="adv-quantum.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 04 · Sakurai 1.4, 3.4, 3.10</span><span lang="cs">Kapitola 04 · Sakurai 1.4, 3.4, 3.10</span></div>
+            <h1><span lang="en">States, measurement and uncertainty</span><span lang="cs">Stavy, měření a neurčitost</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="P_{a&#x27;} = |\langle a&#x27;|\alpha\rangle|^2"></div>
+            <div class="eq-caption"><span lang="en">The Born rule — the probability of obtaining the eigenvalue a′ in the state α</span><span lang="cs">Bornovo pravidlo — pravděpodobnost výsledku a′ ve stavu α</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">A measurement of an observable <span data-tex="A"></span> yields one of its eigenvalues and, in Dirac’s words quoted by Sakurai, “throws the system into” the corresponding eigenstate. Which eigenvalue appears cannot be predicted, only its probability. In the general form of the postulates, states are density operators, probabilities are traces with spectral projectors, and the familiar rules for a single ket are a special case.</span><span lang="cs">Měření pozorovatelné <span data-tex="A"></span> dává jednu z jejích vlastních hodnot a podle Diracových slov, která Sakurai cituje, „vrhne systém“ do příslušného vlastního stavu. Kterou vlastní hodnotu dostaneme, předpovědět nelze, jen její pravděpodobnost. V obecném tvaru postulátů jsou stavy operátory hustoty, pravděpodobnosti jsou stopy se spektrálními projektory a známá pravidla pro jediný ket jsou zvláštním případem.</span></p>
+                <p><span lang="en">Mixed states arise in two physically different ways: from ignorance, as a classical mixture of preparations, and from entanglement with a system that is not observed. The uncertainty relation limits how sharply two incompatible observables can be defined at once, and Bell’s inequality shows that the correlations of an entangled pair cannot be explained by any local hidden variables.</span><span lang="cs">Smíšené stavy vznikají dvěma fyzikálně odlišnými způsoby: z nevědomosti, jako klasická směs příprav, a z provázání se systémem, který nepozorujeme. Relace neurčitosti omezuje, jak ostře lze současně určit dvě neslučitelné pozorovatelné, a Bellova nerovnost ukazuje, že korelace provázaného páru nelze vysvětlit žádnými lokálními skrytými parametry.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\langle A\rangle = \langle\alpha|A|\alpha\rangle = \sum_{a&#x27;}a&#x27;\,|\langle a&#x27;|\alpha\rangle|^2"></span>
+                        <span class="ck-eq" data-tex="[A] = \mathrm{tr}(\rho A)"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The expectation value in a pure state is the eigenvalues weighted by their Born probabilities; for an ensemble described by a density operator <span data-tex="\rho"></span>, Sakurai writes the ensemble average as <span data-tex="[A]"></span>. Both are special cases of <span data-tex="\mathrm{Prob}(A \in B) = \mathrm{tr}\big(\rho E_A(B)\big)"></span> with the spectral measure of chapter 02.</span><span lang="cs">Střední hodnota v čistém stavu je součet vlastních hodnot vážených jejich Bornovými pravděpodobnostmi; pro soubor popsaný operátorem hustoty <span data-tex="\rho"></span> píše Sakurai souborový průměr jako <span data-tex="[A]"></span>. Oba jsou zvláštními případy vztahu <span data-tex="\mathrm{Prob}(A \in B) = \mathrm{tr}\big(\rho E_A(B)\big)"></span> se spektrální mírou z kapitoly 02.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Measurement</span><span lang="cs">Měření</span></span>
+                        <span class="cf-eq" data-tex="|\alpha\rangle \;\to\; \dfrac{\Lambda_{a&#x27;}|\alpha\rangle}{\sqrt{\langle\alpha|\Lambda_{a&#x27;}|\alpha\rangle}}"></span>
+                        <span class="cf-eq" data-tex="\rho \;\to\; \dfrac{\Lambda\rho\Lambda}{\mathrm{tr}(\rho\Lambda)}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">After a measurement with the result <span data-tex="a&#x27;"></span> the state is its normalized projection onto the eigenspace of <span data-tex="a&#x27;"></span> (Lüders’ rule, second line for a density operator). Repeating the measurement at once gives <span data-tex="a&#x27;"></span> again with certainty. For the position of a particle the spectral projector multiplies by the indicator function of a region, and the Born rule reduces to the probability density <span data-tex="|\psi(x&#x27;)|^2"></span> — not an extra postulate. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                        <span lang="cs">Po měření s výsledkem <span data-tex="a&#x27;"></span> je stavem jeho normovaná projekce na vlastní podprostor <span data-tex="a&#x27;"></span> (Lüdersovo pravidlo, druhý řádek pro operátor hustoty). Okamžité opakování měření dá <span data-tex="a&#x27;"></span> znovu s jistotou. Pro polohu částice násobí spektrální projektor charakteristickou funkcí oblasti a Bornovo pravidlo přejde v hustotu pravděpodobnosti <span data-tex="|\psi(x&#x27;)|^2"></span> — nejde o další postulát. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">States are rays</span><span lang="cs">Stavy jsou paprsky</span></span>
+                        <span class="cf-eq" data-tex="|\alpha\rangle \sim \mathrm{e}^{\mathrm{i}\delta}|\alpha\rangle"></span>
+                        <span class="cf-eq" data-tex="\dfrac{|+\rangle + |-\rangle}{\sqrt2}\;\perp\;\dfrac{|+\rangle - |-\rangle}{\sqrt2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A global phase changes no probability, so a pure state is a ray — a unit vector up to a phase. A relative phase is observable: the two superpositions on the second line give each basis ket the same weight ½, yet they are orthogonal, distinguishable with certainty by measuring <span data-tex="S_x"></span>. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                        <span lang="cs">Globální fáze nemění žádnou pravděpodobnost, takže čistý stav je paprsek — jednotkový vektor až na fázi. Relativní fáze pozorovatelná je: obě superpozice na druhém řádku dávají každému bázovému ketu stejnou váhu ½, a přesto jsou ortogonální a měření <span data-tex="S_x"></span> je s jistotou rozliší. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The density operator</span><span lang="cs">Operátor hustoty</span></span>
+                        <span class="cf-eq" data-tex="\rho = \sum_iw_i\,|\alpha^{(i)}\rangle\langle\alpha^{(i)}|,\qquad \mathrm{tr}\,\rho = 1"></span>
+                        <span class="cf-eq" data-tex="\rho^2 = \rho\;\;\Leftrightarrow\;\;\mathrm{tr}\,\rho^2 = 1"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">An ensemble in which the fraction <span data-tex="w_i"></span> is prepared in <span data-tex="|\alpha^{(i)}\rangle"></span> is fully described by <span data-tex="\rho"></span>: Hermitian, positive, of unit trace. It is pure exactly when <span data-tex="\mathrm{tr}\,\rho^2 = 1"></span>. A superposition is not a mixture: <span data-tex="(|+\rangle + |-\rangle)/\sqrt2"></span> and the mixture <span data-tex="\rho = \tfrac12"></span> give the same statistics for <span data-tex="S_z"></span>, but for <span data-tex="S_x"></span> the first gives <span data-tex="+\hbar/2"></span> with certainty and the second either sign with probability ½. The interference sits in the off-diagonal elements of <span data-tex="\rho"></span>. <span class="cf-ref">(Sakurai 3.4)</span></span>
+                        <span lang="cs">Soubor, v němž je podíl <span data-tex="w_i"></span> připraven v <span data-tex="|\alpha^{(i)}\rangle"></span>, plně popisuje <span data-tex="\rho"></span>: hermitovský, pozitivní, se stopou jedna. Čistý je právě tehdy, když <span data-tex="\mathrm{tr}\,\rho^2 = 1"></span>. Superpozice není směs: <span data-tex="(|+\rangle + |-\rangle)/\sqrt2"></span> a směs <span data-tex="\rho = \tfrac12"></span> dávají stejnou statistiku pro <span data-tex="S_z"></span>, ale pro <span data-tex="S_x"></span> dá první s jistotou <span data-tex="+\hbar/2"></span> a druhá každé znaménko s pravděpodobností ½. Interference sedí v mimodiagonálních prvcích <span data-tex="\rho"></span>. <span class="cf-ref">(Sakurai 3.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Subsystems and thermal states</span><span lang="cs">Podsystémy a tepelné stavy</span></span>
+                        <span class="cf-eq" data-tex="\rho_A = \mathrm{tr}_B\,\rho,\qquad \mathrm{tr}(\rho_AX) = \mathrm{tr}\big(\rho\,(X\otimes1)\big)"></span>
+                        <span class="cf-eq" data-tex="\rho = \dfrac{\mathrm{e}^{-\beta H}}{\mathrm{tr}\,\mathrm{e}^{-\beta H}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The reduced density operator gives the correct statistics of every measurement on part <span data-tex="A"></span> alone. For an entangled pure state it is mixed: the spin singlet gives <span data-tex="\rho_A = \tfrac12"></span>, so each spin alone shows either sign with probability ½. The canonical ensemble on the second line, with <span data-tex="\beta = 1/k_{\mathrm B}T"></span>, is the mixed state that maximizes the entropy <span data-tex="-\mathrm{tr}(\rho\ln\rho)"></span> at a given mean energy — a mixture of the ignorance kind. <span class="cf-ref">(Sakurai 3.4)</span></span>
+                        <span lang="cs">Redukovaný operátor hustoty dává správnou statistiku každého měření jen na části <span data-tex="A"></span>. Pro provázaný čistý stav je smíšený: spinový singlet dává <span data-tex="\rho_A = \tfrac12"></span>, takže každý spin sám ukazuje obě znaménka s pravděpodobností ½. Kanonický soubor na druhém řádku, kde <span data-tex="\beta = 1/k_{\mathrm B}T"></span>, je smíšený stav, který při dané střední energii maximalizuje entropii <span data-tex="-\mathrm{tr}(\rho\ln\rho)"></span> — směs vzniklá z nevědomosti. <span class="cf-ref">(Sakurai 3.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The uncertainty relation</span><span lang="cs">Relace neurčitosti</span></span>
+                        <span class="cf-eq" data-tex="\langle(\Delta A)^2\rangle\langle(\Delta B)^2\rangle \ge \dfrac14\big|\langle[A,B]\rangle\big|^2"></span>
+                        <span class="cf-eq" data-tex="\Delta A = A - \langle A\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Proved from the Cauchy–Schwarz inequality by splitting <span data-tex="\Delta A\,\Delta B"></span> into its commutator (anti-Hermitian) and anticommutator (Hermitian) parts; keeping the anticommutator term gives the stronger Schrödinger form. For <span data-tex="[x,p] = \mathrm{i}\hbar"></span> it gives <span data-tex="\Delta x\,\Delta p \ge \hbar/2"></span>, attained by Gaussians (chapter 03). It says nothing about the disturbance caused by a measurement — only about the spreads in one state. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                        <span lang="cs">Dokazuje se z Cauchyho–Schwarzovy nerovnosti rozdělením <span data-tex="\Delta A\,\Delta B"></span> na komutátorovou (antihermitovskou) a antikomutátorovou (hermitovskou) část; ponechání antikomutátorového členu dává silnější Schrödingerův tvar. Pro <span data-tex="[x,p] = \mathrm{i}\hbar"></span> dává <span data-tex="\Delta x\,\Delta p \ge \hbar/2"></span>, čehož dosahují gaussovky (kapitola 03). Neříká nic o narušení způsobeném měřením — jen o rozptylech v jednom stavu. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy and time</span><span lang="cs">Energie a čas</span></span>
+                        <span class="cf-eq" data-tex="\Delta H\cdot\tau_A \ge \dfrac{\hbar}{2},\qquad \tau_A = \dfrac{\Delta A}{\big|\mathrm{d}\langle A\rangle/\mathrm{d}t\big|}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">There is no time operator, and <span data-tex="\Delta E\,\Delta t \ge \hbar/2"></span> is not an instance of the uncertainty relation. What holds is the Mandelstam–Tamm relation: <span data-tex="\tau_A"></span> is the time in which the expectation value of any observable changes by one standard deviation, and it follows from the uncertainty relation for <span data-tex="A"></span> and <span data-tex="H"></span> together with the Ehrenfest theorem (chapter 05). The width–lifetime relation <span data-tex="\Gamma\tau = \hbar"></span> of a decaying state is yet another statement, about the Fourier transform of an exponential decay.</span>
+                        <span lang="cs">Operátor času neexistuje a <span data-tex="\Delta E\,\Delta t \ge \hbar/2"></span> není případem relace neurčitosti. Platí Mandelštamova–Tammova relace: <span data-tex="\tau_A"></span> je doba, za kterou se střední hodnota libovolné pozorovatelné změní o jednu směrodatnou odchylku, a plyne z relace neurčitosti pro <span data-tex="A"></span> a <span data-tex="H"></span> spolu s Ehrenfestovým teorémem (kapitola 05). Vztah šířky a doby života <span data-tex="\Gamma\tau = \hbar"></span> rozpadajícího se stavu je ještě jiné tvrzení, o Fourierově transformaci exponenciálního rozpadu.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Bell’s inequality</span><span lang="cs">Bellova nerovnost</span></span>
+                        <span class="cf-eq" data-tex="P(\hat a+;\hat b+) \le P(\hat a+;\hat c+) + P(\hat c+;\hat b+)"></span>
+                        <span class="cf-eq" data-tex="P(\hat a+;\hat b+) = \dfrac12\sin^2\dfrac{\theta_{ab}}{2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two spin-½ particles in the singlet are sent to two detectors. If each particle carried predetermined answers for every direction (local hidden variables), the joint probabilities would obey Wigner’s form of Bell’s inequality (first line). Quantum mechanics gives the second line: with <span data-tex="\hat c"></span> in the plane of <span data-tex="\hat a"></span> and <span data-tex="\hat b"></span>, 60° from each, it predicts <span data-tex="\tfrac38"></span> on the left and <span data-tex="\tfrac14"></span> on the right, so the inequality fails — and experiments side with quantum mechanics. <span class="cf-ref">(Sakurai 3.10)</span></span>
+                        <span lang="cs">Dvě částice se spinem ½ v singletu letí ke dvěma detektorům. Kdyby každá nesla předem dané odpovědi pro každý směr (lokální skryté parametry), splňovaly by sdružené pravděpodobnosti Wignerův tvar Bellovy nerovnosti (první řádek). Kvantová mechanika dává druhý řádek: pro <span data-tex="\hat c"></span> v rovině <span data-tex="\hat a"></span> a <span data-tex="\hat b"></span>, 60° od každého, předpovídá <span data-tex="\tfrac38"></span> vlevo a <span data-tex="\tfrac14"></span> vpravo, takže nerovnost neplatí — a experimenty dávají za pravdu kvantové mechanice. <span class="cf-ref">(Sakurai 3.10)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="adv-quantum-03.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">03 · <span lang="en">From kets to wave functions</span><span lang="cs">Od ketů k vlnovým funkcím</span></div>
+        </a>
+        <a href="adv-quantum-05.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">05 · <span lang="en">Time evolution</span><span lang="cs">Časový vývoj</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="adv-quantum.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>09 Approximation methods · Advanced QM — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="adv-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Advanced QM</span><span lang="cs">Pokročilá KM</span></small>
+        </a>
+        <nav class="nav">
+            <a href="adv-quantum.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 09 · Sakurai 5.1–5.7</span><span lang="cs">Kapitola 09 · Sakurai 5.1–5.7</span></div>
+            <h1><span lang="en">Approximation methods</span><span lang="cs">Přibližné metody</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="w_{i\to n} = \dfrac{2\pi}{\hbar}\,|V_{ni}|^2\,\delta(E_n - E_i)"></div>
+            <div class="eq-caption"><span lang="en">Fermi’s golden rule — the transition rate into a continuum of final states</span><span lang="cs">Fermiho zlaté pravidlo — rychlost přechodů do kontinua koncových stavů</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Few Hamiltonians can be diagonalized exactly. When <span data-tex="H = H_0 + V"></span> with <span data-tex="H_0"></span> solved and <span data-tex="V"></span> small, the energies and eigenkets are expanded in powers of <span data-tex="V"></span>; for the ground state an independent upper bound comes from the variational principle. Degenerate levels need their zeroth-order states chosen correctly, and the fine structure of hydrogen is the classic application.</span><span lang="cs">Přesně diagonalizovat lze jen málo hamiltoniánů. Je-li <span data-tex="H = H_0 + V"></span> s vyřešeným <span data-tex="H_0"></span> a malým <span data-tex="V"></span>, rozvíjejí se energie a vlastní kety v mocninách <span data-tex="V"></span>; nezávislý horní odhad pro základní stav dává variační princip. Degenerované hladiny vyžadují správnou volbu stavů nultého řádu a klasickou aplikací je jemná struktura vodíku.</span></p>
+                <p><span lang="en">For a time-dependent perturbation the interaction picture (chapter 05) gives transition amplitudes as a series in <span data-tex="V"></span>; its first term, integrated over a continuum of final states, yields Fermi’s golden rule, a constant transition rate. The opposite limit — a Hamiltonian changing slowly — leaves the system in its instantaneous eigenstate, with a geometric phase that Berry recognized as a property of the path in parameter space.</span><span lang="cs">Pro časově závislou poruchu dává interakční obraz (kapitola 05) amplitudy přechodu jako řadu v <span data-tex="V"></span>; její první člen integrovaný přes kontinuum koncových stavů vede na Fermiho zlaté pravidlo, konstantní rychlost přechodů. Opačná limita — pomalu se měnící hamiltonián — ponechá systém v jeho okamžitém vlastním stavu, s geometrickou fází, kterou Berry rozpoznal jako vlastnost dráhy v prostoru parametrů.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\Delta_n^{(1)} = V_{nn},\qquad \Delta_n^{(2)} = \sum_{k\ne n}\dfrac{|V_{nk}|^2}{E_n^{(0)} - E_k^{(0)}}"></span>
+                        <span class="ck-eq" data-tex="c_n^{(1)}(t) = -\dfrac{\mathrm{i}}{\hbar}\int_{t_0}^{t}\mathrm{e}^{\mathrm{i}\omega_{ni}t&#x27;}\,V_{ni}(t&#x27;)\,\mathrm{d}t&#x27;"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The first two corrections to a non-degenerate level (Sakurai writes the shift <span data-tex="\Delta_n = E_n - E_n^{(0)}"></span>, with <span data-tex="V_{nk} = \langle n^{(0)}|V|k^{(0)}\rangle"></span>), and the first-order amplitude to find the system in <span data-tex="|n\rangle"></span> when it started in <span data-tex="|i\rangle"></span>, with <span data-tex="\omega_{ni} = (E_n - E_i)/\hbar"></span>.</span><span lang="cs">První dvě opravy nedegenerované hladiny (Sakurai píše posuv <span data-tex="\Delta_n = E_n - E_n^{(0)}"></span>, s <span data-tex="V_{nk} = \langle n^{(0)}|V|k^{(0)}\rangle"></span>) a amplituda prvního řádu, že systém, který začal v <span data-tex="|i\rangle"></span>, najdeme v <span data-tex="|n\rangle"></span>, s <span data-tex="\omega_{ni} = (E_n - E_i)/\hbar"></span>.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Nondegenerate perturbation theory</span><span lang="cs">Nedegenerovaná poruchová teorie</span></span>
+                        <span class="cf-eq" data-tex="|n\rangle = |n^{(0)}\rangle + \sum_{k\ne n}|k^{(0)}\rangle\dfrac{V_{kn}}{E_n^{(0)} - E_k^{(0)}} + \cdots"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Writing <span data-tex="H = H_0 + \lambda V"></span>, expanding in <span data-tex="\lambda"></span> and projecting order by order onto <span data-tex="\langle n^{(0)}|"></span> and <span data-tex="\langle k^{(0)}|"></span> gives the key-box shifts and the state correction. The expansion works when <span data-tex="|V_{kn}| \ll |E_n^{(0)} - E_k^{(0)}|"></span>. Two consequences: the second-order shift of the ground state is always negative, and levels coupled by <span data-tex="V"></span> repel each other. <span class="cf-ref">(Sakurai 5.1)</span></span>
+                        <span lang="cs">Zápis <span data-tex="H = H_0 + \lambda V"></span>, rozvoj v <span data-tex="\lambda"></span> a projekce řád po řádu na <span data-tex="\langle n^{(0)}|"></span> a <span data-tex="\langle k^{(0)}|"></span> dává posuvy v rámečku a opravu stavu. Rozvoj funguje, když <span data-tex="|V_{kn}| \ll |E_n^{(0)} - E_k^{(0)}|"></span>. Dva důsledky: posuv základního stavu ve druhém řádu je vždy záporný a hladiny vázané poruchou <span data-tex="V"></span> se odpuzují. <span class="cf-ref">(Sakurai 5.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Degenerate levels and the Stark effect</span><span lang="cs">Degenerované hladiny a Starkův jev</span></span>
+                        <span class="cf-eq" data-tex="\sum_{m&#x27;\in D}\langle m^{(0)}|V|m&#x27;^{(0)}\rangle\,c_{m&#x27;} = \Delta^{(1)}\,c_m"></span>
+                        <span class="cf-eq" data-tex="\Delta^{(1)} = \pm3ea_0|\vec E|"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In a degenerate subspace <span data-tex="D"></span> the denominators vanish; the cure is to diagonalize <span data-tex="V"></span> there first. Its eigenvalues are the first-order shifts and its eigenvectors the right zeroth-order states. For the <span data-tex="n = 2"></span> level of hydrogen in a field <span data-tex="\vec E"></span>, <span data-tex="V = -e|\vec E|z"></span> mixes <span data-tex="2s"></span> and <span data-tex="2p_0"></span> and shifts them linearly by <span data-tex="\pm3ea_0|\vec E|"></span> — possible only because the two have opposite parity yet the same energy. <span class="cf-ref">(Sakurai 5.2)</span></span>
+                        <span lang="cs">V degenerovaném podprostoru <span data-tex="D"></span> jsou jmenovatele nulové; lékem je nejprve tam diagonalizovat <span data-tex="V"></span>. Jeho vlastní hodnoty jsou posuvy prvního řádu a vlastní vektory správné stavy nultého řádu. Pro hladinu <span data-tex="n = 2"></span> vodíku v poli <span data-tex="\vec E"></span> smíchá <span data-tex="V = -e|\vec E|z"></span> stavy <span data-tex="2s"></span> a <span data-tex="2p_0"></span> a posune je lineárně o <span data-tex="\pm3ea_0|\vec E|"></span> — to je možné jen proto, že mají opačnou paritu a přitom stejnou energii. <span class="cf-ref">(Sakurai 5.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Fine structure and the Zeeman effect</span><span lang="cs">Jemná struktura a Zeemanův jev</span></span>
+                        <span class="cf-eq" data-tex="V_{LS} = \dfrac{1}{2m^2c^2}\,\dfrac{1}{r}\dfrac{\mathrm{d}V_c}{\mathrm{d}r}\,\vec L\cdot\vec S"></span>
+                        <span class="cf-eq" data-tex="\vec L\cdot\vec S = \dfrac12\big(\vec J^2 - \vec L^2 - \vec S^2\big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The spin–orbit coupling (including the Thomas factor ½) is diagonal in the coupled basis <span data-tex="|l,s;j,m\rangle"></span>, which is the right zeroth-order basis. Together with the relativistic kinetic correction <span data-tex="-p^4/8m^3c^2"></span> the hydrogen fine structure depends only on <span data-tex="n"></span> and <span data-tex="j"></span>: <span data-tex="\Delta E = -\tfrac{mc^2(Z\alpha)^4}{2n^4}\big(\tfrac{n}{j + 1/2} - \tfrac34\big)"></span>. A weak magnetic field then splits each <span data-tex="j"></span> level into <span data-tex="2j + 1"></span> components (the Zeeman effect with the Landé factor). <span class="cf-ref">(Sakurai 5.3)</span></span>
+                        <span lang="cs">Spin-orbitální vazba (včetně Thomasova faktoru ½) je diagonální ve vázané bázi <span data-tex="|l,s;j,m\rangle"></span>, která je správnou bází nultého řádu. Spolu s relativistickou opravou kinetické energie <span data-tex="-p^4/8m^3c^2"></span> závisí jemná struktura vodíku jen na <span data-tex="n"></span> a <span data-tex="j"></span>: <span data-tex="\Delta E = -\tfrac{mc^2(Z\alpha)^4}{2n^4}\big(\tfrac{n}{j + 1/2} - \tfrac34\big)"></span>. Slabé magnetické pole pak rozštěpí každou hladinu <span data-tex="j"></span> na <span data-tex="2j + 1"></span> složek (Zeemanův jev s Landéovým faktorem). <span class="cf-ref">(Sakurai 5.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The variational method</span><span lang="cs">Variační metoda</span></span>
+                        <span class="cf-eq" data-tex="\bar H = \dfrac{\langle\tilde0|H|\tilde0\rangle}{\langle\tilde0|\tilde0\rangle} \ge E_0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Any trial ket gives an upper bound to the ground-state energy (by the spectral theorem, since the spectrum lies above <span data-tex="E_0"></span>), and the error in the energy is quadratic in the error of the ket, so crude trial functions give good energies. For hydrogen, a Gaussian trial function <span data-tex="\mathrm{e}^{-\beta r^2}"></span> gives at best <span data-tex="-\tfrac{8}{3\pi}\cdot13.6"></span> eV <span data-tex="= -11.5"></span> eV against the exact <span data-tex="-13.6"></span> eV. <span class="cf-ref">(Sakurai 5.4)</span></span>
+                        <span lang="cs">Každý zkusmý ket dává horní odhad energie základního stavu (podle spektrální věty, protože spektrum leží nad <span data-tex="E_0"></span>), a chyba energie je kvadratická v chybě ketu, takže hrubé zkusmé funkce dávají dobré energie. Pro vodík dává gaussovská zkusmá funkce <span data-tex="\mathrm{e}^{-\beta r^2}"></span> nanejvýš <span data-tex="-\tfrac{8}{3\pi}\cdot13{,}6"></span> eV <span data-tex="= -11{,}5"></span> eV proti přesným <span data-tex="-13{,}6"></span> eV. <span class="cf-ref">(Sakurai 5.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The golden rule</span><span lang="cs">Zlaté pravidlo</span></span>
+                        <span class="cf-eq" data-tex="|c_n^{(1)}(t)|^2 = \dfrac{4|V_{ni}|^2}{|E_n - E_i|^2}\,\sin^2\Big(\dfrac{(E_n - E_i)t}{2\hbar}\Big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For a constant perturbation switched on at <span data-tex="t = 0"></span> the probability oscillates in the energy difference, with a peak of height <span data-tex="\propto t^2"></span> and width <span data-tex="\propto 1/t"></span>; its integral over final energies grows linearly in <span data-tex="t"></span>. Summing over a continuum with density <span data-tex="\rho(E_n)"></span> gives a constant rate — the golden rule of the title. A harmonic perturbation <span data-tex="V\mathrm{e}^{\mathrm{i}\omega t} + V^\dagger\mathrm{e}^{-\mathrm{i}\omega t}"></span> gives <span data-tex="\delta(E_n - E_i \mp \hbar\omega)"></span>: stimulated emission and absorption. <span class="cf-ref">(Sakurai 5.6–5.7)</span></span>
+                        <span lang="cs">Pro konstantní poruchu zapnutou v <span data-tex="t = 0"></span> osciluje pravděpodobnost v rozdílu energií s maximem výšky <span data-tex="\propto t^2"></span> a šířky <span data-tex="\propto 1/t"></span>; její integrál přes koncové energie roste lineárně s <span data-tex="t"></span>. Součet přes kontinuum s hustotou <span data-tex="\rho(E_n)"></span> dává konstantní rychlost — zlaté pravidlo v záhlaví. Harmonická porucha <span data-tex="V\mathrm{e}^{\mathrm{i}\omega t} + V^\dagger\mathrm{e}^{-\mathrm{i}\omega t}"></span> dává <span data-tex="\delta(E_n - E_i \mp \hbar\omega)"></span>: stimulovanou emisi a absorpci. <span class="cf-ref">(Sakurai 5.6–5.7)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">When the golden rule holds</span><span lang="cs">Kdy zlaté pravidlo platí</span></span>
+                        <span class="cf-eq" data-tex="|c_2(t)|^2 = \dfrac{\gamma^2/\hbar^2}{\gamma^2/\hbar^2 + (\omega - \omega_{21})^2/4}\,\sin^2\Omega t"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The rate is valid only in a window of times: long compared with <span data-tex="\hbar/\delta E"></span>, the energy scale over which <span data-tex="|V_{ni}|^2\rho"></span> varies, yet short compared with the lifetime of the initial state. Between two discrete levels driven at frequency <span data-tex="\omega"></span> the exact two-level solution (Rabi) oscillates instead, with <span data-tex="\Omega = \sqrt{\gamma^2/\hbar^2 + (\omega - \omega_{21})^2/4}"></span> — no rate at all. <span class="cf-ref">(Sakurai 5.5)</span></span>
+                        <span lang="cs">Rychlost platí jen v okně časů: dlouhých ve srovnání s <span data-tex="\hbar/\delta E"></span>, energetickou škálou, na níž se mění <span data-tex="|V_{ni}|^2\rho"></span>, a přitom krátkých ve srovnání s dobou života počátečního stavu. Mezi dvěma diskrétními hladinami buzenými frekvencí <span data-tex="\omega"></span> přesné řešení dvouhladinového systému (Rabi) naopak osciluje, s <span data-tex="\Omega = \sqrt{\gamma^2/\hbar^2 + (\omega - \omega_{21})^2/4}"></span> — žádná rychlost. <span class="cf-ref">(Sakurai 5.5)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The adiabatic theorem and Berry’s phase</span><span lang="cs">Adiabatická věta a Berryho fáze</span></span>
+                        <span class="cf-eq" data-tex="\gamma_n(C) = \mathrm{i}\oint_C\langle n;\vec R|\nabla_{\vec R}\,n;\vec R\rangle\cdot\mathrm{d}\vec R"></span>
+                        <span class="cf-eq" data-tex="\gamma_m(C) = -m\,\Omega"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">If a Hamiltonian depends on parameters <span data-tex="\vec R(t)"></span> changing slowly, the system stays in the instantaneous eigenstate <span data-tex="|n;\vec R(t)\rangle"></span> and acquires, besides the dynamical phase, a geometric phase that depends only on the closed path <span data-tex="C"></span> in parameter space. For a spin in a magnetic field whose direction is carried around a cone, it is <span data-tex="-m"></span> times the solid angle <span data-tex="\Omega"></span> the path encloses — measurable, for example, with neutrons and with light in twisted fibres. <span class="cf-ref">(Sakurai 5.6)</span></span>
+                        <span lang="cs">Závisí-li hamiltonián na pomalu se měnících parametrech <span data-tex="\vec R(t)"></span>, zůstává systém v okamžitém vlastním stavu <span data-tex="|n;\vec R(t)\rangle"></span> a vedle dynamické fáze získá geometrickou fázi, která závisí jen na uzavřené dráze <span data-tex="C"></span> v prostoru parametrů. Pro spin v magnetickém poli, jehož směr obíhá po kuželu, je rovna <span data-tex="-m"></span> krát prostorový úhel <span data-tex="\Omega"></span>, který dráha uzavírá — měřitelná například s neutrony a se světlem ve stočených vláknech. <span class="cf-ref">(Sakurai 5.6)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="adv-quantum-08.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">08 · <span lang="en">Symmetries</span><span lang="cs">Symetrie</span></div>
+        </a>
+        <a href="adv-quantum-10.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">10 · <span lang="en">Scattering theory</span><span lang="cs">Teorie rozptylu</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="adv-quantum.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

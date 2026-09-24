@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>14 Classical field theory · Advanced QM — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="adv-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Advanced QM</span><span lang="cs">Pokročilá KM</span></small>
+        </a>
+        <nav class="nav">
+            <a href="adv-quantum.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 14 · Course notes 14</span><span lang="cs">Kapitola 14 · Skripta 14</span></div>
+            <h1><span lang="en">Classical field theory</span><span lang="cs">Klasická teorie pole</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="S = \int\mathcal L\,\mathrm{d}^4x"></div>
+            <div class="eq-caption"><span lang="en">A field theory is specified by its Lagrangian density</span><span lang="cs">Teorie pole je dána svou lagrangiánovou hustotou</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Before fields are quantized, their classical mechanics is needed. A field is a system with one degree of freedom at every point of space, and the Lagrangian formalism handles it with a Lagrangian density; Hamilton’s principle then gives the field equations. Sakurai’s book stops before this point, so this chapter and the next two follow the course notes, which in turn follow the standard field-theory texts.</span><span lang="cs">Než se pole kvantují, je třeba jejich klasická mechanika. Pole je systém s jedním stupněm volnosti v každém bodě prostoru a lagrangeovský formalismus je popisuje lagrangiánovou hustotou; Hamiltonův princip pak dává rovnice pole. Sakuraiova kniha končí před tímto bodem, a proto tato a dvě následující kapitoly sledují skripta kurzu, která se zase opírají o standardní učebnice teorie pole.</span></p>
+                <p><span lang="en">Two results carry the rest of the course. Noether’s theorem turns every continuous symmetry of the action into a conserved current. The gauge principle demands that a phase symmetry hold locally, at every point separately; this is possible only if a vector field is added and coupled to the conserved current — and the result is exactly quantum electrodynamics.</span><span lang="cs">Zbytek kurzu nesou dva výsledky. Noetherové věta převádí každou spojitou symetrii akce na zachovávající se proud. Kalibrační princip požaduje, aby fázová symetrie platila lokálně, v každém bodě zvlášť; to je možné jen tehdy, přidá-li se vektorové pole vázané na zachovávající se proud — a výsledkem je přesně kvantová elektrodynamika.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\partial_\mu\dfrac{\partial\mathcal L}{\partial(\partial_\mu\phi_a)} - \dfrac{\partial\mathcal L}{\partial\phi_a} = 0"></span>
+                        <span class="ck-eq" data-tex="\pi_a = \dfrac{\partial\mathcal L}{\partial\dot\phi_a},\qquad H = \int\big(\pi_a\dot\phi_a - \mathcal L\big)\,\mathrm{d}^3x"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The Euler–Lagrange equations of the fields <span data-tex="\phi_a"></span>, from <span data-tex="\delta S = 0"></span> with variations vanishing on the boundary, and the canonical momentum and Hamiltonian that canonical quantization will start from (chapter 15).</span><span lang="cs">Eulerovy–Lagrangeovy rovnice polí <span data-tex="\phi_a"></span> plynoucí z <span data-tex="\delta S = 0"></span> pro variace nulové na hranici a kanonická hybnost a hamiltonián, z nichž vyjde kanonické kvantování (kapitola 15).</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Three Lagrangians</span><span lang="cs">Tři lagrangiány</span></span>
+                        <span class="cf-eq" data-tex="\mathcal L = \dfrac12\partial_\mu\phi\,\partial^\mu\phi - \dfrac12m^2\phi^2,\qquad \mathcal L = \bar\psi(\mathrm{i}\not{\partial} - m)\psi"></span>
+                        <span class="cf-eq" data-tex="\mathcal L = -\dfrac14F_{\mu\nu}F^{\mu\nu} - j^\mu A_\mu"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The real scalar field gives the Klein–Gordon equation, with <span data-tex="\pi = \dot\phi"></span> and a positive energy density <span data-tex="\tfrac12\big(\pi^2 + (\nabla\phi)^2 + m^2\phi^2\big)"></span>. Varying <span data-tex="\bar\psi"></span>, treated as independent of <span data-tex="\psi"></span>, gives the Dirac equation. For the Maxwell field <span data-tex="\partial\mathcal L/\partial(\partial_\mu A_\nu) = -F^{\mu\nu}"></span>, and the Euler–Lagrange equation is <span data-tex="\partial_\mu F^{\mu\nu} = j^\nu"></span>.</span>
+                        <span lang="cs">Reálné skalární pole dává Kleinovu–Gordonovu rovnici s <span data-tex="\pi = \dot\phi"></span> a kladnou hustotou energie <span data-tex="\tfrac12\big(\pi^2 + (\nabla\phi)^2 + m^2\phi^2\big)"></span>. Variace <span data-tex="\bar\psi"></span>, brané jako nezávislé na <span data-tex="\psi"></span>, dává Diracovu rovnici. Pro Maxwellovo pole je <span data-tex="\partial\mathcal L/\partial(\partial_\mu A_\nu) = -F^{\mu\nu}"></span> a Eulerova–Lagrangeova rovnice zní <span data-tex="\partial_\mu F^{\mu\nu} = j^\nu"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Noether’s theorem</span><span lang="cs">Noetherové věta</span></span>
+                        <span class="cf-eq" data-tex="\delta\phi_a = \epsilon\,\Delta\phi_a,\qquad \delta\mathcal L = \epsilon\,\partial_\mu K^\mu"></span>
+                        <span class="cf-eq" data-tex="j^\mu = \dfrac{\partial\mathcal L}{\partial(\partial_\mu\phi_a)}\,\Delta\phi_a - K^\mu,\qquad \partial_\mu j^\mu = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">If an infinitesimal transformation changes the Lagrangian density at most by a total divergence, then on solutions of the field equations the current <span data-tex="j^\mu"></span> is conserved and its charge <span data-tex="Q = \int j^0\,\mathrm{d}^3x"></span> is constant in time. The proof compares the change of <span data-tex="\mathcal L"></span> computed by the chain rule with the assumed divergence, using the field equations. It is the field-theory form of the link between symmetries and conservation laws of chapter 08.</span>
+                        <span lang="cs">Mění-li infinitezimální transformace lagrangiánovou hustotu nanejvýš o úplnou divergenci, pak se na řešeních rovnic pole proud <span data-tex="j^\mu"></span> zachovává a jeho náboj <span data-tex="Q = \int j^0\,\mathrm{d}^3x"></span> je v čase konstantní. Důkaz porovnává změnu <span data-tex="\mathcal L"></span> spočtenou řetízkovým pravidlem s předpokládanou divergencí a užívá rovnice pole. Je to polní tvar spojení mezi symetriemi a zákony zachování z kapitoly 08.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two conserved quantities</span><span lang="cs">Dvě zachovávající se veličiny</span></span>
+                        <span class="cf-eq" data-tex="\psi \to \mathrm{e}^{-\mathrm{i}\alpha}\psi\;\;\Rightarrow\;\;j^\mu = \bar\psi\gamma^\mu\psi"></span>
+                        <span class="cf-eq" data-tex="T^{\mu\nu} = \dfrac{\partial\mathcal L}{\partial(\partial_\mu\phi_a)}\,\partial^\nu\phi_a - g^{\mu\nu}\mathcal L,\qquad P^\nu = \int T^{0\nu}\,\mathrm{d}^3x"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The phase invariance of the Dirac Lagrangian gives, up to normalization, the conserved current of chapter 13. Invariance under space-time translations gives four conserved currents at once, the energy–momentum tensor, whose charges are the total energy and momentum of the field; for the scalar field <span data-tex="T^{00}"></span> is its Hamiltonian density.</span>
+                        <span lang="cs">Fázová invariance Diracova lagrangiánu dává až na normování zachovávající se proud z kapitoly 13. Invariance vůči posunutím v prostoročase dává najednou čtyři zachovávající se proudy, tenzor energie a hybnosti, jehož náboji jsou celková energie a hybnost pole; pro skalární pole je <span data-tex="T^{00}"></span> jeho hustotou hamiltoniánu.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The gauge principle</span><span lang="cs">Kalibrační princip</span></span>
+                        <span class="cf-eq" data-tex="\psi \to \mathrm{e}^{-\mathrm{i}q\alpha(x)}\psi,\qquad A_\mu \to A_\mu + \partial_\mu\alpha"></span>
+                        <span class="cf-eq" data-tex="D_\mu\psi \to \mathrm{e}^{-\mathrm{i}q\alpha(x)}D_\mu\psi,\qquad D_\mu = \partial_\mu + \mathrm{i}qA_\mu"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A phase that varies from point to point spoils the invariance of <span data-tex="\bar\psi\not{\partial}\psi"></span>, because the derivative also acts on the phase. The extra term is cancelled if a vector field shifts at the same time and ordinary derivatives are replaced by covariant ones: the local symmetry requires the electromagnetic field. A mass term <span data-tex="\tfrac12m_\gamma^2A_\mu A^\mu"></span> would break it, which is why the photon is massless.</span>
+                        <span lang="cs">Fáze, která se mění od bodu k bodu, naruší invarianci <span data-tex="\bar\psi\not{\partial}\psi"></span>, protože derivace působí i na fázi. Přídavný člen se vyruší, posune-li se zároveň vektorové pole a nahradí-li se obyčejné derivace kovariantními: lokální symetrie vyžaduje elektromagnetické pole. Hmotový člen <span data-tex="\tfrac12m_\gamma^2A_\mu A^\mu"></span> by ji porušil, a proto je foton nehmotný.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The Lagrangian of QED</span><span lang="cs">Lagrangián QED</span></span>
+                        <span class="cf-eq" data-tex="\mathcal L_{\mathrm{QED}} = \bar\psi(\mathrm{i}\gamma^\mu D_\mu - m)\psi - \dfrac14F_{\mu\nu}F^{\mu\nu}"></span>
+                        <span class="cf-eq" data-tex="\qquad = \bar\psi(\mathrm{i}\not{\partial} - m)\psi - \dfrac14F_{\mu\nu}F^{\mu\nu} - q\,\bar\psi\gamma^\mu\psi\,A_\mu"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The most economical gauge-invariant combination of the Dirac and Maxwell fields. Written out, the interaction is fixed by the symmetry: the electromagnetic field couples to the conserved Noether current with strength <span data-tex="q"></span> (<span data-tex="q = -e"></span> for the electron). This single term produces every process of quantum electrodynamics (chapter 16).</span>
+                        <span lang="cs">Nejúspornější kalibračně invariantní kombinace Diracova a Maxwellova pole. Po rozepsání je interakce určena symetrií: elektromagnetické pole se váže na zachovávající se Noetherové proud se silou <span data-tex="q"></span> (<span data-tex="q = -e"></span> pro elektron). Tento jediný člen dává všechny procesy kvantové elektrodynamiky (kapitola 16).</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="adv-quantum-13.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">13 · <span lang="en">Relativistic wave equations</span><span lang="cs">Relativistické vlnové rovnice</span></div>
+        </a>
+        <a href="adv-quantum-15.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">15 · <span lang="en">Quantized fields</span><span lang="cs">Kvantovaná pole</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="adv-quantum.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

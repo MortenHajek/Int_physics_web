@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>05 Time evolution · Advanced QM — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="adv-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Advanced QM</span><span lang="cs">Pokročilá KM</span></small>
+        </a>
+        <nav class="nav">
+            <a href="adv-quantum.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 05 · Sakurai 2.1–2.2, 2.6–2.7, 5.5</span><span lang="cs">Kapitola 05 · Sakurai 2.1–2.2, 2.6–2.7, 5.5</span></div>
+            <h1><span lang="en">Time evolution</span><span lang="cs">Časový vývoj</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\dfrac{\mathrm{d}A^{(H)}}{\mathrm{d}t} = \dfrac{1}{\mathrm{i}\hbar}\big[A^{(H)},H\big]"></div>
+            <div class="eq-caption"><span lang="en">The Heisenberg equation of motion</span><span lang="cs">Heisenbergova pohybová rovnice</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">A closed system evolves by a continuous unitary group, and by Stone’s theorem (chapter 02) such a group has a self-adjoint generator, <span data-tex="H/\hbar"></span>. The Schrödinger equation is therefore a consequence of unitarity and continuity, and the Hamiltonian must be self-adjoint. Sakurai builds everything on the time-evolution operator <span data-tex="\mathcal U(t,t_0)"></span>, with the state written <span data-tex="|\alpha,t_0;t\rangle"></span>.</span><span lang="cs">Uzavřený systém se vyvíjí spojitou unitární grupou a podle Stoneovy věty (kapitola 02) má taková grupa samosdružený generátor, <span data-tex="H/\hbar"></span>. Schrödingerova rovnice je tedy důsledkem unitarity a spojitosti a hamiltonián musí být samosdružený. Sakurai vše staví na operátoru časového vývoje <span data-tex="\mathcal U(t,t_0)"></span>, se stavem psaným <span data-tex="|\alpha,t_0;t\rangle"></span>.</span></p>
+                <p><span lang="en">The same physics can be described by moving the states (Schrödinger picture), the operators (Heisenberg picture), or a part of each (interaction picture), and for a time-dependent perturbation the last leads to the Dyson series, the basis of perturbation theory and later of the S-matrix. In the position representation the evolution operator becomes the propagator, and Feynman’s path integral expresses it as a sum over histories weighted by the classical action.</span><span lang="cs">Tutéž fyziku lze popsat pohybem stavů (Schrödingerův obraz), operátorů (Heisenbergův obraz) nebo části obojího (interakční obraz); pro časově závislou poruchu vede ten poslední k Dysonově řadě, základu poruchové teorie a později S-matice. V polohové reprezentaci se z operátoru vývoje stane propagátor a Feynmanův dráhový integrál jej vyjadřuje jako součet přes historie vážené klasickou akcí.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\mathrm{i}\hbar\,\dfrac{\partial}{\partial t}\,\mathcal U(t,t_0) = H\,\mathcal U(t,t_0)"></span>
+                        <span class="ck-eq" data-tex="|\alpha,t_0;t\rangle = \mathcal U(t,t_0)\,|\alpha,t_0\rangle"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The Schrödinger equation for the time-evolution operator, with <span data-tex="\mathcal U(t_0,t_0) = 1"></span> and <span data-tex="\mathcal U(t_2,t_0) = \mathcal U(t_2,t_1)\mathcal U(t_1,t_0)"></span>. For a time-independent Hamiltonian its solution is <span data-tex="\mathcal U = \exp[-\mathrm{i}H(t - t_0)/\hbar]"></span>.</span><span lang="cs">Schrödingerova rovnice pro operátor časového vývoje, s <span data-tex="\mathcal U(t_0,t_0) = 1"></span> a <span data-tex="\mathcal U(t_2,t_0) = \mathcal U(t_2,t_1)\mathcal U(t_1,t_0)"></span>. Pro časově nezávislý hamiltonián je jejím řešením <span data-tex="\mathcal U = \exp[-\mathrm{i}H(t - t_0)/\hbar]"></span>.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy eigenkets</span><span lang="cs">Vlastní kety energie</span></span>
+                        <span class="cf-eq" data-tex="|\alpha,0;t\rangle = \sum_{a&#x27;}|a&#x27;\rangle\langle a&#x27;|\alpha\rangle\,\mathrm{e}^{-\mathrm{i}E_{a&#x27;}t/\hbar}"></span>
+                        <span class="cf-eq" data-tex="\mathrm{i}\hbar\,\dfrac{\partial\rho}{\partial t} = -[\rho,H]"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Expanding the initial state in eigenkets of an observable that commutes with <span data-tex="H"></span>, each coefficient only turns its phase. A stationary state stays stationary, and expectation values of observables that commute with <span data-tex="H"></span> never change. A mixed state evolves by <span data-tex="\rho(t) = \mathcal U\rho\,\mathcal U^\dagger"></span>, i.e. by the von Neumann equation — with the opposite sign to the Heisenberg equation, because <span data-tex="\rho"></span> is built from kets. <span class="cf-ref">(Sakurai 2.1, 3.4)</span></span>
+                        <span lang="cs">Při rozvoji počátečního stavu do vlastních ketů pozorovatelné komutující s <span data-tex="H"></span> se každý koeficient jen otáčí ve fázi. Stacionární stav zůstane stacionárním a střední hodnoty pozorovatelných komutujících s <span data-tex="H"></span> se nikdy nemění. Smíšený stav se vyvíjí jako <span data-tex="\rho(t) = \mathcal U\rho\,\mathcal U^\dagger"></span>, tj. podle von Neumannovy rovnice — s opačným znaménkem než Heisenbergova rovnice, protože <span data-tex="\rho"></span> je složen z ketů. <span class="cf-ref">(Sakurai 2.1, 3.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Time-dependent Hamiltonians</span><span lang="cs">Časově závislé hamiltoniány</span></span>
+                        <span class="cf-eq" data-tex="\mathcal U(t,t_0) = T\exp\Big[-\dfrac{\mathrm{i}}{\hbar}\int_{t_0}^{t}H(t&#x27;)\,\mathrm{d}t&#x27;\Big]"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">When <span data-tex="H(t)"></span> at different times do not commute, <span data-tex="\mathcal U"></span> is not the exponential of the integral; it is the Dyson series, <span data-tex="\mathcal U = 1 + \sum_n(-\mathrm{i}/\hbar)^n\int\cdots\int H(t_1)\cdots H(t_n)"></span> with <span data-tex="t_1 &gt; t_2 &gt; \cdots &gt; t_n"></span>. Writing it with the time-ordering operator <span data-tex="T"></span>, which puts later times to the left, allows every time integral to run over the whole interval at the cost of a factor <span data-tex="1/n!"></span>. <span class="cf-ref">(Sakurai 2.1)</span></span>
+                        <span lang="cs">Když <span data-tex="H(t)"></span> v různých časech nekomutují, není <span data-tex="\mathcal U"></span> exponenciálou integrálu; je to Dysonova řada, <span data-tex="\mathcal U = 1 + \sum_n(-\mathrm{i}/\hbar)^n\int\cdots\int H(t_1)\cdots H(t_n)"></span> s <span data-tex="t_1 &gt; t_2 &gt; \cdots &gt; t_n"></span>. Zápis s operátorem časového uspořádání <span data-tex="T"></span>, který řadí pozdější časy doleva, umožní každý časový integrál vést přes celý interval za cenu faktoru <span data-tex="1/n!"></span>. <span class="cf-ref">(Sakurai 2.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The Heisenberg picture</span><span lang="cs">Heisenbergův obraz</span></span>
+                        <span class="cf-eq" data-tex="A^{(H)}(t) = \mathcal U^\dagger A^{(S)}\,\mathcal U"></span>
+                        <span class="cf-eq" data-tex="m\,\dfrac{\mathrm{d}^2\langle\vec x\rangle}{\mathrm{d}t^2} = -\langle\nabla V(\vec x)\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Moving the operators instead of the states leaves every expectation value unchanged and gives the Heisenberg equation (the title); an observable without explicit time dependence is conserved exactly when it commutes with <span data-tex="H"></span>. For <span data-tex="H = p^2/2m + V(x)"></span> it yields the Ehrenfest theorem. It does not say that <span data-tex="\langle\vec x\rangle"></span> follows a classical trajectory: <span data-tex="\langle\nabla V(\vec x)\rangle \ne \nabla V(\langle\vec x\rangle)"></span> unless <span data-tex="V"></span> is at most quadratic. <span class="cf-ref">(Sakurai 2.2)</span></span>
+                        <span lang="cs">Pohyb operátorů místo stavů nemění žádnou střední hodnotu a dává Heisenbergovu rovnici (záhlaví); pozorovatelná bez explicitní časové závislosti se zachovává právě tehdy, když komutuje s <span data-tex="H"></span>. Pro <span data-tex="H = p^2/2m + V(x)"></span> plyne Ehrenfestův teorém. Neříká, že <span data-tex="\langle\vec x\rangle"></span> sleduje klasickou trajektorii: <span data-tex="\langle\nabla V(\vec x)\rangle \ne \nabla V(\langle\vec x\rangle)"></span>, pokud <span data-tex="V"></span> není nanejvýš kvadratický. <span class="cf-ref">(Sakurai 2.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The interaction picture</span><span lang="cs">Interakční obraz</span></span>
+                        <span class="cf-eq" data-tex="|\alpha,t_0;t\rangle_I = \mathrm{e}^{\mathrm{i}H_0t/\hbar}|\alpha,t_0;t\rangle_S"></span>
+                        <span class="cf-eq" data-tex="V_I = \mathrm{e}^{\mathrm{i}H_0t/\hbar}\,V\,\mathrm{e}^{-\mathrm{i}H_0t/\hbar}"></span>
+                        <span class="cf-eq" data-tex="\mathrm{i}\hbar\,\dfrac{\partial}{\partial t}|\alpha,t_0;t\rangle_I = V_I\,|\alpha,t_0;t\rangle_I"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For <span data-tex="H = H_0 + V(t)"></span> with <span data-tex="H_0"></span> solved, the interaction picture removes the known evolution: states move only under <span data-tex="V_I"></span>, operators under <span data-tex="H_0"></span>. The Dyson series then runs over <span data-tex="V_I"></span> alone, and its first term is time-dependent perturbation theory (chapter 09); with the limits taken to <span data-tex="\mp\infty"></span> it becomes the S-matrix of quantum electrodynamics (chapter 16). <span class="cf-ref">(Sakurai 5.5)</span></span>
+                        <span lang="cs">Pro <span data-tex="H = H_0 + V(t)"></span> s vyřešeným <span data-tex="H_0"></span> odstraní interakční obraz známý vývoj: stavy se pohybují jen pod <span data-tex="V_I"></span>, operátory pod <span data-tex="H_0"></span>. Dysonova řada pak běží jen přes <span data-tex="V_I"></span> a jejím prvním členem je časově závislá poruchová teorie (kapitola 09); s mezemi posunutými do <span data-tex="\mp\infty"></span> se z ní stane S-matice kvantové elektrodynamiky (kapitola 16). <span class="cf-ref">(Sakurai 5.5)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The propagator</span><span lang="cs">Propagátor</span></span>
+                        <span class="cf-eq" data-tex="K(x&#x27;&#x27;,t;x&#x27;,t_0) = \sum_{a&#x27;}\langle x&#x27;&#x27;|a&#x27;\rangle\langle a&#x27;|x&#x27;\rangle\,\mathrm{e}^{-\mathrm{i}E_{a&#x27;}(t - t_0)/\hbar}"></span>
+                        <span class="cf-eq" data-tex="K_0 = \sqrt{\dfrac{m}{2\pi\mathrm{i}\hbar(t - t_0)}}\exp\Big[\dfrac{\mathrm{i}m(x&#x27;&#x27; - x&#x27;)^2}{2\hbar(t - t_0)}\Big]"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The propagator <span data-tex="\langle x&#x27;&#x27;|\mathcal U(t,t_0)|x&#x27;\rangle"></span> carries a wave function from <span data-tex="t_0"></span> to <span data-tex="t"></span> by an integral over <span data-tex="x&#x27;"></span>; it is the Green’s function of the Schrödinger equation and tends to <span data-tex="\delta(x&#x27;&#x27; - x&#x27;)"></span> as <span data-tex="t \to t_0"></span>. For a free particle (second line, <span data-tex="K_0"></span>) the momentum integral is a Gaussian, evaluated by giving <span data-tex="t"></span> a small negative imaginary part. <span class="cf-ref">(Sakurai 2.6)</span></span>
+                        <span lang="cs">Propagátor <span data-tex="\langle x&#x27;&#x27;|\mathcal U(t,t_0)|x&#x27;\rangle"></span> přenáší vlnovou funkci z <span data-tex="t_0"></span> do <span data-tex="t"></span> integrálem přes <span data-tex="x&#x27;"></span>; je to Greenova funkce Schrödingerovy rovnice a pro <span data-tex="t \to t_0"></span> přejde v <span data-tex="\delta(x&#x27;&#x27; - x&#x27;)"></span>. Pro volnou částici (druhý řádek, <span data-tex="K_0"></span>) je integrál přes hybnost gaussovský a vyčíslí se přidáním malé záporné imaginární části k <span data-tex="t"></span>. <span class="cf-ref">(Sakurai 2.6)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The path integral</span><span lang="cs">Dráhový integrál</span></span>
+                        <span class="cf-eq" data-tex="\langle x_N,t_N|x_1,t_1\rangle = \int_{x_1}^{x_N}\mathcal D[x(t)]\,\exp\Big[\dfrac{\mathrm{i}}{\hbar}\int_{t_1}^{t_N}L\,\mathrm{d}t\Big]"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Cutting the time interval into <span data-tex="N"></span> short steps, splitting each step into kinetic and potential parts (the Trotter formula) and inserting position completeness between them turns the propagator into an integral over all polygonal paths, weighted by <span data-tex="\mathrm{e}^{\mathrm{i}S/\hbar}"></span> with the classical action. When <span data-tex="S \gg \hbar"></span> paths near the stationary point dominate — <span data-tex="\delta S = 0"></span>, Hamilton’s principle, is the classical limit. <span data-tex="\mathcal D[x(t)]"></span> is defined only as the limit; in imaginary time the construction becomes rigorous (Wiener measure). <span class="cf-ref">(Sakurai 2.6)</span></span>
+                        <span lang="cs">Rozdělení časového intervalu na <span data-tex="N"></span> krátkých kroků, rozklad každého kroku na kinetickou a potenciálovou část (Trotterův vzorec) a vložení úplnosti v poloze mezi ně promění propagátor v integrál přes všechny lomené dráhy, vážené faktorem <span data-tex="\mathrm{e}^{\mathrm{i}S/\hbar}"></span> s klasickou akcí. Pro <span data-tex="S \gg \hbar"></span> převládnou dráhy blízko stacionárního bodu — <span data-tex="\delta S = 0"></span>, Hamiltonův princip, je klasickou limitou. <span data-tex="\mathcal D[x(t)]"></span> je definován jen jako limita; v imaginárním čase se konstrukce stane přesnou (Wienerova míra). <span class="cf-ref">(Sakurai 2.6)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Gauge transformations and Aharonov–Bohm</span><span lang="cs">Kalibrační transformace a Aharonov–Bohm</span></span>
+                        <span class="cf-eq" data-tex="\vec A \to \vec A + \nabla\Lambda,\qquad \phi \to \phi - \dfrac{\partial\Lambda}{\partial t}"></span>
+                        <span class="cf-eq" data-tex="\psi \to \mathrm{e}^{\mathrm{i}q\Lambda/\hbar}\,\psi"></span>
+                        <span class="cf-eq" data-tex="\Delta\varphi = \dfrac{q}{\hbar}\oint\vec A\cdot\mathrm{d}\vec l = \dfrac{q\,\Phi_B}{\hbar}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With the minimal coupling <span data-tex="\vec p \to \vec p - q\vec A"></span> the Schrödinger equation is invariant when the potentials change by a gauge function and the wave function by a local phase. The potentials are nonetheless physical: electrons passing on either side of a solenoid pick up a relative phase set by the enclosed magnetic flux <span data-tex="\Phi_B"></span>, and the interference pattern shifts although the field vanishes along both paths (the Aharonov–Bohm effect). Sakurai writes the same in Gaussian units, with <span data-tex="e/\hbar c"></span> in place of <span data-tex="q/\hbar"></span>. <span class="cf-ref">(Sakurai 2.7)</span></span>
+                        <span lang="cs">S minimální vazbou <span data-tex="\vec p \to \vec p - q\vec A"></span> je Schrödingerova rovnice invariantní, když se potenciály změní o kalibrační funkci a vlnová funkce o lokální fázi. Potenciály jsou přesto fyzikální: elektrony procházející po obou stranách solenoidu získají relativní fázi danou uzavřeným magnetickým tokem <span data-tex="\Phi_B"></span> a interferenční obrazec se posune, přestože pole podél obou drah vymizí (Aharonovův–Bohmův jev). Sakurai píše totéž v Gaussově soustavě, s <span data-tex="e/\hbar c"></span> místo <span data-tex="q/\hbar"></span>. <span class="cf-ref">(Sakurai 2.7)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="adv-quantum-04.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">04 · <span lang="en">States, measurement and uncertainty</span><span lang="cs">Stavy, měření a neurčitost</span></div>
+        </a>
+        <a href="adv-quantum-06.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">06 · <span lang="en">The harmonic oscillator</span><span lang="cs">Harmonický oscilátor</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="adv-quantum.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

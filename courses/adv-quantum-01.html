@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>01 Kets, bras and operators · Advanced QM — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="adv-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Advanced QM</span><span lang="cs">Pokročilá KM</span></small>
+        </a>
+        <nav class="nav">
+            <a href="adv-quantum.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 01 · Sakurai 1.1–1.5</span><span lang="cs">Kapitola 01 · Sakurai 1.1–1.5</span></div>
+            <h1><span lang="en">Kets, bras and operators</span><span lang="cs">Kety, bra a operátory</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\sum_{a&#x27;}|a&#x27;\rangle\langle a&#x27;| = 1"></div>
+            <div class="eq-caption"><span lang="en">Completeness — almost every calculation is an insertion of this unit operator</span><span lang="cs">Úplnost — téměř každý výpočet je vložením tohoto jednotkového operátoru</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Quantum mechanics is, at its core, linear algebra over the complex numbers. A physical state is represented by a ket <span data-tex="|\alpha\rangle"></span> in a complex vector space; to every ket corresponds a bra <span data-tex="\langle\alpha|"></span> in the dual space, and the inner product <span data-tex="\langle\beta|\alpha\rangle"></span> pairs the two. Observables are represented by operators, and the possible results of a measurement are the eigenvalues of the operator. Sakurai motivates the whole structure by the Stern–Gerlach experiment, where two orthogonal kets already describe everything a silver atom’s spin can do.</span><span lang="cs">Kvantová mechanika je ve svém jádru lineární algebrou nad komplexními čísly. Fyzikální stav je reprezentován ketem <span data-tex="|\alpha\rangle"></span> v komplexním vektorovém prostoru; každému ketu odpovídá bra <span data-tex="\langle\alpha|"></span> v duálním prostoru a skalární součin <span data-tex="\langle\beta|\alpha\rangle"></span> oba spojuje. Pozorovatelné jsou reprezentovány operátory a možnými výsledky měření jsou vlastní hodnoty příslušného operátoru. Sakurai celou stavbu motivuje Sternovým–Gerlachovým pokusem, v němž dva ortogonální kety popíší vše, čeho je spin atomu stříbra schopen.</span></p>
+                <p><span lang="en">In this chapter the space is finite-dimensional, so that every statement can be proved completely; chapter 02 explains which statements survive in infinite dimensions. The notation follows Sakurai: eigenkets are labelled by their eigenvalues, <span data-tex="A|a&#x27;\rangle = a&#x27;|a&#x27;\rangle"></span>, with the prime distinguishing the number <span data-tex="a&#x27;"></span> from the operator <span data-tex="A"></span>.</span><span lang="cs">V této kapitole je prostor konečněrozměrný, takže každé tvrzení lze dokázat úplně; kapitola 02 vysvětluje, která tvrzení platí i v nekonečné dimenzi. Značení sleduje Sakuraie: vlastní kety se označují svými vlastními hodnotami, <span data-tex="A|a&#x27;\rangle = a&#x27;|a&#x27;\rangle"></span>, přičemž čárka odlišuje číslo <span data-tex="a&#x27;"></span> od operátoru <span data-tex="A"></span>.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="|\alpha\rangle = \sum_{a&#x27;}|a&#x27;\rangle\langle a&#x27;|\alpha\rangle"></span>
+                        <span class="ck-eq" data-tex="\langle\beta|X|\alpha\rangle = \langle\alpha|X^\dagger|\beta\rangle^*"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The expansion of a ket in an orthonormal basis, whose coefficients are inner products, and the definition of the adjoint through matrix elements. With them any ket becomes a column of numbers and any operator a matrix.</span><span lang="cs">Rozvoj ketu do ortonormální báze, jehož koeficienty jsou skalární součiny, a definice sdruženého operátoru pomocí maticových elementů. S nimi se z každého ketu stane sloupec čísel a z každého operátoru matice.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Kets, bras and the inner product</span><span lang="cs">Kety, bra a skalární součin</span></span>
+                        <span class="cf-eq" data-tex="c_\alpha|\alpha\rangle + c_\beta|\beta\rangle \;\leftrightarrow\; c_\alpha^*\langle\alpha| + c_\beta^*\langle\beta|"></span>
+                        <span class="cf-eq" data-tex="\langle\beta|\alpha\rangle = \langle\alpha|\beta\rangle^*,\qquad \langle\alpha|\alpha\rangle \ge 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The correspondence between kets and bras is antilinear: coefficients are complex conjugated. The inner product is linear in the ket and antilinear in the bra, and positive definite. The Cauchy–Schwarz inequality <span data-tex="|\langle\alpha|\beta\rangle|^2 \le \langle\alpha|\alpha\rangle\langle\beta|\beta\rangle"></span> follows and underlies the uncertainty relation (chapter 04). A bra is not the complex conjugate of a ket but a different object, a linear map from kets to numbers; only its components in an orthonormal basis are the conjugated components of the ket. <span class="cf-ref">(Sakurai 1.2)</span></span>
+                        <span lang="cs">Přiřazení mezi kety a bra je antilineární: koeficienty se komplexně sdružují. Skalární součin je lineární v ketu, antilineární v bra a pozitivně definitní. Plyne z něj Cauchyho–Schwarzova nerovnost <span data-tex="|\langle\alpha|\beta\rangle|^2 \le \langle\alpha|\alpha\rangle\langle\beta|\beta\rangle"></span>, na níž stojí relace neurčitosti (kapitola 04). Bra není komplexně sdružený ket, ale jiný objekt, lineární zobrazení ketů na čísla; komplexně sdruženými složkami ketu jsou jen jeho složky v ortonormální bázi. <span class="cf-ref">(Sakurai 1.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Operators and adjoints</span><span lang="cs">Operátory a sdružené operátory</span></span>
+                        <span class="cf-eq" data-tex="X|\alpha\rangle \;\leftrightarrow\; \langle\alpha|X^\dagger,\qquad (XY)^\dagger = Y^\dagger X^\dagger"></span>
+                        <span class="cf-eq" data-tex="\big(|\beta\rangle\langle\alpha|\big)^\dagger = |\alpha\rangle\langle\beta|"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">An operator acts on kets from the left and on bras from the right; the bra of <span data-tex="X|\alpha\rangle"></span> is <span data-tex="\langle\alpha|X^\dagger"></span>. The outer product <span data-tex="|\beta\rangle\langle\alpha|"></span> is an operator that turns any ket <span data-tex="|\gamma\rangle"></span> into <span data-tex="|\beta\rangle"></span> times the number <span data-tex="\langle\alpha|\gamma\rangle"></span>. Sakurai’s associative axiom — products of kets, bras and operators may be regrouped freely — is what makes Dirac notation a calculus. <span class="cf-ref">(Sakurai 1.2)</span></span>
+                        <span lang="cs">Operátor působí na kety zleva a na bra zprava; bra k ketu <span data-tex="X|\alpha\rangle"></span> je <span data-tex="\langle\alpha|X^\dagger"></span>. Vnější součin <span data-tex="|\beta\rangle\langle\alpha|"></span> je operátor, který libovolný ket <span data-tex="|\gamma\rangle"></span> převede na <span data-tex="|\beta\rangle"></span> krát číslo <span data-tex="\langle\alpha|\gamma\rangle"></span>. Sakuraiův asociativní axiom — součiny ketů, bra a operátorů lze libovolně přezávorkovat — dělá z Diracovy symboliky kalkulus. <span class="cf-ref">(Sakurai 1.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Eigenkets of a Hermitian operator</span><span lang="cs">Vlastní kety hermitovského operátoru</span></span>
+                        <span class="cf-eq" data-tex="A = A^\dagger:\quad a&#x27; \in \mathbb R,\qquad \langle a&#x27;&#x27;|a&#x27;\rangle = \delta_{a&#x27;&#x27;a&#x27;}"></span>
+                        <span class="cf-eq" data-tex="A = \sum_{a&#x27;}a&#x27;\,\Lambda_{a&#x27;},\qquad \Lambda_{a&#x27;} = |a&#x27;\rangle\langle a&#x27;|"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The eigenvalues of a Hermitian operator are real and its eigenkets belonging to different eigenvalues are orthogonal; in finite dimension they form a complete orthonormal basis (the spectral theorem, proved by induction on the dimension). <span data-tex="\Lambda_{a&#x27;}"></span> is the projection operator onto the eigenket <span data-tex="|a&#x27;\rangle"></span>, and any function of <span data-tex="A"></span> is <span data-tex="f(A) = \sum_{a&#x27;}f(a&#x27;)\Lambda_{a&#x27;}"></span> — in particular <span data-tex="\mathrm{e}^{-\mathrm{i}H}"></span> is unitary when <span data-tex="H"></span> is Hermitian. <span class="cf-ref">(Sakurai 1.3)</span></span>
+                        <span lang="cs">Vlastní hodnoty hermitovského operátoru jsou reálné a jeho vlastní kety příslušné různým vlastním hodnotám jsou ortogonální; v konečné dimenzi tvoří úplnou ortonormální bázi (spektrální věta, dokazovaná indukcí podle dimenze). <span data-tex="\Lambda_{a&#x27;}"></span> je projektor na vlastní ket <span data-tex="|a&#x27;\rangle"></span> a libovolná funkce <span data-tex="A"></span> je <span data-tex="f(A) = \sum_{a&#x27;}f(a&#x27;)\Lambda_{a&#x27;}"></span> — zejména <span data-tex="\mathrm{e}^{-\mathrm{i}H}"></span> je unitární, je-li <span data-tex="H"></span> hermitovský. <span class="cf-ref">(Sakurai 1.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Matrix representation</span><span lang="cs">Maticová reprezentace</span></span>
+                        <span class="cf-eq" data-tex="X \;\doteq\; \langle a&#x27;&#x27;|X|a&#x27;\rangle"></span>
+                        <span class="cf-eq" data-tex="\langle a&#x27;&#x27;|XY|a&#x27;\rangle = \sum_{a&#x27;&#x27;&#x27;}\langle a&#x27;&#x27;|X|a&#x27;&#x27;&#x27;\rangle\langle a&#x27;&#x27;&#x27;|Y|a&#x27;\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In a chosen basis an operator is represented by the matrix of its elements (<span data-tex="\doteq"></span> reads “is represented by”), a ket by a column and its bra by the conjugate-transposed row. The product rule is nothing but an insertion of completeness between <span data-tex="X"></span> and <span data-tex="Y"></span>. The operator itself is basis-independent; its matrix is not. <span class="cf-ref">(Sakurai 1.3)</span></span>
+                        <span lang="cs">Ve zvolené bázi je operátor reprezentován maticí svých elementů (<span data-tex="\doteq"></span> se čte „je reprezentován“), ket sloupcem a jeho bra komplexně sdruženým transponovaným řádkem. Pravidlo pro součin není ničím jiným než vložením úplnosti mezi <span data-tex="X"></span> a <span data-tex="Y"></span>. Operátor sám na bázi nezávisí, jeho matice ano. <span class="cf-ref">(Sakurai 1.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Compatible observables</span><span lang="cs">Slučitelné pozorovatelné</span></span>
+                        <span class="cf-eq" data-tex="[A,B] = 0\;\;\Leftrightarrow\;\;A|a&#x27;,b&#x27;\rangle = a&#x27;|a&#x27;,b&#x27;\rangle,"></span>
+                        <span class="cf-eq" data-tex="\qquad B|a&#x27;,b&#x27;\rangle = b&#x27;|a&#x27;,b&#x27;\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two Hermitian operators have a common orthonormal eigenbasis exactly when they commute: <span data-tex="B"></span> maps each eigenspace of <span data-tex="A"></span> into itself and can be diagonalized there. A degenerate eigenvalue of <span data-tex="A"></span> is resolved by adding compatible observables until the labels <span data-tex="a&#x27;, b&#x27;, \dots"></span> fix each basis ket uniquely — a complete set of commuting observables, the origin of quantum numbers such as <span data-tex="|n,l,m\rangle"></span>. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                        <span lang="cs">Dva hermitovské operátory mají společnou ortonormální vlastní bázi právě tehdy, když komutují: <span data-tex="B"></span> zobrazuje každý vlastní podprostor <span data-tex="A"></span> do sebe a lze jej tam diagonalizovat. Degenerovaná vlastní hodnota <span data-tex="A"></span> se rozliší přidáním slučitelných pozorovatelných, dokud značky <span data-tex="a&#x27;, b&#x27;, \dots"></span> neurčí každý bázový ket jednoznačně — úplná množina komutujících pozorovatelných, původ kvantových čísel jako <span data-tex="|n,l,m\rangle"></span>. <span class="cf-ref">(Sakurai 1.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Change of basis and the trace</span><span lang="cs">Změna báze a stopa</span></span>
+                        <span class="cf-eq" data-tex="U = \sum_k|b^{(k)}\rangle\langle a^{(k)}|,\qquad X&#x27; = U^\dagger XU"></span>
+                        <span class="cf-eq" data-tex="\mathrm{tr}\,X = \sum_{a&#x27;}\langle a&#x27;|X|a&#x27;\rangle,\qquad \mathrm{tr}(XY) = \mathrm{tr}(YX)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The operator that carries one orthonormal basis into another is unitary, and matrices in the two bases are related by the similarity transformation <span data-tex="U^\dagger XU"></span>. The trace does not depend on the basis and is cyclic. It gives a quick proof that no finite matrices can satisfy <span data-tex="[x,p] = \mathrm{i}\hbar"></span>: the trace of the left side vanishes, that of the right side does not — position and momentum need an infinite-dimensional space. <span class="cf-ref">(Sakurai 1.5)</span></span>
+                        <span lang="cs">Operátor, který převádí jednu ortonormální bázi na jinou, je unitární a matice v obou bázích souvisí podobnostní transformací <span data-tex="U^\dagger XU"></span>. Stopa na bázi nezávisí a je cyklická. Dává rychlý důkaz, že žádné konečné matice nemohou splnit <span data-tex="[x,p] = \mathrm{i}\hbar"></span>: stopa levé strany je nulová, pravé ne — poloha a hybnost vyžadují nekonečněrozměrný prostor. <span class="cf-ref">(Sakurai 1.5)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Commutators and exponentials</span><span lang="cs">Komutátory a exponenciály</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{e}^{\lambda A}B\,\mathrm{e}^{-\lambda A} = B + \lambda[A,B] + \dfrac{\lambda^2}{2!}\big[A,[A,B]\big] + \cdots"></span>
+                        <span class="cf-eq" data-tex="\mathrm{e}^{A}\mathrm{e}^{B} = \mathrm{e}^{A + B + [A,B]/2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The first identity (Hadamard) follows by differentiating in <span data-tex="\lambda"></span>. The second, a special case of the Baker–Campbell–Hausdorff formula, holds when <span data-tex="[A,B]"></span> commutes with both <span data-tex="A"></span> and <span data-tex="B"></span> — as for <span data-tex="x"></span> and <span data-tex="p"></span>, or for <span data-tex="a"></span> and <span data-tex="a^\dagger"></span> of the oscillator (chapter 06). In general <span data-tex="\mathrm{e}^A\mathrm{e}^B \ne \mathrm{e}^{A+B}"></span> unless <span data-tex="A"></span> and <span data-tex="B"></span> commute, the classic source of wrong phases in time evolution and rotations.</span>
+                        <span lang="cs">První identita (Hadamardova) plyne derivací podle <span data-tex="\lambda"></span>. Druhá, zvláštní případ Bakerova–Campbellova–Hausdorffova vzorce, platí, když <span data-tex="[A,B]"></span> komutuje s <span data-tex="A"></span> i s <span data-tex="B"></span> — jako u <span data-tex="x"></span> a <span data-tex="p"></span> nebo u <span data-tex="a"></span> a <span data-tex="a^\dagger"></span> oscilátoru (kapitola 06). Obecně <span data-tex="\mathrm{e}^A\mathrm{e}^B \ne \mathrm{e}^{A+B}"></span>, pokud <span data-tex="A"></span> a <span data-tex="B"></span> nekomutují, což je klasický zdroj chybných fází v časovém vývoji a rotacích.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <span class="topic-nav-btn prev disabled">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">—</div>
+        </span>
+        <a href="adv-quantum-02.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">02 · <span lang="en">Hilbert space and unbounded operators</span><span lang="cs">Hilbertův prostor a neomezené operátory</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="adv-quantum.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>
