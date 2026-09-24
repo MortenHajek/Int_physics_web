@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>08 The harmonic oscillator · Quantum mechanics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="stat-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="stat-quantum.html#quantum"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Quantum mechanics 08 · Dub 3.4.6</span><span lang="cs">Kvantová mechanika 08 · Dub 3.4.6</span> · Kulhánek 2.4</div>
+            <h1><span lang="en">The harmonic oscillator</span><span lang="cs">Harmonický oscilátor</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="E_n = \hbar\omega\Big(n + \dfrac{1}{2}\Big)"></div>
+            <div class="eq-caption"><span lang="en">Equally spaced levels above the zero-point energy</span><span lang="cs">Ekvidistantní hladiny nad energií nulových kmitů</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Near the minimum of any smooth potential the potential is a parabola, so the harmonic oscillator describes small vibrations of every kind — atoms in molecules and crystals and, as a set of independent oscillators, the electromagnetic field. It is one of the few problems solved exactly. Its levels are equally spaced by <span data-tex="\hbar\omega"></span>, which justifies Planck’s hypothesis that an oscillator exchanges energy in quanta <span data-tex="\hbar\omega"></span>, and the lowest of them is not zero: the zero-point energy <span data-tex="\hbar\omega/2"></span> is demanded by the uncertainty relation.</span><span lang="cs">V okolí minima libovolného hladkého potenciálu je potenciál parabolou, a harmonický oscilátor proto popisuje malé kmity všeho druhu — atomů v molekulách a krystalech a, jako soubor nezávislých oscilátorů, i elektromagnetického pole. Patří k několika málo úlohám, které lze vyřešit přesně. Jeho hladiny mají stejné rozestupy <span data-tex="\hbar\omega"></span>, což zdůvodňuje Planckovu hypotézu, že oscilátor vyměňuje energii po kvantech <span data-tex="\hbar\omega"></span>, a nejnižší z nich není nulová: energii nulových kmitů <span data-tex="\hbar\omega/2"></span> vyžaduje relace neurčitosti.</span></p>
+                <p><span lang="en">The text solves the oscillator in wave mechanics, where the eigenfunctions are Gaussians multiplied by Hermite polynomials. The same spectrum follows from the commutator <span data-tex="[\hat x, \hat p] = \mathrm{i}\hbar"></span> alone, without choosing a representation: the Hamiltonian factorises into a product of a <em>lowering</em> and a <em>raising</em> operator, which step from one level to the next. This algebraic method, which the chapter takes from Kulhánek and the course summary, is shorter, gives matrix elements almost without integration, and returns in the theory of angular momentum and of quantised fields.</span><span lang="cs">Text řeší oscilátor ve vlnové mechanice, kde jsou vlastními funkcemi gaussovky násobené Hermitovými polynomy. Totéž spektrum plyne ze samotného komutátoru <span data-tex="[\hat x, \hat p] = \mathrm{i}\hbar"></span>, bez volby reprezentace: hamiltonián se rozloží na součin <em>snižovacího</em> a <em>zvyšovacího</em> operátoru, které přecházejí z jedné hladiny na sousední. Tato algebraická metoda, kterou kapitola přebírá od Kulhánka a ze shrnutí kurzu, je kratší, dává maticové elementy téměř bez integrování a vrací se v teorii momentu hybnosti a kvantovaných polí.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\hat H = \dfrac{\hat p^2}{2m} + \dfrac{1}{2}m\omega^2\hat x^2"></span>
+                        <span class="ck-eq" data-tex="E_n = \hbar\omega\Big(n + \dfrac{1}{2}\Big),\qquad n = 0, 1, 2, \dots"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">A particle of mass <span data-tex="m"></span> in the potential <span data-tex="V = kx^2/2"></span>, where <span data-tex="\omega = \sqrt{k/m}"></span> is the angular frequency of the classical oscillator (the text writes <span data-tex="\omega_0"></span>). The spectrum is discrete and equally spaced; the ground state has <span data-tex="n = 0"></span> and the energy <span data-tex="\hbar\omega/2"></span>. The index <span data-tex="n"></span> also counts the nodes of the eigenfunction.</span><span lang="cs">Částice hmotnosti <span data-tex="m"></span> v potenciálu <span data-tex="V = kx^2/2"></span>, kde <span data-tex="\omega = \sqrt{k/m}"></span> je úhlová frekvence klasického oscilátoru (text píše <span data-tex="\omega_0"></span>). Spektrum je diskrétní a ekvidistantní; základní stav má <span data-tex="n = 0"></span> a energii <span data-tex="\hbar\omega/2"></span>. Index <span data-tex="n"></span> zároveň udává počet uzlů vlastní funkce.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The Schrödinger equation</span><span lang="cs">Schrödingerova rovnice</span></span>
+                        <span class="cf-eq" data-tex="\Big(-\dfrac{\hbar^2}{2m}\dfrac{\mathrm{d}^2}{\mathrm{d}x^2} + \dfrac{1}{2}m\omega^2x^2\Big)\phi_n = E_n\phi_n"></span>
+                        <span class="cf-eq" data-tex="\phi_n(x) = N_nH_n(\xi)\,\mathrm{e}^{-\xi^2/2},\qquad \xi = \dfrac{x}{x_0}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Solutions that vanish at infinity exist only for <span data-tex="E_n = \hbar\omega(n + 1/2)"></span>. They are Gaussians multiplied by the Hermite polynomials <span data-tex="H_0 = 1"></span>, <span data-tex="H_1 = 2\xi"></span>, <span data-tex="H_2 = 4\xi^2 - 2"></span>, <span data-tex="H_3 = 8\xi^3 - 12\xi"></span> of the scaled coordinate <span data-tex="\xi"></span>, where <span data-tex="x_0 = \sqrt{\hbar/m\omega}"></span> is the characteristic length. The <span data-tex="n"></span>-th function has <span data-tex="n"></span> nodes and the parity <span data-tex="(-1)^n"></span>. The text finds the first two by an educated guess: a Gaussian without a node gives <span data-tex="E_0"></span>, the same Gaussian multiplied by <span data-tex="x"></span> gives <span data-tex="E_1 = 3\hbar\omega/2"></span>. <span class="cf-ref">(Dub 3.4.6)</span></span>
+                        <span lang="cs">Řešení mizející v nekonečnu existují jen pro <span data-tex="E_n = \hbar\omega(n + 1/2)"></span>. Jsou to gaussovky násobené Hermitovými polynomy <span data-tex="H_0 = 1"></span>, <span data-tex="H_1 = 2\xi"></span>, <span data-tex="H_2 = 4\xi^2 - 2"></span>, <span data-tex="H_3 = 8\xi^3 - 12\xi"></span> škálované souřadnice <span data-tex="\xi"></span>, kde <span data-tex="x_0 = \sqrt{\hbar/m\omega}"></span> je charakteristická délka. <span data-tex="n"></span>-tá funkce má <span data-tex="n"></span> uzlů a paritu <span data-tex="(-1)^n"></span>. Text první dvě nachází kvalifikovaným odhadem: gaussovka bez uzlu dává <span data-tex="E_0"></span>, tatáž gaussovka násobená <span data-tex="x"></span> dává <span data-tex="E_1 = 3\hbar\omega/2"></span>. <span class="cf-ref">(Dub 3.4.6)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Ground state</span><span lang="cs">Základní stav</span></span>
+                        <span class="cf-eq" data-tex="\phi_0(x) = \Big(\dfrac{m\omega}{\pi\hbar}\Big)^{1/4}\mathrm{e}^{-\frac{m\omega}{2\hbar}x^2}"></span>
+                        <span class="cf-eq" data-tex="E_0 = \dfrac{1}{2}\hbar\omega"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Substituting <span data-tex="A_0\mathrm{e}^{-\alpha x^2}"></span> into the equation and requiring it to hold for every <span data-tex="x"></span> gives two conditions, <span data-tex="\alpha = m\omega/2\hbar"></span> and <span data-tex="E_0 = \hbar\omega/2"></span>; the Gaussian integral fixes <span data-tex="A_0"></span>. The lowest energy is not zero: the particle cannot rest at the bottom of the well, since position and momentum would then both be sharp. The ground state reaches the lower bound of the uncertainty relation, <span data-tex="\Delta x\,\Delta p = \hbar/2"></span>. <span class="cf-ref">(Dub 3.4.6)</span></span>
+                        <span lang="cs">Dosazením <span data-tex="A_0\mathrm{e}^{-\alpha x^2}"></span> do rovnice a požadavkem, aby platila pro každé <span data-tex="x"></span>, vzniknou dvě podmínky, <span data-tex="\alpha = m\omega/2\hbar"></span> a <span data-tex="E_0 = \hbar\omega/2"></span>; gaussovský integrál určí <span data-tex="A_0"></span>. Nejnižší energie není nulová: částice nemůže spočívat na dně jámy, protože pak by poloha i hybnost byly ostré. Základní stav dosahuje dolní meze relace neurčitosti, <span data-tex="\Delta x\,\Delta p = \hbar/2"></span>. <span class="cf-ref">(Dub 3.4.6)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Quantum and classical oscillator</span><span lang="cs">Kvantový a klasický oscilátor</span></span>
+                        <span class="cf-eq" data-tex="w(x) = \dfrac{1}{\pi\sqrt{A^2 - x^2}},\qquad |x| \le A"></span>
+                        <span class="cf-eq" data-tex="A_n = x_0\sqrt{2n + 1}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A classical particle spends most time near the turning points <span data-tex="\pm A"></span>, where it is slowest, never passes beyond them, and can have any energy. The quantum oscillator has discrete energies spaced by <span data-tex="\hbar\omega"></span>, a non-zero probability beyond the classical turning points <span data-tex="\pm A_n"></span> of the same energy, and for small <span data-tex="n"></span> a density quite unlike <span data-tex="w(x)"></span>. For large <span data-tex="n"></span> the quantum density, averaged over its oscillations, approaches the classical one. A mechanical oscillator with <span data-tex="\omega \approx 1\ \mathrm{s^{-1}}"></span> and <span data-tex="E \approx 1\ \mathrm{J}"></span> has <span data-tex="n \approx 10^{34}"></span> and shows no quantisation; molecular vibrations with <span data-tex="\hbar\omega \approx 0.01\ \mathrm{eV}"></span> are strongly quantised. <span class="cf-ref">(Dub 3.4.6)</span></span>
+                        <span lang="cs">Klasická částice tráví nejvíce času u bodů obratu <span data-tex="\pm A"></span>, kde je nejpomalejší, nikdy se za ně nedostane a může mít libovolnou energii. Kvantový oscilátor má diskrétní energie s rozestupem <span data-tex="\hbar\omega"></span>, nenulovou pravděpodobnost za klasickými body obratu <span data-tex="\pm A_n"></span> téže energie a pro malá <span data-tex="n"></span> hustotu naprosto odlišnou od <span data-tex="w(x)"></span>. Pro velká <span data-tex="n"></span> se kvantová hustota, vystředovaná přes své oscilace, blíží klasické. Mechanický oscilátor s <span data-tex="\omega \approx 1\ \mathrm{s^{-1}}"></span> a <span data-tex="E \approx 1\ \mathrm{J}"></span> má <span data-tex="n \approx 10^{34}"></span> a žádné kvantování nevykazuje; kmity molekul s <span data-tex="\hbar\omega \approx 0{,}01\ \mathrm{eV}"></span> jsou kvantovány výrazně. <span class="cf-ref">(Dub 3.4.6)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Ladder operators</span><span lang="cs">Žebříkové operátory</span></span>
+                        <span class="cf-eq" data-tex="\hat a = \dfrac{\hat Q + \mathrm{i}\hat P}{\sqrt2},\qquad \hat a^\dagger = \dfrac{\hat Q - \mathrm{i}\hat P}{\sqrt2}"></span>
+                        <span class="cf-eq" data-tex="[\hat a, \hat a^\dagger] = 1,\qquad \hat H = \hbar\omega\Big(\hat a^\dagger\hat a + \dfrac{1}{2}\Big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With the dimensionless operators <span data-tex="\hat Q = \hat x/x_0"></span> and <span data-tex="\hat P = \hat p/p_0"></span>, where <span data-tex="p_0 = \sqrt{m\omega\hbar}"></span>, the Hamiltonian is <span data-tex="\hat H = (\hbar\omega/2)(\hat P^2 + \hat Q^2)"></span> and <span data-tex="[\hat Q, \hat P] = \mathrm{i}"></span>. For numbers <span data-tex="a^2 + b^2 = (a + \mathrm{i}b)(a - \mathrm{i}b)"></span>; for operators the factorisation leaves a remainder fixed by the commutator, the <span data-tex="1/2"></span> in the Hamiltonian. The operators <span data-tex="\hat a"></span> and <span data-tex="\hat a^\dagger"></span> are each other’s adjoints but not Hermitian, and represent no measurable quantity. <span class="cf-ref">(Kulhánek 2.4.2)</span></span>
+                        <span lang="cs">S bezrozměrnými operátory <span data-tex="\hat Q = \hat x/x_0"></span> a <span data-tex="\hat P = \hat p/p_0"></span>, kde <span data-tex="p_0 = \sqrt{m\omega\hbar}"></span>, je hamiltonián <span data-tex="\hat H = (\hbar\omega/2)(\hat P^2 + \hat Q^2)"></span> a <span data-tex="[\hat Q, \hat P] = \mathrm{i}"></span>. Pro čísla platí <span data-tex="a^2 + b^2 = (a + \mathrm{i}b)(a - \mathrm{i}b)"></span>; u operátorů zanechá rozklad zbytek určený komutátorem, onu <span data-tex="1/2"></span> v hamiltoniánu. Operátory <span data-tex="\hat a"></span> a <span data-tex="\hat a^\dagger"></span> jsou navzájem hermitovsky sdružené, ale nejsou hermitovské a žádnou měřitelnou veličinu nereprezentují. <span class="cf-ref">(Kulhánek 2.4.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The spectrum from the commutators</span><span lang="cs">Spektrum z komutačních relací</span></span>
+                        <span class="cf-eq" data-tex="[\hat H, \hat a] = -\hbar\omega\,\hat a,\qquad [\hat H, \hat a^\dagger] = \hbar\omega\,\hat a^\dagger"></span>
+                        <span class="cf-eq" data-tex="\hat a|0\rangle = 0\quad\Rightarrow\quad E_0 = \dfrac{1}{2}\hbar\omega"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">If <span data-tex="|n\rangle"></span> has the energy <span data-tex="E_n"></span>, the commutators show that <span data-tex="\hat a^\dagger|n\rangle"></span> has the energy <span data-tex="E_n + \hbar\omega"></span> and <span data-tex="\hat a|n\rangle"></span> the energy <span data-tex="E_n - \hbar\omega"></span> — hence the names raising and lowering, or creation and annihilation, operators. The Hamiltonian is a sum of squares of Hermitian operators, so its eigenvalues are non-negative and the lowering must stop: the ground state is annihilated by <span data-tex="\hat a"></span>. Applying <span data-tex="\hat H = \hbar\omega(\hat a^\dagger\hat a + 1/2)"></span> to it gives <span data-tex="E_0 = \hbar\omega/2"></span>, and repeated raising gives the whole ladder <span data-tex="E_n = \hbar\omega(n + 1/2)"></span> without solving a differential equation. <span class="cf-ref">(Kulhánek 2.4.2)</span></span>
+                        <span lang="cs">Má-li <span data-tex="|n\rangle"></span> energii <span data-tex="E_n"></span>, plyne z komutátorů, že <span data-tex="\hat a^\dagger|n\rangle"></span> má energii <span data-tex="E_n + \hbar\omega"></span> a <span data-tex="\hat a|n\rangle"></span> energii <span data-tex="E_n - \hbar\omega"></span> — odtud názvy zvyšovací a snižovací, neboli kreační a anihilační operátor. Hamiltonián je součtem kvadrátů hermitovských operátorů, jeho vlastní hodnoty jsou tedy nezáporné a snižování se musí zastavit: základní stav operátor <span data-tex="\hat a"></span> anihiluje. Působení <span data-tex="\hat H = \hbar\omega(\hat a^\dagger\hat a + 1/2)"></span> na něj dává <span data-tex="E_0 = \hbar\omega/2"></span> a opakované zvyšování celý žebřík <span data-tex="E_n = \hbar\omega(n + 1/2)"></span>, aniž by se řešila diferenciální rovnice. <span class="cf-ref">(Kulhánek 2.4.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Action on the eigenstates</span><span lang="cs">Působení na vlastní stavy</span></span>
+                        <span class="cf-eq" data-tex="\hat a|n\rangle = \sqrt n\,|n - 1\rangle,\qquad \hat a^\dagger|n\rangle = \sqrt{n + 1}\,|n + 1\rangle"></span>
+                        <span class="cf-eq" data-tex="\hat N|n\rangle = \hat a^\dagger\hat a|n\rangle = n|n\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The normalisation constants follow from the norms <span data-tex="\langle n|\hat a^\dagger\hat a|n\rangle = n"></span> and <span data-tex="\langle n|\hat a\hat a^\dagger|n\rangle = n + 1"></span>; under the square root always stands the higher of the two indices. The <em>number operator</em> <span data-tex="\hat N = \hat a^\dagger\hat a"></span> counts the quanta <span data-tex="\hbar\omega"></span> in the state; in field theory, where the quanta are particles, it becomes the operator of the number of particles. All eigenstates follow from the ground state, <span data-tex="|n\rangle = (\hat a^\dagger)^n|0\rangle/\sqrt{n!}"></span>. <span class="cf-ref">(Kulhánek 2.4.2)</span></span>
+                        <span lang="cs">Normovací konstanty plynou z norem <span data-tex="\langle n|\hat a^\dagger\hat a|n\rangle = n"></span> a <span data-tex="\langle n|\hat a\hat a^\dagger|n\rangle = n + 1"></span>; pod odmocninou stojí vždy vyšší z obou indexů. <em>Operátor počtu kvant</em> <span data-tex="\hat N = \hat a^\dagger\hat a"></span> udává počet kvant <span data-tex="\hbar\omega"></span> ve stavu; v teorii pole, kde jsou kvanty částicemi, se z něj stává operátor počtu částic. Všechny vlastní stavy plynou ze základního, <span data-tex="|n\rangle = (\hat a^\dagger)^n|0\rangle/\sqrt{n!}"></span>. <span class="cf-ref">(Kulhánek 2.4.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Position and momentum</span><span lang="cs">Souřadnice a hybnost</span></span>
+                        <span class="cf-eq" data-tex="\hat x = \sqrt{\dfrac{\hbar}{2m\omega}}\,\big(\hat a + \hat a^\dagger\big)"></span>
+                        <span class="cf-eq" data-tex="\hat p = \mathrm{i}\sqrt{\dfrac{m\omega\hbar}{2}}\,\big(\hat a^\dagger - \hat a\big)"></span>
+                        <span class="cf-eq" data-tex="\dfrac{\mathrm{d}^2\langle x\rangle}{\mathrm{d}t^2} + \omega^2\langle x\rangle = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Inverting the definitions expresses position and momentum through the ladder operators, and expectation values and matrix elements then need no integrals. <span data-tex="\hat x"></span> connects only neighbouring levels, so <span data-tex="\langle n|\hat x|n\rangle = 0"></span>, while <span data-tex="\langle n|\hat x^2|n\rangle = (\hbar/m\omega)(n + 1/2)"></span> and <span data-tex="\Delta x\,\Delta p = \hbar(n + 1/2)"></span>. The kinetic and the potential energy have equal means in every eigenstate, as the virial theorem requires. By the Ehrenfest theorem <span data-tex="\langle x\rangle"></span> moves exactly like the classical oscillator. <span class="cf-ref">(Kulhánek 2.4.2, 2.6.5)</span></span>
+                        <span lang="cs">Obrácením definic se souřadnice a hybnost vyjádří žebříkovými operátory a střední hodnoty i maticové elementy se pak obejdou bez integrálů. <span data-tex="\hat x"></span> spojuje jen sousední hladiny, takže <span data-tex="\langle n|\hat x|n\rangle = 0"></span>, zatímco <span data-tex="\langle n|\hat x^2|n\rangle = (\hbar/m\omega)(n + 1/2)"></span> a <span data-tex="\Delta x\,\Delta p = \hbar(n + 1/2)"></span>. Kinetická a potenciální energie mají v každém vlastním stavu stejné střední hodnoty, jak vyžaduje viriálový teorém. Podle Ehrenfestova teorému se <span data-tex="\langle x\rangle"></span> pohybuje přesně jako klasický oscilátor. <span class="cf-ref">(Kulhánek 2.4.2, 2.6.5)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Three-dimensional isotropic oscillator</span><span lang="cs">Trojrozměrný izotropní oscilátor</span></span>
+                        <span class="cf-eq" data-tex="\phi = \phi_{n_x}(x)\,\phi_{n_y}(y)\,\phi_{n_z}(z)"></span>
+                        <span class="cf-eq" data-tex="E = \hbar\omega\Big(n_x + n_y + n_z + \dfrac{3}{2}\Big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The Hamiltonian <span data-tex="\hat p^2/2m + m\omega^2(\hat x^2 + \hat y^2 + \hat z^2)/2"></span> is a sum of three independent one-dimensional oscillators, so the variables separate and the energies add. The level with <span data-tex="n = n_x + n_y + n_z"></span> is <span data-tex="(n + 1)(n + 2)/2"></span>-fold degenerate, and the zero-point energy is <span data-tex="3\hbar\omega/2"></span>. The potential is spherically symmetric, so the same levels can also be sorted by angular momentum, as for any central field (chapter 10). <span class="cf-ref">(Kulhánek 2.5.3)</span></span>
+                        <span lang="cs">Hamiltonián <span data-tex="\hat p^2/2m + m\omega^2(\hat x^2 + \hat y^2 + \hat z^2)/2"></span> je součtem tří nezávislých jednorozměrných oscilátorů, proměnné se tedy separují a energie se sčítají. Hladina s <span data-tex="n = n_x + n_y + n_z"></span> je <span data-tex="(n + 1)(n + 2)/2"></span>-násobně degenerovaná a energie nulových kmitů je <span data-tex="3\hbar\omega/2"></span>. Potenciál je sféricky symetrický, takže tytéž hladiny lze třídit i podle momentu hybnosti, jako v každém centrálním poli (kapitola 10). <span class="cf-ref">(Kulhánek 2.5.3)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="quantum-mechanics-07.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">07 · <span lang="en">The postulates: measurement, time evolution and uncertainty</span><span lang="cs">Postuláty: měření, časový vývoj a neurčitost</span></div>
+        </a>
+        <a href="quantum-mechanics-09.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">09 · <span lang="en">Angular momentum</span><span lang="cs">Moment hybnosti</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="stat-quantum.html#quantum">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

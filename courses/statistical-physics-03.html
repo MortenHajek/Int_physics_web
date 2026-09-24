@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>03 Thermodynamic potentials · Statistical physics and thermodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="stat-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Statistical physics and thermodynamics</span><span lang="cs">Statistická fyzika a termodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="stat-quantum.html#statistical"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Statistical physics 03 · Lecture 3</span><span lang="cs">Statistická fyzika 03 · Přednáška 3</span> · Kalousek 5.2, 7.4</div>
+            <h1><span lang="en">Thermodynamic potentials</span><span lang="cs">Termodynamické potenciály</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\Omega = F - \mu N = -pV"></div>
+            <div class="eq-caption"><span lang="en">The grand potential, the one the course uses most</span><span lang="cs">Velký kanonický potenciál, který kurz užívá nejčastěji</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">The internal energy <span data-tex="U(S, V, N)"></span> is one of several <em>thermodynamic potentials</em>: functions from which all equilibrium properties follow by differentiation, each natural in its own set of variables. Legendre transformations exchange a coordinate for its conjugate force — entropy for temperature, volume for pressure, number of particles for chemical potential — and produce the free energy <span data-tex="F(T, V, N)"></span>, the enthalpy <span data-tex="H(S, p, N)"></span>, the Gibbs potential <span data-tex="G(T, p, N)"></span> and the grand potential <span data-tex="\Omega(T, V, \mu)"></span>. Each has a direct physical meaning, and each reaches an extremum when its own variables are held fixed.</span><span lang="cs">Vnitřní energie <span data-tex="U(S, V, N)"></span> je jedním z několika <em>termodynamických potenciálů</em>: funkcí, z nichž derivováním plynou všechny rovnovážné vlastnosti a z nichž každá je přirozená ve svých vlastních proměnných. Legendreovy transformace zaměňují souřadnici za k ní sdruženou sílu — entropii za teplotu, objem za tlak, počet částic za chemický potenciál — a vytvářejí volnou energii <span data-tex="F(T, V, N)"></span>, entalpii <span data-tex="H(S, p, N)"></span>, Gibbsův potenciál <span data-tex="G(T, p, N)"></span> a velký kanonický potenciál <span data-tex="\Omega(T, V, \mu)"></span>. Každý má přímý fyzikální význam a každý nabývá extrému, jsou-li jeho vlastní proměnné udržovány konstantní.</span></p>
+                <p><span lang="en">Nearly everything in the lecture follows from one fact: <span data-tex="\mathrm{d}U"></span> is a total differential. From it come the Maxwell relations, the link between heat capacities and the equation of state, and the conditions of stability; and the free energy and the grand potential are the bridges to statistical physics — <span data-tex="F"></span> through the partition function, <span data-tex="\Omega"></span> through the grand sum. Joined to an equation of state and an internal energy, these rules produce the complete thermodynamics of a given system, carried through here for the classical ideal gas and for black-body radiation.</span><span lang="cs">Téměř vše v přednášce plyne z jediné skutečnosti: <span data-tex="\mathrm{d}U"></span> je totální diferenciál. Odtud pocházejí Maxwellovy relace, souvislost tepelných kapacit se stavovou rovnicí i podmínky stability; volná energie a velký kanonický potenciál jsou pak mosty ke statistické fyzice — <span data-tex="F"></span> přes statistickou sumu, <span data-tex="\Omega"></span> přes velkou statistickou sumu. Spojí-li se tato pravidla se stavovou rovnicí a vnitřní energií, dávají úplnou termodynamiku dané soustavy; zde je provedena pro klasický ideální plyn a pro záření černého tělesa.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\mathrm{d}U = T\,\mathrm{d}S - p\,\mathrm{d}V + \mu\,\mathrm{d}N"></span>
+                        <span class="ck-eq" data-tex="F = U - TS,\quad G = F + pV,\quad \Omega = F - \mu N"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">Each potential is obtained from <span data-tex="U"></span> by subtracting the product of a coordinate and its force, and its differential trades <span data-tex="T\,\mathrm{d}S"></span> for <span data-tex="-S\,\mathrm{d}T"></span>, <span data-tex="-p\,\mathrm{d}V"></span> for <span data-tex="V\,\mathrm{d}p"></span>, or <span data-tex="\mu\,\mathrm{d}N"></span> for <span data-tex="-N\,\mathrm{d}\mu"></span>. The enthalpy is <span data-tex="H = U + pV"></span>. Because <span data-tex="U"></span> is extensive, <span data-tex="U = TS - pV + \mu N"></span>, so <span data-tex="G = \mu N"></span> and <span data-tex="\Omega = -pV"></span>.</span><span lang="cs">Každý potenciál vznikne z <span data-tex="U"></span> odečtením součinu souřadnice a k ní příslušné síly a v jeho diferenciálu se <span data-tex="T\,\mathrm{d}S"></span> změní v <span data-tex="-S\,\mathrm{d}T"></span>, <span data-tex="-p\,\mathrm{d}V"></span> ve <span data-tex="V\,\mathrm{d}p"></span> nebo <span data-tex="\mu\,\mathrm{d}N"></span> v <span data-tex="-N\,\mathrm{d}\mu"></span>. Entalpie je <span data-tex="H = U + pV"></span>. Protože <span data-tex="U"></span> je extenzivní, platí <span data-tex="U = TS - pV + \mu N"></span>, a tedy <span data-tex="G = \mu N"></span> a <span data-tex="\Omega = -pV"></span>.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Free energy and enthalpy</span><span lang="cs">Volná energie a entalpie</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}F = -S\,\mathrm{d}T - p\,\mathrm{d}V + \mu\,\mathrm{d}N"></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}H = T\,\mathrm{d}S + V\,\mathrm{d}p + \mu\,\mathrm{d}N"></span>
+                        <span class="cf-eq" data-tex="W_T = F_{\mathrm i} - F_{\mathrm f},\qquad Q_p = H_{\mathrm f} - H_{\mathrm i}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The potentials have a direct meaning. At constant <span data-tex="T"></span> and <span data-tex="N"></span> the work done by a system is the decrease of its free energy (sometimes called the Helmholtz function); at constant <span data-tex="p"></span> and <span data-tex="N"></span> the heat received is the increase of its enthalpy; and at constant <span data-tex="S"></span> and <span data-tex="N"></span> the work equals the decrease of <span data-tex="U"></span>. The entropy and the energy follow from the free energy as <span data-tex="S = -(\partial F/\partial T)_{V,N}"></span> and <span data-tex="U = -T^2\,\partial(F/T)/\partial T"></span>.</span>
+                        <span lang="cs">Potenciály mají přímý význam. Při konstantních <span data-tex="T"></span> a <span data-tex="N"></span> je práce vykonaná soustavou rovna úbytku její volné energie (někdy zvané Helmholtzova funkce); při konstantních <span data-tex="p"></span> a <span data-tex="N"></span> je přijaté teplo rovno přírůstku její entalpie; a při konstantních <span data-tex="S"></span> a <span data-tex="N"></span> je práce rovna úbytku <span data-tex="U"></span>. Entropie a energie plynou z volné energie jako <span data-tex="S = -(\partial F/\partial T)_{V,N}"></span> a <span data-tex="U = -T^2\,\partial(F/T)/\partial T"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Gibbs potential and the Gibbs–Duhem equation</span><span lang="cs">Gibbsův potenciál a Gibbsova–Duhemova rovnice</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}G = -S\,\mathrm{d}T + V\,\mathrm{d}p + \mu\,\mathrm{d}N"></span>
+                        <span class="cf-eq" data-tex="G = \mu N,\qquad N\,\mathrm{d}\mu = -S\,\mathrm{d}T + V\,\mathrm{d}p"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Of the variables <span data-tex="T"></span>, <span data-tex="p"></span>, <span data-tex="N"></span> only <span data-tex="N"></span> is extensive, so <span data-tex="G = Ng(T, p)"></span>, with <span data-tex="g"></span> the Gibbs potential of one particle, and <span data-tex="\mu = (\partial G/\partial N)_{T,p} = g"></span>: the chemical potential is the Gibbs potential per particle. Comparing <span data-tex="\mathrm{d}G = N\,\mathrm{d}\mu + \mu\,\mathrm{d}N"></span> with the differential above gives the Gibbs–Duhem equation, which is important for mixtures. The Gibbs potential describes chemical reactions proceeding at a given temperature and pressure. <span class="cf-ref">(Kalousek 7.4)</span></span>
+                        <span lang="cs">Z proměnných <span data-tex="T"></span>, <span data-tex="p"></span>, <span data-tex="N"></span> je extenzivní jen <span data-tex="N"></span>, takže <span data-tex="G = Ng(T, p)"></span>, kde <span data-tex="g"></span> je Gibbsův potenciál jedné částice, a <span data-tex="\mu = (\partial G/\partial N)_{T,p} = g"></span>: chemický potenciál je Gibbsův potenciál vztažený na jednu částici. Porovnání <span data-tex="\mathrm{d}G = N\,\mathrm{d}\mu + \mu\,\mathrm{d}N"></span> s diferenciálem výše dává Gibbsovu–Duhemovu rovnici, důležitou pro termodynamiku směsí. Gibbsův potenciál popisuje chemické reakce, které probíhají při dané teplotě a daném tlaku. <span class="cf-ref">(Kalousek 7.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Grand potential</span><span lang="cs">Velký kanonický potenciál</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}\Omega = -S\,\mathrm{d}T - p\,\mathrm{d}V - N\,\mathrm{d}\mu"></span>
+                        <span class="cf-eq" data-tex="N = -\Big(\dfrac{\partial\Omega}{\partial\mu}\Big)_{T,V},\qquad p = -\dfrac{\Omega}{V}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Replacing the number of particles by the chemical potential in <span data-tex="F"></span> gives the potential of a system that exchanges both energy and particles with a reservoir. Its derivatives return the mean number of particles, the entropy <span data-tex="S = -(\partial\Omega/\partial T)_{V,\mu}"></span> and the pressure; since <span data-tex="V"></span> is its only extensive variable, <span data-tex="\Omega = -pV"></span>, so <span data-tex="\Omega"></span> written in terms of <span data-tex="T"></span>, <span data-tex="V"></span> and <span data-tex="\mu"></span> is the equation of state. It is the potential the course computes first for every ideal gas (chapter 05). <span class="cf-ref">(Kalousek 7.4)</span></span>
+                        <span lang="cs">Zamění-li se ve volné energii počet částic za chemický potenciál, vznikne potenciál soustavy, která s rezervoárem vyměňuje energii i částice. Jeho derivace vracejí střední počet částic, entropii <span data-tex="S = -(\partial\Omega/\partial T)_{V,\mu}"></span> a tlak; protože jeho jedinou extenzivní proměnnou je <span data-tex="V"></span>, platí <span data-tex="\Omega = -pV"></span>, a <span data-tex="\Omega"></span> vyjádřený pomocí <span data-tex="T"></span>, <span data-tex="V"></span> a <span data-tex="\mu"></span> je tedy stavovou rovnicí. Je to potenciál, který kurz u každého ideálního plynu počítá jako první (kapitola 05). <span class="cf-ref">(Kalousek 7.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Bridges to statistical physics</span><span lang="cs">Mosty ke statistické fyzice</span></span>
+                        <span class="cf-eq" data-tex="F = -k_{\mathrm B}T\ln Z,\qquad \Omega = -k_{\mathrm B}T\ln\Xi"></span>
+                        <span class="cf-eq" data-tex="\Xi = \sum_N\sum_\ell\exp\dfrac{N\mu - E_\ell(N)}{k_{\mathrm B}T}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The partition function <span data-tex="Z(T, V)"></span> sums the Boltzmann factors <span data-tex="\exp(-E_\ell/k_{\mathrm B}T)"></span> over the states <span data-tex="\ell"></span> of a system with a fixed number of particles; the grand sum <span data-tex="\Xi(T, V, \mu)"></span> sums Gibbs factors over the states of every number of particles. From them <span data-tex="U = k_{\mathrm B}T^2\,\partial\ln Z/\partial T"></span> and <span data-tex="N = k_{\mathrm B}T\,\partial\ln\Xi/\partial\mu"></span>. The Gibbs potential has a bridge of its own, <span data-tex="G = -k_{\mathrm B}T\ln Y"></span>, where <span data-tex="Y"></span> sums <span data-tex="\exp[-(E_\ell(V) + pV)/k_{\mathrm B}T]"></span> over the states of every volume. <span class="cf-ref">(Kalousek 5.2)</span></span>
+                        <span lang="cs">Statistická suma <span data-tex="Z(T, V)"></span> sčítá Boltzmannovy faktory <span data-tex="\exp(-E_\ell/k_{\mathrm B}T)"></span> přes stavy <span data-tex="\ell"></span> soustavy s pevným počtem částic; velká statistická suma <span data-tex="\Xi(T, V, \mu)"></span> sčítá Gibbsovy faktory přes stavy s libovolným počtem částic. Z nich plyne <span data-tex="U = k_{\mathrm B}T^2\,\partial\ln Z/\partial T"></span> a <span data-tex="N = k_{\mathrm B}T\,\partial\ln\Xi/\partial\mu"></span>. Také Gibbsův potenciál má svůj most, <span data-tex="G = -k_{\mathrm B}T\ln Y"></span>, kde <span data-tex="Y"></span> sčítá <span data-tex="\exp[-(E_\ell(V) + pV)/k_{\mathrm B}T]"></span> přes stavy při libovolném objemu. <span class="cf-ref">(Kalousek 5.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Maxwell relations</span><span lang="cs">Maxwellovy relace</span></span>
+                        <span class="cf-eq" data-tex="\Big(\dfrac{\partial S}{\partial V}\Big)_T = \Big(\dfrac{\partial p}{\partial T}\Big)_V"></span>
+                        <span class="cf-eq" data-tex="\Big(\dfrac{\partial S}{\partial p}\Big)_T = -\Big(\dfrac{\partial V}{\partial T}\Big)_p"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The integrability conditions of <span data-tex="\mathrm{d}F"></span> and <span data-tex="\mathrm{d}G"></span>: the mixed second derivatives of a potential agree. They replace derivatives of the entropy, which cannot be measured directly, by derivatives of the equation of state, which can. Inserted into <span data-tex="p = -(\partial F/\partial V)_T = -(\partial U/\partial V)_T + T(\partial S/\partial V)_T"></span>, the first returns the “regulator” of chapter 01. More potentials can be constructed, and some of their Maxwell relations are occasionally useful.</span>
+                        <span lang="cs">Podmínky integrability diferenciálů <span data-tex="\mathrm{d}F"></span> a <span data-tex="\mathrm{d}G"></span>: smíšené druhé derivace potenciálu se shodují. Nahrazují derivace entropie, které nelze přímo měřit, derivacemi stavové rovnice, které měřit lze. Dosazena do <span data-tex="p = -(\partial F/\partial V)_T = -(\partial U/\partial V)_T + T(\partial S/\partial V)_T"></span>, vrací první z nich „regulátor“ z kapitoly 01. Lze sestrojit i další potenciály a některé jejich Maxwellovy relace bývají užitečné.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Conditions of equilibrium</span><span lang="cs">Podmínky rovnováhy</span></span>
+                        <span class="cf-eq" data-tex="T\,\mathrm{d}S \ge \mathrm{d}U + p\,\mathrm{d}V - \mu\,\mathrm{d}N"></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}F\big|_{T,V,N} \le 0,\qquad \mathrm{d}G\big|_{T,p,N} \le 0"></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}\Omega\big|_{T,V,\mu} \le 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The first law combined with the Clausius inequality <span data-tex="\oint\delta Q/T \le 0"></span> gives the first line, with equality only for reversible processes. At fixed <span data-tex="U"></span>, <span data-tex="V"></span>, <span data-tex="N"></span> the entropy grows to a maximum; at fixed <span data-tex="T"></span>, <span data-tex="V"></span>, <span data-tex="N"></span> — a bath and rigid walls — the free energy falls to a minimum; at fixed <span data-tex="T"></span> and <span data-tex="p"></span> the Gibbs potential does, and at fixed <span data-tex="T"></span>, <span data-tex="V"></span> and <span data-tex="\mu"></span> the grand potential. In each case the second variation at the extremum decides that it is a maximum or a minimum.</span>
+                        <span lang="cs">První zákon spojený s Clausiovou nerovností <span data-tex="\oint\delta Q/T \le 0"></span> dává první řádek, s rovností jen pro vratné děje. Při pevných <span data-tex="U"></span>, <span data-tex="V"></span>, <span data-tex="N"></span> roste entropie k maximu; při pevných <span data-tex="T"></span>, <span data-tex="V"></span>, <span data-tex="N"></span> — lázeň a tuhé stěny — klesá volná energie k minimu; při pevných <span data-tex="T"></span> a <span data-tex="p"></span> Gibbsův potenciál a při pevných <span data-tex="T"></span>, <span data-tex="V"></span> a <span data-tex="\mu"></span> velký kanonický potenciál. V každém případě rozhoduje druhá variace v extrému, zda jde o maximum, či minimum.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Stability, heat capacities and compressibilities</span><span lang="cs">Stabilita, tepelné kapacity a stlačitelnosti</span></span>
+                        <span class="cf-eq" data-tex="C_V &gt; 0,\qquad \Big(\dfrac{\partial p}{\partial V}\Big)_T &lt; 0"></span>
+                        <span class="cf-eq" data-tex="C_p - C_V = \dfrac{TV\alpha_V^2}{\kappa_T},\qquad \kappa_S = \dfrac{C_V}{C_p}\,\kappa_T"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Positive definiteness of the second variation of <span data-tex="U(S, V)"></span> requires a positive heat capacity and a pressure that falls as the volume grows — conditions every equation of state must satisfy. With the isobaric expansion coefficient <span data-tex="\alpha_V = V^{-1}(\partial V/\partial T)_p"></span> and the isothermal compressibility <span data-tex="\kappa_T = -V^{-1}(\partial V/\partial p)_T"></span> it follows that <span data-tex="C_p &gt; C_V"></span> and that the adiabatic compressibility <span data-tex="\kappa_S"></span> is always smaller than the isothermal one. For an ideal gas <span data-tex="C_p - C_V = Nk_{\mathrm B}"></span>.</span>
+                        <span lang="cs">Pozitivní definitnost druhé variace <span data-tex="U(S, V)"></span> vyžaduje kladnou tepelnou kapacitu a tlak, který s rostoucím objemem klesá — podmínky, které musí splňovat každá stavová rovnice. Se součinitelem izobarické objemové roztažnosti <span data-tex="\alpha_V = V^{-1}(\partial V/\partial T)_p"></span> a izotermickou objemovou stlačitelností <span data-tex="\kappa_T = -V^{-1}(\partial V/\partial p)_T"></span> odtud plyne <span data-tex="C_p &gt; C_V"></span> a to, že adiabatická stlačitelnost <span data-tex="\kappa_S"></span> je vždy menší než izotermická. Pro ideální plyn je <span data-tex="C_p - C_V = Nk_{\mathrm B}"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two systems worked through</span><span lang="cs">Dvě soustavy propočítané do konce</span></span>
+                        <span class="cf-eq" data-tex="S = k_{\mathrm B}N\ln\Big(\gamma T^{3/2}\,\dfrac{V}{N}\Big)"></span>
+                        <span class="cf-eq" data-tex="S = \dfrac{4}{3}\tilde\sigma T^3V = \dfrac{4U}{3T}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">From <span data-tex="pV = Nk_{\mathrm B}T"></span> and <span data-tex="U = \tfrac32Nk_{\mathrm B}T"></span> alone, thermodynamics gives the entropy of a monatomic ideal gas up to a constant <span data-tex="\gamma"></span> of unit <span data-tex="\mathrm{K}^{-3/2}\,\mathrm{m}^{-3}"></span>: extensivity fixes the form, and only statistical physics finds <span data-tex="\gamma"></span>, which contains Planck’s constant (the Sackur–Tetrode equation, chapter 05). It follows that <span data-tex="\mu = k_{\mathrm B}T\ln\big(\mathrm{e}^{5/2}N/\gamma T^{3/2}V\big) &lt; 0"></span>. For black-body radiation, <span data-tex="U = \tilde\sigma T^4V"></span> and <span data-tex="p = u/3"></span> give the second line, <span data-tex="F = -U/3"></span> and <span data-tex="G = 0"></span>: the chemical potential of photons is zero, because their number is not conserved. <span class="cf-ref">(Kalousek 6.3.3)</span></span>
+                        <span lang="cs">Termodynamika dá už ze samotných vztahů <span data-tex="pV = Nk_{\mathrm B}T"></span> a <span data-tex="U = \tfrac32Nk_{\mathrm B}T"></span> entropii jednoatomového ideálního plynu až na konstantu <span data-tex="\gamma"></span> s jednotkou <span data-tex="\mathrm{K}^{-3/2}\,\mathrm{m}^{-3}"></span>: tvar určuje extenzivita a <span data-tex="\gamma"></span>, v níž vystupuje Planckova konstanta, najde až statistická fyzika (Sackurova–Tetrodova rovnice, kapitola 05). Odtud <span data-tex="\mu = k_{\mathrm B}T\ln\big(\mathrm{e}^{5/2}N/\gamma T^{3/2}V\big) &lt; 0"></span>. Pro záření černého tělesa dávají <span data-tex="U = \tilde\sigma T^4V"></span> a <span data-tex="p = u/3"></span> druhý řádek, <span data-tex="F = -U/3"></span> a <span data-tex="G = 0"></span>: chemický potenciál fotonů je nulový, protože jejich počet se nezachovává. <span class="cf-ref">(Kalousek 6.3.3)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="statistical-physics-02.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">02 · <span lang="en">Temperature, chemical potential and the second law</span><span lang="cs">Teplota, chemický potenciál a druhý zákon termodynamiky</span></div>
+        </a>
+        <a href="statistical-physics-04.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">04 · <span lang="en">Ideal gases: orbitals and the three distributions</span><span lang="cs">Ideální plyny: orbitaly a tři rozdělení</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="stat-quantum.html#statistical">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Statistical physics and thermodynamics</span><span lang="cs">Statistická fyzika a termodynamika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Statistical physics and thermodynamics</span><span lang="cs">Statistická fyzika a termodynamika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

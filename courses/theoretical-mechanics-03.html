@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>03 The Euler–Lagrange equations · Theoretical Mechanics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="theoretical-mechanics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Theoretical Mechanics</span><span lang="cs">Teoretická mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="theoretical-mechanics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 03 · Kalousek 1.6</span><span lang="cs">Kapitola 03 · Kalousek 1.6</span> · Tyc 1.2</div>
+            <h1><span lang="en">The Euler–Lagrange equations</span><span lang="cs">Eulerovy–Lagrangeovy rovnice</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\dfrac{\mathrm{d}}{\mathrm{d}t}\dfrac{\partial L}{\partial\dot q_j} = \dfrac{\partial L}{\partial q_j}"></div>
+            <div class="eq-caption"><span lang="en">The equations of motion of every system with holonomic constraints</span><span lang="cs">Pohybové rovnice každé soustavy s holonomními vazbami</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">The equations of chapter 02 are free of constraint forces but still contain Cartesian accelerations. They can be rewritten entirely in the generalized coordinates <span data-tex="q_j"></span> and velocities <span data-tex="\dot q_j"></span>: the kinetic energy, expressed through the transformation equations, becomes a function of <span data-tex="q_j"></span>, <span data-tex="\dot q_j"></span> and possibly <span data-tex="t"></span>, and two identities of differentiation bring the equations back to the form they had in Cartesian coordinates. The result, the <em>Euler–Lagrange equations</em> (Lagrange’s equations of the second kind), holds for any system of particles under conservative applied forces and holonomic constraints, in whatever coordinates.</span><span lang="cs">Rovnice kapitoly 02 již neobsahují vazbové síly, ale stále v nich vystupují kartézská zrychlení. Lze je celé přepsat do zobecněných souřadnic <span data-tex="q_j"></span> a rychlostí <span data-tex="\dot q_j"></span>: kinetická energie vyjádřená pomocí transformačních vztahů se stane funkcí <span data-tex="q_j"></span>, <span data-tex="\dot q_j"></span> a případně <span data-tex="t"></span> a dvě identity pro derivování vrátí rovnicím tvar, jaký měly v kartézských souřadnicích. Výsledkem jsou <em>Eulerovy–Lagrangeovy rovnice</em> (Lagrangeovy rovnice druhého druhu), které platí pro každou soustavu částic s konzervativními vtištěnými silami a holonomními vazbami, v jakýchkoli souřadnicích.</span></p>
+                <p><span lang="en">The equations are obtained the same way every time: the degrees of freedom are counted, generalized coordinates chosen, <span data-tex="T"></span> and <span data-tex="V"></span> written in Cartesian coordinates and transformed, and <span data-tex="L = T - V"></span> differentiated. No constraint force appears at any stage. When the coordinates are curvilinear — angles, distances from an axis — the centrifugal, Coriolis and Euler terms appear by themselves in the course of the differentiation.</span><span lang="cs">Rovnice se pokaždé získají stejně: určí se počet stupňů volnosti, zvolí se zobecněné souřadnice, <span data-tex="T"></span> a <span data-tex="V"></span> se zapíšou v kartézských souřadnicích a transformují a funkce <span data-tex="L = T - V"></span> se zderivuje. Vazbová síla se v žádném kroku neobjeví. Jsou-li souřadnice křivočaré — úhly, vzdálenosti od osy —, objeví se odstředivé, Coriolisovy a Eulerovy členy samy v průběhu derivování.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="L(q_j,\dot q_j,t) = T - V"></span>
+                        <span class="ck-eq" data-tex="\dfrac{\mathrm{d}}{\mathrm{d}t}\dfrac{\partial L}{\partial\dot q_j} - \dfrac{\partial L}{\partial q_j} = 0"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en"><span data-tex="M"></span> ordinary differential equations of second order for the <span data-tex="M"></span> functions <span data-tex="q_j(t)"></span>, <span data-tex="j = 1, \dots, M"></span>. The Lagrangian contains complete information about the motion and about all the applied forces; the constraint forces have been eliminated. The equations have the same form as in Cartesian coordinates (chapter 01), but now hold in any coordinates that respect the constraints.</span><span lang="cs"><span data-tex="M"></span> obyčejných diferenciálních rovnic druhého řádu pro <span data-tex="M"></span> funkcí <span data-tex="q_j(t)"></span>, <span data-tex="j = 1, \dots, M"></span>. Lagrangeova funkce obsahuje úplnou informaci o pohybovém stavu i o všech vtištěných silách; vazbové síly jsou vyloučeny. Rovnice mají stejný tvar jako v kartézských souřadnicích (kapitola 01), platí však v libovolných souřadnicích, které respektují vazby.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Velocities in generalized coordinates</span><span lang="cs">Rychlosti v zobecněných souřadnicích</span></span>
+                        <span class="cf-eq" data-tex="\dot x_i = \sum_{j=1}^{M}\dfrac{\partial x_i}{\partial q_j}\,\dot q_j + \dfrac{\partial x_i}{\partial t}"></span>
+                        <span class="cf-eq" data-tex="\dfrac{\partial\dot x_i}{\partial\dot q_j} = \dfrac{\partial x_i}{\partial q_j}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Differentiating the transformation equations shows that each Cartesian velocity is a function of all <span data-tex="q_j"></span>, <span data-tex="\dot q_j"></span> and <span data-tex="t"></span>, linear in the generalized velocities. The second identity follows because <span data-tex="\dot q_j"></span> enters through a single term, with the coefficient <span data-tex="\partial x_i/\partial q_j"></span>. <span class="cf-ref">(Kalousek 1.6)</span></span>
+                        <span lang="cs">Derivací transformačních vztahů se ukáže, že každá kartézská složka rychlosti je funkcí všech <span data-tex="q_j"></span>, <span data-tex="\dot q_j"></span> a <span data-tex="t"></span>, lineární v zobecněných rychlostech. Druhá identita plyne z toho, že <span data-tex="\dot q_j"></span> vystupuje v jediném členu, s koeficientem <span data-tex="\partial x_i/\partial q_j"></span>. <span class="cf-ref">(Kalousek 1.6)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Exchanging the order of derivatives</span><span lang="cs">Záměna pořadí derivací</span></span>
+                        <span class="cf-eq" data-tex="\dfrac{\mathrm{d}}{\mathrm{d}t}\dfrac{\partial x_i}{\partial q_j} = \dfrac{\partial\dot x_i}{\partial q_j}"></span>
+                        <span class="cf-eq" data-tex="\dfrac{\mathrm{d}}{\mathrm{d}t}\dfrac{\partial T}{\partial\dot q_j} = \dfrac{\partial T}{\partial q_j} - \dfrac{\partial V}{\partial q_j}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The total time derivative and the partial derivative with respect to <span data-tex="q_j"></span> commute, because mixed partial derivatives of a differentiable function do not depend on their order (Kalousek’s appendix A). With both identities the equations of chapter 02 become the second line; since <span data-tex="V"></span> does not depend on velocities, both sides can be written with <span data-tex="L = T - V"></span>. <span class="cf-ref">(Kalousek 1.6, A.3)</span></span>
+                        <span lang="cs">Totální derivace podle času a parciální derivace podle <span data-tex="q_j"></span> jsou záměnné, protože u diferencovatelné funkce nezáleží na pořadí smíšených parciálních derivací (Kalouskův dodatek A). S oběma identitami přejdou rovnice kapitoly 02 ve druhý řádek; protože <span data-tex="V"></span> nezávisí na rychlostech, lze obě strany zapsat pomocí <span data-tex="L = T - V"></span>. <span class="cf-ref">(Kalousek 1.6, A.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The pendulum again</span><span lang="cs">Znovu matematické kyvadlo</span></span>
+                        <span class="cf-eq" data-tex="L = \dfrac{1}{2}ml^2\dot\theta^2 + mgl\cos\theta"></span>
+                        <span class="cf-eq" data-tex="\ddot\theta + \dfrac{g}{l}\sin\theta = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">One degree of freedom, the angle <span data-tex="\theta"></span> from the vertical. The equation of motion follows in two lines without the tension of the string ever being mentioned. It is nonlinear; chapter 05 linearizes it for small swings. <span class="cf-ref">(Kalousek 1.8.2)</span></span>
+                        <span lang="cs">Jeden stupeň volnosti, úhel <span data-tex="\theta"></span> odklonu od svislice. Pohybová rovnice plyne na dvou řádcích, aniž by se kdekoli objevila tahová síla lanka. Je nelineární; kapitola 05 ji pro malé výchylky linearizuje. <span class="cf-ref">(Kalousek 1.8.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Inertial terms from curvilinear coordinates</span><span lang="cs">Setrvačné členy z křivočarých souřadnic</span></span>
+                        <span class="cf-eq" data-tex="L = \dfrac{m}{2}\big(\dot r^2 + r^2\dot\varphi^2\sin^2\beta\big) - V(r)"></span>
+                        <span class="cf-eq" data-tex="m\ddot r = mr\dot\varphi^2\sin^2\beta - \dfrac{\mathrm{d}V}{\mathrm{d}r}"></span>
+                        <span class="cf-eq" data-tex="2\dot r\dot\varphi + r\ddot\varphi = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A charged body sliding without friction on a cone of half-angle <span data-tex="\beta"></span> with its axis vertical, <span data-tex="V(r) = mgr\cos\beta + qQ/4\pi\varepsilon_0r"></span> from gravity and from a charge fixed at the apex. Besides the projections of the applied forces, the radial equation contains <span data-tex="mr\dot\varphi^2\sin^2\beta"></span>, a centrifugal force; the angular equation contains the Coriolis acceleration <span data-tex="2\dot r\dot\varphi"></span> and the Euler acceleration <span data-tex="r\ddot\varphi"></span>. They arise from differentiation alone. <span class="cf-ref">(Kalousek 1.8.3)</span></span>
+                        <span lang="cs">Nabité tělísko klouže bez tření po kuželové ploše s vrcholovým úhlem <span data-tex="2\beta"></span> a svislou osou, <span data-tex="V(r) = mgr\cos\beta + qQ/4\pi\varepsilon_0r"></span> od tíhy a od náboje upevněného ve vrcholu. Radiální rovnice obsahuje kromě průmětů vtištěných sil i člen <span data-tex="mr\dot\varphi^2\sin^2\beta"></span>, odstředivou sílu; úhlová rovnice obsahuje Coriolisovo zrychlení <span data-tex="2\dot r\dot\varphi"></span> a Eulerovo zrychlení <span data-tex="r\ddot\varphi"></span>. Vznikly pouhým derivováním. <span class="cf-ref">(Kalousek 1.8.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two bodies — the cart with a pendulum</span><span lang="cs">Dvě tělesa — vozík s kyvadlem</span></span>
+                        <span class="cf-eq" data-tex="L = \dfrac{1}{2}(M + m)\dot x_1^2 + ml\dot x_1\dot\theta\cos\theta"></span>
+                        <span class="cf-eq" data-tex="\qquad+\;\dfrac{1}{2}ml^2\dot\theta^2 + mgl\cos\theta"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A cart of mass <span data-tex="M"></span> on frictionless rails with a pendulum of mass <span data-tex="m"></span> and length <span data-tex="l"></span> hanging from its ceiling. The kinetic energy contains a mixed term in <span data-tex="\dot x_1\dot\theta"></span>, because the velocity of the bob is the velocity of the cart plus its own motion about the point of suspension. The equations of motion are <span data-tex="(M + m)\ddot x_1 + ml\ddot\theta\cos\theta - ml\dot\theta^2\sin\theta = 0"></span> and <span data-tex="\ddot x_1\cos\theta + l\ddot\theta = -g\sin\theta"></span>. <span class="cf-ref">(Kalousek 1.8.4)</span></span>
+                        <span lang="cs">Vozík o hmotnosti <span data-tex="M"></span> na kolejnicích bez tření, ze stropu visí kyvadlo o hmotnosti <span data-tex="m"></span> a délce <span data-tex="l"></span>. Kinetická energie obsahuje smíšený člen s <span data-tex="\dot x_1\dot\theta"></span>, protože rychlost závaží je rychlost vozíku plus jeho vlastní pohyb kolem bodu závěsu. Pohybové rovnice jsou <span data-tex="(M + m)\ddot x_1 + ml\ddot\theta\cos\theta - ml\dot\theta^2\sin\theta = 0"></span> a <span data-tex="\ddot x_1\cos\theta + l\ddot\theta = -g\sin\theta"></span>. <span class="cf-ref">(Kalousek 1.8.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two bodies on a cord</span><span lang="cs">Dvě tělesa na laně</span></span>
+                        <span class="cf-eq" data-tex="L = \dfrac{1}{2}(m_1 + m_2)\dot q^2 + (m_1 - m_2)gq"></span>
+                        <span class="cf-eq" data-tex="\ddot q = \dfrac{m_1 - m_2}{m_1 + m_2}\,g"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two bodies hanging on a cord over a light pulley. One coordinate, the descent <span data-tex="q"></span> of body 1, gives both speeds and both potential energies, <span data-tex="-m_1gq"></span> and <span data-tex="m_2gq"></span>. The tension in the cord, which a solution by Newton’s laws has to carry through two equations, never appears. <span class="cf-ref">(Tyc 1.2)</span></span>
+                        <span lang="cs">Dvě tělesa zavěšená na laně přes lehkou kladku. Jediná souřadnice, pokles <span data-tex="q"></span> tělesa 1, určí obě rychlosti i obě potenciální energie, <span data-tex="-m_1gq"></span> a <span data-tex="m_2gq"></span>. Tahová síla lana, kterou je třeba při řešení pomocí Newtonových zákonů vést dvěma rovnicemi, se vůbec neobjeví. <span class="cf-ref">(Tyc 1.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A charged particle — a velocity-dependent potential</span><span lang="cs">Nabitá částice — potenciál závislý na rychlosti</span></span>
+                        <span class="cf-eq" data-tex="L = \dfrac{1}{2}mv^2 + q\,\vec v\cdot\vec A - q\varphi"></span>
+                        <span class="cf-eq" data-tex="\vec B = \nabla\times\vec A,\qquad \vec E = -\nabla\varphi - \dfrac{\partial\vec A}{\partial t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The magnetic force depends on velocity and has no potential energy <span data-tex="V(\vec r)"></span>, yet it too follows from a Lagrangian, written with the scalar potential <span data-tex="\varphi"></span> and the vector potential <span data-tex="\vec A"></span>. The Euler–Lagrange equations of this <span data-tex="L"></span> are <span data-tex="m\dot{\vec v} = q(\vec E + \vec v\times\vec B)"></span>, the Lorentz force. The form <span data-tex="L = T - V"></span> is the rule for conservative forces, not the definition of a Lagrangian. <span class="cf-ref">(Tyc 1.1)</span></span>
+                        <span lang="cs">Magnetická síla závisí na rychlosti a nemá potenciální energii <span data-tex="V(\vec r)"></span>, přesto i ona plyne z Lagrangeovy funkce, zapsané pomocí skalárního potenciálu <span data-tex="\varphi"></span> a vektorového potenciálu <span data-tex="\vec A"></span>. Eulerovy–Lagrangeovy rovnice této funkce jsou <span data-tex="m\dot{\vec v} = q(\vec E + \vec v\times\vec B)"></span>, tedy Lorentzova síla. Tvar <span data-tex="L = T - V"></span> je pravidlem pro konzervativní síly, nikoli definicí Lagrangeovy funkce. <span class="cf-ref">(Tyc 1.1)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="theoretical-mechanics-02.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">02 · <span lang="en">Constraints and generalized coordinates</span><span lang="cs">Vazby a zobecněné souřadnice</span></div>
+        </a>
+        <a href="theoretical-mechanics-04.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">04 · <span lang="en">Conservation laws and symmetries</span><span lang="cs">Zákony zachování a symetrie</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="theoretical-mechanics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Theoretical Mechanics</span><span lang="cs">Teoretická mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Theoretical Mechanics</span><span lang="cs">Teoretická mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

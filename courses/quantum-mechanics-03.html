@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>03 The Schrödinger equation · Quantum mechanics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="stat-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="stat-quantum.html#quantum"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Quantum mechanics 03 · Dub 3.1–3.3</span><span lang="cs">Kvantová mechanika 03 · Dub 3.1–3.3</span> · Kulhánek 2.3.3, 2.6.2</div>
+            <h1><span lang="en">The Schrödinger equation</span><span lang="cs">Schrödingerova rovnice</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\mathrm{i}\hbar\dfrac{\partial\psi}{\partial t} = \hat H\psi"></div>
+            <div class="eq-caption"><span lang="en">The Schrödinger equation — the equation of motion of quantum mechanics</span><span lang="cs">Schrödingerova rovnice — pohybová rovnice kvantové mechaniky</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">The Schrödinger equation plays the part that Newton’s second law plays in classical mechanics: given the wave function at one instant, it determines it at every later one. It is postulated, not derived, and its justification is the agreement of its predictions with experiment. The interaction enters through the potential energy <span data-tex="V(\vec r, t)"></span> — called simply the potential — rather than through the force. The equation is linear, so a superposition of solutions is again a solution, and of first order in time, so a single initial condition <span data-tex="\psi(\vec r, t_0)"></span> suffices.</span><span lang="cs">Schrödingerova rovnice zaujímá v kvantové mechanice místo, které má v klasické mechanice druhý Newtonův zákon: je-li známa vlnová funkce v jednom okamžiku, určuje ji ve všech pozdějších. Postuluje se, neodvozuje, a jejím zdůvodněním je shoda předpovědí s experimentem. Interakce do ní vstupuje prostřednictvím potenciální energie <span data-tex="V(\vec r, t)"></span> — stručně nazývané potenciál — a nikoli prostřednictvím síly. Rovnice je lineární, takže superpozice řešení je opět řešením, a prvního řádu v čase, takže stačí jediná počáteční podmínka <span data-tex="\psi(\vec r, t_0)"></span>.</span></p>
+                <p><span lang="en">When the potential does not depend on time, the variables separate. The solutions of definite energy <span data-tex="E"></span> are the <em>stationary states</em>: their probability density does not change in time, and their spatial part obeys the time-independent Schrödinger equation, an eigenvalue problem for the energy. Every other solution is a superposition of stationary states, each advancing in phase at its own rate <span data-tex="E_n/\hbar"></span>. The chapter also shows that probability is conserved locally and sets out what a one-dimensional problem requires of its solution.</span><span lang="cs">Nezávisí-li potenciál na čase, proměnné se separují. Řešení s určitou energií <span data-tex="E"></span> jsou <em>stacionární stavy</em>: jejich hustota pravděpodobnosti se s časem nemění a jejich prostorová část splňuje stacionární Schrödingerovu rovnici, úlohu na vlastní hodnoty energie. Každé jiné řešení je superpozicí stacionárních stavů, z nichž každý postupuje ve fázi vlastním tempem <span data-tex="E_n/\hbar"></span>. Kapitola dále ukazuje, že pravděpodobnost se zachovává lokálně, a shrnuje, co jednorozměrná úloha vyžaduje od svého řešení.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\mathrm{i}\hbar\dfrac{\partial\psi}{\partial t} = -\dfrac{\hbar^2}{2m}\Delta\psi + V\psi"></span>
+                        <span class="ck-eq" data-tex="-\dfrac{\hbar^2}{2m}\Delta\phi + V\phi = E\phi"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The time-dependent equation for a particle of mass <span data-tex="m"></span> in the potential <span data-tex="V(\vec r, t)"></span>, with <span data-tex="\Delta"></span> the Laplace operator, and below it the time-independent (stationary) equation for the spatial part <span data-tex="\phi(\vec r)"></span> of a state of energy <span data-tex="E"></span>. The right-hand side of the first is <span data-tex="\hat H\psi"></span>, the Hamiltonian acting on <span data-tex="\psi"></span>. Besides the equation a wave function must satisfy the <em>standard conditions</em>: it is continuous together with its first derivatives, single-valued and bounded.</span><span lang="cs">Časová rovnice pro částici hmotnosti <span data-tex="m"></span> v potenciálu <span data-tex="V(\vec r, t)"></span>, kde <span data-tex="\Delta"></span> je Laplaceův operátor, a pod ní stacionární (bezčasová) rovnice pro prostorovou část <span data-tex="\phi(\vec r)"></span> stavu s energií <span data-tex="E"></span>. Pravá strana první rovnice je <span data-tex="\hat H\psi"></span>, hamiltonián působící na <span data-tex="\psi"></span>. Kromě rovnice musí vlnová funkce splňovat <em>standardní podmínky</em>: je spojitá i se svými prvními derivacemi, jednoznačná a omezená.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Free particle</span><span lang="cs">Volná částice</span></span>
+                        <span class="cf-eq" data-tex="\psi = C\,\mathrm{e}^{-\frac{\mathrm{i}}{\hbar}(Et - \vec p\cdot\vec r)}"></span>
+                        <span class="cf-eq" data-tex="E = \dfrac{p_x^2 + p_y^2 + p_z^2}{2m}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With <span data-tex="V = 0"></span> the de Broglie wave solves the Schrödinger equation provided its energy and momentum obey the classical non-relativistic relation: the time derivative brings down <span data-tex="-\mathrm{i}E/\hbar"></span>, the Laplacian <span data-tex="-p^2/\hbar^2"></span>. The equation is thus consistent with de Broglie’s hypothesis, from which it generalises to particles in a field of force. <span class="cf-ref">(Dub 3.1.1)</span></span>
+                        <span lang="cs">Pro <span data-tex="V = 0"></span> je de Broglieho vlna řešením Schrödingerovy rovnice, jestliže její energie a hybnost splňují klasický nerelativistický vztah: časová derivace vynese <span data-tex="-\mathrm{i}E/\hbar"></span>, laplacián <span data-tex="-p^2/\hbar^2"></span>. Rovnice je tak v souladu s de Broglieho hypotézou, kterou zobecňuje na částice v silovém poli. <span class="cf-ref">(Dub 3.1.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Stationary states</span><span lang="cs">Stacionární stavy</span></span>
+                        <span class="cf-eq" data-tex="\psi(\vec r, t) = \phi(\vec r)\,\mathrm{e}^{-\frac{\mathrm{i}}{\hbar}Et}"></span>
+                        <span class="cf-eq" data-tex="|\psi(\vec r, t)|^2 = |\phi(\vec r)|^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For <span data-tex="V = V(\vec r)"></span> the equation is solved by a product <span data-tex="f(t)\phi(\vec r)"></span>. Dividing by it leaves a function of <span data-tex="t"></span> on one side and a function of <span data-tex="\vec r"></span> on the other; they can be equal for all <span data-tex="t"></span> and <span data-tex="\vec r"></span> only if both equal one constant <span data-tex="E"></span>. That gives <span data-tex="f = \mathrm{e}^{-\mathrm{i}Et/\hbar}"></span> and the time-independent equation for <span data-tex="\phi"></span>. The density does not depend on time, <span data-tex="E"></span> is the energy of the state, and <span data-tex="\phi"></span> is normalised whenever <span data-tex="\psi"></span> is. <span class="cf-ref">(Dub 3.1.2)</span></span>
+                        <span lang="cs">Pro <span data-tex="V = V(\vec r)"></span> vyhovuje rovnici součin <span data-tex="f(t)\phi(\vec r)"></span>. Po vydělení tímto součinem zůstane na jedné straně funkce <span data-tex="t"></span> a na druhé funkce <span data-tex="\vec r"></span>; ty se mohou rovnat pro všechna <span data-tex="t"></span> a <span data-tex="\vec r"></span> jen tehdy, jsou-li obě rovny téže konstantě <span data-tex="E"></span>. Odtud <span data-tex="f = \mathrm{e}^{-\mathrm{i}Et/\hbar}"></span> a stacionární rovnice pro <span data-tex="\phi"></span>. Hustota pravděpodobnosti na čase nezávisí, <span data-tex="E"></span> je energie stavu a <span data-tex="\phi"></span> je normovaná, kdykoli je normovaná <span data-tex="\psi"></span>. <span class="cf-ref">(Dub 3.1.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Time evolution from stationary states</span><span lang="cs">Časový vývoj pomocí stacionárních stavů</span></span>
+                        <span class="cf-eq" data-tex="\psi(x, 0) = \sum_nc_n\phi_n(x)"></span>
+                        <span class="cf-eq" data-tex="\psi(x, t) = \sum_nc_n\phi_n(x)\,\mathrm{e}^{-\frac{\mathrm{i}}{\hbar}E_nt}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The recipe for any initial state: it is expanded in the eigenfunctions of the stationary equation, <span data-tex="\hat H\phi_n = E_n\phi_n"></span>, and each term receives its own phase factor. The coefficients <span data-tex="c_n"></span> do not change in magnitude, only in phase; what evolves is the interference between the terms. The expansion is possible because the eigenfunctions form a complete set (chapter 06). <span class="cf-ref">(Dub 4.2, 4.3.4)</span></span>
+                        <span lang="cs">Postup pro libovolný počáteční stav: rozloží se do vlastních funkcí stacionární rovnice, <span data-tex="\hat H\phi_n = E_n\phi_n"></span>, a každý člen dostane svůj fázový faktor. Koeficienty <span data-tex="c_n"></span> se nemění co do velikosti, jen ve fázi; vyvíjí se interference mezi členy. Rozklad je možný proto, že vlastní funkce tvoří úplný systém (kapitola 06). <span class="cf-ref">(Dub 4.2, 4.3.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two stationary states</span><span lang="cs">Dva stacionární stavy</span></span>
+                        <span class="cf-eq" data-tex="|\psi|^2 = |c_1\phi_1|^2 + |c_2\phi_2|^2"></span>
+                        <span class="cf-eq" data-tex="\qquad+\;2\,\mathrm{Re}\big(c_1^*c_2\,\phi_1^*\phi_2\,\mathrm{e}^{-\frac{\mathrm{i}}{\hbar}(E_2 - E_1)t}\big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A superposition of two stationary states is not stationary. Its density consists of a static part and an interference term oscillating with the angular frequency <span data-tex="\omega = (E_2 - E_1)/\hbar"></span> — the frequency of the photon emitted in a jump between the two levels. In the infinitely deep well of chapter 05, with real <span data-tex="c_1"></span> and <span data-tex="c_2"></span>, the density of the two lowest states sloshes from one half of the well to the other.</span>
+                        <span lang="cs">Superpozice dvou stacionárních stavů stacionární není. Její hustota se skládá ze statické části a z interferenčního členu, který kmitá s úhlovou frekvencí <span data-tex="\omega = (E_2 - E_1)/\hbar"></span> — s frekvencí fotonu vyzářeného při přechodu mezi oběma hladinami. V nekonečně hluboké jámě kapitoly 05 se při reálných <span data-tex="c_1"></span> a <span data-tex="c_2"></span> hustota dvou nejnižších stavů přelévá z jedné poloviny jámy do druhé.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Continuity equation</span><span lang="cs">Rovnice kontinuity</span></span>
+                        <span class="cf-eq" data-tex="\dfrac{\partial w}{\partial t} + \nabla\cdot\vec j = 0,\qquad w = |\psi|^2"></span>
+                        <span class="cf-eq" data-tex="\vec j = \dfrac{\hbar}{2m\mathrm{i}}\big(\psi^*\nabla\psi - \psi\nabla\psi^*\big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Multiplying the Schrödinger equation by <span data-tex="\psi^*"></span> and its complex conjugate by <span data-tex="\psi"></span> and subtracting — the real potential drops out — gives a local conservation law of the same form as for charge in electrodynamics. <span data-tex="\vec j"></span> is the <em>probability current density</em>: the probability in a volume changes only by what flows through its boundary, and in particular the normalisation of <span data-tex="\psi"></span> is preserved in time. For a de Broglie wave <span data-tex="\vec j = (\vec p/m)|C|^2"></span>, density times velocity. <span class="cf-ref">(Dub 3.2)</span></span>
+                        <span lang="cs">Vynásobením Schrödingerovy rovnice funkcí <span data-tex="\psi^*"></span>, rovnice komplexně sdružené funkcí <span data-tex="\psi"></span> a odečtením — reálný potenciál vypadne — vznikne lokální zákon zachování stejného tvaru jako pro náboj v elektrodynamice. <span data-tex="\vec j"></span> je <em>hustota toku pravděpodobnosti</em>: pravděpodobnost v objemu se mění jen o to, co proteče jeho hranicí, a zejména se s časem zachovává normalizace <span data-tex="\psi"></span>. Pro de Broglieho vlnu je <span data-tex="\vec j = (\vec p/m)|C|^2"></span>, hustota krát rychlost. <span class="cf-ref">(Dub 3.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">One dimension: the matching conditions</span><span lang="cs">Jeden rozměr: podmínky navázání</span></span>
+                        <span class="cf-eq" data-tex="\dfrac{\mathrm{d}^2\phi}{\mathrm{d}x^2} + \dfrac{2m}{\hbar^2}\big[E - V(x)\big]\phi = 0"></span>
+                        <span class="cf-eq" data-tex="\phi&#x27;(x) = \phi&#x27;(x_0) - \dfrac{2m}{\hbar^2}\int_{x_0}^{x}\big[E - V\big]\phi\,\mathrm{d}\xi"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In one dimension the stationary equation is an ordinary differential equation. Integrating it once shows why the first derivative must be continuous: an integral is continuous even if its integrand has finite jumps. Where the potential has a finite step, <span data-tex="\phi"></span> and <span data-tex="\phi&#x27;"></span> are therefore both continuous; where the step is infinite, only <span data-tex="\phi"></span> is. Rectangular potentials, which change by steps, approximate smooth ones well when the region in which the real potential changes is small compared with the de Broglie wavelength. <span class="cf-ref">(Dub 3.3.1)</span></span>
+                        <span lang="cs">V jednom rozměru je stacionární rovnice obyčejnou diferenciální rovnicí. Její integrace ukazuje, proč musí být první derivace spojitá: integrál je spojitý, i když integrand má konečné skoky. Kde má potenciál konečný skok, jsou proto spojité <span data-tex="\phi"></span> i <span data-tex="\phi&#x27;"></span>; kde je skok nekonečný, jen <span data-tex="\phi"></span>. Pravoúhlé potenciály, které se mění skokem, dobře aproximují hladké potenciály, pokud je oblast, v níž se skutečný potenciál mění, malá ve srovnání s de Broglieho vlnovou délkou. <span class="cf-ref">(Dub 3.3.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Bound and scattering states</span><span lang="cs">Vázané a rozptylové stavy</span></span>
+                        <span class="cf-eq" data-tex="\phi_n(x) \to 0,\quad x \to \pm\infty"></span>
+                        <span class="cf-eq" data-tex="\int_{-\infty}^{\infty}|\phi_n|^2\,\mathrm{d}x = 1,\qquad E = E_1, E_2, \dots"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A classical particle cannot enter a region where <span data-tex="V &gt; E"></span>; it turns back at the turning points, and between two of them it oscillates in a bound state. Quantum-mechanically the wave function oscillates where <span data-tex="E &gt; V"></span> and grows or decays exponentially where <span data-tex="E &lt; V"></span>. A <em>bound state</em> must decay on both sides, which is possible only for particular energies: its spectrum is discrete and its wave function can be normalised. A <em>scattering state</em> reaches infinity, exists for every energy in a continuous range and cannot be normalised to one. <span class="cf-ref">(Dub 3.3.1, 3.4.3)</span></span>
+                        <span lang="cs">Klasická částice nemůže vniknout do oblasti, kde <span data-tex="V &gt; E"></span>; v bodech obratu se vrací a mezi dvěma z nich kmitá ve vázaném stavu. Kvantově vlnová funkce osciluje tam, kde <span data-tex="E &gt; V"></span>, a exponenciálně roste nebo klesá tam, kde <span data-tex="E &lt; V"></span>. <em>Vázaný stav</em> musí na obou stranách ubývat, což je možné jen pro určité energie: jeho spektrum je diskrétní a vlnovou funkci lze normovat. <em>Rozptylový stav</em> sahá do nekonečna, existuje pro každou energii ze spojitého intervalu a k jedné jej normovat nelze. <span class="cf-ref">(Dub 3.3.1, 3.4.3)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="quantum-mechanics-02.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">02 · <span lang="en">The wave function and the uncertainty relations</span><span lang="cs">Vlnová funkce a relace neurčitosti</span></div>
+        </a>
+        <a href="quantum-mechanics-04.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">04 · <span lang="en">Potential step, barrier and the tunnel effect</span><span lang="cs">Potenciálový schod, bariéra a tunelový jev</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="stat-quantum.html#quantum">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

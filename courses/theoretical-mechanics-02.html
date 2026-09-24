@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>02 Constraints and generalized coordinates · Theoretical Mechanics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="theoretical-mechanics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Theoretical Mechanics</span><span lang="cs">Teoretická mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="theoretical-mechanics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 02 · Kalousek 1.5</span><span lang="cs">Kapitola 02 · Kalousek 1.5</span></div>
+            <h1><span lang="en">Constraints and generalized coordinates</span><span lang="cs">Vazby a zobecněné souřadnice</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\vec N\cdot\mathrm{d}\vec r = 0"></div>
+            <div class="eq-caption"><span lang="en">A constraint force does no work on a displacement the constraint allows</span><span lang="cs">Vazbová síla nekoná práci při posunutí, které vazba dovoluje</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">A bead threaded on a fixed wire moves under its weight and under the normal force of the wire. The weight is known in advance; the normal force is not — it adjusts itself, depending on the speed of the bead, so that the bead never leaves the wire, and it cannot be written as the gradient of any potential energy. Forces known beforehand as functions of positions (and possibly velocities) are <em>applied forces</em>; the forces with which a constraint enforces a geometric condition are <em>constraint forces</em>. The course is restricted to <em>holonomic</em> constraints, which impose conditions on positions only.</span><span lang="cs">Kulička navlečená na pevný drát se pohybuje působením své tíhy a normálové síly drátu. Tíhová síla je známa předem, normálová nikoli — přizpůsobuje se v závislosti na rychlosti kuličky tak, aby kulička drát nikdy neopustila, a nelze ji zapsat jako gradient žádné potenciální energie. Síly známé předem jako funkce poloh (případně rychlostí) jsou <em>vtištěné síly</em>, síly, kterými vazba vynucuje geometrickou podmínku, jsou <em>vazbové síly</em>. Kurz se omezuje na <em>holonomní vazby</em>, které kladou podmínky pouze na polohy.</span></p>
+                <p><span lang="en">The way out is geometric. A constrained particle is described by the parameters of the curve or surface it is bound to — the <em>generalized coordinates</em> <span data-tex="q_j"></span>. Every Cartesian equation of motion is multiplied by the matching component of a displacement the constraint allows, and the equations are added; the constraint force is perpendicular to every such displacement and drops out. What remains is one equation for each generalized coordinate, containing only the applied forces. Every constraint lowers the number of independent coordinates, and the number that remains, <span data-tex="M"></span>, is the number of <em>degrees of freedom</em>.</span><span lang="cs">Východisko je geometrické. Vázaná částice se popíše parametry křivky nebo plochy, na niž je vázána — <em>zobecněnými souřadnicemi</em> <span data-tex="q_j"></span>. Každá kartézská pohybová rovnice se vynásobí příslušnou složkou posunutí, které vazba dovoluje, a rovnice se sečtou; vazbová síla je ke každému takovému posunutí kolmá, a proto vypadne. Zůstane jedna rovnice pro každou zobecněnou souřadnici, v níž vystupují jen vtištěné síly. Každá vazba sníží počet nezávislých souřadnic a počet, který zbude, <span data-tex="M"></span>, je počet <em>stupňů volnosti</em>.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="x_i = x_i(q_1,\dots,q_M,t)"></span>
+                        <span class="ck-eq" data-tex="\sum_{i=1}^{3N}m_i\ddot x_i\,\dfrac{\partial x_i}{\partial q_j} = -\dfrac{\partial V}{\partial q_j} \equiv Q_j"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The transformation equations express all <span data-tex="3N"></span> Cartesian coordinates through the <span data-tex="M"></span> generalized coordinates in agreement with the constraints; if the curves and surfaces move, time enters explicitly. The second relation is the equation of motion with the constraint forces eliminated, one for each <span data-tex="j = 1, \dots, M"></span>. Its right side is the <em>generalized force</em> <span data-tex="Q_j"></span>, the effect of the applied forces in the direction of <span data-tex="q_j"></span>; its unit depends on the unit of <span data-tex="q_j"></span> — for an angle it is a torque.</span><span lang="cs">Transformační vztahy vyjadřují všech <span data-tex="3N"></span> kartézských souřadnic pomocí <span data-tex="M"></span> zobecněných souřadnic ve shodě s vazbami; pohybují-li se křivky a plochy, vystupuje v nich explicitně čas. Druhý vztah je pohybová rovnice s vyloučenými vazbovými silami, jedna pro každé <span data-tex="j = 1, \dots, M"></span>. Pravá strana je <em>zobecněná síla</em> <span data-tex="Q_j"></span>, působení vtištěných sil ve směru <span data-tex="q_j"></span>; její jednotka závisí na jednotce <span data-tex="q_j"></span> — pro úhel je to moment síly.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Applied and constraint forces</span><span lang="cs">Vtištěné a vazbové síly</span></span>
+                        <span class="cf-eq" data-tex="m\ddot x_i = G_i + N_i"></span>
+                        <span class="cf-eq" data-tex="G_i = -\dfrac{\partial V}{\partial x_i}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The bead on a frictionless wire: <span data-tex="\vec G"></span> is the applied force (here the weight), <span data-tex="\vec N"></span> the normal force of the wire. Without a potential energy for <span data-tex="\vec N"></span> the Cartesian Lagrangian cannot be written, and the constraint force is an unknown that follows only from the motion itself. A string or a surface pushes on one side only — a <em>unilateral</em> constraint — so a solution has to be checked for the sign of the force it requires. <span class="cf-ref">(Kalousek 1.5.1)</span></span>
+                        <span lang="cs">Kulička na drátu bez tření: <span data-tex="\vec G"></span> je vtištěná síla (zde tíhová), <span data-tex="\vec N"></span> normálová síla drátu. Bez potenciální energie pro <span data-tex="\vec N"></span> nelze kartézskou Lagrangeovu funkci sestavit a vazbová síla je neznámou, která vyplyne teprve z pohybu. Lanko nebo plocha působí jen z jedné strany — jde o <em>jednostrannou</em> vazbu — a u řešení je proto třeba ověřit znaménko síly, kterou vyžaduje. <span class="cf-ref">(Kalousek 1.5.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A particle on a curve</span><span lang="cs">Částice vázaná na křivku</span></span>
+                        <span class="cf-eq" data-tex="x_i = x_i(q),\qquad \mathrm{d}x_i = \dfrac{\mathrm{d}x_i}{\mathrm{d}q}\,\mathrm{d}q"></span>
+                        <span class="cf-eq" data-tex="\sum_{i=1}^{3}m\ddot x_i\,\dfrac{\mathrm{d}x_i}{\mathrm{d}q} = -\dfrac{\mathrm{d}V}{\mathrm{d}q}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The curve is given parametrically and its parameter <span data-tex="q"></span> becomes the generalized coordinate. Multiplying the three Cartesian equations by <span data-tex="\mathrm{d}x_i"></span> and adding them produces <span data-tex="\vec N\cdot\mathrm{d}\vec r = 0"></span>, since the displacement is tangent to the wire and the normal force perpendicular to it. Three coordinates are replaced by one: a curve takes away two degrees of freedom. <span class="cf-ref">(Kalousek 1.5.2)</span></span>
+                        <span lang="cs">Křivka je zadána parametricky a její parametr <span data-tex="q"></span> se stává zobecněnou souřadnicí. Vynásobením tří kartézských rovnic složkami <span data-tex="\mathrm{d}x_i"></span> a jejich sečtením vznikne <span data-tex="\vec N\cdot\mathrm{d}\vec r = 0"></span>, neboť posunutí je k drátu tečné a normálová síla k němu kolmá. Tři souřadnice nahradí jediná: vazba na křivku odebere dva stupně volnosti. <span class="cf-ref">(Kalousek 1.5.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The pendulum</span><span lang="cs">Matematické kyvadlo</span></span>
+                        <span class="cf-eq" data-tex="x_1 = l\sin\theta,\qquad x_2 = -l\cos\theta"></span>
+                        <span class="cf-eq" data-tex="Q = -\dfrac{\mathrm{d}V}{\mathrm{d}\theta} = -mgl\sin\theta"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With the <span data-tex="x_2"></span> axis pointing up, <span data-tex="V = mgx_2 = -mgl\cos\theta"></span>. The generalized force belonging to the angle is the <span data-tex="x_3"></span> component of the torque of the weight about the point of suspension, in N·m. A change <span data-tex="\mathrm{d}\theta"></span> moves the bob along an arc of length <span data-tex="l\,\mathrm{d}\theta"></span>, perpendicular to the string, so the tension drops out just as the normal force did. <span class="cf-ref">(Kalousek 1.5.2)</span></span>
+                        <span lang="cs">Při ose <span data-tex="x_2"></span> mířící vzhůru je <span data-tex="V = mgx_2 = -mgl\cos\theta"></span>. Zobecněná síla příslušná úhlu je složka momentu tíhové síly vzhledem k bodu závěsu do osy <span data-tex="x_3"></span>, v jednotkách N·m. Změna <span data-tex="\mathrm{d}\theta"></span> posune závaží po oblouku délky <span data-tex="l\,\mathrm{d}\theta"></span> kolmo k lanku, takže tahová síla vypadne stejně jako předtím normálová. <span class="cf-ref">(Kalousek 1.5.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A particle on a surface</span><span lang="cs">Částice vázaná na plochu</span></span>
+                        <span class="cf-eq" data-tex="x_i = x_i(q_1,q_2)"></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}\vec r = \dfrac{\partial\vec r}{\partial q_1}\,\mathrm{d}q_1 + \dfrac{\partial\vec r}{\partial q_2}\,\mathrm{d}q_2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A surface needs two independent parameters, and a displacement along it splits into two vectors tangent to it, both perpendicular to the normal force. Because <span data-tex="\mathrm{d}q_1"></span> and <span data-tex="\mathrm{d}q_2"></span> are independent, their coefficients must vanish separately: two equations of motion, with <span data-tex="Q_1 = -\partial V/\partial q_1"></span> and <span data-tex="Q_2 = -\partial V/\partial q_2"></span>. A surface takes away one degree of freedom. For a charged body on a cone with a fixed charge at its apex, <span data-tex="q_1 = r"></span> and <span data-tex="q_2 = \varphi"></span>, and <span data-tex="Q_\varphi = 0"></span>, since neither the weight nor the electric force has a component along a circle about the axis. <span class="cf-ref">(Kalousek 1.5.3)</span></span>
+                        <span lang="cs">Plocha potřebuje dva nezávislé parametry a posunutí po ní se rozloží na dva vektory k ní tečné, oba kolmé k normálové síle. Protože <span data-tex="\mathrm{d}q_1"></span> a <span data-tex="\mathrm{d}q_2"></span> jsou nezávislé, musejí být nulové jejich koeficienty každý zvlášť: vzniknou dvě pohybové rovnice se zobecněnými silami <span data-tex="Q_1 = -\partial V/\partial q_1"></span> a <span data-tex="Q_2 = -\partial V/\partial q_2"></span>. Vazba na plochu odebere jeden stupeň volnosti. Pro nabité tělísko na kuželové ploše s pevným nábojem ve vrcholu je <span data-tex="q_1 = r"></span>, <span data-tex="q_2 = \varphi"></span> a <span data-tex="Q_\varphi = 0"></span>, protože tíhová ani elektrická síla nemá průmět do směru kružnice kolem osy. <span class="cf-ref">(Kalousek 1.5.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two particles bound together</span><span lang="cs">Dvě částice vázané k sobě</span></span>
+                        <span class="cf-eq" data-tex="\vec r_2 = \vec r_1 + \vec r\,{}&#x27;(q_4,q_5)"></span>
+                        <span class="cf-eq" data-tex="|\vec r_2 - \vec r_1| = l"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Particle 2 moves on a surface that travels with particle 1 — a sphere of radius <span data-tex="l"></span> for two particles at the ends of a light rigid rod. The first three generalized coordinates are the Cartesian coordinates of particle 1, the other two parametrise the surface. A common displacement of both particles cancels the pair <span data-tex="\vec N_1 = -\vec N_2"></span> as internal forces; a displacement of particle 2 along the surface is perpendicular to <span data-tex="\vec N_2"></span>. The constraint forces drop out even though the surface may accelerate, and six coordinates become five. <span class="cf-ref">(Kalousek 1.5.4)</span></span>
+                        <span lang="cs">Částice 2 se pohybuje po ploše, která se posouvá spolu s částicí 1 — pro dvě částice na koncích nehmotné tuhé tyče je to kulová plocha o poloměru <span data-tex="l"></span>. První tři zobecněné souřadnice jsou kartézské souřadnice částice 1, zbylé dvě parametrizují plochu. Při společném posunutí obou částic se dvojice <span data-tex="\vec N_1 = -\vec N_2"></span> jako vnitřní síly vyruší; posunutí částice 2 po ploše je k <span data-tex="\vec N_2"></span> kolmé. Vazbové síly vypadnou, přestože se plocha může pohybovat se zrychlením, a ze šesti souřadnic zbude pět. <span class="cf-ref">(Kalousek 1.5.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Counting degrees of freedom</span><span lang="cs">Počet stupňů volnosti</span></span>
+                        <span class="cf-eq" data-tex="x_4 = x_1 + l\sin\theta,\qquad x_5 = -l\cos\theta"></span>
+                        <span class="cf-eq" data-tex="V(x_1,\theta) = \dfrac{1}{2}kx_1^2 - mgl\cos\theta"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Each particle bound to a curve loses two of its three degrees of freedom, each bound to a surface loses one, and the losses from several holonomic constraints add up. A body sliding along a line on a spring of stiffness <span data-tex="k"></span>, with a pendulum of mass <span data-tex="m"></span> and length <span data-tex="l"></span> hanging from it: <span data-tex="3N = 6"></span>, minus two for the line and two for the circle about the body, leaves two degrees of freedom, <span data-tex="x_1"></span> and <span data-tex="\theta"></span>. The tension of the string does not appear anywhere. <span class="cf-ref">(Kalousek 1.5.4)</span></span>
+                        <span lang="cs">Každá částice vázaná na křivku ztratí dva ze svých tří stupňů volnosti, každá vázaná na plochu jeden, a úbytky od několika holonomních vazeb se sčítají. Těleso klouzající po přímce na pružině o tuhosti <span data-tex="k"></span>, na němž visí kyvadlo o hmotnosti <span data-tex="m"></span> a délce <span data-tex="l"></span>: z <span data-tex="3N = 6"></span> se odečtou dva za přímku a dva za kružnici kolem tělesa, takže zbudou dva stupně volnosti, <span data-tex="x_1"></span> a <span data-tex="\theta"></span>. Tahová síla lanka se nikde neobjeví. <span class="cf-ref">(Kalousek 1.5.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Generalized velocities</span><span lang="cs">Zobecněné rychlosti</span></span>
+                        <span class="cf-eq" data-tex="\dot q_j = \dfrac{\mathrm{d}q_j}{\mathrm{d}t},\qquad j = 1,\dots,M"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">They say how fast the system moves in the direction of <span data-tex="q_j"></span> that the constraints allow; together with the initial values <span data-tex="q_j(0)"></span> and <span data-tex="\dot q_j(0)"></span> they fix the motion. The equations of this chapter still contain the Cartesian accelerations <span data-tex="\ddot x_i"></span>; rewriting them entirely in <span data-tex="q_j"></span> and <span data-tex="\dot q_j"></span> is the subject of chapter 03. <span class="cf-ref">(Kalousek 1.6)</span></span>
+                        <span lang="cs">Udávají, jak rychle se soustava pohybuje ve směru souřadnice <span data-tex="q_j"></span>, který vazby dovolují; spolu s počátečními hodnotami <span data-tex="q_j(0)"></span> a <span data-tex="\dot q_j(0)"></span> pohyb jednoznačně určují. Rovnice této kapitoly ještě obsahují kartézská zrychlení <span data-tex="\ddot x_i"></span>; jejich přepis výhradně do <span data-tex="q_j"></span> a <span data-tex="\dot q_j"></span> je náplní kapitoly 03. <span class="cf-ref">(Kalousek 1.6)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="theoretical-mechanics-01.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">01 · <span lang="en">The mechanical system and its equations of motion</span><span lang="cs">Mechanická soustava a její pohybové rovnice</span></div>
+        </a>
+        <a href="theoretical-mechanics-03.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">03 · <span lang="en">The Euler–Lagrange equations</span><span lang="cs">Eulerovy–Lagrangeovy rovnice</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="theoretical-mechanics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Theoretical Mechanics</span><span lang="cs">Teoretická mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Theoretical Mechanics</span><span lang="cs">Teoretická mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

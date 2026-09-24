@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>09 The Boltzmann transport equation · Statistical physics and thermodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="stat-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Statistical physics and thermodynamics</span><span lang="cs">Statistická fyzika a termodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="stat-quantum.html#statistical"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Statistical physics 09 · Appendix</span><span lang="cs">Statistická fyzika 09 · Dodatek</span></div>
+            <h1><span lang="en">The Boltzmann transport equation</span><span lang="cs">Boltzmannova kinetická rovnice</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\sigma = \dfrac{e^2n\,\tau(\epsilon_{\mathrm F})}{m}"></div>
+            <div class="eq-caption"><span lang="en">The conductivity of a metal, set by the electrons at the Fermi surface</span><span lang="cs">Konduktivita kovu, určená elektrony na Fermiho ploše</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Equilibrium statistical physics says nothing about how a system responds when a field or a gradient drives it out of equilibrium — how a current flows or how particles diffuse. The Boltzmann transport equation, also called the kinetic equation, follows the distribution function of the particles in phase space: it balances the drift of the particles, due to their motion and to external forces, against the change caused by collisions, and so determines the distribution function once equilibrium is disturbed.</span><span lang="cs">Rovnovážná statistická fyzika neříká nic o tom, jak soustava odpoví, vychýlí-li ji z rovnováhy pole nebo gradient — jak teče proud nebo jak difundují částice. Boltzmannova kinetická rovnice, zvaná též transportní, sleduje rozdělovací funkci částic ve fázovém prostoru: vyvažuje unášení částic jejich pohybem a vnějšími silami proti změnám způsobeným srážkami, a určuje tak rozdělovací funkci, dojde-li k narušení rovnováhy.</span></p>
+                <p><span lang="en">The equation belongs to classical statistical mechanics, yet it describes many quantum systems well — electrons in metals among them — and can be derived, with a number of approximations, from the quantum Kubo–Greenwood formula. It fails in very strong fields and in strongly inhomogeneous systems, and ballistic transport in mesoscopic systems lies beyond it. The appendix solves it in the simplest setting: a weak static electric field in a homogeneous metal, with collisions described in the relaxation-time approximation.</span><span lang="cs">Rovnice patří do klasické statistické mechaniky, přesto dobře popisuje řadu kvantových soustav — mimo jiné elektrony v kovech — a lze ji s řadou aproximací odvodit z kvantové Kubovy–Greenwoodovy formule. Selhává ve velmi silných polích a v silně nehomogenních soustavách a balistický transport v mezoskopických soustavách leží za jejími hranicemi. Dodatek ji řeší v nejjednodušší situaci: slabé stacionární elektrické pole v homogenním kovu a srážky popsané v aproximaci relaxační doby.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\dfrac{\partial f}{\partial t} + \dfrac{\mathrm{d}\vec r}{\mathrm{d}t}\cdot\dfrac{\partial f}{\partial\vec r} + \dfrac{\mathrm{d}\vec v}{\mathrm{d}t}\cdot\dfrac{\partial f}{\partial\vec v} = \Big(\dfrac{\partial f}{\partial t}\Big)_{\mathrm{coll}}"></span>
+                        <span class="ck-eq" data-tex="\Big(\dfrac{\partial f}{\partial t}\Big)_{\mathrm{coll}} = -\dfrac{f - f_0}{\tau}"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The left-hand side is the rate of change of the distribution function <span data-tex="f(t, \vec r, \vec v)"></span> along the path of a particle in phase space: explicit time dependence, streaming with the velocity <span data-tex="\mathrm{d}\vec r/\mathrm{d}t = \vec v"></span>, and acceleration by external forces. Without collisions it vanishes; collisions make it equal to the rate at which they change <span data-tex="f"></span>. The second relation, the relaxation-time approximation, replaces that rate by a relaxation towards the equilibrium distribution <span data-tex="f_0"></span> with a relaxation time <span data-tex="\tau"></span>, which may depend on energy.</span><span lang="cs">Levá strana je rychlost změny rozdělovací funkce <span data-tex="f(t, \vec r, \vec v)"></span> podél dráhy částice ve fázovém prostoru: explicitní časová závislost, unášení rychlostí <span data-tex="\mathrm{d}\vec r/\mathrm{d}t = \vec v"></span> a zrychlení vnějšími silami. Bez srážek je nulová; srážky ji činí rovnou rychlosti, s jakou <span data-tex="f"></span> mění. Druhý vztah, aproximace relaxační doby, nahrazuje tuto rychlost relaxací k rovnovážnému rozdělení <span data-tex="f_0"></span> s relaxační dobou <span data-tex="\tau"></span>, která může záviset na energii.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The distribution function and Liouville’s theorem</span><span lang="cs">Rozdělovací funkce a Liouvillova věta</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{d}N = f(t, \vec r, \vec v)\,\mathrm{d}^3\vec r\,\mathrm{d}^3\vec p"></span>
+                        <span class="cf-eq" data-tex="f(t + \mathrm{d}t, \vec r + \mathrm{d}\vec r, \vec v + \mathrm{d}\vec v) = f(t, \vec r, \vec v)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The classical distribution function counts the particles in an element <span data-tex="\mathrm{d}^3\vec r\,\mathrm{d}^3\vec p"></span> of phase space. Particles that move without colliding carry their phase-space density along unchanged — Liouville’s theorem of classical mechanics, the second relation. Expanding it to first order in <span data-tex="\mathrm{d}t"></span> gives the left-hand side of the Boltzmann equation, with the gradients with respect to position and velocity coming from the shifts <span data-tex="\mathrm{d}\vec r"></span> and <span data-tex="\mathrm{d}\vec v"></span>.</span>
+                        <span lang="cs">Klasická rozdělovací funkce udává počet částic v elementu <span data-tex="\mathrm{d}^3\vec r\,\mathrm{d}^3\vec p"></span> fázového prostoru. Částice, které se pohybují bez srážek, s sebou nesou svou hustotu ve fázovém prostoru beze změny — Liouvillova věta klasické mechaniky, druhý vztah. Jeho rozvoj do prvního řádu v <span data-tex="\mathrm{d}t"></span> dává levou stranu Boltzmannovy rovnice, přičemž gradienty podle polohy a rychlosti vzejdou z posunutí <span data-tex="\mathrm{d}\vec r"></span> a <span data-tex="\mathrm{d}\vec v"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The collision term</span><span lang="cs">Srážkový člen</span></span>
+                        <span class="cf-eq" data-tex="\Big(\dfrac{\partial f}{\partial t}\Big)_{\mathrm{coll}} = \int f(\vec v\,{}&#x27;)\,W(\vec v\,{}&#x27;, \vec v)\,\dfrac{\mathrm{d}^3\vec p\,{}&#x27;}{h^3}"></span>
+                        <span class="cf-eq" data-tex="\qquad-\;\int f(\vec v)\,W(\vec v, \vec v\,{}&#x27;)\,\dfrac{\mathrm{d}^3\vec p\,{}&#x27;}{h^3}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en"><span data-tex="W(\vec v, \vec v\,{}&#x27;)"></span> is the probability per unit time that a particle passes from the state <span data-tex="\vec v"></span> to the state <span data-tex="\vec v\,{}&#x27;"></span>. The first term counts the particles scattered into <span data-tex="\vec v"></span>, the second those scattered out of it. With it the Boltzmann equation becomes a complicated integro-differential equation.</span>
+                        <span lang="cs"><span data-tex="W(\vec v, \vec v\,{}&#x27;)"></span> je pravděpodobnost, že částice za jednotku času přejde ze stavu <span data-tex="\vec v"></span> do stavu <span data-tex="\vec v\,{}&#x27;"></span>. První člen počítá částice rozptýlené do stavu <span data-tex="\vec v"></span>, druhý částice z něj rozptýlené. S ním se Boltzmannova rovnice stává složitou integrodiferenciální rovnicí.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The relaxation-time approximation</span><span lang="cs">Aproximace relaxační doby</span></span>
+                        <span class="cf-eq" data-tex="(f - f_0)(t) = (f - f_0)(0)\,\mathrm{e}^{-t/\tau}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In many situations the collision term can be simplified considerably, replaced by a relaxation towards equilibrium. Switching the disturbance off shows what <span data-tex="\tau"></span> means: the deviation from equilibrium decays exponentially and the system returns to equilibrium, “as a capacitor discharges”. Justifying the approximation for a particular kind of collision is far from simple, and so is finding how <span data-tex="\tau"></span> depends on the velocity or the energy of the particles.</span>
+                        <span lang="cs">V řadě situací lze srážkový člen podstatně zjednodušit a nahradit relaxací k rovnováze. Vypnutí poruchy ukazuje, co <span data-tex="\tau"></span> znamená: odchylka od rovnováhy exponenciálně ubývá a soustava se vrací do rovnovážného stavu, „jako se vybíjí kondenzátor“. Zdůvodnit tuto aproximaci pro konkrétní druh srážek není vůbec jednoduché a stejně obtížné je najít, jak <span data-tex="\tau"></span> závisí na rychlosti nebo energii částic.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A weak field in the steady state</span><span lang="cs">Slabé pole v ustáleném stavu</span></span>
+                        <span class="cf-eq" data-tex="\dfrac{\mathrm{d}\vec v}{\mathrm{d}t} = -\dfrac{e}{m}\,\mathcal E\,\hat x,\qquad f = f_0 + f_1"></span>
+                        <span class="cf-eq" data-tex="f_1 = \dfrac{e}{m}\,\mathcal E\tau\,\dfrac{\partial f_0}{\partial v_x}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">An electron gas in a homogeneous, time-independent electric field <span data-tex="\mathcal E"></span> along <span data-tex="x"></span>: in the steady state <span data-tex="\partial f/\partial t = 0"></span>, homogeneity at constant temperature removes <span data-tex="\partial f/\partial\vec r"></span>, and the equation reduces to <span data-tex="-(e\mathcal E/m)\,\partial f/\partial v_x = -(f - f_0)/\tau"></span>. For a weak field the deviation <span data-tex="f_1"></span> is small, and the first iteration — <span data-tex="f_0"></span> in place of <span data-tex="f"></span> on the left — gives it directly.</span>
+                        <span lang="cs">Elektronový plyn v homogenním, časově neměnném elektrickém poli <span data-tex="\mathcal E"></span> ve směru <span data-tex="x"></span>: v ustáleném stavu je <span data-tex="\partial f/\partial t = 0"></span>, homogenita při konstantní teplotě odstraní <span data-tex="\partial f/\partial\vec r"></span> a rovnice se zredukuje na <span data-tex="-(e\mathcal E/m)\,\partial f/\partial v_x = -(f - f_0)/\tau"></span>. Ve slabém poli je odchylka <span data-tex="f_1"></span> malá a první iterace — <span data-tex="f_0"></span> místo <span data-tex="f"></span> na levé straně — ji dává přímo.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Current density and conductivity</span><span lang="cs">Proudová hustota a konduktivita</span></span>
+                        <span class="cf-eq" data-tex="j_x = 2\int(-e)\,v_xf\,\dfrac{\mathrm{d}^3\vec p}{h^3}"></span>
+                        <span class="cf-eq" data-tex="\sigma = -\dfrac{2e^2}{h^3}\int v_x^2\,\tau(\epsilon)\,\dfrac{\partial f_0}{\partial\epsilon}\,\mathrm{d}^3\vec p"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The factor 2 counts the spin orientations and <span data-tex="\mathrm{d}^3\vec p/h^3"></span> the electron states per unit volume. The equilibrium part <span data-tex="f_0"></span> is even in <span data-tex="v_x"></span> and carries no current; the current comes from <span data-tex="f_1"></span>, with <span data-tex="\partial f_0/\partial v_x = mv_x\,\partial f_0/\partial\epsilon"></span>. Because <span data-tex="f_0"></span> decreases with energy, the conductivity <span data-tex="\sigma = j_x/\mathcal E"></span> is positive.</span>
+                        <span lang="cs">Činitel 2 započítává obě orientace spinu a <span data-tex="\mathrm{d}^3\vec p/h^3"></span> počet elektronových stavů v jednotkovém objemu. Rovnovážná část <span data-tex="f_0"></span> je v <span data-tex="v_x"></span> sudá a proud nenese; proud pochází od <span data-tex="f_1"></span>, přičemž <span data-tex="\partial f_0/\partial v_x = mv_x\,\partial f_0/\partial\epsilon"></span>. Protože <span data-tex="f_0"></span> s energií klesá, je konduktivita <span data-tex="\sigma = j_x/\mathcal E"></span> kladná.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The conductivity of metals</span><span lang="cs">Konduktivita kovů</span></span>
+                        <span class="cf-eq" data-tex="-\dfrac{\partial f_{\mathrm{FD}}}{\partial\epsilon} \approx \delta(\epsilon - \epsilon_{\mathrm F})"></span>
+                        <span class="cf-eq" data-tex="\sigma = \dfrac{e^2n\,\tau(\epsilon_{\mathrm F})}{m},\qquad \epsilon_{\mathrm F} = \dfrac{\hbar^2}{2m}(3\pi^2n)^{2/3}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In a metal <span data-tex="f_0"></span> is the Fermi–Dirac distribution, a step smeared over <span data-tex="k_{\mathrm B}T \ll \epsilon_{\mathrm F}"></span>, whose derivative acts as a delta function at the Fermi energy. Averaging <span data-tex="v_x^2 \to v^2/3 = 2\epsilon/3m"></span> over directions and expressing <span data-tex="\epsilon_{\mathrm F}"></span> through the electron concentration <span data-tex="n"></span> gives the Drude form known from the introductory course, <span data-tex="j = env_{\mathrm d} = (e^2n\tau/m)\mathcal E"></span> — but with the relaxation time of the electrons at the Fermi surface, and with Planck’s constant cancelled. Only the electrons near the Fermi surface are active, and they determine the properties of a metal: its heat capacity (chapter 05) as well as its conductivity.</span>
+                        <span lang="cs">V kovu je <span data-tex="f_0"></span> Fermiho–Diracovo rozdělení, skok rozmazaný na šířku <span data-tex="k_{\mathrm B}T \ll \epsilon_{\mathrm F}"></span>, jehož derivace působí jako delta funkce v bodě Fermiho energie. Středování <span data-tex="v_x^2 \to v^2/3 = 2\epsilon/3m"></span> přes směry a vyjádření <span data-tex="\epsilon_{\mathrm F}"></span> pomocí koncentrace elektronů <span data-tex="n"></span> dává Drudeův tvar známý ze základního kurzu, <span data-tex="j = env_{\mathrm d} = (e^2n\tau/m)\mathcal E"></span> — avšak s relaxační dobou elektronů na Fermiho ploše a s vykrácenou Planckovou konstantou. Aktivní jsou jen elektrony z okolí Fermiho plochy a ty určují vlastnosti kovu: jeho tepelnou kapacitu (kapitola 05) stejně jako konduktivitu.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="statistical-physics-08.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">08 · <span lang="en">Fluctuations</span><span lang="cs">Fluktuace</span></div>
+        </a>
+        <span class="topic-nav-btn next disabled">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">—</div>
+        </span>
+    </nav>
+
+    <a class="back chapter-back" href="stat-quantum.html#statistical">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Statistical physics and thermodynamics</span><span lang="cs">Statistická fyzika a termodynamika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Statistical physics and thermodynamics</span><span lang="cs">Statistická fyzika a termodynamika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

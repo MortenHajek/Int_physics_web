@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>06 Hilbert space, operators and Dirac notation · Quantum mechanics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="stat-quantum">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="stat-quantum.html#quantum"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Quantum mechanics 06 · Dub 4.1–4.2, 8.7, 8.9</span><span lang="cs">Kvantová mechanika 06 · Dub 4.1–4.2, 8.7, 8.9</span> · Kulhánek 2.2</div>
+            <h1><span lang="en">Hilbert space, operators and Dirac notation</span><span lang="cs">Hilbertův prostor, operátory a Diracova symbolika</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="|\psi\rangle = \sum_nc_n|n\rangle"></div>
+            <div class="eq-caption"><span lang="en">A state is a vector; its components are its amplitudes in a basis</span><span lang="cs">Stav je vektor; jeho složky jsou amplitudy v dané bázi</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">The wave mechanics of the previous chapters is one form of a more general structure. Wave functions can be added and multiplied by complex numbers — the superposition principle — so they form a vector space, and the integral <span data-tex="\int\phi^*\psi\,\mathrm{d}\tau"></span> is a scalar product on it. A complete vector space with a scalar product is a <em>Hilbert space</em>. The course uses two forms of it: the space of square-integrable wave functions <span data-tex="\psi(\vec r)"></span>, and an abstract space of state vectors <span data-tex="|\psi\rangle"></span> isomorphic to it. Dirac’s notation of <em>kets</em> <span data-tex="|\psi\rangle"></span> and <em>bras</em> <span data-tex="\langle\phi|"></span> works in both, and also in spaces with no functions behind them, such as the space of spin.</span><span lang="cs">Vlnová mechanika předchozích kapitol je jednou podobou obecnější struktury. Vlnové funkce lze sčítat a násobit komplexními čísly — to je princip superpozice — tvoří tedy vektorový prostor a integrál <span data-tex="\int\phi^*\psi\,\mathrm{d}\tau"></span> je na něm skalárním součinem. Úplný vektorový prostor se skalárním součinem je <em>Hilbertův prostor</em>. Kurz užívá dvě jeho podoby: prostor kvadraticky integrovatelných vlnových funkcí <span data-tex="\psi(\vec r)"></span> a abstraktní prostor stavových vektorů <span data-tex="|\psi\rangle"></span>, který je s ním izomorfní. Diracova symbolika <em>ket-vektorů</em> <span data-tex="|\psi\rangle"></span> a <em>bra-vektorů</em> <span data-tex="\langle\phi|"></span> funguje v obou, a také v prostorech, za nimiž žádné funkce nestojí, jako je prostor spinu.</span></p>
+                <p><span lang="en">Physical quantities act on states as <em>linear operators</em>, and those that represent measurable quantities are <em>Hermitian</em>: their eigenvalues are real and their eigenvectors form a complete orthonormal set. Once a basis is chosen, a state becomes a column of numbers and an operator a matrix, and the stationary Schrödinger equation becomes a matrix eigenvalue problem. The eigenstates of position give back wave mechanics, those of momentum the momentum representation; they are two <em>representations</em> of the same abstract state, which is why Heisenberg’s matrices and Schrödinger’s waves gave the same results.</span><span lang="cs">Fyzikální veličiny působí na stavy jako <em>lineární operátory</em> a ty, které reprezentují měřitelné veličiny, jsou <em>hermitovské</em>: jejich vlastní hodnoty jsou reálné a vlastní vektory tvoří úplný ortonormální systém. Po zvolení báze se ze stavu stane sloupec čísel a z operátoru matice a stacionární Schrödingerova rovnice přejde v maticovou úlohu na vlastní hodnoty. Vlastní stavy polohy vracejí vlnovou mechaniku, vlastní stavy hybnosti dávají hybnostní reprezentaci; jsou to dvě <em>reprezentace</em> téhož abstraktního stavu, a proto Heisenbergovy matice a Schrödingerovy vlny vedly ke stejným výsledkům.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\langle\phi|\psi\rangle = \int\phi^*(\vec r)\,\psi(\vec r)\,\mathrm{d}\tau"></span>
+                        <span class="ck-eq" data-tex="|\psi\rangle = \sum_nc_n|n\rangle,\qquad c_n = \langle n|\psi\rangle"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The scalar product — written <span data-tex="(\phi, \psi)"></span> in the course text and <span data-tex="\langle\phi|\psi\rangle"></span> in Dirac notation — and the expansion of a state in an orthonormal basis, <span data-tex="\langle m|n\rangle = \delta_{mn}"></span>. The coefficient <span data-tex="c_n"></span> is the projection of the state onto the basis vector, in terms of functions <span data-tex="c_n = \int\phi_n^*\psi\,\mathrm{d}\tau"></span>. The state is normalised when <span data-tex="\langle\psi|\psi\rangle = \sum_n|c_n|^2 = 1"></span>, and the scalar product of two states is <span data-tex="\langle\psi|\eta\rangle = \sum_nc_n^*d_n"></span>.</span><span lang="cs">Skalární součin — v textu kurzu zapisovaný <span data-tex="(\phi, \psi)"></span>, v Diracově symbolice <span data-tex="\langle\phi|\psi\rangle"></span> — a rozklad stavu do ortonormální báze, <span data-tex="\langle m|n\rangle = \delta_{mn}"></span>. Koeficient <span data-tex="c_n"></span> je průmět stavu do bázového vektoru, vyjádřeno funkcemi <span data-tex="c_n = \int\phi_n^*\psi\,\mathrm{d}\tau"></span>. Stav je normovaný, platí-li <span data-tex="\langle\psi|\psi\rangle = \sum_n|c_n|^2 = 1"></span>, a skalární součin dvou stavů je <span data-tex="\langle\psi|\eta\rangle = \sum_nc_n^*d_n"></span>.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The scalar product</span><span lang="cs">Skalární součin</span></span>
+                        <span class="cf-eq" data-tex="\langle\phi|\psi\rangle = \langle\psi|\phi\rangle^*"></span>
+                        <span class="cf-eq" data-tex="\langle\phi|c\psi\rangle = c\,\langle\phi|\psi\rangle,\qquad \langle c\phi|\psi\rangle = c^*\langle\phi|\psi\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The product is linear in its second argument and antilinear in the first; <span data-tex="\langle\psi|\psi\rangle"></span> is real and non-negative and vanishes only for the zero vector. Two states with <span data-tex="\langle\phi|\psi\rangle = 0"></span> are <em>orthogonal</em>. For wave functions the product is the integral over all space, which exists when both functions are square-integrable. Plane waves and other states of a continuous spectrum lie outside the space and are normalised to the delta function. <span class="cf-ref">(Dub 4.1, 8.9.2)</span></span>
+                        <span lang="cs">Součin je lineární ve druhém argumentu a antilineární v prvním; <span data-tex="\langle\psi|\psi\rangle"></span> je reálné, nezáporné a nulové jen pro nulový vektor. Dva stavy s <span data-tex="\langle\phi|\psi\rangle = 0"></span> jsou <em>ortogonální</em>. Pro vlnové funkce je součin integrálem přes celý prostor, který existuje, jsou-li obě funkce kvadraticky integrovatelné. Rovinné vlny a jiné stavy spojitého spektra leží mimo prostor a normují se k delta funkci. <span class="cf-ref">(Dub 4.1, 8.9.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Bras and kets</span><span lang="cs">Bra- a ket-vektory</span></span>
+                        <span class="cf-eq" data-tex="c_1|\psi_1\rangle + c_2|\psi_2\rangle\ \leftrightarrow\ c_1^*\langle\psi_1| + c_2^*\langle\psi_2|"></span>
+                        <span class="cf-eq" data-tex="\langle\phi| = \int\phi^*(x)\,\cdots\,\mathrm{d}x"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">To every ket belongs a bra, an element of the dual space, defined so that the bra <span data-tex="\langle\phi|"></span> applied to the ket <span data-tex="|\psi\rangle"></span> gives the number <span data-tex="\langle\phi|\psi\rangle"></span>. The correspondence is antilinear: the coefficients are complex-conjugated. For column vectors the bra is the conjugate transposed row; for functions it is the instruction to multiply by <span data-tex="\phi^*"></span> and integrate, which needs a ket to act on. <span class="cf-ref">(Dub 8.9.2)</span></span>
+                        <span lang="cs">Ke každému ket-vektoru patří bra-vektor, prvek duálního prostoru, definovaný tak, že bra-vektor <span data-tex="\langle\phi|"></span> použitý na ket-vektor <span data-tex="|\psi\rangle"></span> dá číslo <span data-tex="\langle\phi|\psi\rangle"></span>. Přiřazení je antilineární: koeficienty se komplexně sdružují. Pro sloupcové vektory je bra-vektor komplexně sdružený transponovaný řádek; pro funkce je to předpis vynásobit <span data-tex="\phi^*"></span> a integrovat, který potřebuje ket-vektor, na nějž by působil. <span class="cf-ref">(Dub 8.9.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Linear operators and the commutator</span><span lang="cs">Lineární operátory a komutátor</span></span>
+                        <span class="cf-eq" data-tex="\hat A(c_1\psi_1 + c_2\psi_2) = c_1\hat A\psi_1 + c_2\hat A\psi_2"></span>
+                        <span class="cf-eq" data-tex="[\hat A, \hat B] = \hat A\hat B - \hat B\hat A,\qquad [\hat x, \hat p_x] = \mathrm{i}\hbar"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Operators that respect superposition are linear. A product of operators means acting one after the other, from right to left, and the order matters; the commutator measures the difference, <span data-tex="\hat A\hat B = \hat B\hat A + [\hat A, \hat B]"></span>. Acting on a function, <span data-tex="x\,\mathrm{d}/\mathrm{d}x"></span> and <span data-tex="(\mathrm{d}/\mathrm{d}x)\,x"></span> differ by <span data-tex="1"></span>, which with <span data-tex="\hat p_x = -\mathrm{i}\hbar\,\partial/\partial x"></span> gives the canonical commutator. In three dimensions <span data-tex="[\hat q_i, \hat p_j] = \mathrm{i}\hbar\delta_{ij}"></span>, and the coordinates commute among themselves, as do the components of momentum. <span class="cf-ref">(Dub 4.1, 4.3.2)</span></span>
+                        <span lang="cs">Operátory, které zachovávají superpozici, jsou lineární. Součin operátorů znamená postupné působení zprava doleva a na pořadí záleží; rozdíl měří komutátor, <span data-tex="\hat A\hat B = \hat B\hat A + [\hat A, \hat B]"></span>. Na funkci se <span data-tex="x\,\mathrm{d}/\mathrm{d}x"></span> a <span data-tex="(\mathrm{d}/\mathrm{d}x)\,x"></span> liší o <span data-tex="1"></span>, což s <span data-tex="\hat p_x = -\mathrm{i}\hbar\,\partial/\partial x"></span> dává kanonický komutátor. Ve třech rozměrech platí <span data-tex="[\hat q_i, \hat p_j] = \mathrm{i}\hbar\delta_{ij}"></span> a souřadnice spolu komutují, stejně jako složky hybnosti. <span class="cf-ref">(Dub 4.1, 4.3.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Hermitian conjugation</span><span lang="cs">Hermitovské sdružení</span></span>
+                        <span class="cf-eq" data-tex="\langle\eta|\hat A\psi\rangle = \langle\hat A^\dagger\eta|\psi\rangle"></span>
+                        <span class="cf-eq" data-tex="(\hat A\hat B)^\dagger = \hat B^\dagger\hat A^\dagger,\qquad (\lambda\hat A)^\dagger = \lambda^*\hat A^\dagger"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The adjoint <span data-tex="\hat A^\dagger"></span> is what the operator becomes when it is moved from one side of the scalar product to the other; an operator with <span data-tex="\hat A^\dagger = \hat A"></span> is <em>Hermitian</em>. In Dirac notation conjugation turns kets into bras and reverses the order of a product, numbers being complex-conjugated: <span data-tex="\hat A|\psi\rangle \leftrightarrow \langle\psi|\hat A^\dagger"></span> and <span data-tex="\langle\psi|\hat A|\eta\rangle^* = \langle\eta|\hat A^\dagger|\psi\rangle"></span>. Multiplication by <span data-tex="x"></span> is Hermitian, and so is <span data-tex="\hat p_x"></span>, since integration by parts moves the derivative across with a boundary term that vanishes for functions vanishing at infinity. Sums of Hermitian operators, their real multiples and products of <em>commuting</em> Hermitian operators are Hermitian. <span class="cf-ref">(Dub 4.2, 8.7)</span></span>
+                        <span lang="cs">Hermitovsky sdružený operátor <span data-tex="\hat A^\dagger"></span> je to, v co operátor přejde, když se přesune z jedné strany skalárního součinu na druhou; operátor s <span data-tex="\hat A^\dagger = \hat A"></span> je <em>hermitovský</em>. V Diracově symbolice sdružení mění ket-vektory v bra-vektory a obrací pořadí v součinu, přičemž čísla se komplexně sdružují: <span data-tex="\hat A|\psi\rangle \leftrightarrow \langle\psi|\hat A^\dagger"></span> a <span data-tex="\langle\psi|\hat A|\eta\rangle^* = \langle\eta|\hat A^\dagger|\psi\rangle"></span>. Násobení <span data-tex="x"></span> je hermitovské a stejně tak <span data-tex="\hat p_x"></span>, neboť integrace per partes přenese derivaci na druhou funkci s okrajovým členem, který pro funkce mizející v nekonečnu vymizí. Součty hermitovských operátorů, jejich reálné násobky a součiny <em>komutujících</em> hermitovských operátorů jsou hermitovské. <span class="cf-ref">(Dub 4.2, 8.7)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Eigenvalues and the spectrum</span><span lang="cs">Vlastní hodnoty a spektrum</span></span>
+                        <span class="cf-eq" data-tex="\hat A|a_n\rangle = a_n|a_n\rangle,\qquad a_n \in \mathbb{R}"></span>
+                        <span class="cf-eq" data-tex="\langle a_m|a_n\rangle = \delta_{mn}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The <em>spectral theorem</em> for a Hermitian operator: its eigenvalues are real, eigenvectors belonging to different eigenvalues are orthogonal, and all the eigenvectors together form a complete set. The eigenvectors of a degenerate eigenvalue — several for one value — can be orthogonalised among themselves. The eigenvectors may lie in the Hilbert space, forming a <em>discrete spectrum</em> as bound states do, or outside it as improper vectors of a <em>continuous spectrum</em>, like a momentum eigenstate <span data-tex="\mathrm{e}^{\mathrm{i}kx}"></span>; one operator can have both kinds, as the Hamiltonian of hydrogen does. <span class="cf-ref">(Dub 4.1–4.2, 8.7.2)</span></span>
+                        <span lang="cs"><em>Spektrální věta</em> pro hermitovský operátor: jeho vlastní hodnoty jsou reálné, vlastní vektory příslušné různým vlastním hodnotám jsou ortogonální a všechny vlastní vektory dohromady tvoří úplný systém. Vlastní vektory degenerované vlastní hodnoty — více k jedné hodnotě — lze navzájem ortogonalizovat. Vlastní vektory mohou ležet v Hilbertově prostoru a tvořit <em>diskrétní spektrum</em> jako vázané stavy, nebo mimo něj jako nevlastní vektory <em>spojitého spektra</em>, například vlastní stav hybnosti <span data-tex="\mathrm{e}^{\mathrm{i}kx}"></span>; jeden operátor může mít oba druhy, jako hamiltonián atomu vodíku. <span class="cf-ref">(Dub 4.1–4.2, 8.7.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Operators as matrices</span><span lang="cs">Operátory jako matice</span></span>
+                        <span class="cf-eq" data-tex="A_{mn} = \langle m|\hat A|n\rangle = \int\phi_m^*\,\hat A\,\phi_n\,\mathrm{d}\tau"></span>
+                        <span class="cf-eq" data-tex="\sum_nH_{mn}c_n = E\,c_m"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In an orthonormal basis the relation <span data-tex="|\eta\rangle = \hat A|\psi\rangle"></span> becomes <span data-tex="d_m = \sum_nA_{mn}c_n"></span>: the operator is a matrix, <span data-tex="m"></span> being the row and <span data-tex="n"></span> the column index. A Hermitian operator has a Hermitian matrix, <span data-tex="A_{mn} = A_{nm}^*"></span>. Completeness of the basis reads <span data-tex="\sum_n|n\rangle\langle n| = \hat 1"></span>, a sum of projectors onto the basis vectors. The stationary Schrödinger equation <span data-tex="\hat H|\psi\rangle = E|\psi\rangle"></span> becomes the matrix eigenvalue problem in the second line — the basic spectral problem of quantum mechanics, and the form in which it is solved numerically. <span class="cf-ref">(Dub 8.9.4, Kulhánek 2.2.3)</span></span>
+                        <span lang="cs">V ortonormální bázi přejde vztah <span data-tex="|\eta\rangle = \hat A|\psi\rangle"></span> v <span data-tex="d_m = \sum_nA_{mn}c_n"></span>: operátor je matice, <span data-tex="m"></span> je řádkový a <span data-tex="n"></span> sloupcový index. Hermitovský operátor má hermitovskou matici, <span data-tex="A_{mn} = A_{nm}^*"></span>. Úplnost báze vyjadřuje <span data-tex="\sum_n|n\rangle\langle n| = \hat 1"></span>, součet projektorů na bázové vektory. Stacionární Schrödingerova rovnice <span data-tex="\hat H|\psi\rangle = E|\psi\rangle"></span> přejde v maticovou úlohu na vlastní hodnoty ve druhém řádku — základní spektrální problém kvantové mechaniky a tvar, v němž se řeší numericky. <span class="cf-ref">(Dub 8.9.4, Kulhánek 2.2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Change of basis</span><span lang="cs">Přechod mezi bázemi</span></span>
+                        <span class="cf-eq" data-tex="c_i&#x27; = \sum_j\langle i&#x27;|j\rangle\,c_j"></span>
+                        <span class="cf-eq" data-tex="H&#x27; = MHM^{-1},\qquad M_{ij} = \langle i&#x27;|j\rangle"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The same state has different components in different bases, <span data-tex="|\psi\rangle = \sum_jc_j|j\rangle = \sum_ic_i&#x27;|i&#x27;\rangle"></span>, related by the matrix of scalar products of the two sets of basis vectors. Since both bases are orthonormal, <span data-tex="M"></span> is unitary, <span data-tex="M^{-1} = M^\dagger"></span>. An operator transforms with <span data-tex="M"></span> on the left and its inverse on the right. Diagonalising a Hamiltonian means finding the basis in which its matrix is diagonal — the basis of its eigenvectors.</span>
+                        <span lang="cs">Týž stav má v různých bázích různé složky, <span data-tex="|\psi\rangle = \sum_jc_j|j\rangle = \sum_ic_i&#x27;|i&#x27;\rangle"></span>, svázané maticí skalárních součinů obou soustav bázových vektorů. Protože jsou obě báze ortonormální, je <span data-tex="M"></span> unitární, <span data-tex="M^{-1} = M^\dagger"></span>. Operátor se transformuje s <span data-tex="M"></span> zleva a s její inverzí zprava. Diagonalizovat hamiltonián znamená najít bázi, v níž je jeho matice diagonální — bázi jeho vlastních vektorů.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Coordinate and momentum representation</span><span lang="cs">Souřadnicová a hybnostní reprezentace</span></span>
+                        <span class="cf-eq" data-tex="\psi(x) = \langle x|\psi\rangle,\qquad \tilde\psi(p) = \langle p|\psi\rangle"></span>
+                        <span class="cf-eq" data-tex="\tilde\psi(p) = \dfrac{1}{\sqrt{2\pi\hbar}}\int\psi(x)\,\mathrm{e}^{-\frac{\mathrm{i}}{\hbar}px}\,\mathrm{d}x"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two improper bases: the eigenstates of position, completely localised, <span data-tex="\langle x&#x27;|x\rangle = \delta(x - x&#x27;)"></span>, and those of momentum, free particles with <span data-tex="\langle x|p\rangle = \mathrm{e}^{\mathrm{i}px/\hbar}/\sqrt{2\pi\hbar}"></span> and <span data-tex="\langle p|p&#x27;\rangle = \delta(p - p&#x27;)"></span>. The wave function is the component of the state in the first basis, the momentum wave function in the second, and the two are Fourier transforms of each other. In the coordinate representation <span data-tex="\hat x"></span> multiplies by <span data-tex="x"></span> and <span data-tex="\hat p = -\mathrm{i}\hbar\,\mathrm{d}/\mathrm{d}x"></span>; in the momentum representation <span data-tex="\hat p"></span> multiplies by <span data-tex="p"></span> and <span data-tex="\hat x = \mathrm{i}\hbar\,\mathrm{d}/\mathrm{d}p"></span>.</span>
+                        <span lang="cs">Dvě nevlastní báze: vlastní stavy polohy, zcela lokalizované, <span data-tex="\langle x&#x27;|x\rangle = \delta(x - x&#x27;)"></span>, a vlastní stavy hybnosti, volné částice s <span data-tex="\langle x|p\rangle = \mathrm{e}^{\mathrm{i}px/\hbar}/\sqrt{2\pi\hbar}"></span> a <span data-tex="\langle p|p&#x27;\rangle = \delta(p - p&#x27;)"></span>. Vlnová funkce je složkou stavu v první bázi, vlnová funkce v hybnostní reprezentaci ve druhé a obě jsou navzájem Fourierovými obrazy. V souřadnicové reprezentaci <span data-tex="\hat x"></span> násobí <span data-tex="x"></span> a <span data-tex="\hat p = -\mathrm{i}\hbar\,\mathrm{d}/\mathrm{d}x"></span>; v hybnostní reprezentaci <span data-tex="\hat p"></span> násobí <span data-tex="p"></span> a <span data-tex="\hat x = \mathrm{i}\hbar\,\mathrm{d}/\mathrm{d}p"></span>.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="quantum-mechanics-05.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">05 · <span lang="en">Potential wells, bound states and energy bands</span><span lang="cs">Potenciálové jámy, vázané stavy a energiové pásy</span></div>
+        </a>
+        <a href="quantum-mechanics-07.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">07 · <span lang="en">The postulates: measurement, time evolution and uncertainty</span><span lang="cs">Postuláty: měření, časový vývoj a neurčitost</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="stat-quantum.html#quantum">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Quantum mechanics</span><span lang="cs">Kvantová mechanika</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>
