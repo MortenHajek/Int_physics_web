@@ -48,6 +48,7 @@
         pointer-events: none;
         user-select: none;
     }
+    .canvas-formula-badge.top-right { top: 14px; right: 14px; bottom: auto; left: auto; }
     .canvas-formula-badge {
         position: absolute;
         bottom: 18px;
@@ -603,7 +604,7 @@
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div class="canvas-formula-badge" data-tex="\varepsilon_{ind} = -N\dfrac{\mathrm{d}\Phi_B}{\mathrm{d}t}"></div>
+                <div class="canvas-formula-badge top-right" data-tex="\varepsilon_{ind} = -N\dfrac{\mathrm{d}\Phi_B}{\mathrm{d}t}"></div>
             </div>
         </div>
 
@@ -817,6 +818,7 @@ document.addEventListener('DOMContentLoaded', () => {
             faint: g('--ink-faint',  '#7A6A52'),
             paper: g('--paper',      '#FFFDF6'),
             deep:  g('--paper-deep', '#efead6'),
+            cool:  g('--paper-cool', ''),
         };
     }
     const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
@@ -883,159 +885,195 @@ document.addEventListener('DOMContentLoaded', () => {
         return { phi: P.N * P.B * S, dphi: 0, x: 0, v: 0, inside: P.l, theta: 0, B: P.B };
     }
 
-    /* ── Drawing helpers ───────────────────────────────────────────────── */
-    function label(txt, x, y, size, colr, align, bg) {
-        ctx.save();
-        ctx.font = size + 'px ' + MONO;
-        ctx.textAlign = align || 'center';
-        ctx.textBaseline = 'middle';
-        if (bg) {
-            const w = ctx.measureText(txt).width;
-            let bx = x - w / 2 - 3;
-            if (align === 'left')  bx = x - 3;
-            if (align === 'right') bx = x - w - 3;
-            ctx.fillStyle = bg; ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
-        }
+    /* ── Drawing helpers (the house style) ─────────────────────────────── */
+    const INK = { I: '#a8243b', F: '#2a62a8' };        /* current and ε crimson, force blue */
+    function stage() { return col.cool || col.deep; }
+    function sym(txt, x, y, colr, size, align) {
+        ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = stage();
+        ctx.strokeText(txt, x, y);
         ctx.fillStyle = colr; ctx.fillText(txt, x, y);
-        ctx.restore();
+        ctx.lineWidth = 1;
     }
-    function arrow(x1, y1, x2, y2, head) {
-        head = head || 7;
-        const a = Math.atan2(y2 - y1, x2 - x1);
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - head * Math.cos(a - 0.4), y2 - head * Math.sin(a - 0.4));
-        ctx.lineTo(x2 - head * Math.cos(a + 0.4), y2 - head * Math.sin(a + 0.4));
+    function symSub(main, sb, x, y, colr, size, align) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        ctx.font = 'italic ' + size + 'px ' + SERIF;
+        const w1 = ctx.measureText(main).width;
+        ctx.font = 'italic ' + ss + 'px ' + SERIF;
+        const tw = w1 + 1 + ctx.measureText(sb).width;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        sym(main, x0, y, colr, size, 'left');
+        sym(sb, x0 + w1 + 1, y + size * 0.28, colr, ss, 'left');
+        return x0 + tw;
+    }
+    function small(txt, x, y, colr, size, align) {
+        ctx.font = (size || 11) + 'px ' + MONO;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = colr; ctx.fillText(txt, x, y);
+    }
+    function arrow(x1, y1, x2, y2, colr, lw) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        ctx.strokeStyle = colr; ctx.fillStyle = colr; ctx.lineWidth = lw || 2;
+        ctx.lineCap = 'round'; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
         ctx.closePath(); ctx.fill();
     }
-    function fieldDot(x, y, r, into) {
-        if (into) {
-            ctx.beginPath();
-            ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r);
-            ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r);
-            ctx.stroke();
-            ctx.beginPath(); ctx.arc(x, y, r * 1.5, 0, Math.PI * 2); ctx.stroke();
-        } else {
-            ctx.beginPath(); ctx.arc(x, y, r * 1.5, 0, Math.PI * 2); ctx.stroke();
-            ctx.beginPath(); ctx.arc(x, y, Math.max(1, r * 0.45), 0, Math.PI * 2); ctx.fill();
-        }
+    /* ⊗ — the field points into the page */
+    function into(x, y, r) {
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+        const q = r * 0.62;
+        ctx.beginPath();
+        ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q);
+        ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q);
+        ctx.stroke();
     }
 
     /* ── Draw ──────────────────────────────────────────────────────────── */
     function draw() {
         col = readCol();
         ctx.clearRect(0, 0, W, H);
-
         const st = state(tt);
-        const traceH = show.traces ? Math.min(150, H * 0.40) : 0;
-        const topH = H - traceH;
-        const cy = topH * 0.50;
-        const pxm = Math.min(W * 0.42 / XMAX, topH * 0.30 / 0.16);   /* px per metre */
 
-        /* field region */
-        const bx0 = W * 0.5 - XMAX * pxm * 0.5, bx1 = W * 0.5;
-        const fieldTop = cy - topH * 0.34, fieldBot = cy + topH * 0.34;
-        const strength = Math.abs(st.B) / Math.max(P.B, 1e-9);
-        if (P.mode === 'area') {
-            ctx.save();
-            ctx.fillStyle = col.deep;
-            ctx.fillRect(bx0 - 30, fieldTop, bx1 - bx0 + 30, fieldBot - fieldTop);
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-            ctx.beginPath(); ctx.moveTo(bx1, fieldTop); ctx.lineTo(bx1, fieldBot); ctx.stroke();
-            ctx.restore();
-        }
-        ctx.save();
-        ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc;
-        ctx.globalAlpha = 0.18 + 0.42 * strength;
-        ctx.lineWidth = 1.1;
-        const step = 30;
-        for (let y = fieldTop + step / 2; y < fieldBot; y += step) {
-            for (let x = (P.mode === 'area' ? bx0 - 30 : W * 0.16) + step / 2;
-                 x < (P.mode === 'area' ? bx1 : W * 0.84); x += step) {
-                fieldDot(x, y, 2.6, true);
-            }
-        }
-        ctx.restore();
-
-        /* the loop */
+        /* the band: caption on top, the traces along the bottom (the equation
+           badge sits top right, clear of both) */
+        const traceH = show.traces ? Math.min(230, H * 0.36) : 0;
+        const top = 72, sceneB = H - traceH - (show.traces ? 18 : 24);
+        const cy = (top + 30 + sceneB) / 2;
+        const sceneH = sceneB - top - 30;
+        /* the area mode needs room for the travel; the others only for the loop */
+        const pxm = P.mode === 'area'
+            ? Math.min(W * 0.42 / XMAX, sceneH * 0.62 / P.l, sceneH * 0.42 / 0.12)
+            : Math.min(sceneH * 0.5 / P.l, W * 0.3 / P.l);
         const half = P.l * pxm / 2;
-        const lx = W * 0.5 + st.x * pxm;
-        ctx.save();
-        ctx.translate(P.mode === 'area' ? lx : W * 0.5, cy);
-        const squash = (P.mode === 'angle') ? Math.abs(Math.cos(st.theta)) : 1;
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 2.6;
-        ctx.strokeRect(-half * Math.max(squash, 0.04), -half, 2 * half * Math.max(squash, 0.04), 2 * half);
-        /* induced current round the loop */
+        const strength = Math.abs(st.B) / Math.max(P.B, 1e-9);
+
+        /* the field region: in the area mode it ends at a boundary the loop
+           crosses; otherwise it surrounds the loop */
+        const cx = W * 0.5;
+        let fx0, fx1;
+        if (P.mode === 'area') { fx1 = cx; fx0 = Math.max(18, cx - XMAX * pxm * 0.5 - half - 36); }
+        else { fx0 = Math.max(18, cx - Math.max(half * 2.4, 150)); fx1 = Math.min(W - 18, cx + Math.max(half * 2.4, 150)); }
+        const fy0 = cy - Math.max(half * 1.9, sceneH * 0.44), fy1 = cy + Math.max(half * 1.9, sceneH * 0.44);
+        ctx.fillStyle = col.acc; ctx.globalAlpha = 0.05 + 0.07 * strength;
+        ctx.fillRect(fx0, fy0, fx1 - fx0, fy1 - fy0);
+        ctx.globalAlpha = 1;
+        if (P.mode === 'area') {
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.2; ctx.setLineDash([5, 4]);
+            ctx.beginPath(); ctx.moveTo(fx1, fy0 - 6); ctx.lineTo(fx1, fy1 + 6); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 1.1;
+        ctx.globalAlpha = 0.25 + 0.55 * strength;
+        const step = 34;
+        for (let y = fy0 + step / 2; y < fy1 - 4; y += step)
+            for (let x = fx0 + step / 2; x < fx1 - 4; x += step) into(x, y, 4.2);
+        ctx.globalAlpha = 1;
+        sym('B', fx0 + 12, fy0 - 14, col.acc, 17, 'left');
+
+        /* the loop, and the part of it the flux passes through */
+        const lx = P.mode === 'area' ? cx + st.x * pxm : cx;
+        const sq = P.mode === 'angle' ? Math.max(Math.abs(Math.cos(st.theta)), 0.03) : 1;
+        const w = half * sq;
+        ctx.fillStyle = col.acc; ctx.globalAlpha = 0.22;
+        if (P.mode === 'area') {
+            const inL = lx - half, inR = Math.min(lx + half, fx1);
+            if (inR > inL) ctx.fillRect(inL, cy - half, inR - inL, 2 * half);
+        } else {
+            ctx.globalAlpha = 0.22 * (P.mode === 'field' ? strength : 1);
+            ctx.fillRect(lx - w, cy - half, 2 * w, 2 * half);
+        }
+        ctx.globalAlpha = 1;
+        if (P.mode === 'angle') {
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(lx, cy - half - 28); ctx.lineTo(lx, cy + half + 28); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2.6; ctx.lineJoin = 'round';
+        ctx.strokeRect(lx - w, cy - half, 2 * w, 2 * half);
+        if (P.mode === 'area') {
+            ctx.fillStyle = col.acc; ctx.globalAlpha = 1;
+            const inside = Math.max(0, Math.min(lx + half, fx1) - (lx - half));
+            if (inside > 26) symSub('S', 'B', (lx - half + Math.min(lx + half, fx1)) / 2, cy, col.ink, 16);
+        }
+
+        /* the induced current, round the loop the way that opposes the change */
         if (show.current && Math.abs(st.dphi) > 1e-12) {
-            const dir = st.dphi > 0 ? 1 : -1;      /* Lenz: opposes the change */
-            ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 2;
-            const w = half * Math.max(squash, 0.04);
-            const mid = [[0, -half, dir, 0], [w, 0, 0, dir], [0, half, -dir, 0], [-w, 0, 0, -dir]];
-            for (const m of mid) {
-                arrow(m[0] - m[2] * 9, m[1] - m[3] * 9, m[0] + m[2] * 9, m[1] + m[3] * 9, 6);
+            const dir = st.dphi > 0 ? 1 : -1;
+            const a = Math.min(12, half * 0.4);
+            const mids = [[lx, cy - half, dir, 0], [lx + w, cy, 0, dir], [lx, cy + half, -dir, 0], [lx - w, cy, 0, -dir]];
+            for (const [mx, my, ux, uy] of mids) {
+                if (ux === 0 && w < 8) continue;
+                arrow(mx - ux * a, my - uy * a, mx + ux * a, my + uy * a, INK.I, 2.4);
             }
+            sym('I', lx + w + 14, cy - 14, INK.I, 17, 'left');
         }
-        ctx.restore();
 
-        /* Lenz: the force that resists the motion */
+        /* Lenz: the force on the loop resists the motion */
         if (show.lenz && P.mode === 'area' && Math.abs(st.dphi) > 1e-12) {
-            const fdir = st.v > 0 ? -1 : 1;
-            ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.lineWidth = 2;
-            arrow(lx, cy + half + 18, lx + fdir * 34, cy + half + 18, 7);
-            label('F', lx + fdir * 46, cy + half + 18, 10, col.soft, 'center', col.paper);
+            const fdir = st.v > 0 ? -1 : 1, fy = cy + half + 26;
+            arrow(lx, fy, lx + fdir * 48, fy, INK.F, 2.4);
+            sym('F', lx + fdir * 60, fy, INK.F, 17);
+            arrow(lx, cy - half - 22, lx + Math.sign(st.v || 1) * 40, cy - half - 22, col.ink, 1.6);
+            sym('v', lx + Math.sign(st.v || 1) * 52, cy - half - 22, col.ink, 16);
         }
 
-        /* mode banner */
-        const banner = { area:  t('the area in the field is changing', 'mění se plocha v poli'),
-                         angle: t('the loop is turning', 'smyčka se otáčí'),
-                         field: t('the field itself is ramping', 'mění se samo pole') }[P.mode];
-        label(banner, 12, 16, 10, col.faint, 'left', col.paper);
+        /* caption */
+        small(t('WHAT IS CHANGING', 'CO SE MĚNÍ'), 16, 18, col.soft, 10.5);
+        ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col.ink;
+        ctx.fillText({ area:  t('the area in the field', 'plocha v poli'),
+                       angle: t('the angle θ — the loop turns', 'úhel θ — smyčka se otáčí'),
+                       field: t('the field B itself', 'samo pole B') }[P.mode], 16, 39);
 
-        /* ── Traces ────────────────────────────────────────────────────── */
+        /* ── the traces: Φ_B and ε over the last few seconds ──────────── */
         if (!show.traces) return;
-        const gy0 = topH + 8, gh = traceH - 26;
-        const gx0 = 48, gw = W - gx0 - 18;
+        const gx0 = 58, gx1 = W - 30, gw = gx1 - gx0;
+        const rowH = (traceH - 16) / 2, g1 = H - traceH, g2 = g1 + rowH + 16;
         let pMax = 1e-12, eMax = 1e-12;
-        for (const s of trace) {
-            pMax = Math.max(pMax, Math.abs(s.phi));
-            eMax = Math.max(eMax, Math.abs(s.dphi));
-        }
-        ctx.save();
-        ctx.strokeStyle = col.faint; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(gx0, gy0 + gh / 4); ctx.lineTo(gx0 + gw, gy0 + gh / 4);
-        ctx.moveTo(gx0, gy0 + gh * 3 / 4); ctx.lineTo(gx0 + gw, gy0 + gh * 3 / 4);
-        ctx.stroke();
-        ctx.restore();
-        function plot(pick, scale, yMid, yAmp, colour, dashed) {
+        for (const s2 of trace) { pMax = Math.max(pMax, Math.abs(s2.phi)); eMax = Math.max(eMax, Math.abs(s2.dphi)); }
+        function strip(y0, pick, scale, colr, mainSym, subSym) {
+            const mid = y0 + rowH / 2, amp = rowH / 2 - 6;
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+            ctx.beginPath(); ctx.moveTo(gx0, mid); ctx.lineTo(gx1, mid); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(gx0, y0 + 2); ctx.lineTo(gx0, y0 + rowH - 2); ctx.stroke();
+            if (subSym) symSub(mainSym, subSym, gx0 - 10, mid, colr, 17, 'right');
+            else sym(mainSym, gx0 - 10, mid, colr, 17, 'right');
             if (trace.length < 2) return;
-            ctx.save();
-            ctx.strokeStyle = colour; ctx.lineWidth = 1.8;
-            if (dashed) ctx.setLineDash([4, 3]);
+            ctx.strokeStyle = colr; ctx.lineWidth = 2; ctx.lineJoin = 'round';
             ctx.beginPath();
-            for (let i = 0; i < trace.length; i++) {
-                const s = trace[i];
-                const u = (s.t - (tt - SPAN)) / SPAN;
+            let first = true;
+            for (const s2 of trace) {
+                const u = (s2.t - (tt - SPAN)) / SPAN;
                 if (u < 0 || u > 1) continue;
-                const y = yMid - (pick(s) / scale) * yAmp;
-                if (i === 0) ctx.moveTo(gx0 + u * gw, y); else ctx.lineTo(gx0 + u * gw, y);
+                const y = mid - pick(s2) / scale * amp;
+                if (first) { ctx.moveTo(gx0 + u * gw, y); first = false; } else ctx.lineTo(gx0 + u * gw, y);
             }
             ctx.stroke();
-            ctx.restore();
+            const lastS = trace[trace.length - 1];
+            ctx.fillStyle = colr;
+            ctx.beginPath(); ctx.arc(gx1, mid - pick(lastS) / scale * amp, 3.5, 0, Math.PI * 2); ctx.fill();
         }
-        plot(s => s.phi,  pMax, gy0 + gh / 4,     gh / 4 * 0.86, col.ink, false);
-        plot(s => -s.dphi, eMax, gy0 + gh * 3 / 4, gh / 4 * 0.86, col.acc, false);
-        label('Φ',  gx0 - 14, gy0 + gh / 4,     12, col.ink,  'center');
-        label('ε',  gx0 - 14, gy0 + gh * 3 / 4, 12, col.acc,  'center');
-        label(t('ε is the slope of Φ, negated', 'ε je směrnice Φ se záporným znaménkem'),
-              gx0, gy0 + gh + 12, 10, col.faint, 'left');
+        strip(g1, s2 => s2.phi, pMax, col.acc, 'Φ', 'B');
+        strip(g2, s2 => -s2.dphi, eMax, INK.I, 'ε', '');
+        /* the time axis under both, with "now" at the right */
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+        arrow(gx0, H - 10, gx1 + 14, H - 10, col.soft, 1.1);
+        small('t', gx1 + 18, H - 10, col.soft, 11, 'left');
+        small(t('now', 'teď'), gx1, g1 - 8, col.faint, 10.5, 'center');
     }
 
     /* ── Readout ───────────────────────────────────────────────────────── */
     const $ = id => document.getElementById(id);
-    const setTxt = (id, s) => { const e = $(id); if (e) e.textContent = s; };
+    const setTxt = (id, s2) => { const e = $(id); if (e && e.textContent !== s2) e.textContent = s2; };
     function readout() {
         const st = state(tt);
         const eps = -st.dphi;
@@ -1110,8 +1148,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if ($('in-reset')) $('in-reset').addEventListener('click', () => { tt = 0; trace = []; readout(); });
 
     /* ── Frame ─────────────────────────────────────────────────────────── */
-    let last = 0;
+    let last = 0, visible = true, raf = 0;
     function frame(ts) {
+        raf = 0;
+        if (!visible) { last = 0; return; }
         if (!last) last = ts;
         const dt = Math.min(64, ts - last) / 1000;
         last = ts;
@@ -1121,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         while (trace.length && trace[0].t < tt - SPAN) trace.shift();
         draw();
         readout();
-        requestAnimationFrame(frame);
+        raf = requestAnimationFrame(frame);
     }
     function resize() {
         const dpr = window.devicePixelRatio || 1;
@@ -1133,11 +1173,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
-    if (window.ResizeObserver) new ResizeObserver(resize).observe(wrap);
+    /* a resize clears the canvas: paint it again at once, even while paused */
+    if (window.ResizeObserver) new ResizeObserver(() => { resize(); draw(); }).observe(wrap);
     document.addEventListener('langchange', () => { rateLabel(); readout(); });
     rateLabel();
     readout();
-    requestAnimationFrame(frame);
+    if (window.IntersectionObserver) new IntersectionObserver(es => {
+        visible = es.some(e => e.isIntersecting);
+        if (visible && !raf) raf = requestAnimationFrame(frame);
+    }).observe(wrap);
+    raf = requestAnimationFrame(frame);
 }());
 </script>
 

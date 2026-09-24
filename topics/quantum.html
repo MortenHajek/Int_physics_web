@@ -553,7 +553,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Infinite square well</span><span lang="cs">Nekonečná potenciálová jáma</span></span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -704,7 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
-    new ResizeObserver(resize).observe(wrap);
 
     /* ── CSS colour tokens ───────────────────────────────────────── */
     function readCol() {
@@ -777,283 +775,155 @@ document.addEventListener('DOMContentLoaded', () => {
         const E1 = computeEn(1, L);
         const nodes = n - 1;
 
-        const $ = id => document.getElementById(id);
-        if ($('r-n'))      $('r-n').textContent = String(n);
-        if ($('r-L'))      $('r-L').textContent = L.toFixed(2) + ' nm';
-        if ($('r-En'))     $('r-En').textContent = En.toFixed(4) + ' eV';
-        if ($('r-nodes'))  $('r-nodes').textContent = String(nodes);
-
-        if ($('r-lambda')) {
-            if (n === 1) {
-                $('r-lambda').textContent = '— (ground)';
-            } else {
-                const dE = En - E1;
-                const lam = HC_EV_NM / dE;
-                $('r-lambda').textContent = lam.toFixed(1) + ' nm';
-            }
-        }
+        const cs = document.documentElement.getAttribute('data-lang') === 'cs';
+        const d = t => (cs ? t.replace('.', ',') : t);
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        put('r-n', String(n));
+        put('r-L', d(L.toFixed(2)) + ' nm');
+        put('r-En', d(En.toFixed(4)) + ' eV');
+        put('r-nodes', String(nodes));
+        put('r-lambda', n === 1 ? (cs ? '— (základní stav)' : '— (ground state)')
+                                : d((HC_EV_NM / (En - E1)).toFixed(1)) + ' nm');
     }
 
-    /* ── Draw frame ──────────────────────────────────────────────── */
+    /* ── Draw (the house style) ──────────────────────────────────── */
+    const SERIF = '"Source Serif 4",Georgia,serif', MONO = '"Geist",ui-sans-serif,sans-serif';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const stage = () => getComputedStyle(document.documentElement).getPropertyValue('--paper-cool').trim() || col.deep;
+    function sym(t, x, y, colr, size, align) {
+        ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = stage();
+        ctx.strokeText(t, x, y); ctx.fillStyle = colr; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+    }
+    function small(t, x, y, colr, size, align) {
+        ctx.font = (size || 11) + 'px ' + MONO;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = colr; ctx.fillText(t, x, y);
+    }
+    /* a wall of infinite potential: a line with hatching on its outer side */
+    function wall(x, y0, y1, outward) {
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 2; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
+        for (let y = y0 + 4; y < y1; y += 10) {
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + outward * 9, y - 9); ctx.stroke();
+        }
+    }
     function draw() {
         ctx.clearRect(0, 0, W, H);
+        col = readCol();
+        const n = state.n, L_nm = state.L, cs = isCS();
+        const d = t => (cs ? t.replace('.', ',') : t);
+        const narrow = W < 520;
+        const low = !!wrap.querySelector('.canvas-formula-badge');
+        const top = 70, bot = H - (low && W >= 640 ? 110 : 34);
 
-        const n = state.n;
-        const L_nm = state.L;
+        /* left: the well and the state in it; right: the ladder of levels */
+        const split = narrow ? 0.62 : 0.6;
+        const x0 = 34, x1 = W * split - 22, wfW = x1 - x0;
+        const mid = (top + 26 + bot) / 2, AMP = (bot - top - 26) * 0.4;
+        const SAMPLES = 180;
 
-        // Layout: left 60% = wavefunction, right 40% = energy diagram
-        const MARGIN_L  = 28;
-        const MARGIN_R  = 14;
-        const MARGIN_T  = 32;
-        const MARGIN_B  = 32;
-        const SPLIT     = 0.60;
-
-        const wfRight   = W * SPLIT - 10;
-        const wfWidth   = wfRight - MARGIN_L;
-        const wfHeight  = H - MARGIN_T - MARGIN_B;
-        const wfCentreY = MARGIN_T + wfHeight / 2;
-
-        const edLeft    = W * SPLIT + 4;
-        const edRight   = W - MARGIN_R;
-        const edWidth   = edRight - edLeft;
-        const edTop     = MARGIN_T + 16;
-        const edBottom  = H - MARGIN_B - 16;
-        const edHeight  = edBottom - edTop;
-
-        const SAMPLES   = 150;
-        const AMP       = wfHeight * 0.36;   // max wave amplitude in px
-
-        /* ── Max ψ² for normalising fill ── */
-        const maxPsi2   = 2 / L_nm;          // peak of |ψ|² = 2/L
-
-        /* ── Potential walls ───────────────────────────────── */
-        const WALL_W = 10;
-        ctx.fillStyle = col.ink;
-        ctx.fillRect(MARGIN_L - WALL_W, MARGIN_T, WALL_W, wfHeight);
-        ctx.fillRect(wfRight, MARGIN_T, WALL_W, wfHeight);
-
-        // Hatch pattern on walls
-        ctx.strokeStyle = col.paper;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([]);
-        for (let y = MARGIN_T; y < MARGIN_T + wfHeight; y += 8) {
-            // Left wall
-            ctx.beginPath();
-            ctx.moveTo(MARGIN_L - WALL_W, y);
-            ctx.lineTo(MARGIN_L, y + 8);
-            ctx.stroke();
-            // Right wall
-            ctx.beginPath();
-            ctx.moveTo(wfRight, y);
-            ctx.lineTo(wfRight + WALL_W, y + 8);
-            ctx.stroke();
-        }
-
-        /* ── Zero line ─────────────────────────────────────── */
-        ctx.strokeStyle = col.faint + '80';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.moveTo(MARGIN_L, wfCentreY);
-        ctx.lineTo(wfRight, wfCentreY);
-        ctx.stroke();
+        wall(x0, top + 24, bot, -1);
+        wall(x1, top + 24, bot, 1);
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(x0, mid); ctx.lineTo(x1, mid); ctx.stroke();
         ctx.setLineDash([]);
 
-        /* ── |ψ|² filled area ──────────────────────────────── */
-        ctx.beginPath();
-        ctx.moveTo(MARGIN_L, wfCentreY);
+        /* |ψ|²: the probability density, shaded */
+        const maxPsi2 = 2 / L_nm;
+        ctx.beginPath(); ctx.moveTo(x0, mid);
         for (let i = 0; i <= SAMPLES; i++) {
-            const t   = i / SAMPLES;
-            const x_nm = t * L_nm;
-            const px  = MARGIN_L + t * wfWidth;
-            const v   = psi2(x_nm, n, L_nm);
-            // Map v to canvas: upward (subtract from centre)
-            const py  = wfCentreY - (v / maxPsi2) * AMP;
-            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            const t = i / SAMPLES;
+            ctx.lineTo(x0 + t * wfW, mid - psi2(t * L_nm, n, L_nm) / maxPsi2 * AMP);
         }
-        ctx.lineTo(wfRight, wfCentreY);
-        ctx.closePath();
-        // Fill with accent at 25% alpha
-        ctx.fillStyle = col.acc + '40';
-        ctx.fill();
-
-        /* ── ψ curve ───────────────────────────────────────── */
+        ctx.lineTo(x1, mid); ctx.closePath();
+        ctx.fillStyle = col.acc; ctx.globalAlpha = 0.13; ctx.fill(); ctx.globalAlpha = 1;
+        /* ψ itself */
         ctx.beginPath();
         for (let i = 0; i <= SAMPLES; i++) {
-            const t   = i / SAMPLES;
-            const x_nm = t * L_nm;
-            const px  = MARGIN_L + t * wfWidth;
-            const v   = psi(x_nm, n, L_nm);
-            // Normalise: peak of ψ is √(2/L), map to ±AMP
-            const py  = wfCentreY - (v / Math.sqrt(2 / L_nm)) * AMP;
-            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            const t = i / SAMPLES, y = mid - psi(t * L_nm, n, L_nm) / Math.sqrt(2 / L_nm) * AMP;
+            i ? ctx.lineTo(x0 + t * wfW, y) : ctx.moveTo(x0 + t * wfW, y);
         }
-        ctx.strokeStyle = col.acc;
-        ctx.lineWidth = 2.2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.setLineDash([]);
-        ctx.stroke();
-
-        /* ── Labels for wavefunction panel ────────────────── */
-        ctx.fillStyle = col.acc;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText('ψ', MARGIN_L + 4, MARGIN_T + 4);
-        ctx.fillStyle = col.acc + '80';
-        ctx.fillText('|ψ|²', MARGIN_L + 18, MARGIN_T + 4);
-
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('x = 0', MARGIN_L, H - MARGIN_B + 14);
-        ctx.fillText('x = L', wfRight, H - MARGIN_B + 14);
-
-        ctx.fillStyle = col.soft;
-        ctx.font = 'italic 13px "Source Serif 4", serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('n = ' + n, MARGIN_L + wfWidth * 0.5, MARGIN_T + 14);
-
-        /* ── Energy level diagram ──────────────────────────── */
-        const N_MAX = 6;
-        // The max energy on the diagram is E6 for the current L
-        const E1_eV  = computeEn(1, L_nm);
-        const E6_eV  = computeEn(6, L_nm);
-        const En_eV  = computeEn(n, L_nm);
-
-        function levelY(level) {
-            // level is n=1..6, map Eₙ=n²×E1 to canvas Y (bottom=low energy, top=high)
-            const fracE = (level * level * E1_eV - E1_eV * 0) / (E6_eV * 1.05);
-            return edBottom - fracE * edHeight;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+        /* the nodes inside the well */
+        for (let k = 1; k < n; k++) {
+            const x = x0 + wfW * k / n;
+            ctx.fillStyle = stage(); ctx.beginPath(); ctx.arc(x, mid, 4.5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.6; ctx.stroke();
         }
+        sym('0', x0, bot + 16, col.soft, 15);
+        sym('L', x1, bot + 16, col.soft, 16);
+        sym('x', (x0 + x1) / 2, bot + 16, col.soft, 16);
+        /* legend */
+        const ly = top + 8;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.moveTo(x0 + 6, ly); ctx.lineTo(x0 + 28, ly); ctx.stroke();
+        sym('ψ', x0 + 36, ly, col.acc, 17, 'left');
+        ctx.fillStyle = col.acc; ctx.globalAlpha = 0.2; ctx.fillRect(x0 + 70, ly - 7, 22, 14); ctx.globalAlpha = 1;
+        sym('|ψ|²', x0 + 98, ly, col.acc, 17, 'left');
 
-        /* Divider line between panels */
-        ctx.strokeStyle = col.faint + '50';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 3]);
-        ctx.beginPath();
-        ctx.moveTo(W * SPLIT, MARGIN_T);
-        ctx.lineTo(W * SPLIT, H - MARGIN_B);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        /* Axis arrow */
-        ctx.strokeStyle = col.faint + 'b0';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(edLeft + 12, edBottom + 4);
-        ctx.lineTo(edLeft + 12, edTop - 8);
-        ctx.stroke();
-        // Arrowhead
-        ctx.fillStyle = col.faint + 'b0';
-        ctx.beginPath();
-        ctx.moveTo(edLeft + 12, edTop - 12);
-        ctx.lineTo(edLeft + 8, edTop - 4);
-        ctx.lineTo(edLeft + 16, edTop - 4);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('E', edLeft + 12, edTop - 22);
-
-        /* Energy levels n=1..6 */
+        /* the ladder: Eₙ = n²E₁, drawn to scale up to n = 6 */
+        const N_MAX = 6, E1 = computeEn(1, L_nm), E6 = computeEn(N_MAX, L_nm), En = computeEn(n, L_nm);
+        const ex0 = W * split + (narrow ? 8 : 18), ex1 = W - 18, eTop = top + 30, eBot = bot;
+        const levelY = k => eBot - (k * k * E1) / (E6 * 1.04) * (eBot - eTop);
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(ex0, eBot + 6); ctx.lineTo(ex0, eTop - 10); ctx.stroke();
+        ctx.fillStyle = col.soft; ctx.beginPath();
+        ctx.moveTo(ex0, eTop - 18); ctx.lineTo(ex0 - 4.5, eTop - 8); ctx.lineTo(ex0 + 4.5, eTop - 8); ctx.closePath(); ctx.fill();
+        sym('E', ex0 + 12, eTop - 14, col.soft, 16, 'left');
         for (let k = 1; k <= N_MAX; k++) {
-            const ky    = levelY(k);
-            const Ek    = computeEn(k, L_nm);
-            const isActive = (k === n);
-
-            ctx.strokeStyle = isActive ? col.acc : col.faint + '70';
-            ctx.lineWidth   = isActive ? 2.5 : 1;
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.moveTo(edLeft + 24, ky);
-            ctx.lineTo(edRight - 4, ky);
-            ctx.stroke();
-
-            /* Label: "n=k  X.XX eV" */
-            ctx.fillStyle   = isActive ? col.acc : col.faint + '90';
-            ctx.font        = isActive
-                ? 'bold 11px "Geist", ui-sans-serif, sans-serif'
-                : '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign   = 'left';
-            ctx.textBaseline = 'middle';
-            const label = 'n=' + k + '  ' + Ek.toFixed(2) + ' eV';
-            ctx.fillText(label, edLeft + 26, ky - 8);
-
-            /* Glow dot for active level */
-            if (isActive) {
-                ctx.fillStyle = col.acc;
-                ctx.beginPath();
-                ctx.arc(edLeft + 24, ky, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
+            const y = levelY(k), on = k === n;
+            ctx.strokeStyle = on ? col.acc : col.faint; ctx.lineWidth = on ? 2.6 : 1.1;
+            ctx.beginPath(); ctx.moveTo(ex0 + 10, y); ctx.lineTo(ex1, y); ctx.stroke();
+            if (k > 1 && levelY(k - 1) - y < 15 && !on) continue;   /* crowded low levels: label only some */
+            sym('n = ' + k, ex0 + 14, y - 9, on ? col.acc : col.soft, on ? 15 : 13.5, 'left');
+            if (!narrow) small(d(computeEn(k, L_nm).toFixed(2)) + ' eV', ex1, y - 9, on ? col.acc : col.faint, on ? 11.5 : 10.5, 'right');
         }
-
-        /* Transition arrow: from n to n=1 if n>1 */
+        /* the photon a jump down to n = 1 gives off */
         if (n > 1) {
-            const y1 = levelY(1);
-            const yn = levelY(n);
-            const ax = edLeft + edWidth * 0.70;
-
-            ctx.strokeStyle = col.soft + 'b0';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 3]);
-            ctx.beginPath();
-            ctx.moveTo(ax, yn);
-            ctx.lineTo(ax, y1 + 8);
+            const ax = ex0 + (ex1 - ex0) * 0.56, ya = levelY(n), yb = levelY(1);
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4; ctx.setLineDash([4, 3]);
+            ctx.beginPath(); ctx.moveTo(ax, ya + 3); ctx.lineTo(ax, yb - 8); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = col.ink; ctx.beginPath();
+            ctx.moveTo(ax, yb - 2); ctx.lineTo(ax - 4.5, yb - 11); ctx.lineTo(ax + 4.5, yb - 11); ctx.closePath(); ctx.fill();
+            /* the photon: a short wavy arrow leaving the jump */
+            const py = (ya + yb) / 2, px0 = ax + 8, px1 = Math.min(ex1 - 4, ax + 64);
+            ctx.strokeStyle = '#a8243b'; ctx.lineWidth = 1.6; ctx.beginPath();
+            for (let i = 0; i <= 40; i++) {
+                const x = px0 + (px1 - px0 - 8) * i / 40;
+                const y = py + Math.sin(i / 40 * Math.PI * 6) * 4;
+                i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+            }
             ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Arrowhead pointing down
-            ctx.fillStyle = col.soft + 'b0';
-            ctx.beginPath();
-            ctx.moveTo(ax, y1 + 2);
-            ctx.lineTo(ax - 5, y1 + 10);
-            ctx.lineTo(ax + 5, y1 + 10);
-            ctx.closePath();
-            ctx.fill();
-
-            // ΔE label
-            const dE = En_eV - E1_eV;
-            const lam = HC_EV_NM / dE;
-            ctx.fillStyle = col.soft;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('Δ' + dE.toFixed(2) + ' eV', ax + 7, (y1 + yn) / 2 - 8);
-            ctx.fillText('λ=' + lam.toFixed(0) + ' nm', ax + 7, (y1 + yn) / 2 + 8);
+            ctx.fillStyle = '#a8243b'; ctx.beginPath();
+            ctx.moveTo(px1, py); ctx.lineTo(px1 - 9, py - 4.5); ctx.lineTo(px1 - 9, py + 4.5); ctx.closePath(); ctx.fill();
+            sym('hf', (px0 + px1) / 2, py - 16, '#a8243b', 16);
         }
 
-        /* Energy diagram header */
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(document.documentElement.getAttribute('data-lang') === 'cs'
-            ? 'ENERGETICKÉ HLADINY' : 'ENERGY LEVELS', edLeft + edWidth / 2, MARGIN_T);
+        /* caption */
+        small(cs ? 'STAV V JÁMĚ' : 'THE STATE IN THE WELL', 16, 18, col.soft, 10.5);
+        ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = col.ink;
+        const nodesTxt = n === 1 ? (cs ? 'základní stav, bez uzlu' : 'ground state, no node')
+                                 : (cs ? (n - 1) + (n - 1 < 5 ? (n - 1 === 1 ? ' uzel' : ' uzly') : ' uzlů') : (n - 1) + (n - 1 === 1 ? ' node' : ' nodes'));
+        ctx.fillText('n = ' + n + ' · ' + nodesTxt, 16, 39);
 
         updateReadout();
     }
 
-    /* ── RAF loop ────────────────────────────────────────────────── */
-    let lastT = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
-
-    function frame(ts) {
-        draw();
-        frames++;
-        if (ts - lastT >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; lastT = ts;
-        }
-        requestAnimationFrame(frame);
+    let queued = false;
+    function redraw() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; draw(); });
     }
-    requestAnimationFrame(frame);
+    sliderN && sliderN.addEventListener('input', redraw);
+    sliderL && sliderL.addEventListener('input', redraw);
+    document.getElementById('btn-reset')?.addEventListener('click', redraw);
+    document.addEventListener('langchange', redraw);
+    new ResizeObserver(() => { resize(); redraw(); }).observe(wrap);
+    redraw();
 
 }());
 </script>

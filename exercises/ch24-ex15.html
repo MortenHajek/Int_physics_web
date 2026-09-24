@@ -85,7 +85,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Potential sandbox</span><span lang="cs">Sandbox: potenciál</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -123,7 +122,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Contributions at P</span><span lang="cs">Příspěvky v bodě P</span></div>
@@ -258,201 +256,361 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   KIT — the house style for this page's sandbox (the same helpers as the
+   movies on the topic pages): a canvas that redraws only when something
+   changes or moves, pauses off-screen and repaints after a resize; serif
+   italic symbols with a halo in the stage's tone, drawn subscripts and
+   vector arrows, Geist for small text, one muted colour per quantity.
+   ══════════════════════════════════════════════════════════════════════ */
+const KIT = (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    /* a real minus sign, and the Czech decimal comma */
+    const num = (v, d) => {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const signed = (v, d) => (v > 0 && Math.abs(v) >= Math.pow(10, -d) / 2 ? '+' : '') + num(v, d);
+    function colours() {
+        const r = getComputedStyle(document.documentElement), b = getComputedStyle(document.body);
+        const g = (k, d) => r.getPropertyValue(k).trim() || d;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink: g('--ink', '#363026'), soft: g('--ink-soft', '#4d4436'), faint: g('--ink-faint', '#7A6A52'),
+            paper: g('--paper', '#FFFFEC'), stage: g('--paper-cool', g('--paper-deep', '#efead6')),
+            acc: b.getPropertyValue('--accent').trim() || '#3D2E8A',
+            blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+            teal: '#127070', amber: '#c47a17', block: '#e9e1c6'
         };
     }
-    const col = readCol();
+    /* the canvas: sized from its wrap, redrawn on demand; `moving()` keeps
+       the loop running while it returns true and the canvas is on screen */
+    function mount(canvas, drawFn, moving) {
+        const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+        const V = { canvas, ctx, wrap, W: 0, H: 0 };
+        let raf = 0, last = 0, visible = true;
+        function size() {
+            const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+            const w = Math.max(r.width, 240), h = Math.max(r.height, 200);
+            if (w === V.W && h === V.H) return false;
+            V.W = w; V.H = h;
+            canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return true;
+        }
+        function paint(dt) { ctx.clearRect(0, 0, V.W, V.H); drawFn(V, dt); }
+        function frame(ts) {
+            raf = 0;
+            const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+            last = ts;
+            size(); paint(dt);
+            if (visible && moving && moving()) raf = requestAnimationFrame(frame);
+            else last = 0;
+        }
+        V.redraw = () => { if (!raf) raf = requestAnimationFrame(frame); };
+        V.badgeLow = () => { const bd = wrap.querySelector('.canvas-formula-badge');
+            return !!bd && !/top-|bottom-right/.test(bd.className); };
+        /* on a phone mobile.js lifts the badge out under the canvas: the corner it held is free */
+        V.badgeIn = () => !!wrap.querySelector('.canvas-formula-badge');
+        document.addEventListener('DOMContentLoaded', () => V.redraw());
+        const mq = window.matchMedia && window.matchMedia('(max-width: 640px)');
+        if (mq && mq.addEventListener) mq.addEventListener('change', () => V.redraw());
+        size();
+        /* a resize clears the canvas: paint it again at once, even when paused */
+        new ResizeObserver(() => { size(); paint(0); V.redraw(); }).observe(wrap);
+        if (window.IntersectionObserver) new IntersectionObserver(es => {
+            visible = es.some(e => e.isIntersecting);
+            if (visible) V.redraw();
+        }).observe(wrap);
+        document.addEventListener('langchange', () => V.redraw());
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => V.redraw());
+        V.redraw();
+        return V;
+    }
+    /* write a readout only when it changes */
+    function put(id, text, html) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (html) { if (el.innerHTML !== text) el.innerHTML = text; }
+        else if (el.textContent !== text) el.textContent = text;
+    }
+    /* the drawing primitives, bound to one context and one palette */
+    function pen(ctx, C) {
+        const P = {};
+        P.line = (x1, y1, x2, y2, col, lw, dash) => {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            ctx.setLineDash([]);
+        };
+        P.arrow = (x1, y1, x2, y2, col, lw, under, dash) => {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) P.arrow(x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.lineCap = 'round'; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        };
+        P.dot = (x, y, r, fill, stroke, lw) => {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
+        };
+        P.width = (text, size, italic, font) => {
+            ctx.font = (italic ? 'italic ' : '') + size + 'px ' + (font || SERIF);
+            return ctx.measureText(text).width;
+        };
+        /* serif italic with a halo in the stage's tone */
+        P.sym = (text, x, y, col, size, align, upright) => {
+            size = size || 16;
+            ctx.font = (upright ? '' : 'italic ') + size + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(text, x, y);
+            ctx.fillStyle = col; ctx.fillText(text, x, y);
+            ctx.lineWidth = 1;
+        };
+        /* a symbol with a subscript (and optionally a vector arrow over the
+           main letter); returns the x where it ends */
+        P.sub = (main, s, x, y, col, size, align, vec) => {
+            size = size || 16;
+            const ss = Math.round(size * 0.68);
+            const w1 = P.width(main, size, true), w2 = s ? P.width(s, ss, !/^[0-9]+$/.test(s)) : 0;
+            const tw = w1 + (s ? 1 + w2 : 0);
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            P.sym(main, x0, y, col, size, 'left');
+            if (s) P.sym(s, x0 + w1 + 1, y + size * 0.3, col, ss, 'left', /^[0-9]+$/.test(s));
+            if (vec) P.over(x0, x0 + w1, y - size * 0.62, col);
+            return x0 + tw;
+        };
+        /* the vector arrow over a symbol, stroked (a combining arrow is not
+           reliable on a canvas) */
+        P.over = (xa, xb, y, col) => {
+            ctx.strokeStyle = C.stage; ctx.lineWidth = 3.5; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(xa + 1, y); ctx.lineTo(xb + 2, y); ctx.stroke();
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(xa + 1, y); ctx.lineTo(xb, y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(xb + 3, y); ctx.lineTo(xb - 2, y - 2.6); ctx.lineTo(xb - 2, y + 2.6);
+            ctx.closePath(); ctx.fill();
+        };
+        P.vec = (main, s, x, y, col, size, align) => P.sub(main, s, x, y, col, size, align, true);
+        /* small text in Geist; halo optional */
+        P.small = (text, x, y, col, size, align, halo) => {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            if (halo) { ctx.lineJoin = 'round'; ctx.lineWidth = 3.5; ctx.strokeStyle = C.stage; ctx.strokeText(text, x, y); ctx.lineWidth = 1; }
+            ctx.fillStyle = col; ctx.fillText(text, x, y);
+        };
+        /* the caption, top left: a small kicker and a serif line */
+        P.caption = (kicker, title, extra) => {
+            P.small(kicker, 16, 18, C.soft, 10.5, 'left');
+            if (title) {
+                ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage; ctx.strokeText(title, 16, 39);
+                ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39); ctx.lineWidth = 1;
+            }
+            if (extra) P.small(extra, 16, 58, C.faint, 10.5, 'left', true);
+        };
+        /* a point charge: crimson for +, blue for −, the sign drawn */
+        P.charge = (x, y, r, sign, ghost) => {
+            const col = sign > 0 ? C.crimson : sign < 0 ? C.blue : C.faint;
+            ctx.globalAlpha = ghost ? 0.35 : 1;
+            P.dot(x, y, r, col, C.ink, 1.2);
+            ctx.strokeStyle = '#fffdf6'; ctx.lineWidth = Math.max(1.6, r * 0.16); ctx.lineCap = 'round';
+            const q = r * 0.46;
+            ctx.beginPath(); ctx.moveTo(x - q, y); ctx.lineTo(x + q, y);
+            if (sign > 0) { ctx.moveTo(x, y - q); ctx.lineTo(x, y + q); }
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        };
+        /* a dimension line between two points, offset to one side */
+        P.dim = (x1, y1, x2, y2, off, label, col, labelSub) => {
+            col = col || C.soft;
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+            const nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+            ctx.stroke();
+            if (label) {
+                const k = off >= 0 ? 14 : -14;
+                P.sub(label, labelSub || '', (ax + bx) / 2 + nx * k, (ay + by) / 2 + ny * k, col, 16, 'center');
+            }
+        };
+        /* axes of a plot: an arrowed line along each axis */
+        P.axis = (x1, y1, x2, y2, col) => {
+            P.line(x1, y1, x2, y2, col || C.soft, 1.2);
+            const L = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / L, uy = (y2 - y1) / L;
+            ctx.fillStyle = col || C.soft; ctx.beginPath();
+            ctx.moveTo(x2 + ux * 9, y2 + uy * 9);
+            ctx.lineTo(x2 - uy * 4.5, y2 + ux * 4.5); ctx.lineTo(x2 + uy * 4.5, y2 - ux * 4.5);
+            ctx.closePath(); ctx.fill();
+        };
+        /* the short sweep between two directions */
+        P.arc = (cx, cy, r, a0, a1, col, lw) => {
+            let d = a1 - a0;
+            while (d > Math.PI) d -= 2 * Math.PI;
+            while (d < -Math.PI) d += 2 * Math.PI;
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1.1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(cx, cy, r, a0, a0 + d, d < 0); ctx.stroke();
+            return a0 + d / 2;
+        };
+        return P;
+    }
+    /* a round step for axis ticks: 1, 2, 2.5, 5 × 10ⁿ */
+    function niceStep(range, px, want) {
+        const raw = range * want / Math.max(px, 1), p10 = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 2.5, 5, 10]) if (m * p10 >= raw) return m * p10;
+        return 10 * p10;
+    }
+    return { isCS, T, num, signed, colours, mount, put, pen, niceStep, SERIF, SANS };
+}());
+</script>
+
+<script>
+/* Ex. 24-15 — the potential at P of four charges: a sum of signed numbers.
+   Static: it redraws when a control changes. */
+(function () {
+    'use strict';
+    const canvas = document.getElementById('sim-canvas');
+    if (!canvas) return;
+    const $ = id => document.getElementById(id);
+    const { T, num, signed } = KIT;
 
     const K = 8.99e9;
     /* q in fC, d in cm */
     const DEFAULTS = { q: 5.00, d: 4.00 };
     let state = { ...DEFAULTS };
     const show = { bars: true, dist: true };
-
-    /* reference contribution at the printed values, in mV — bar scale */
+    /* reference contribution at the printed values, in mV — the bar scale */
     const PHI_REF_MV = K * 5.00e-15 / 0.0400 * 1e3;
-
-    /* ── Slider wiring ──────────────────────────────────────────── */
-    function bindSlider(id, key, fmt) {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    }
-    const fmtQ = v => v.toFixed(2) + ' fC';
-    const fmtD = v => v.toFixed(2) + ' cm';
-    bindSlider('p-q', 'q', fmtQ);
-    bindSlider('p-d', 'd', fmtD);
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        [['p-q', 'q', fmtQ], ['p-d', 'd', fmtD]].forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
-            if (inp) inp.value = state[key];
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-
-    function wireToggle(id, key) {
-        document.getElementById(id)?.addEventListener('click', function () {
-            show[key] = !show[key];
-            this.querySelector('.toggle-box')?.classList.toggle('on');
-        });
-    }
-    wireToggle('tgl-bars', 'bars');
-    wireToggle('tgl-dist', 'dist');
 
     /* ── Physics — scalar potentials at P, in volts ─────────────── */
     function contributions() {
-        const Q = state.q * 1e-15;
-        const d = state.d * 1e-2;
+        const Q = state.q * 1e-15, d = state.d * 1e-2;
         const p1 =  K * Q / d;          /* +Q at d       */
         const p2 =  K * Q / d;          /* +Q at d       */
         const p3 = -K * Q / d;          /* −Q at d       */
         const p4 = -K * Q / (2 * d);    /* −Q at 2d      */
         return { p1, p2, p3, p4, tot: p1 + p2 + p3 + p4 };
     }
+    const fmtMv = v => signed(v, 3) + ' mV';
 
-    const fmtMv = v => (v >= 0 ? '+' : '') + v.toFixed(3) + ' mV';
+    function draw(V) {
+        const ctx = V.ctx, W = V.W, H = V.H, C = KIT.colours(), P = KIT.pen(ctx, C);
+        const c = contributions();
+        const mv = [c.p1 * 1e3, c.p2 * 1e3, c.p3 * 1e3, c.p4 * 1e3, c.tot * 1e3];
+        const narrow = W < 600, low = V.badgeLow() && W >= 640;
+        const top = 70, bot = H - (low ? 100 : 24);
 
-    /* ── Drawing helpers ────────────────────────────────────────── */
-    function charge(x, y, positive, label, labelDx, labelDy) {
-        ctx.beginPath(); ctx.arc(x, y, 13, 0, Math.PI * 2);
-        if (positive) { ctx.fillStyle = col.acc; ctx.fill(); }
-        else {
-            ctx.fillStyle = col.paper; ctx.fill();
-            ctx.lineWidth = 1.5; ctx.strokeStyle = col.ink; ctx.stroke();
-        }
-        ctx.strokeStyle = positive ? col.paper : col.ink;
-        ctx.lineWidth = 1.6; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.stroke();
-        if (positive) {
-            ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); ctx.stroke();
-        }
-        ctx.fillStyle = col.soft;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(label, x + labelDx, y + labelDy);
-    }
-
-    function distLabel(text, x, y) {
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(text, x, y);
-    }
-
-    /* signed contribution bar beside a charge: up = +, down = − */
-    function contribBar(x, y, phiMv) {
-        const L = Math.min(64, Math.max(4, 30 * Math.abs(phiMv) / PHI_REF_MV));
-        const up = phiMv >= 0;
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.lineCap = 'butt';
-        ctx.beginPath(); ctx.moveTo(x - 5, y + 0.5); ctx.lineTo(x + 5, y + 0.5); ctx.stroke();
-        ctx.fillStyle = up ? col.acc : col.ink;
-        if (up) ctx.fillRect(x - 2.5, y - L, 5, L);
-        else    ctx.fillRect(x - 2.5, y,     5, L);
-    }
-
-    /* ── Main draw ──────────────────────────────────────────────── */
-    function draw() {
-        ctx.clearRect(0, 0, W, H);
-        const c  = contributions();
-        const mv = { p1: c.p1 * 1e3, p2: c.p2 * 1e3, p3: c.p3 * 1e3,
-                     p4: c.p4 * 1e3, tot: c.tot * 1e3 };
-
-        /* the bottom strip belongs to the equation badge and the hint */
-        const diagH = Math.max(H - 96, 160);
-        const minD  = Math.min(W, diagH);
-        const rpx   = minD * (0.15 + 0.013 * state.d);
-        const cx = W * 0.50, cy = 24 + diagH * 0.56;
+        /* ── the charges around P: fitted for the largest d, smaller for less ── */
+        const sx1 = narrow || !show.bars ? W - 20 : W * 0.62;
+        const sy1 = narrow && show.bars ? top + (bot - top) * 0.58 : bot;
         const u45 = Math.SQRT1_2;
-        /* A: +Q at d (upper-left) · B1: −Q at d, B2: −Q at 2d (upper-right ray)
-           C: +Q at d (straight down) */
+        /* the figure spans d·u45 left of P to 2d·u45 right, 2d·u45 up to d down */
+        const full = Math.min((sx1 - 20 - 90) / (3 * u45), (sy1 - top - 40) / (2 * u45 + 1));
+        const rpx = full * (0.6 + 0.4 * state.d / 10);
+        const figW = 3 * u45 * rpx, figH = (2 * u45 + 1) * rpx;
+        const cx = 20 + (sx1 - 20 - figW) / 2 + u45 * rpx, cy = top + 10 + (sy1 - top - 20 - figH) / 2 + 2 * u45 * rpx;
         const A  = { x: cx - rpx * u45,     y: cy - rpx * u45 };
         const B1 = { x: cx + rpx * u45,     y: cy - rpx * u45 };
         const B2 = { x: cx + 2 * rpx * u45, y: cy - 2 * rpx * u45 };
         const Cc = { x: cx,                 y: cy + rpx };
-
-        /* distance guides — dashed rays from P */
         if (show.dist) {
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.lineCap = 'butt';
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(A.x, A.y);   ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(B2.x, B2.y); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(Cc.x, Cc.y); ctx.stroke();
-            ctx.setLineDash([]);
-            distLabel('d',  cx - 0.55 * rpx * u45 - 11, cy - 0.55 * rpx * u45 - 3);
-            distLabel('d',  cx + 0.50 * rpx * u45 + 11, cy - 0.50 * rpx * u45 + 8);
-            distLabel('2d', cx + 1.50 * rpx * u45 + 13, cy - 1.50 * rpx * u45 + 9);
-            distLabel('d',  cx + 11,                     cy + 0.55 * rpx);
+            P.line(cx, cy, A.x, A.y, C.faint, 1, [4, 4]);
+            P.line(cx, cy, B2.x, B2.y, C.faint, 1, [4, 4]);
+            P.line(cx, cy, Cc.x, Cc.y, C.faint, 1, [4, 4]);
+            P.sym('d', (cx + A.x) / 2 - 12, (cy + A.y) / 2 + 8, C.soft, 16);
+            P.sym('d', (cx + B1.x) / 2 + 12, (cy + B1.y) / 2 + 8, C.soft, 16);
+            /* 2d as a dimension line on the other side of the same ray */
+            P.dim(cx, cy, B2.x, B2.y, -26, '2d');
+            P.sym('d', cx + 14, (cy + Cc.y) / 2, C.soft, 16, 'left');
         }
+        const R = 13;
+        [[A, +1, '1'], [Cc, +1, '2'], [B1, -1, '3'], [B2, -1, '4']].forEach(([p, s, n]) => {
+            P.charge(p.x, p.y, R, s);
+            if (s > 0) {
+                P.sym('+Q', p.x - R - 6, p.y - 14, C.ink, 15, 'right');
+                P.small(n, p.x + R + 4, p.y + R, C.soft, 10.5, 'left', true);
+            } else {
+                /* 3 and 4 sit on the ray whose far side carries the 2d line:
+                   their names go on the near side, below right */
+                P.sym('−Q', p.x + R + 6, p.y + 11, C.ink, 15, 'left');
+                P.small(n, p.x + R + 3, p.y - R + 1, C.soft, 10.5, 'left', true);
+            }
+        });
 
-        /* signed contribution bars */
+        P.dot(cx, cy, 4, C.ink);
+        P.sym('P', cx - 14, cy + 12, C.ink, 17);
+        P.caption(T('THE POTENTIAL AT P', 'POTENCIÁL V BODĚ P'),
+                  T('four signed numbers, one sum', 'čtyři čísla se znaménkem, jeden součet'));
+
+        /* ── the sum, as signed bars: φ₁ … φ₄ and their total ── */
         if (show.bars) {
-            contribBar(A.x  - 22, A.y,  mv.p1);
-            contribBar(Cc.x + 24, Cc.y, mv.p2);
-            contribBar(B1.x + 22, B1.y, mv.p3);
-            contribBar(B2.x + 22, B2.y, mv.p4);
+            const bx0 = narrow ? 40 : W * 0.66, bx1 = W - 24;
+            const by0 = narrow ? sy1 + 30 : top + 40, by1 = narrow ? bot - 24 : bot - 30;
+            const zero = (by0 + by1) / 2, half = (by1 - by0) / 2 - 18;
+            const k = half * 0.62 / PHI_REF_MV;              /* px per mV, fixed */
+            const n = 5, gap = (bx1 - bx0) / n, bw = Math.min(30, gap * 0.5);
+            P.line(bx0 - 8, zero, bx1, zero, C.soft, 1.2);
+            P.small(T('φ AT P (mV)', 'φ V BODĚ P (mV)'), bx0 - 8, by0 - 16, C.soft, 10.5, 'left');
+            mv.forEach((v, i) => {
+                const x = bx0 + gap * (i + 0.5) - bw / 2, h = Math.max(-half, Math.min(half, v * k));
+                const col = i === 4 ? C.acc : (v >= 0 ? C.crimson : C.blue);
+                ctx.fillStyle = col; ctx.globalAlpha = i === 4 ? 1 : 0.85;
+                ctx.fillRect(x, h > 0 ? zero - h : zero, bw, Math.abs(h));
+                ctx.globalAlpha = 1;
+                ctx.strokeStyle = C.ink; ctx.lineWidth = 1;
+                ctx.strokeRect(x, h > 0 ? zero - h : zero, bw, Math.abs(h));
+                const ly = h >= 0 ? zero + 16 : zero - 16;
+                if (i < 4) P.sub('φ', String(i + 1), x + bw / 2, ly, C.ink, 16, 'center');
+                else P.sym('φ', x + bw / 2, ly, C.acc, 17);
+            });
+            /* the "=" between the four and the sum */
+            P.line(bx0 + gap * 4, by0, bx0 + gap * 4, by1, C.faint, 1, [3, 4]);
         }
 
-        /* charges drawn on top */
-        charge(A.x,  A.y,  true,  '+Q', -27,   2);
-        charge(B1.x, B1.y, false, '−Q',  -4, -26);
-        charge(B2.x, B2.y, false, '−Q',  -4, -26);
-        charge(Cc.x, Cc.y, true,  '+Q', -27,   8);
-
-        /* point P */
-        ctx.fillStyle = col.ink;
-        ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, Math.PI * 2); ctx.fill();
-        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('P', cx - 14, cy + 11);
-
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        if ($('r-p1'))  $('r-p1').textContent  = fmtMv(mv.p1);
-        if ($('r-p2'))  $('r-p2').textContent  = fmtMv(mv.p2);
-        if ($('r-p3'))  $('r-p3').textContent  = fmtMv(mv.p3);
-        if ($('r-p4'))  $('r-p4').textContent  = fmtMv(mv.p4);
-        if ($('r-tot')) $('r-tot').textContent = fmtMv(mv.tot);
+        KIT.put('r-p1', fmtMv(mv[0]));
+        KIT.put('r-p2', fmtMv(mv[1]));
+        KIT.put('r-p3', fmtMv(mv[2]));
+        KIT.put('r-p4', fmtMv(mv[3]));
+        KIT.put('r-tot', fmtMv(mv[4]));
     }
+    const V = KIT.mount(canvas, draw);
 
-    function frame() {
-        draw();
-        requestAnimationFrame(frame);
+    /* ── controls ───────────────────────────────────────────────── */
+    const FMT = { q: v => num(v, 2) + ' fC', d: v => num(v, 2) + ' cm' };
+    const SL = [['p-q', 'q'], ['p-d', 'd']];
+    const syncLabels = () => SL.forEach(([id, k]) => KIT.put(id + '-val', FMT[k](state[k])));
+    SL.forEach(([id, k]) => {
+        const inp = $(id);
+        inp?.addEventListener('input', () => { state[k] = +inp.value; syncLabels(); V.redraw(); });
+    });
+    $('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        SL.forEach(([id, k]) => { const inp = $(id); if (inp) inp.value = state[k]; });
+        syncLabels(); V.redraw();
+    });
+    function wireToggle(id, key) {
+        $(id)?.addEventListener('click', function () {
+            show[key] = !show[key];
+            this.querySelector('.toggle-box')?.classList.toggle('on', show[key]);
+            V.redraw();
+        });
     }
-    requestAnimationFrame(frame);
+    wireToggle('tgl-bars', 'bars');
+    wireToggle('tgl-dist', 'dist');
+    document.addEventListener('langchange', syncLabels);
+    syncLabels();
 }());
 </script>
 

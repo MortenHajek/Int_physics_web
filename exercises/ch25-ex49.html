@@ -83,7 +83,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Two layers in series</span><span lang="cs">Dvě vrstvy sériově</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -129,7 +128,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
@@ -145,7 +143,7 @@
                         <span class="readout-val" id="r-c">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="C_{\text{vacuum}}"></span>
+                        <span class="readout-label"><span data-tex="C_0"></span> <span lang="en">(vacuum)</span><span lang="cs">(vakuum)</span></span>
                         <span class="readout-val" id="r-c0">—</span>
                     </div>
                 </div>
@@ -230,46 +228,170 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 25-49 — two dielectric layers between the plates act as two capacitors
+   in series. Physics unchanged: C = 17.36 pF at the defaults (printed ≈ 17 pF). */
 (function () {
     'use strict';
-
     const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
 
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    /* ── the house style (shared by the Physics 2 exercise pages) ───────── */
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+    const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                  teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    function palette() {
+        const R = document.documentElement;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink: tok(R, '--ink', '#363026'), soft: tok(R, '--ink-soft', '#4d4436'),
+            faint: tok(R, '--ink-faint', '#7A6A52'), paper: tok(R, '--paper', '#FFFDF6'),
+            deep: tok(R, '--paper-deep', '#efead6'), stage: tok(R, '--paper-cool', '#eef0e8'),
+            acc: tok(document.body, '--accent', '#3D2E8A'),
         };
     }
-    const col = readCol();
+    let col = palette();
+    /* a number with a real minus sign and, in Czech, a decimal comma */
+    function num(v, d) {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    }
+    function line(x1, y1, x2, y2, c, lw, dash) {
+        ctx.strokeStyle = c; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    /* shaft + filled head, head min(11, 0.36 L); `under` lays a stage-coloured
+       band beneath it where it crosses busy drawing */
+    function arrow(x1, y1, x2, y2, c, lw, under) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        const pass = (cc, w) => {
+            ctx.strokeStyle = cc; ctx.fillStyle = cc; ctx.lineWidth = w;
+            ctx.setLineDash([]); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+            if (cc === col.stage) ctx.stroke();
+        };
+        if (under) pass(col.stage, (lw || 2) + 4);
+        pass(c, lw || 2);
+    }
+    function dot(x, y, r, fill, stroke, lw) {
+        ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
+    }
+    /* a symbol: serif italic with a halo in the stage's tone */
+    function sym(t, x, y, c, size, align, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+        ctx.strokeText(t, x, y);
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+        ctx.lineWidth = 1;
+    }
+    function symW(t, size, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        return ctx.measureText(t).width;
+    }
+    /* a symbol with a drawn subscript; returns the x where it ends */
+    function sub(main, s, x, y, c, size, align, subUpright) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        const w1 = symW(main, size), w2 = symW(s, ss, subUpright);
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        sym(main, x0, y, c, size, 'left');
+        sym(s, x0 + w1 + 1, y + size * 0.3, c, ss, 'left', subUpright);
+        return x0 + tw;
+    }
+    /* a symbol with a stroked vector arrow over it (and an optional subscript) */
+    function vsym(main, x, y, c, size, s, align) {
+        size = size || 17;
+        const w = symW(main, size), ws = s ? symW(s, Math.round(size * 0.7)) + 1 : 0, tw = w + ws;
+        const x0 = align === 'left' ? x : align === 'right' ? x - tw : x - tw / 2;
+        if (s) sub(main, s, x0, y, c, size, 'left'); else sym(main, x0, y, c, size, 'left');
+        const ay = y - size * 0.62, a1 = x0 + 1, a2 = x0 + w + 1;
+        ctx.strokeStyle = col.stage; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2, ay); ctx.stroke();
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a2 + 1, ay); ctx.lineTo(a2 - 4, ay - 2.6); ctx.lineTo(a2 - 4, ay + 2.6);
+        ctx.closePath(); ctx.fill();
+        return x0 + tw;
+    }
+    /* small print: captions, ticks, notes */
+    function small(t, x, y, c, size, align, bold) {
+        ctx.font = (bold ? '600 ' : '') + (size || 11) + 'px ' + SANS;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+    }
+    /* the caption stack, top left: a kicker in capitals and a serif line */
+    function caption(kicker, title, note, x, y) {
+        x = x === undefined ? 16 : x; y = y === undefined ? 18 : y;
+        if (kicker) small(kicker, x, y, col.soft, 10.5);
+        if (title) {
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+            ctx.strokeText(title, x, y + 21); ctx.fillStyle = col.ink; ctx.fillText(title, x, y + 21);
+            ctx.lineWidth = 1;
+        }
+        if (note) small(note, x, y + 40, col.faint, 10.5);
+    }
+    /* a dimension line with end ticks and a serif label, offset to one side */
+    function dim(x1, y1, x2, y2, off, label, c, lsub) {
+        c = c || col.soft;
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L, ny = dx / L;
+        const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+        ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+        ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+        ctx.stroke();
+        if (label) {
+            const k = off >= 0 ? 14 : -14, lx = (ax + bx) / 2 + nx * k, ly = (ay + by) / 2 + ny * k;
+            if (lsub) sub(label, lsub, lx, ly, c, 16); else sym(label, lx, ly, c, 16);
+        }
+    }
+    /* ground or wall, hatched on the side the line is drawn clockwise from */
+    function hatch(x1, y1, x2, y2, depth, c) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = c || col.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
+            ctx.beginPath(); ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth); ctx.stroke();
+        }
+    }
+    /* axes of a plot frame: ticks at round numbers */
+    function niceStep(range, px, want) {
+        const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+        return 10 * p;
+    }
+    function tickTxt(v, step) {
+        const d = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9));
+        return num(v, d);
+    }
 
     const E0 = 8.854e-12, S = 7.89e-4;
     const DEFAULTS = { e1: 11.0, e2: 12.0, d: 4.62 };
     let state = { ...DEFAULTS };
 
     const SLIDERS = [
-        ['p-e1', 'e1', v => v.toFixed(1)],
-        ['p-e2', 'e2', v => v.toFixed(1)],
-        ['p-d',  'd',  v => v.toFixed(2) + ' mm'],
+        ['p-e1', 'e1', v => num(v, 1)],
+        ['p-e2', 'e2', v => num(v, 1)],
+        ['p-d',  'd',  v => num(v, 2) + ' mm'],
     ];
     SLIDERS.forEach(([id, key, fmt]) => {
         const inp = document.getElementById(id);
@@ -277,14 +399,16 @@ document.addEventListener('DOMContentLoaded', () => {
         inp.addEventListener('input', () => {
             state[key] = +inp.value;
             lbl.textContent = fmt(state[key]);
+            redraw();
         });
     });
+    const syncVals = () => SLIDERS.forEach(([id, key, fmt]) => { document.getElementById(id + '-val').textContent = fmt(state[key]); });
+    document.addEventListener('langchange', syncVals);
+    syncVals();
     document.getElementById('btn-reset').addEventListener('click', () => {
         state = { ...DEFAULTS };
-        SLIDERS.forEach(([id, key, fmt]) => {
-            document.getElementById(id).value = state[key];
-            document.getElementById(id + '-val').textContent = fmt(state[key]);
-        });
+        SLIDERS.forEach(([id, key]) => { document.getElementById(id).value = state[key]; });
+        syncVals(); redraw();
     });
 
     function physics() {
@@ -293,97 +417,124 @@ document.addEventListener('DOMContentLoaded', () => {
         const cb = E0 * state.e2 * S / (d / 2);
         return { ca, cb, c: ca * cb / (ca + cb), c0: E0 * S / d };
     }
+    function step() {}
+    function moving() { return false; }
 
     function draw() {
-        ctx.clearRect(0, 0, W, H);
         const f = physics();
+        const narrow = W < 560;
+        const top = 78, bot = H - 30;             /* the badge sits top right */
 
-        const cw = Math.min(W * 0.56, 380);
-        const cx = W * 0.5 - cw / 2;
-        const gap = Math.min(H * 0.44, 40 + state.d * 14);
-        const cy = H * 0.46;
-        const plateH = 10;
+        /* the capacitor: the gap is drawn to the d range (1–10 mm) */
+        const schW = narrow ? 0 : Math.min(150, W * 0.2);
+        const cw = Math.min(W - schW - (narrow ? 110 : 150), 520);
+        const x0 = narrow ? 56 : schW + (W - schW - cw) / 2 - 20, x1 = x0 + cw;
+        const gpx = (bot - top - 170) / 10;       /* px per mm */
+        const gap = Math.max(40, state.d * gpx), cy = (top + 40 + bot) / 2;
+        const yT = cy - gap / 2, yM = cy, yB = cy + gap / 2, pl = 9;
 
-        /* wires */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(W * 0.5, cy - gap / 2 - plateH); ctx.lineTo(W * 0.5, 30); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(W * 0.5, cy + gap / 2 + plateH); ctx.lineTo(W * 0.5, H - 30); ctx.stroke();
+        /* each layer tinted by its permittivity */
+        const tint = e => 0.05 + 0.3 * Math.min(1, (e - 1) / 19);
+        ctx.fillStyle = INK.blue; ctx.globalAlpha = tint(state.e2); ctx.fillRect(x0, yT, cw, gap / 2);
+        ctx.fillStyle = col.acc;  ctx.globalAlpha = tint(state.e1); ctx.fillRect(x0, yM, cw, gap / 2);
+        ctx.globalAlpha = 1;
+        line(x0, yM, x1, yM, col.soft, 1);
+        line(x0, yT, x0, yB, col.faint, 1); line(x1, yT, x1, yB, col.faint, 1);
 
-        /* layers */
-        const layH = gap / 2;
-        /* lower layer εr1 */
-        ctx.fillStyle = 'rgba(122,40,104,' + (0.06 + 0.028 * state.e1) / 1.6 + ')';
-        ctx.fillRect(cx, cy, cw, layH);
-        /* upper layer εr2 */
-        ctx.fillStyle = 'rgba(61,46,138,' + (0.06 + 0.028 * state.e2) / 1.6 + ')';
-        ctx.fillRect(cx, cy - layH, cw, layH);
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        ctx.strokeRect(cx, cy - layH, cw, gap);
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + cw, cy); ctx.stroke();
-
-        /* plates */
-        ctx.fillStyle = col.ink;
-        ctx.fillRect(cx - 8, cy - gap / 2 - plateH, cw + 16, plateH);
-        ctx.fillRect(cx - 8, cy + gap / 2, cw + 16, plateH);
-
-        /* labels */
-        ctx.fillStyle = col.soft;
-        ctx.font = '12px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('εr2 = ' + state.e2.toFixed(1), W * 0.5, cy - layH / 2);
-        ctx.fillText('εr1 = ' + state.e1.toFixed(1), W * 0.5, cy + layH / 2);
-
-        /* d dimension arrow */
-        const dx = cx + cw + 26;
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(dx, cy - gap / 2); ctx.lineTo(dx, cy + gap / 2); ctx.stroke();
-        [[cy - gap / 2, 1], [cy + gap / 2, -1]].forEach(([y, s]) => {
-            ctx.beginPath();
-            ctx.moveTo(dx - 3.5, y + 7 * s); ctx.lineTo(dx, y); ctx.lineTo(dx + 3.5, y + 7 * s);
-            ctx.stroke();
+        /* the field in each layer: the same D, so E is smaller where εr is
+           larger — the arrows share one scale, E ∝ 1/εr */
+        const kE = (gap / 2 - 10) / 1.0, nA = Math.max(4, Math.floor(cw / 70));
+        [[yT, state.e2, INK.blue, '2'], [yM, state.e1, col.acc, '1']].forEach(([y0, er, c, s]) => {
+            const L = Math.max(6, kE * Math.min(1, 1 / er * Math.min(state.e1, state.e2)));
+            for (let i = 0; i < nA; i++) {
+                const x = x0 + cw * (i + 0.5) / nA;
+                if (i === Math.floor(nA / 2)) continue;
+                arrow(x, y0 + (gap / 2 - L) / 2, x, y0 + (gap / 2 + L) / 2, c, 1.6);
+            }
+            const xm = x0 + cw * (Math.floor(nA / 2) + 0.5) / nA;
+            sub('ε', 'r' + s, xm, y0 + gap / 4, col.ink, 17, 'center');
         });
-        ctx.fillStyle = col.soft;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('d', dx + 8, cy);
 
-        /* series-equivalent sketch on the left */
-        const sx = cx - 66;
-        if (sx > 30) {
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.4;
-            ctx.beginPath(); ctx.moveTo(sx, cy - gap / 2 - 16); ctx.lineTo(sx, cy - 14); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(sx, cy - 6); ctx.lineTo(sx, cy + 14); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(sx, cy + 22); ctx.lineTo(sx, cy + gap / 2 + 16); ctx.stroke();
-            [[cy - 14, cy - 6], [cy + 14, cy + 22]].forEach(seg => {
-                ctx.beginPath(); ctx.moveTo(sx - 8, seg[0]); ctx.lineTo(sx + 8, seg[0]); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(sx - 8, seg[1]); ctx.lineTo(sx + 8, seg[1]); ctx.stroke();
-            });
-            ctx.fillStyle = col.faint;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-            ctx.fillText('C₂', sx - 12, cy - 10);
-            ctx.fillText('C₁', sx - 12, cy + 18);
+        /* plates, charges and leads */
+        ctx.fillStyle = col.ink;
+        ctx.fillRect(x0 - 10, yT - pl, cw + 20, pl);
+        ctx.fillRect(x0 - 10, yB, cw + 20, pl);
+        const mid = (x0 + x1) / 2;
+        line(mid, yT - pl, mid, top + 6, col.ink, 1.6);
+        line(mid, yB + pl, mid, bot - 6, col.ink, 1.6);
+        dot(mid, top + 6, 4.5, col.stage, col.ink, 1.6);
+        dot(mid, bot - 6, 4.5, col.stage, col.ink, 1.6);
+        sym('+Q', x1 + 16, yT - pl / 2, col.ink, 15, 'left');
+        sym('−Q', x1 + 16, yB + pl / 2, col.ink, 15, 'left');
+        sym('S', x0 + 18, yT - pl - 14, col.soft, 16, 'left');
+
+        /* the thicknesses: d, split in two halves */
+        if (narrow) {
+            dim(x0 - 22, yT, x0 - 22, yB, 0, null);
+            sym('d', x0 - 30, cy, col.soft, 17, 'right');
+        } else {
+            const dx = x1 + 64;
+            dim(dx, yT, dx, yB, 0, null);
+            sym('d', dx + 12, cy, col.soft, 17, 'left');
+            dim(x0 - 26, yT, x0 - 26, yM, 0, null);
+            dim(x0 - 26, yM, x0 - 26, yB, 0, null);
+            sym('d/2', x0 - 32, (yT + yM) / 2, col.soft, 15, 'right');
+            sym('d/2', x0 - 32, (yM + yB) / 2, col.soft, 15, 'right');
         }
 
-        /* result */
-        ctx.fillStyle = col.acc;
-        ctx.font = '13px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('C = ' + (f.c * 1e12).toFixed(1) + ' pF', W * 0.5, H - 26);
+        /* the same thing as a circuit: two capacitors in series */
+        if (!narrow) {
+            const sx = 50, a = 16, g = 12;
+            const c2y = cy - 30, c1y = cy + 30;
+            line(sx, top + 30, sx, c2y - g / 2, col.ink, 1.5);
+            line(sx - a, c2y - g / 2, sx + a, c2y - g / 2, col.ink, 2);
+            line(sx - a, c2y + g / 2, sx + a, c2y + g / 2, col.ink, 2);
+            line(sx, c2y + g / 2, sx, c1y - g / 2, col.ink, 1.5);
+            line(sx - a, c1y - g / 2, sx + a, c1y - g / 2, col.ink, 2);
+            line(sx - a, c1y + g / 2, sx + a, c1y + g / 2, col.ink, 2);
+            line(sx, c1y + g / 2, sx, bot - 30, col.ink, 1.5);
+            sub('C', '2', sx + a + 8, c2y, INK.blue, 16, 'left');
+            sub('C', '1', sx + a + 8, c1y, col.acc, 16, 'left');
+            small(T('in series', 'sériově'), sx, bot - 14, col.soft, 11, 'center');
+        }
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        $('r-ca').textContent = (f.ca * 1e12).toFixed(1) + ' pF';
-        $('r-cb').textContent = (f.cb * 1e12).toFixed(1) + ' pF';
-        $('r-c').textContent  = (f.c  * 1e12).toFixed(2) + ' pF';
-        $('r-c0').textContent = (f.c0 * 1e12).toFixed(2) + ' pF';
+        caption(T('TWO LAYERS BETWEEN THE PLATES', 'DVĚ VRSTVY MEZI DESKAMI'),
+                T('two capacitors, one after the other', 'dva kondenzátory za sebou'));
+
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        put('r-ca', num(f.ca * 1e12, 1) + ' pF');
+        put('r-cb', num(f.cb * 1e12, 1) + ' pF');
+        put('r-c',  num(f.c  * 1e12, 2) + ' pF');
+        put('r-c0', num(f.c0 * 1e12, 2) + ' pF');
     }
 
-    function frame() {
-        draw();
-        requestAnimationFrame(frame);
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+        W = Math.max(r.width, 200); H = Math.max(r.height, 200);
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    requestAnimationFrame(frame);
+    resize();
+    let raf = 0, visible = true, lastTs = 0;
+    function paint(ts) { col = palette(); ctx.clearRect(0, 0, W, H); draw(ts || performance.now()); }
+    function loop(ts) {
+        raf = 0;
+        const dt = lastTs ? Math.min((ts - lastTs) / 1000, 1 / 20) : 0;
+        lastTs = ts;
+        step(dt);
+        paint(ts);
+        if (visible && moving()) raf = requestAnimationFrame(loop); else lastTs = 0;
+    }
+    function redraw() { if (!raf) raf = requestAnimationFrame(loop); }
+    new ResizeObserver(() => { resize(); paint(); }).observe(wrap);
+    if (window.IntersectionObserver) new IntersectionObserver(es => {
+        visible = es.some(e => e.isIntersecting);
+        if (visible) redraw();
+    }).observe(wrap);
+    document.addEventListener('langchange', redraw);
+
+    redraw();
 }());
 </script>
 

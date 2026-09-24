@@ -75,7 +75,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Ray-diagram sandbox</span><span lang="cs">Sandbox: paprskový diagram</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -113,7 +112,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Image</span><span lang="cs">Obraz</span></div>
@@ -262,230 +260,325 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 34-112 — an object 20 cm in front of a diverging lens, f = −30 cm.
+   1/p + 1/i = 1/f gives i = −12 cm: a virtual, upright, reduced image on
+   the object's side. The principal rays are drawn solid where the light
+   really goes and dashed where they are only traced back. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#d4a418',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: tok('--paper-cool', '#eef0ea'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
     /* p, f in cm (f < 0 for a diverging lens) */
     const DEFAULTS = { p: 20, f: -30 };
     let state = { ...DEFAULTS };
     const show = { r1: true, r2: true, r3: false, ext: true };
-
-    /* ── Slider wiring ──────────────────────────────────────────── */
-    function bindSlider(id, key, fmt) {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    }
-    const fmtCm = v => (v < 0 ? '−' + Math.abs(v).toFixed(1) : v.toFixed(1)) + ' cm';
-    bindSlider('p-p', 'p', fmtCm);
-    bindSlider('p-f', 'f', fmtCm);
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        [['p-p', 'p', fmtCm], ['p-f', 'f', fmtCm]].forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw);
+    const fmtCm = v => (v < 0 ? '−' : '') + KIT.dec(Math.abs(v).toFixed(1)) + ' cm';
+    const SL = [['p-p', 'p', fmtCm], ['p-f', 'f', fmtCm]];
+    function syncLabels() {
+        SL.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SL.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+        inp?.addEventListener('input', () => { state[key] = +inp.value; if (lbl) lbl.textContent = fmt(state[key]); V.redraw(); });
     });
-
+    document.getElementById('btn-reset')?.addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); V.redraw(); });
     function wireToggle(id, key) {
         document.getElementById(id)?.addEventListener('click', function () {
             show[key] = !show[key];
             this.querySelector('.toggle-box')?.classList.toggle('on');
+            V.redraw();
         });
     }
-    wireToggle('tgl-r1',  'r1');
-    wireToggle('tgl-r2',  'r2');
-    wireToggle('tgl-r3',  'r3');
-    wireToggle('tgl-ext', 'ext');
+    wireToggle('tgl-r1', 'r1'); wireToggle('tgl-r2', 'r2'); wireToggle('tgl-r3', 'r3'); wireToggle('tgl-ext', 'ext');
+    document.addEventListener('langchange', syncLabels);
+    syncLabels();
 
-    /* ── Drawing helpers ────────────────────────────────────────── */
-    function line(x1, y1, x2, y2, color, lw, dash) {
-        ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
-        ctx.setLineDash(dash || []);
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-        ctx.setLineDash([]);
-    }
-
-    /* small filled arrowhead pointing along (dx, dy), planted at (x, y) */
-    function tick(x, y, dx, dy, color) {
-        const len = Math.hypot(dx, dy);
-        if (len < 1e-9) return;
-        const ux = dx / len, uy = dy / len, s = 7;
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(x + ux * s * 0.6, y + uy * s * 0.6);
-        ctx.lineTo(x - ux * s * 0.4 - uy * s * 0.42, y - uy * s * 0.4 + ux * s * 0.42);
-        ctx.lineTo(x - ux * s * 0.4 + uy * s * 0.42, y - uy * s * 0.4 - ux * s * 0.42);
+    /* an arrowhead planted mid-ray, pointing the way the light goes */
+    function tick(ctx, x, y, dx, dy, col) {
+        const L = Math.hypot(dx, dy); if (L < 1e-9) return;
+        const ux = dx / L, uy = dy / L, s = 10;
+        ctx.fillStyle = col; ctx.beginPath();
+        ctx.moveTo(x + ux * s * 0.55, y + uy * s * 0.55);
+        ctx.lineTo(x - ux * s * 0.45 - uy * s * 0.45, y - uy * s * 0.45 + ux * s * 0.45);
+        ctx.lineTo(x - ux * s * 0.45 + uy * s * 0.45, y - uy * s * 0.45 - ux * s * 0.45);
         ctx.closePath(); ctx.fill();
     }
 
-    function mono(text, x, y, color, align) {
-        ctx.fillStyle = color;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = align || 'center'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText(text, x, y);
-    }
-
-    /* horizontal dimension bracket with end ticks + centred label */
-    function dim(xa, xb, y, label, color) {
-        line(xa, y, xb, y, color, 1);
-        line(xa, y - 4, xa, y + 4, color, 1);
-        line(xb, y - 4, xb, y + 4, color, 1);
-        mono(label, (xa + xb) / 2, y + 13, color, 'center');
-    }
-
-    /* ── Main draw ──────────────────────────────────────────────── */
-    function draw() {
-        ctx.clearRect(0, 0, W, H);
-
-        const p  = state.p, f = state.f, af = -f;
-        const i  = 1 / (1 / f - 1 / p);          /* image distance (cm, < 0) */
-        const m  = -i / p;                        /* magnification (> 0)      */
-
-        const axisY = H * 0.52;
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const p = state.p, f = state.f, af = -f;
+        const i = 1 / (1 / f - 1 / p);          /* image distance (cm, < 0) */
+        const m = -i / p;                        /* magnification (> 0)      */
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const top = 76, bot = H - (low ? 110 : 30);
+        /* room below the axis for the two distances */
+        const axisY = top + (bot - top) * 0.6;
         const lensX = W * 0.58;
-        /* fit p up to 60 cm on the left, |f| up to 50 cm on the right */
-        const s = Math.min((lensX - 28) / 60, (W - lensX - 28) / 50);
-        const h = Math.min(80, H * 0.24);         /* object height, px        */
+        const s = Math.min((lensX - 30) / 60, (W - lensX - 30) / 50);     /* px per cm */
+        const h = Math.min((axisY - top) * 0.6, 140);                     /* object height, px */
+        const xO = lensX - p * s, tipY = axisY - h;
+        const xI = lensX + i * s, imgTipY = axisY - m * h;
+        const xF1 = lensX - af * s, xF2 = lensX + af * s;
+        const R1 = I.blue, R2 = I.green, R3 = I.violet;
 
-        const xO = lensX - p * s,  tipY    = axisY - h;
-        const xI = lensX + i * s,  imgTipY = axisY - m * h;
-        const xF1 = lensX - af * s, xF2 = lensX + af * s;   /* near / far focus */
+        /* the optical axis and the diverging lens (a line with inward heads) */
+        KIT.line(ctx, 14, axisY, W - 14, axisY, C.faint, 1);
+        const Lh = h + 36;
+        KIT.line(ctx, lensX, axisY - Lh, lensX, axisY + Lh, C.ink, 2.2);
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) =>
+            KIT.line(ctx, lensX, axisY + sy * Lh, lensX + sx * 8, axisY + sy * (Lh + 10), C.ink, 2.2));
+        [xF1, xF2].forEach(x => { KIT.line(ctx, x, axisY - 6, x, axisY + 6, C.ink, 1.6); });
+        KIT.sym(ctx, 'F', xF1, axisY - 18, C.ink, 16);
+        KIT.sym(ctx, 'F′', xF2, axisY - 18, C.ink, 16);
 
-        /* optical axis */
-        line(14, axisY, W - 14, axisY, col.faint, 1);
-
-        /* thin-lens plane: line with inward (diverging) arrowheads */
-        const Lh = h + 30;
-        line(lensX, axisY - Lh, lensX, axisY + Lh, col.ink, 2);
-        line(lensX, axisY - Lh, lensX - 7, axisY - Lh - 9, col.ink, 2);
-        line(lensX, axisY - Lh, lensX + 7, axisY - Lh - 9, col.ink, 2);
-        line(lensX, axisY + Lh, lensX - 7, axisY + Lh + 9, col.ink, 2);
-        line(lensX, axisY + Lh, lensX + 7, axisY + Lh + 9, col.ink, 2);
-
-        /* focal points, both at ±|f| */
-        [xF1, xF2].forEach(x => {
-            line(x, axisY - 5, x, axisY + 5, col.ink, 1.5);
-            ctx.fillStyle = col.soft;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-            ctx.fillText('F', x, axisY + 19);
-        });
-
-        /* ── principal rays (solid where the light is real) ─────── */
+        /* the principal rays */
         const xEnd = W - 12;
-
-        if (show.r1) {
-            /* parallel in; out as if from the near focus F1 */
-            line(xO, tipY, lensX, tipY, col.soft, 1.4);
-            tick((xO + lensX) / 2, tipY, 1, 0, col.soft);
-            const dx = af * s, dy = -h;                    /* dir away from F1 */
-            const t  = (xEnd - lensX) / dx;
-            line(lensX, tipY, xEnd, tipY + dy * t, col.soft, 1.4);
-            tick(lensX + dx * t * 0.45, tipY + dy * t * 0.45, dx, dy, col.soft);
-            if (show.ext) line(lensX, tipY, xF1, axisY, col.soft, 1.1, [4, 4]);
+        if (show.r1) {   /* parallel in; out as if from the near focus */
+            KIT.line(ctx, xO, tipY, lensX, tipY, R1, 1.8);
+            tick(ctx, (xO + lensX) / 2, tipY, 1, 0, R1);
+            const dx = af * s, dy = -h, t = (xEnd - lensX) / dx;
+            KIT.line(ctx, lensX, tipY, xEnd, tipY + dy * t, R1, 1.8);
+            tick(ctx, lensX + dx * t * 0.45, tipY + dy * t * 0.45, dx, dy, R1);
+            if (show.ext) KIT.line(ctx, lensX, tipY, xF1, axisY, R1, 1.2, [4, 4]);
+            KIT.small(ctx, '1', (xO + lensX) / 2, tipY - 12, R1, 11, 'center');
         }
-
-        if (show.r2) {
-            /* straight through the lens centre */
+        if (show.r2) {   /* straight through the centre */
             const slope = h / (p * s);
-            line(xO, tipY, xEnd, axisY + slope * (xEnd - lensX), col.soft, 1.4);
-            tick((xO + lensX) / 2, (tipY + axisY) / 2, p * s, h, col.soft);
-            tick(lensX + (xEnd - lensX) * 0.45, axisY + slope * (xEnd - lensX) * 0.45,
-                 p * s, h, col.soft);
+            KIT.line(ctx, xO, tipY, xEnd, axisY + slope * (xEnd - lensX), R2, 1.8);
+            tick(ctx, (xO + lensX) / 2, (tipY + axisY) / 2, p * s, h, R2);
+            tick(ctx, lensX + (xEnd - lensX) * 0.45, axisY + slope * (xEnd - lensX) * 0.45, p * s, h, R2);
+            KIT.small(ctx, '2', (xO + lensX) / 2 - 12, (tipY + axisY) / 2 + 4, R2, 11, 'center');
+        }
+        if (show.r3) {   /* aimed at the far focus; out parallel at height m·h */
+            KIT.line(ctx, xO, tipY, lensX, imgTipY, R3, 1.8);
+            tick(ctx, (xO + lensX) / 2, (tipY + imgTipY) / 2, lensX - xO, imgTipY - tipY, R3);
+            KIT.line(ctx, lensX, imgTipY, xEnd, imgTipY, R3, 1.8);
+            tick(ctx, lensX + (xEnd - lensX) * 0.45, imgTipY, 1, 0, R3);
+            if (show.ext) {
+                KIT.line(ctx, lensX, imgTipY, xI - 30, imgTipY, R3, 1.2, [4, 4]);
+                KIT.line(ctx, lensX, imgTipY, xF2, axisY, R3, 1, [2, 4]);
+            }
+            KIT.small(ctx, '3', (xO + lensX) / 2, (tipY + imgTipY) / 2 - 12, R3, 11, 'center');
         }
 
-        if (show.r3) {
-            /* aimed at the far focus F2; exits parallel at height m·h */
-            line(xO, tipY, lensX, imgTipY, col.soft, 1.4);
-            tick((xO + lensX) / 2, (tipY + imgTipY) / 2, lensX - xO, imgTipY - tipY, col.soft);
-            line(lensX, imgTipY, xEnd, imgTipY, col.soft, 1.4);
-            tick(lensX + (xEnd - lensX) * 0.45, imgTipY, 1, 0, col.soft);
-            if (show.ext) line(lensX, imgTipY, xI - 36, imgTipY, col.soft, 1.1, [4, 4]);
-        }
+        /* the virtual image: a dashed, hollow arrow where the extensions meet */
+        KIT.line(ctx, xI, axisY, xI, imgTipY + 9, C.acc, 2.4, [5, 4]);
+        ctx.beginPath(); ctx.moveTo(xI, imgTipY); ctx.lineTo(xI - 6, imgTipY + 11); ctx.lineTo(xI + 6, imgTipY + 11); ctx.closePath();
+        ctx.fillStyle = C.stage; ctx.fill(); ctx.strokeStyle = C.acc; ctx.lineWidth = 1.6; ctx.stroke();
+        if (show.ext) { ctx.beginPath(); ctx.arc(xI, imgTipY, 3, 0, Math.PI * 2); ctx.strokeStyle = C.acc; ctx.lineWidth = 1.3; ctx.stroke(); }
+        KIT.sym(ctx, KIT.T('image', 'obraz'), xI + 10, axisY - m * h * 0.3, C.acc, 14, 'left');
+        /* the object: a solid arrow */
+        KIT.arrow(ctx, xO, axisY, xO, tipY, C.acc, 3);
+        KIT.small(ctx, KIT.T('object', 'předmět'), xO, tipY - 14, C.soft, 11, 'center');
 
-        /* ── virtual image: dashed hollow arrow at i ─────────────── */
-        ctx.setLineDash([4, 3]);
-        line(xI, axisY, xI, imgTipY + 8, col.acc, 2);
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(xI, imgTipY);
-        ctx.lineTo(xI - 5, imgTipY + 9);
-        ctx.lineTo(xI + 5, imgTipY + 9);
-        ctx.closePath();
-        ctx.fillStyle = col.paper; ctx.fill();
-        ctx.strokeStyle = col.acc; ctx.lineWidth = 1.5; ctx.stroke();
-        if (show.ext) {
-            /* the crossing point of the backward extensions */
-            ctx.beginPath(); ctx.arc(xI, imgTipY, 2.6, 0, Math.PI * 2);
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.2; ctx.stroke();
-        }
-        mono('image', xI, imgTipY - 10, col.acc, 'center');
+        /* the two distances, measured from the lens */
+        KIT.dim(ctx, lensX, axisY + 30, xO, axisY + 30, 0, '');
+        KIT.sym(ctx, 'p', (xO + lensX) / 2, axisY + 44, C.soft, 17);
+        KIT.dim(ctx, lensX, axisY + 64, xI, axisY + 64, 0, '');
+        KIT.sym(ctx, '|i|', (xI + lensX) / 2, axisY + 78, C.acc, 17);
 
-        /* ── object: solid accent arrow at p ─────────────────────── */
-        line(xO, axisY, xO, tipY + 8, col.acc, 2.5);
-        ctx.beginPath();
-        ctx.moveTo(xO, tipY);
-        ctx.lineTo(xO - 5.5, tipY + 10);
-        ctx.lineTo(xO + 5.5, tipY + 10);
-        ctx.closePath();
-        ctx.fillStyle = col.acc; ctx.fill();
-        mono('object', xO, tipY - 10, col.soft, 'center');
+        KIT.caption(ctx, KIT.T('DIVERGING LENS', 'ROZPTYLKA'),
+                    i < 0 ? KIT.T('a virtual image on the object’s side', 'neskutečný obraz na straně předmětu')
+                          : KIT.T('a real image behind the lens', 'skutečný obraz za čočkou'));
 
-        /* ── dimension brackets under the axis ───────────────────── */
-        dim(xO, lensX, axisY + 34, 'p = ' + p.toFixed(1) + ' cm', col.faint);
-        dim(xI, lensX, axisY + 56, 'i = −' + Math.abs(i).toFixed(1) + ' cm', col.acc);
-
-        /* ── readouts ─────────────────────────────────────────────── */
-        const $ = id => document.getElementById(id);
-        if ($('r-i')) $('r-i').textContent = (i < 0 ? '−' : '') + Math.abs(i).toFixed(1) + ' cm';
-        if ($('r-m')) $('r-m').textContent = (m >= 0 ? '+' : '−') + Math.abs(m).toFixed(2);
-        if ($('r-type')) $('r-type').textContent = i < 0
-            ? 'virtual · upright · ' + (Math.abs(m) < 1 ? 'reduced' : 'enlarged')
-            : 'real · inverted';
+        KIT.put('r-i', (i < 0 ? '−' : '') + KIT.dec(Math.abs(i).toFixed(1)) + ' cm');
+        KIT.put('r-m', (m >= 0 ? '+' : '−') + KIT.dec(Math.abs(m).toFixed(2)));
+        KIT.put('r-type', i < 0
+            ? KIT.T('virtual · upright · ', 'neskutečný · vzpřímený · ') +
+              (Math.abs(m) < 1 ? KIT.T('reduced', 'zmenšený') : KIT.T('enlarged', 'zvětšený'))
+            : KIT.T('real · inverted', 'skutečný · převrácený'));
     }
-
-    function frame() {
-        draw();
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
 }());
 </script>
 

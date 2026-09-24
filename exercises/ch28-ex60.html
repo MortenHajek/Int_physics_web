@@ -91,7 +91,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Energy landscape</span><span lang="cs">Energetický profil</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -121,7 +120,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
@@ -240,60 +238,193 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 28-60 — a dipole launched from φ = 0 with KE₀ turns back where the
+   total energy meets E_p = −μB cos φ. Physics unchanged: φ_max = 132.5° at
+   the defaults (printed ≈ 130°). The swing is now integrated from the true
+   equation of motion, I φ'' = −μB sin φ, so it slows into each turning point
+   by itself; I is not given and sets only the pace of the film. */
 (function () {
     'use strict';
-
     const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
 
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    /* ── the house style (shared by the Physics 2 exercise pages) ───────── */
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+    const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                  teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    function palette() {
+        const R = document.documentElement;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a6878',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink: tok(R, '--ink', '#363026'), soft: tok(R, '--ink-soft', '#4d4436'),
+            faint: tok(R, '--ink-faint', '#7A6A52'), paper: tok(R, '--paper', '#FFFDF6'),
+            deep: tok(R, '--paper-deep', '#efead6'), stage: tok(R, '--paper-cool', '#eef0e8'),
+            acc: tok(document.body, '--accent', '#3D2E8A'),
         };
     }
-    const col = readCol();
+    let col = palette();
+    /* a number with a real minus sign and, in Czech, a decimal comma */
+    function num(v, d) {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    }
+    function line(x1, y1, x2, y2, c, lw, dash) {
+        ctx.strokeStyle = c; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    /* shaft + filled head, head min(11, 0.36 L); `under` lays a stage-coloured
+       band beneath it where it crosses busy drawing */
+    function arrow(x1, y1, x2, y2, c, lw, under) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        const pass = (cc, w) => {
+            ctx.strokeStyle = cc; ctx.fillStyle = cc; ctx.lineWidth = w;
+            ctx.setLineDash([]); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+            if (cc === col.stage) ctx.stroke();
+        };
+        if (under) pass(col.stage, (lw || 2) + 4);
+        pass(c, lw || 2);
+    }
+    function dot(x, y, r, fill, stroke, lw) {
+        ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
+    }
+    /* a symbol: serif italic with a halo in the stage's tone */
+    function sym(t, x, y, c, size, align, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+        ctx.strokeText(t, x, y);
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+        ctx.lineWidth = 1;
+    }
+    function symW(t, size, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        return ctx.measureText(t).width;
+    }
+    /* a symbol with a drawn subscript; returns the x where it ends */
+    function sub(main, s, x, y, c, size, align, subUpright) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        const w1 = symW(main, size), w2 = symW(s, ss, subUpright);
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        sym(main, x0, y, c, size, 'left');
+        sym(s, x0 + w1 + 1, y + size * 0.3, c, ss, 'left', subUpright);
+        return x0 + tw;
+    }
+    /* a symbol with a stroked vector arrow over it (and an optional subscript) */
+    function vsym(main, x, y, c, size, s, align) {
+        size = size || 17;
+        const w = symW(main, size), ws = s ? symW(s, Math.round(size * 0.7)) + 1 : 0, tw = w + ws;
+        const x0 = align === 'left' ? x : align === 'right' ? x - tw : x - tw / 2;
+        if (s) sub(main, s, x0, y, c, size, 'left'); else sym(main, x0, y, c, size, 'left');
+        const ay = y - size * 0.62, a1 = x0 + 1, a2 = x0 + w + 1;
+        ctx.strokeStyle = col.stage; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2, ay); ctx.stroke();
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a2 + 1, ay); ctx.lineTo(a2 - 4, ay - 2.6); ctx.lineTo(a2 - 4, ay + 2.6);
+        ctx.closePath(); ctx.fill();
+        return x0 + tw;
+    }
+    /* small print: captions, ticks, notes */
+    function small(t, x, y, c, size, align, bold) {
+        ctx.font = (bold ? '600 ' : '') + (size || 11) + 'px ' + SANS;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+    }
+    /* the caption stack, top left: a kicker in capitals and a serif line */
+    function caption(kicker, title, note, x, y) {
+        x = x === undefined ? 16 : x; y = y === undefined ? 18 : y;
+        if (kicker) small(kicker, x, y, col.soft, 10.5);
+        if (title) {
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+            ctx.strokeText(title, x, y + 21); ctx.fillStyle = col.ink; ctx.fillText(title, x, y + 21);
+            ctx.lineWidth = 1;
+        }
+        if (note) small(note, x, y + 40, col.faint, 10.5);
+    }
+    /* a dimension line with end ticks and a serif label, offset to one side */
+    function dim(x1, y1, x2, y2, off, label, c, lsub) {
+        c = c || col.soft;
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L, ny = dx / L;
+        const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+        ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+        ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+        ctx.stroke();
+        if (label) {
+            const k = off >= 0 ? 14 : -14, lx = (ax + bx) / 2 + nx * k, ly = (ay + by) / 2 + ny * k;
+            if (lsub) sub(label, lsub, lx, ly, c, 16); else sym(label, lx, ly, c, 16);
+        }
+    }
+    /* ground or wall, hatched on the side the line is drawn clockwise from */
+    function hatch(x1, y1, x2, y2, depth, c) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = c || col.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
+            ctx.beginPath(); ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth); ctx.stroke();
+        }
+    }
+    /* axes of a plot frame: ticks at round numbers */
+    function niceStep(range, px, want) {
+        const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+        return 10 * p;
+    }
+    function tickTxt(v, step) {
+        const d = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9));
+        return num(v, d);
+    }
 
     const EPS = 2.0e-4;                /* J, scale mark */
     const MUB = 2 * EPS;               /* J */
     const DEFAULTS = { ke: 6.7 };      /* ×1e-4 J */
+    const I_DISP = MUB / Math.pow(2 * Math.PI / 2.4, 2);   /* small swings last 2.4 s */
     let state = { ...DEFAULTS };
     const prm  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const show = { anim: !prm };
+    if (prm) document.querySelector('#tgl-anim .toggle-box')?.classList.remove('on');
+
+    let phi = 0, om = 0;               /* rad, rad/s */
+    function launch() { phi = 0; om = Math.sqrt(2 * state.ke * 1e-4 / I_DISP); }
+    launch();
 
     const inp = document.getElementById('p-ke');
     const lbl = document.getElementById('p-ke-val');
-    inp.addEventListener('input', () => {
-        state.ke = +inp.value;
-        lbl.textContent = state.ke.toFixed(1) + ' ×10⁻⁴ J';
-    });
-    document.getElementById('btn-reset').addEventListener('click', () => {
+    const syncVals = () => { if (lbl) lbl.textContent = num(state.ke, 1) + ' ×10⁻⁴ J'; };
+    document.addEventListener('langchange', syncVals);
+    syncVals();
+    inp?.addEventListener('input', () => { state.ke = +inp.value; syncVals(); launch(); redraw(); });
+    document.getElementById('btn-reset')?.addEventListener('click', () => {
         state = { ...DEFAULTS };
-        inp.value = state.ke;
-        lbl.textContent = state.ke.toFixed(1) + ' ×10⁻⁴ J';
+        if (inp) inp.value = state.ke;
+        syncVals(); launch(); redraw();
     });
     document.getElementById('tgl-anim')?.addEventListener('click', function () {
         show.anim = !show.anim;
         this.querySelector('.toggle-box')?.classList.toggle('on');
+        redraw();
     });
 
     function physics() {
@@ -305,116 +436,159 @@ document.addEventListener('DOMContentLoaded', () => {
         return { ke0, eTot, phiMax, over };
     }
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const f = physics();
+    /* velocity Verlet on I φ'' = −μB sin φ, in 2 ms substeps */
+    function step(dt) {
+        if (!show.anim || dt <= 0) return;
+        const n = Math.ceil(dt / 0.002), h = dt / n, k = MUB / I_DISP;
+        for (let i = 0; i < n; i++) {
+            const a0 = -k * Math.sin(phi);
+            phi += om * h + 0.5 * a0 * h * h;
+            om  += 0.5 * (a0 - k * Math.sin(phi)) * h;
+        }
+        if (phi > Math.PI) phi -= 2 * Math.PI;
+        if (phi < -Math.PI) phi += 2 * Math.PI;
+    }
+    function moving() { return show.anim && state.ke > 0; }
 
-        const mL = 66, mR = 26, mT = 96, mB = 52;   /* mT clears the equation badge */
+    const deg = d => num(d, 0) + '°';
+
+    function draw() {
+        const f = physics();
+        const bEl = wrap.querySelector('.canvas-formula-badge');
+        const badgeIn = !!bEl && W >= 640;
+        const narrow = W < 560;
+
+        const mL = narrow ? 62 : 74, mR = narrow ? 40 : 56, mT = narrow ? 104 : 100, mB = 50;
         const pw = W - mL - mR, ph = H - mT - mB;
         const EMAX = 5.2e-4;
-        const xPix = deg => mL + ((deg + 180) / 360) * pw;
-        const yPix = e => mT + ph / 2 - (e / EMAX) * (ph / 2);
+        const X = d => mL + ((d + 180) / 360) * pw;
+        const Y = e => mT + ph / 2 - (e / EMAX) * (ph / 2);
 
-        /* grid */
-        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
-        [-90, 0, 90].forEach(d => {
-            ctx.beginPath(); ctx.moveTo(xPix(d), mT); ctx.lineTo(xPix(d), mT + ph); ctx.stroke();
+        /* the printed graph's scale marks */
+        [-90, 0, 90].forEach(d => line(X(d), mT + 4, X(d), mT + ph, col.faint, 0.8, [2, 5]));
+        [EPS, -EPS, 2 * EPS, -2 * EPS].forEach(e => line(mL, Y(e), mL + pw, Y(e), col.faint, 0.8, [2, 5]));
+        /* axes: E_p up the left, φ along E_p = 0 */
+        arrow(mL, mT + ph, mL, mT - 6, col.soft, 1.1);
+        arrow(mL, Y(0), mL + pw + 14, Y(0), col.soft, 1.1);
+        sym('φ', mL + pw + 18, Y(0) - 13, col.soft, 17, 'center');
+        sub('E', 'p', mL + 10, mT + 4, col.soft, 17, 'left', true);
+        [-180, -90, 0, 90, 180].forEach(d => {
+            line(X(d), mT + ph - 4, X(d), mT + ph + 4, col.soft, 1);
+            small(deg(d), X(d), mT + ph + 16, col.faint, 10.5, 'center');
         });
-        [EPS, -EPS, 2 * EPS, -2 * EPS].forEach(e => {
-            ctx.beginPath(); ctx.moveTo(mL, yPix(e)); ctx.lineTo(mL + pw, yPix(e)); ctx.stroke();
+        line(mL - 4, mT + ph, mL + pw, mT + ph, col.faint, 0.8);
+        [[2, '2'], [1, ''], [-1, '−'], [-2, '−2']].forEach(([k, t]) => {
+            line(mL - 4, Y(k * EPS), mL + 4, Y(k * EPS), col.soft, 1);
+            sub(t + 'E', 'ps', mL - 8, Y(k * EPS), col.soft, 15, 'right', true);
         });
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
-        ctx.strokeRect(mL, mT, pw, ph);
-        ctx.beginPath(); ctx.moveTo(mL, yPix(0)); ctx.lineTo(mL + pw, yPix(0)); ctx.stroke();
+        small('0', mL - 8, Y(0), col.faint, 10.5, 'right');
 
-        /* labels */
-        ctx.fillStyle = col.soft;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        [-180, -90, 0, 90, 180].forEach(d =>
-            ctx.fillText(d + '°', xPix(d), mT + ph + 8));
-        ctx.fillText('φ', mL + pw / 2, mT + ph + 24);
-        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-        ctx.fillText('+Eps', mL - 8, yPix(EPS));
-        ctx.fillText('−Eps', mL - 8, yPix(-EPS));
+        /* where the dipole may go: the curve below the total energy */
+        ctx.save();
+        ctx.beginPath(); ctx.rect(mL, Y(f.eTot), pw, mT + ph - Y(f.eTot)); ctx.clip();
+        ctx.beginPath(); ctx.moveTo(X(-180), Y(f.eTot));
+        for (let d = -180; d <= 180; d += 2) ctx.lineTo(X(d), Y(-MUB * Math.cos(d * Math.PI / 180)));
+        ctx.lineTo(X(180), Y(f.eTot)); ctx.closePath();
+        ctx.fillStyle = INK.crimson; ctx.globalAlpha = 0.07; ctx.fill(); ctx.globalAlpha = 1;
+        ctx.restore();
 
-        /* potential curve */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
+        /* E_p(φ) */
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.6; ctx.lineJoin = 'round'; ctx.setLineDash([]);
         ctx.beginPath();
         for (let d = -180; d <= 180; d += 2) {
             const e = -MUB * Math.cos(d * Math.PI / 180);
-            if (d === -180) ctx.moveTo(xPix(d), yPix(e)); else ctx.lineTo(xPix(d), yPix(e));
+            d === -180 ? ctx.moveTo(X(d), Y(e)) : ctx.lineTo(X(d), Y(e));
         }
         ctx.stroke();
 
-        /* total-energy line */
-        const eLineCol = f.over ? '#a03030' : col.acc;
-        ctx.strokeStyle = eLineCol; ctx.lineWidth = 1.8; ctx.setLineDash([7, 5]);
-        ctx.beginPath();
-        ctx.moveTo(mL, yPix(f.eTot)); ctx.lineTo(mL + pw, yPix(f.eTot));
-        ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = eLineCol;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('E total = ' + (f.eTot * 1e4).toFixed(1) + '·10⁻⁴ J' +
-                     (f.over ? '  — clears the top!' : ''), mL + 8, yPix(f.eTot) - 4);
+        /* the launch: KE₀ above the bottom of the well */
+        if (f.ke0 > 0) {
+            const x0 = X(0);
+            line(x0, Y(-MUB), x0, Y(f.eTot), INK.green, 1.4);
+            line(x0 - 5, Y(-MUB), x0 + 5, Y(-MUB), INK.green, 1.4);
+            line(x0 - 5, Y(f.eTot), x0 + 5, Y(f.eTot), INK.green, 1.4);
+            if (Y(-MUB) - Y(f.eTot) > 34) sub('KE', '0', x0 + 9, (Y(-MUB) + Y(f.eTot)) / 2, INK.green, 16, 'left', true);
+        }
+        /* the total energy */
+        line(mL, Y(f.eTot), mL + pw, Y(f.eTot), INK.crimson, 1.8, [7, 5]);
+        sub('E', 'tot', mL + pw + 6, Y(f.eTot) + (Math.abs(Y(f.eTot) - Y(0)) < 16 ? 16 : 0), INK.crimson, 16, 'left', true);
 
-        /* turning points */
+        /* the turning points */
         if (!f.over) {
-            const pd = f.phiMax * 180 / Math.PI;
+            const pd = f.phiMax * 180 / Math.PI, y = Y(f.eTot);
             [pd, -pd].forEach(d => {
-                ctx.fillStyle = col.acc;
-                ctx.beginPath(); ctx.arc(xPix(d), yPix(f.eTot), 5, 0, Math.PI * 2); ctx.fill();
+                line(X(d), y + 6, X(d), mT + ph, INK.crimson, 1, [2, 4]);
+                dot(X(d), y, 5.5, INK.crimson, col.ink, 1.2);
             });
-            ctx.fillStyle = col.acc;
-            ctx.textAlign = 'center';
-            /* a narrow plot puts it under the line, clear of the E total label */
-            if (pw < 360) { ctx.textBaseline = 'top'; ctx.fillText('φmax = ' + pd.toFixed(1) + '°', xPix(pd), yPix(f.eTot) + 10); }
-            else { ctx.textBaseline = 'bottom'; ctx.fillText('φmax = ' + pd.toFixed(1) + '°', xPix(pd), yPix(f.eTot) - 10); }
-        }
-
-        /* swinging dipole marker on the curve */
-        if (show.anim) {
-            let d;
-            if (f.over) {
-                d = ((ts * 0.05) % 360) - 180;
-            } else {
-                const pd = f.phiMax * 180 / Math.PI;
-                d = pd * Math.sin(ts * 0.0016);
+            if (pd > 14) {
+                sub('φ', 'max', X(pd) - 10, y - 15, INK.crimson, 16, 'right', true);
+                sub('−φ', 'max', X(-pd) + 10, y - 15, INK.crimson, 16, 'left', true);
             }
-            const e = -MUB * Math.cos(d * Math.PI / 180);
-            ctx.fillStyle = col.paper;
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-            ctx.beginPath(); ctx.arc(xPix(d), yPix(e), 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            /* dipole arrow inset */
-            /* on a phone the badge band above the frame is empty: the inset moves up into it */
-            const ix = mL + pw - 64, iy = pw < 360 ? mT - 50 : mT + 38;
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.arc(ix, iy, 26, 0, Math.PI * 2); ctx.stroke();
-            const a = -d * Math.PI / 180 - Math.PI / 2;   /* phi from B (up) */
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(ix - Math.cos(a) * 18, iy + Math.sin(a) * 18);
-            ctx.lineTo(ix + Math.cos(a) * 18, iy - Math.sin(a) * 18);
-            ctx.stroke();
-            ctx.fillStyle = col.faint;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText('B ↑', ix, iy + 30);
         }
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        $('r-etot').textContent = (f.eTot * 1e4).toFixed(1) + ' ×10⁻⁴ J';
-        $('r-phi').textContent  = f.over ? 'no turning point (full rotation)'
-                                         : (f.phiMax * 180 / Math.PI).toFixed(1) + '°';
+        /* the dipole, where it is now */
+        if (show.anim) {
+            const d = phi * 180 / Math.PI, e = -MUB * Math.cos(phi);
+            if (f.eTot - e > 0 && Y(e) - Y(f.eTot) > 4) line(X(d), Y(e) - 7, X(d), Y(f.eTot), INK.green, 3);
+            dot(X(d), Y(e), 7, col.acc, col.ink, 1.6);
+
+            /* and seen from the side: μ at φ from B */
+            const r = 30, cx = W - mR - 40, cy = 54;
+            ctx.fillStyle = col.stage; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.stroke();
+            line(cx, cy, cx, cy - r + 2, col.faint, 1, [2, 3]);
+            const ux = -Math.sin(phi), uy = -Math.cos(phi);
+            if (Math.abs(phi) > 0.35) {
+                ctx.strokeStyle = col.soft; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.arc(cx, cy, 13, -Math.PI / 2, -Math.PI / 2 - phi, phi > 0); ctx.stroke();
+                const am = -Math.PI / 2 - phi / 2;
+                sym('φ', cx + 21 * Math.cos(am), cy + 21 * Math.sin(am), col.soft, 13);
+            }
+            arrow(cx - ux * r * 0.55, cy - uy * r * 0.55, cx + ux * (r - 3), cy + uy * (r - 3), col.ink, 2.4);
+            vsym('μ', cx + ux * (r + 13), cy + uy * (r + 13), col.ink, 16);
+            const bx = cx - r - 24;
+            arrow(bx, cy + 26, bx, cy - 24, col.soft, 1.6);
+            vsym('B', bx - 8, cy + 4, col.soft, 17, null, 'right');
+        }
+
+        caption(T('POTENTIAL ENERGY OF A DIPOLE', 'POTENCIÁLNÍ ENERGIE DIPÓLU'),
+                f.over ? T('over the top, round and round', 'přes vrchol, stále dokola')
+                       : T('where it turns back', 'kde se obrací'),
+                null, badgeIn ? bEl.offsetLeft + bEl.offsetWidth + 22 : 16, 20);
+
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        put('r-etot', num(f.eTot * 1e4, 1) + ' ×10⁻⁴ J');
+        put('r-phi', f.over ? T('no turning point (full rotation)', 'bod obratu není (otáčí se dokola)')
+                            : num(f.phiMax * 180 / Math.PI, 1) + '°');
     }
 
-    function frame(ts) {
-        draw(ts || 0);
-        requestAnimationFrame(frame);
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+        W = Math.max(r.width, 200); H = Math.max(r.height, 200);
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    requestAnimationFrame(frame);
+    resize();
+    let raf = 0, visible = true, lastTs = 0;
+    function paint(ts) { col = palette(); ctx.clearRect(0, 0, W, H); draw(ts || performance.now()); }
+    function loop(ts) {
+        raf = 0;
+        const dt = lastTs ? Math.min((ts - lastTs) / 1000, 1 / 20) : 0;
+        lastTs = ts;
+        step(dt);
+        paint(ts);
+        if (visible && moving()) raf = requestAnimationFrame(loop); else lastTs = 0;
+    }
+    function redraw() { if (!raf) raf = requestAnimationFrame(loop); }
+    new ResizeObserver(() => { resize(); paint(); }).observe(wrap);
+    if (window.IntersectionObserver) new IntersectionObserver(es => {
+        visible = es.some(e => e.isIntersecting);
+        if (visible) redraw();
+    }).observe(wrap);
+    document.addEventListener('langchange', redraw);
+
+    redraw();
 }());
 </script>
 

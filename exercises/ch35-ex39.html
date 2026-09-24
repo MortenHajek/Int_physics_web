@@ -81,7 +81,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Thin-film interference</span><span lang="cs">Interference na tenké vrstvě</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -119,7 +118,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
@@ -131,7 +129,7 @@
                         <span class="readout-val" id="r-dphi">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\text{reflected intensity}"></span>
+                        <span class="readout-label"><span lang="en">reflected intensity</span><span lang="cs">odražená intenzita</span></span>
                         <span class="readout-val" id="r-int">—</span>
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · full cancellation</span><span lang="cs">Cíl · úplné vyrušení</span></div>
@@ -230,199 +228,307 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 35-39 — an anti-reflection coating (n = 1.25) on glass (n = 1.50).
+   Both reflections flip phase by π, so they cancel when the extra path is
+   half a wavelength: 2nL = (m + ½)λ, and the thinnest coating that works
+   is L = λ/4n = 120 nm at 600 nm. Match-the-target: the default is 250 nm.
+   Left, the layer in cross-section (its thickness grows with L); right,
+   the reflected intensity against L, with the dark thicknesses marked. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#d4a418',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: tok('--paper-cool', '#eef0ea'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
     const N_FILM = 1.25;
     const DEFAULTS = { l: 250, lam: 600 };   /* nm — L deliberately off-target */
     let state = { ...DEFAULTS };
-
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw);
     const SLIDERS = [
         ['p-l',   'l',   v => v.toFixed(0) + ' nm'],
         ['p-lam', 'lam', v => v.toFixed(0) + ' nm'],
     ];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            lbl.textContent = fmt(state[key]);
-        });
-    });
-    document.getElementById('btn-reset').addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            document.getElementById(id).value = state[key];
-            document.getElementById(id + '-val').textContent = fmt(state[key]);
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => { state[key] = +inp.value; lbl.textContent = fmt(state[key]); V.redraw(); });
     });
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); V.redraw(); });
+    syncLabels();
 
-    /* relative reflected intensity: both rays phase-shifted by π, equal amplitude
-       assumed → I ∝ cos²(φ/2) with φ = 2π·2nL/λ                                  */
+    /* relative reflected intensity: both rays flipped by π, equal amplitude
+       assumed → I ∝ cos²(φ/2) with φ = 2π·2nL/λ */
     function intensity(lNm, lamNm) {
         const phi = 2 * Math.PI * 2 * N_FILM * lNm / lamNm;
         return Math.pow(Math.cos(phi / 2), 2);
     }
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const I = intensity(state.l, state.lam);
-        const matched = I < 0.004;
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const Ir = intensity(state.l, state.lam), matched = Ir < 0.004;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 78, bot = H - (low ? 108 : 30);
 
-        /* ── left: film cross-section with two reflected rays ────── */
-        /* A phone-width canvas cannot hold the film and the plot side by side:
-           there the film is a band across the top and the plot runs underneath. */
-        const narrow = W < 520;
-        const fx = narrow ? 16 : W * 0.07, fw = narrow ? W - 32 : W * 0.36;
-        const airB = narrow ? 132 : H * 0.34;
-        const filmH = Math.max(10, state.l * (narrow ? 0.16 : 0.28));
-        const glassT = airB + filmH;
-        const glassB = narrow ? glassT + 30 : H - 16;
+        /* ── the layer in cross-section ────────────────────────────────── */
+        const fx = narrow ? 18 : 26, fw = narrow ? W - 36 : W * 0.4;
+        const airB = narrow ? top + 150 : top + (bot - top) * 0.44;
+        const filmH = Math.max(12, state.l * (narrow ? 0.18 : 0.3));
+        const glassT = airB + filmH, glassB = narrow ? glassT + 40 : bot;
+        ctx.fillStyle = C.acc; ctx.globalAlpha = 0.3; ctx.fillRect(fx, airB, fw, filmH);
+        ctx.fillStyle = I.blue; ctx.globalAlpha = 0.1; ctx.fillRect(fx, glassT, fw, glassB - glassT);
+        ctx.globalAlpha = 1;
+        KIT.line(ctx, fx, airB, fx + fw, airB, C.ink, 1.3);
+        KIT.line(ctx, fx, glassT, fx + fw, glassT, C.ink, 1.3);
+        const medium = (name, n, y) => {
+            KIT.small(ctx, name, fx + 8, y, C.soft, 11);
+            ctx.font = '11px "Geist",ui-sans-serif,sans-serif';
+            KIT.small(ctx, 'n = ' + KIT.dec(n.toFixed(2)), fx + 14 + ctx.measureText(name).width, y, C.faint, 11);
+        };
+        medium(KIT.T('air', 'vzduch'), 1.0, airB - 14);
+        medium(KIT.T('coating', 'vrstva'), N_FILM, airB + filmH / 2);
+        medium(KIT.T('glass', 'sklo'), 1.5, glassT + 16);
+        KIT.dim(ctx, fx + fw - 18, airB, fx + fw - 18, glassT, 0, '');
+        KIT.sym(ctx, 'L', fx + fw - 26, (airB + glassT) / 2, C.ink, 16, 'right');
 
-        /* media */
-        ctx.fillStyle = 'rgba(212,164,24,0.28)';
-        ctx.fillRect(fx, airB, fw, filmH);
-        ctx.fillStyle = 'rgba(90,104,120,0.16)';
-        ctx.fillRect(fx, glassT, fw, glassB - glassT);
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        ctx.strokeRect(fx, airB, fw, filmH);
+        /* the ray, its two reflections, and where both flip phase */
+        const hx = fx + fw * 0.46, rise = Math.min(110, airB - top - 20), run = rise * 0.75;
+        const t2 = filmH * 0.4;
+        KIT.arrow(ctx, hx - run, airB - rise, hx - 3, airB - 3, C.ink, 2);
+        KIT.line(ctx, hx, airB, hx + t2, glassT, C.ink, 1.4);
+        KIT.line(ctx, hx + t2, glassT, hx + 2 * t2, airB, C.acc, 1.8);
+        KIT.arrow(ctx, hx, airB, hx + run, airB - rise, C.acc, 2.2);
+        KIT.arrow(ctx, hx + 2 * t2, airB, hx + 2 * t2 + run, airB - rise, C.acc, 2.2);
+        KIT.symSub(ctx, 'r', '1', hx + run * 0.55 - 12, airB - rise * 0.55, C.acc, 16, 'right');
+        KIT.symSub(ctx, 'r', '2', hx + 2 * t2 + run * 0.55 + 12, airB - rise * 0.55, C.acc, 16, 'left');
+        KIT.small(ctx, KIT.T('π flip at both surfaces', 'oba odrazy mění fázi o π'), fx + 8, top + 8, C.faint, 10.5);
+        /* what the eye above sees: the two reflections added */
+        const gx = hx + t2 + run, gy = airB - rise - 22;
+        ctx.fillStyle = C.acc; ctx.globalAlpha = 0.08 + 0.7 * Ir;
+        ctx.beginPath(); ctx.arc(gx, gy, 12 + 14 * Ir, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+        ctx.strokeStyle = C.acc; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(gx, gy, 12 + 14 * Ir, 0, Math.PI * 2); ctx.stroke();
 
-        ctx.fillStyle = col.soft;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('air n=1.00', fx + 6, airB - 6);
-        ctx.textBaseline = 'middle';
-        ctx.fillText('coating n=1.25 · L=' + state.l + ' nm', fx + 6, airB + filmH / 2);
-        ctx.textBaseline = 'top';
-        ctx.fillText('glass n=1.50', fx + 6, glassT + 8);
-
-        /* incoming ray + two reflections */
-        const hitX = fx + fw * (narrow ? 0.62 : 0.55);
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(hitX - 70, airB - 90); ctx.lineTo(hitX, airB); ctx.stroke();
-        /* r1: reflection at top surface */
-        ctx.strokeStyle = col.acc;
-        ctx.beginPath(); ctx.moveTo(hitX, airB); ctx.lineTo(hitX + 70, airB - 90); ctx.stroke();
-        /* transmitted + r2 */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(hitX, airB); ctx.lineTo(hitX + filmH * 0.35, glassT); ctx.stroke();
-        ctx.strokeStyle = col.acc;
-        ctx.beginPath(); ctx.moveTo(hitX + filmH * 0.35, glassT);
-        ctx.lineTo(hitX + filmH * 0.7, airB); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(hitX + filmH * 0.7, airB);
-        ctx.lineTo(hitX + filmH * 0.7 + 70, airB - 90); ctx.stroke();
-        ctx.fillStyle = col.soft;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('r₁', hitX + 40, airB - 52);
-        ctx.fillText('r₂', hitX + filmH * 0.7 + 46, airB - 48);
-
-        /* combined reflected glow */
-        const glowA = 0.08 + 0.6 * I;
-        ctx.fillStyle = 'rgba(212,164,24,' + glowA.toFixed(3) + ')';
-        ctx.beginPath();
-        ctx.arc((hitX + hitX + filmH * 0.7) / 2 + 35, airB - 104, 14 + 12 * I, 0, Math.PI * 2);
-        ctx.fill();
-
-        /* ── right: I(L) curve with dips ─────────────────────────── */
-        const mL = narrow ? 56 : W * 0.52, mR = 26, mT = narrow ? glassB + 34 : 36, mB = 50;
-        const pw = W - mL - mR, ph = H - mT - mB;
+        /* ── reflected intensity against L ──────────────────────────────── */
+        const gb = narrow
+            ? { x: 58, y: glassB + 40, w: W - 84, h: bot - glassB - 70 }
+            : { x: fx + fw + 64, y: top + 24, w: W - fx - fw - 90, h: bot - top - 60 };
         const LMAX = 450;
-        const xPix = l => mL + (l / LMAX) * pw;
-        const yPix = i => mT + ph - i * ph;
-
-        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
-        [100, 200, 300, 400].forEach(l => {
-            ctx.beginPath(); ctx.moveTo(xPix(l), mT); ctx.lineTo(xPix(l), mT + ph); ctx.stroke();
-        });
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
-        ctx.strokeRect(mL, mT, pw, ph);
-
-        ctx.fillStyle = col.soft;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        [0, 100, 200, 300, 400].forEach(l => ctx.fillText(l.toFixed(0), xPix(l), mT + ph + 6));
-        ctx.fillText('L (nm)', mL + pw / 2, mT + ph + 22);
-        ctx.save();
-        ctx.translate(mL - 14, mT + ph / 2); ctx.rotate(-Math.PI / 2);
-        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText('reflected I', 0, 0);
-        ctx.restore();
-
-        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
-        ctx.beginPath();
-        for (let i = 0; i <= 300; i++) {
-            const l = LMAX * i / 300;
-            const px = xPix(l), py = yPix(intensity(l, state.lam));
-            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
-
-        /* dip markers */
+        const G = KIT.graph(ctx, gb, [0, LMAX], [0, 1], { xStep: 100, yStep: 0.25, yFmt: y => (y * 100).toFixed(0), yTitle: KIT.T('reflected (%)', 'odraz (%)'), xTitle: 'L (nm)' });
         const lMin = state.lam / (4 * N_FILM);
         for (let m = 0; m < 4; m++) {
             const l = lMin * (2 * m + 1);
             if (l > LMAX) break;
-            ctx.strokeStyle = col.soft; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-            ctx.beginPath(); ctx.moveTo(xPix(l), mT); ctx.lineTo(xPix(l), mT + ph); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = col.soft;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            ctx.fillText(l.toFixed(0), xPix(l), mT - 3);
+            KIT.line(ctx, G.X(l), gb.y, G.X(l), gb.y + gb.h, C.faint, 1, [4, 4]);
+            KIT.small(ctx, l.toFixed(0), G.X(l), gb.y - 8, C.soft, 10.5, 'center');
         }
+        ctx.strokeStyle = C.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round'; ctx.beginPath();
+        for (let i = 0; i <= 300; i++) {
+            const l = LMAX * i / 300, px = G.X(l), py = G.Y(intensity(l, state.lam));
+            i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+        KIT.dot(ctx, G.X(Math.min(state.l, LMAX)), G.Y(Ir), 5.5, matched ? I.green : C.ink, C.ink);
 
-        /* probe dot */
-        ctx.fillStyle = col.ink;
-        ctx.beginPath(); ctx.arc(xPix(state.l), yPix(I), 4.5, 0, Math.PI * 2); ctx.fill();
+        KIT.caption(ctx, KIT.T('ANTI-REFLECTION COATING', 'ANTIREFLEXNÍ VRSTVA'),
+                    matched ? KIT.T('dark — the two reflections cancel', 'tma — oba odrazy se vyruší')
+                            : KIT.T('the aim: a thickness that makes it dark', 'cíl: tloušťka, při níž je tma'));
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
         const path = 2 * N_FILM * state.l;
-        $('r-path').textContent = path.toFixed(0) + ' nm = ' +
-            (path / state.lam).toFixed(2) + ' λ';
-        $('r-dphi').textContent = (2 * path / state.lam).toFixed(2) + ' π';
-        $('r-int').textContent  = (I * 100).toFixed(1) + ' %';
-        $('r-match').textContent = matched
-            ? '✓ dark · L = ' + state.l + ' nm (min 120 nm)'
-            : '—';
+        KIT.put('r-path', path.toFixed(0) + ' nm = ' + KIT.dec((path / state.lam).toFixed(2)) + ' λ');
+        KIT.put('r-dphi', KIT.dec((2 * path / state.lam).toFixed(2)) + ' π');
+        KIT.put('r-int', KIT.dec((Ir * 100).toFixed(1)) + ' %');
+        KIT.put('r-match', matched ? KIT.T('✓ dark · L = ', '✓ tma · L = ') + state.l + KIT.T(' nm (min 120 nm)', ' nm (min. 120 nm)') : '—');
     }
-
-    function frame(ts) {
-        draw(ts || 0);
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
 }());
 </script>
 

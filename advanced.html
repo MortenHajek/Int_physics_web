@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Advanced physics courses — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="lang.js"></script>
+
+    <style>
+    .topbar {
+        position: relative;
+        background: transparent;
+        border-bottom: none;
+    }
+    .topbar::after { display: none; }
+    .topbar-inner {
+        position: relative;
+        justify-content: center;
+    }
+    .topbar-inner::before,
+    .topbar-inner::after {
+        display: block;
+        content: "";
+        position: absolute;
+        left: 48px; right: 48px;
+        height: 1.5px;
+        background: var(--ink);
+    }
+    .topbar-inner::before { bottom: 0; }
+    .topbar-inner::after  { bottom: -5px; }
+    .topbar .lang-switch {
+        position: absolute;
+        right: 48px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    @media (max-width: 960px) {
+        .topbar-inner::before,
+        .topbar-inner::after { left: 20px; right: 20px; }
+        .topbar .lang-switch { right: 20px; }
+    }
+    @media (max-width: 760px) {
+        .topbar-inner { justify-content: flex-start; padding: 14px 16px 16px; }
+        .topbar-inner::before,
+        .topbar-inner::after { left: 16px; right: 16px; }
+        .topbar .lang-switch { right: 16px; }
+    }
+
+    .hero { grid-template-columns: 1fr; min-height: 0; margin-bottom: 64px; }
+    .hero-text h1 {
+        font-size: clamp(35px, 5.4vw, 65px);
+        animation: hero-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms backwards;
+    }
+
+    .map { margin-bottom: 104px; }
+    .level {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        animation: hero-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+    .level[data-level="1"] { animation-delay: 300ms; }
+    .level[data-level="2"] { animation-delay: 420ms; }
+    .level[data-level="3"] { animation-delay: 540ms; }
+    .level[data-level="4"] { animation-delay: 660ms; }
+    .tree .node {
+        min-height: 0;
+        padding: 16px 18px 15px;
+        border-top: 3px solid var(--accent);
+        justify-content: flex-start;
+    }
+    .tree .node .vol-label { font-size: 20px; line-height: 1.18; }
+    .tree .node .vol-sub { margin-top: 9px; line-height: 1.55; letter-spacing: 0.14em; }
+    @media (min-width: 1000px) {
+        .tree {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            column-gap: 64px;
+        }
+        .level { justify-content: center; }
+    }
+    @media (max-width: 999px) {
+        .level + .level {
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid var(--ink-faint);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .hero-text h1, .level { animation: none; }
+    }
+    @media (max-width: 760px) {
+        .hero-text h1 { font-size: clamp(32px, 9vw, 44px); }
+        .hero { margin-bottom: 40px; }
+    }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+        </a>
+        <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+            <button type="button" data-lang-btn="en">EN</button>
+            <button type="button" data-lang-btn="cs">CS</button>
+        </div>
+    </div>
+</header>
+
+<div class="page">
+
+    <section class="hero">
+        <div class="hero-text">
+            <h1><span lang="en">Advanced physics courses</span><span lang="cs">Pokročilé fyzikální kurzy</span></h1>
+        </div>
+    </section>
+
+    <nav class="map" aria-label="Courses / Kurzy">
+        <div class="tree">
+        <div class="level" data-level="1">
+            <a href="courses/theoretical-mechanics.html" class="vol-btn node theoretical-mechanics">
+                <span class="vol-label"><span lang="en">Theoretical Mechanics</span><span lang="cs">Teoretická mechanika</span></span>
+                <span class="vol-sub"><span lang="en">Lagrangian and Hamiltonian mechanics</span><span lang="cs">Lagrangeova a Hamiltonova mechanika</span></span>
+            </a>
+            <a href="courses/oscillations-waves-optics.html" class="vol-btn node oscillations-waves-optics">
+                <span class="vol-label"><span lang="en">Physics – Oscillations, Waves, Optics</span><span lang="cs">Fyzika – kmity, vlny, optika</span></span>
+                <span class="vol-sub"><span lang="en">Oscillators, waves and light</span><span lang="cs">Oscilátory, vlny a světlo</span></span>
+            </a>
+            <a href="courses/modern-physics.html" class="vol-btn node modern-physics">
+                <span class="vol-label"><span lang="en">Foundations of Modern Physics</span><span lang="cs">Základy moderní fyziky</span></span>
+                <span class="vol-sub"><span lang="en">Quanta, atoms and nuclei</span><span lang="cs">Kvanta, atomy a jádra</span></span>
+            </a>
+        </div>
+        <div class="level" data-level="2">
+            <a href="courses/electrodynamics.html" class="vol-btn node electrodynamics">
+                <span class="vol-label"><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+                <span class="vol-sub"><span lang="en">Fields, waves and relativity</span><span lang="cs">Pole, vlny a relativita</span></span>
+            </a>
+            <a href="courses/stat-quantum.html" class="vol-btn node stat-quantum">
+                <span class="vol-label"><span lang="en">Statistical &amp; Quantum Physics</span><span lang="cs">Statistická a kvantová fyzika</span></span>
+                <span class="vol-sub"><span lang="en">Ensembles and wavefunctions</span><span lang="cs">Soubory a vlnové funkce</span></span>
+            </a>
+        </div>
+        <div class="level" data-level="3">
+            <a href="courses/solid-state.html" class="vol-btn node solid-state">
+                <span class="vol-label"><span lang="en">Solid State Physics</span><span lang="cs">Fyzika pevných látek</span></span>
+                <span class="vol-sub"><span lang="en">Crystals and bands</span><span lang="cs">Krystaly a pásy</span></span>
+            </a>
+            <a href="courses/particle-optics.html" class="vol-btn node particle-optics">
+                <span class="vol-label"><span lang="en">Particle Optics and Electron Microscopy</span><span lang="cs">Částicová optika a elektronová mikroskopie</span></span>
+                <span class="vol-sub"><span lang="en">Electron and ion beams, microscopes</span><span lang="cs">Svazky elektronů a iontů, mikroskopy</span></span>
+            </a>
+        </div>
+        <div class="level" data-level="4">
+            <a href="courses/adv-quantum.html" class="vol-btn node adv-quantum">
+                <span class="vol-label"><span lang="en">Advanced Quantum Mechanics</span><span lang="cs">Pokročilá kvantová mechanika</span></span>
+                <span class="vol-sub"><span lang="en">Operators, spin and perturbations</span><span lang="cs">Operátory, spin a poruchová teorie</span></span>
+            </a>
+        </div>
+        </div>
+    </nav>
+
+    <a class="back" href="index.html">
+        <span class="back-dir"><span lang="en">← Back</span><span lang="cs">← Zpět</span></span>
+        <span class="back-title"><span lang="en">Physics 1 and Physics 2</span><span lang="cs">Fyzika 1 a Fyzika 2</span></span>
+    </a>
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a>
+            <span class="foot-note"><span lang="en"><b>Disclaimer</b>: This site is not a complete course; it serves exclusively as a study aid.</span><span lang="cs"><b>Disclaimer</b>: Tento web není plnohodnotným kurzem, slouží výhradně jako učební pomůcka.</span></span>
+        </span>
+    </footer>
+
+</div>
+
+</body>
+</html>

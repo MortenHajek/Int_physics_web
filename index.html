@@ -10,17 +10,15 @@
     <script src="lang.js"></script>
 
     <style>
-    /* ── Option A: main page header — double rule at content width only ── */
     .topbar {
         position: relative;
         background: transparent;
         border-bottom: none;
     }
     .topbar::after { display: none; }
-    /* Rules aligned to text — stop at the 48px padding boundary, not the box edge */
     .topbar-inner {
         position: relative;
-        justify-content: center;   /* override styles.css space-between — single centred brand */
+        justify-content: center;
     }
     .topbar-inner::before,
     .topbar-inner::after {
@@ -37,7 +35,6 @@
         .topbar-inner::before,
         .topbar-inner::after { left: 20px; right: 20px; }
     }
-    /* Language switch — pinned to the right edge of the text-width rules */
     .topbar .lang-switch {
         position: absolute;
         right: 48px;
@@ -47,7 +44,6 @@
     @media (max-width: 960px) {
         .topbar .lang-switch { right: 20px; }
     }
-    /* On a phone the centred brand runs into the switch: brand to the left */
     @media (max-width: 760px) {
         .topbar-inner { justify-content: flex-start; padding: 14px 16px 16px; }
         .topbar-inner::before,
@@ -55,16 +51,11 @@
         .topbar .lang-switch { right: 16px; }
         .hero-text h1 { font-size: clamp(32px, 9vw, 44px); }
     }
-    /* ── Hero entrance — soft fade-up with a blur dissolve, staggered ──
-       fill-mode is `backwards` (not forwards) on purpose: the final keyframe
-       equals the natural state, and forwards fill would permanently override
-       the .vol-btn:hover transform lift. */
     @keyframes hero-rise {
         from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
         to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
     }
     .hero-text h1 {
-        /* 8px (6pt) below the global h1 clamp(48px, 6vw, 84px) */
         font-size: clamp(35px, 5.4vw, 65px);
         animation: hero-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms backwards;
     }
@@ -73,10 +64,10 @@
     }
     .hero-nav .vol-1 { animation-delay: 350ms; }
     .hero-nav .vol-2 { animation-delay: 480ms; }
+    .hero-nav .vol-3 { animation-delay: 610ms; }
     @media (prefers-reduced-motion: reduce) {
         .hero-text h1, .hero-nav .vol-btn { animation: none; }
     }
-    /* ── Vol section heads: double rule in ink ── */
     #vol1 .section-head,
     #vol2 .section-head {
         border-bottom: 1.5px solid var(--ink);
@@ -86,27 +77,31 @@
         background-repeat: no-repeat;
         background-position: bottom 7px left 0px;
     }
-    /* ── Spring canvas — absolute (scrolls with page), left margin ── */
     #spring-canvas {
         position: absolute;
         top: 0;
-        left: max(4px, calc(50vw - 960px));
-        width: 200px;
-        height: 540px;
+        left: 0;
+        display: none;
         pointer-events: none;
         z-index: 0;
     }
-    @media (max-width: 1360px) { #spring-canvas { display: none; } }
-    /* ── Rocket canvas — symmetric to spring, right margin ── */
     #rocket-canvas {
-        position: absolute;
+        position: fixed;
         top: 0;
-        right: max(4px, calc(50vw - 960px));
-        width: 160px;
+        right: 0;
+        display: none;
         pointer-events: none;
         z-index: 0;
     }
-    @media (max-width: 1360px) { #rocket-canvas { display: none; } }
+    @media (max-width: 1360px) { #spring-canvas, #rocket-canvas { display: none !important; } }
+    #launch-yard {
+        position: relative;
+        z-index: 0;
+        height: 230px;
+        margin-top: -56px;
+    }
+    #launch-yard canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    @media (max-width: 760px) { #launch-yard { height: 200px; margin-top: -40px; } }
     </style>
 </head>
 <body data-screen-label="01 Home">
@@ -191,12 +186,9 @@
   ════════════════════════════════════════════════════════════════════════════════════════════════════════
 -->
 
-<!-- Spring decoration — left margin -->
 <canvas id="spring-canvas" aria-hidden="true"></canvas>
-<!-- Rocket decoration — right margin -->
 <canvas id="rocket-canvas" aria-hidden="true"></canvas>
 
-<!-- Top bar — outside .page so it spans full viewport width -->
 <header class="topbar">
     <div class="topbar-inner">
         <div class="brand">
@@ -212,7 +204,6 @@
 
 <div class="page">
 
-    <!-- Hero -->
     <section class="hero">
         <div class="hero-text">
             <h1>
@@ -230,10 +221,14 @@
                 <span class="vol-sub"><span lang="en">Vol. II · Electromagnetism</span><span lang="cs">Díl II · Elektromagnetismus</span></span>
                 <span class="vol-arrow">→</span>
             </a>
+            <a href="advanced.html" class="vol-btn vol-3">
+                <span class="vol-label"><span lang="en">Advanced physics courses</span><span lang="cs">Pokročilé fyzikální kurzy</span></span>
+                <span class="vol-sub"><span lang="en">Eight courses beyond Physics 1 and 2</span><span lang="cs">Osm navazujících kurzů</span></span>
+                <span class="vol-arrow">→</span>
+            </a>
         </div>
     </section>
 
-    <!-- Vol. I -->
     <section id="vol1">
         <div class="section-head">
             <h2><span lang="en">Physics 1 · Mechanics (<b>work in progress</b>)</span><span lang="cs">Fyzika 1 · Mechanika (<b>work in progress</b>)</span></h2>
@@ -242,7 +237,6 @@
 
         <div class="cards">
 
-            <!-- 01 · Vectors -->
             <article class="card vectors">
                 <a class="card-link" href="topics/vectors.html" aria-label="Open Vectors"></a>
                 <span class="accent-tab"></span>
@@ -265,7 +259,6 @@
                 </div>
             </article>
 
-            <!-- 02 · Particle motion -->
             <article class="card kinematics">
                 <a class="card-link" href="topics/particle-motion.html" aria-label="Open Particle motion"></a>
                 <span class="accent-tab"></span>
@@ -288,7 +281,6 @@
                 </div>
             </article>
 
-            <!-- 03 · Force and motion -->
             <article class="card dynamics">
                 <a class="card-link" href="topics/force-and-motion.html" aria-label="Open Force and motion"></a>
                 <span class="accent-tab"></span>
@@ -311,7 +303,6 @@
                 </div>
             </article>
 
-            <!-- 04 · Work and energy -->
             <article class="card energy">
                 <a class="card-link" href="topics/work-and-energy.html" aria-label="Open Work and energy"></a>
                 <span class="accent-tab"></span>
@@ -334,7 +325,6 @@
                 </div>
             </article>
 
-            <!-- 05 · Particle sets -->
             <article class="card systems">
                 <a class="card-link" href="topics/particle-sets.html" aria-label="Open Particle sets"></a>
                 <span class="accent-tab"></span>
@@ -357,7 +347,6 @@
                 </div>
             </article>
 
-            <!-- 06 · Rotation -->
             <article class="card rotation">
                 <a class="card-link" href="topics/rotation.html" aria-label="Open Rotation"></a>
                 <span class="accent-tab"></span>
@@ -380,7 +369,6 @@
                 </div>
             </article>
 
-            <!-- 07 · Gravity -->
             <article class="card gravity">
                 <a class="card-link" href="topics/gravity.html" aria-label="Open Gravity"></a>
                 <span class="accent-tab"></span>
@@ -403,7 +391,6 @@
                 </div>
             </article>
 
-            <!-- 08 · Oscillation -->
             <article class="card oscillation">
                 <a class="card-link" href="topics/oscillation.html" aria-label="Open Oscillation"></a>
                 <span class="accent-tab"></span>
@@ -426,7 +413,6 @@
                 </div>
             </article>
 
-            <!-- 09 · Waves -->
             <article class="card waves">
                 <a class="card-link" href="topics/waves.html" aria-label="Open Waves"></a>
                 <span class="accent-tab"></span>
@@ -449,7 +435,6 @@
                 </div>
             </article>
 
-            <!-- 10 · Thermodynamics -->
             <article class="card thermo">
                 <a class="card-link" href="topics/thermodynamics.html" aria-label="Open Thermodynamics"></a>
                 <span class="accent-tab"></span>
@@ -475,7 +460,6 @@
         </div>
     </section>
 
-    <!-- Vol. II -->
     <section id="vol2" style="margin-top:80px;">
         <div class="section-head">
             <h2><span lang="en">Vol. II · Electromagnetism (<b>work in progress</b>)</span><span lang="cs">Fyzika 2 · Elektromagnetismus (<b>work in progress</b>)</span></h2>
@@ -484,7 +468,6 @@
 
         <div class="cards">
 
-            <!-- II.01 · Electrostatics 1 -->
             <article class="card electrostatics-1">
                 <a class="card-link" href="topics/electrostatics-1.html" aria-label="Open Electrostatics 1"></a>
                 <span class="accent-tab"></span>
@@ -507,7 +490,6 @@
                 </div>
             </article>
 
-            <!-- II.02 · Electrostatics 2 -->
             <article class="card electrostatics-2">
                 <a class="card-link" href="topics/electrostatics-2.html" aria-label="Open Electrostatics 2"></a>
                 <span class="accent-tab"></span>
@@ -530,7 +512,6 @@
                 </div>
             </article>
 
-            <!-- II.03 · Currents and circuits -->
             <article class="card circuits">
                 <a class="card-link" href="topics/circuits.html" aria-label="Open Circuits"></a>
                 <span class="accent-tab"></span>
@@ -553,7 +534,6 @@
                 </div>
             </article>
 
-            <!-- II.04 · Magnetic field -->
             <article class="card magnetism">
                 <a class="card-link" href="topics/magnetism.html" aria-label="Open Magnetic Field"></a>
                 <span class="accent-tab"></span>
@@ -576,7 +556,6 @@
                 </div>
             </article>
 
-            <!-- II.05 · Electromagnetic induction -->
             <article class="card induction">
                 <a class="card-link" href="topics/induction.html" aria-label="Open Electromagnetic Induction"></a>
                 <span class="accent-tab"></span>
@@ -599,7 +578,6 @@
                 </div>
             </article>
 
-            <!-- II.06 · Optics -->
             <article class="card optics">
                 <a class="card-link" href="topics/optics.html" aria-label="Open Optics"></a>
                 <span class="accent-tab"></span>
@@ -622,7 +600,6 @@
                 </div>
             </article>
 
-            <!-- II.07 · Quantum and atomistic physics -->
             <article class="card quantum">
                 <a class="card-link" href="topics/quantum.html" aria-label="Open Quantum Physics"></a>
                 <span class="accent-tab"></span>
@@ -648,7 +625,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="foot">
         <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a>
             <span class="foot-note"><span lang="en"><b>Disclaimer</b>: This site is not a complete course; it serves exclusively as a study aid.</span><span lang="cs"><b>Disclaimer</b>: Tento web není plnohodnotným kurzem, slouží výhradně jako učební pomůcka.</span></span>
@@ -657,8 +633,8 @@
 
 </div>
 
+<div id="launch-yard" aria-hidden="true"><canvas id="yard-canvas"></canvas></div>
 
-<!-- Card mini-simulations -->
 <script src="cards/vectors.js"></script>
 <script src="cards/kinematics.js"></script>
 <script src="cards/dynamics.js"></script>
@@ -669,7 +645,6 @@
 <script src="cards/oscillation.js"></script>
 <script src="cards/waves.js"></script>
 <script src="cards/thermo.js"></script>
-<!-- Vol. II -->
 <script src="cards/electrostatics-1.js"></script>
 <script src="cards/electrostatics-2.js"></script>
 <script src="cards/circuits.js"></script>
@@ -678,7 +653,6 @@
 <script src="cards/optics.js"></script>
 <script src="cards/quantum.js"></script>
 
-<!-- KaTeX render — all [data-tex] elements across the page -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.katex) return;
@@ -688,7 +662,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- Spring-mass decoration animation (left-margin canvas)rti -->
 <script>
 (function () {
     'use strict';
@@ -696,370 +669,812 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('spring-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const SERIF = '"Source Serif 4",Georgia,serif';
 
-    // Colour tokens read at mount time
-    const s       = getComputedStyle(document.documentElement);
-    const cSpring = s.getPropertyValue('--c-springs').trim() || '#2d6e6a';
-    const cInk    = s.getPropertyValue('--ink').trim()       || '#363026';
+    const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+    const C = { spring: tok('--c-springs', '#2d6e6a'), ink: tok('--ink', '#363026'),
+                faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                block: '#e9e1c6' };
 
-    // Physics parameters — pure SHM, no damping
-    const PERIOD = 6.0;                       // seconds (stiff spring, 2× slower)
-    const OMEGA  = (2 * Math.PI) / PERIOD;    // rad/s
-    const AMP    = 108;                       // px
-    const Y_EQ   = 290;                       // px from top of page (aligns with h1)
+    const PERIOD = 6.0, OMEGA = 2 * Math.PI / PERIOD;
+    const HEIGHT = 560, COILS = 11;
 
-    // Spring geometry
-    const COILS        = 10;
-    const COIL_WIDE    = 40;   // ± offset from centre line (32 × 1.25)
-    const END_STRAIGHT = 18;   // straight segment at each end (14 × 1.25)
-    const ANCHOR_Y     = 8;
-    const MASS_SIZE    = 54;   // cube 50% bigger (36 × 1.5)
-
-    let W = 0, H = 0;
-
-    function resize() {
-        W = canvas.offsetWidth;
-        H = canvas.offsetHeight;
-        canvas.width  = W * dpr;
-        canvas.height = H * dpr;
+    let W = 0, s = 1, show = false;
+    function layout() {
+        const page = document.querySelector('.page');
+        if (!page) return;
+        const pad = parseFloat(getComputedStyle(page).paddingLeft) || 0;
+        const gutter = page.getBoundingClientRect().left + pad - 14;
+        show = gutter >= 118 && !window.matchMedia('(max-width: 1360px)').matches;
+        canvas.style.display = show ? 'block' : 'none';
+        if (!show) return;
+        W = Math.min(gutter, 260);
+        s = Math.max(0.66, Math.min(1.1, W / 210));
+        const dpr = window.devicePixelRatio || 1;
+        canvas.style.left = Math.max(0, gutter - W) / 2 + 'px';
+        canvas.style.width = W + 'px'; canvas.style.height = HEIGHT + 'px';
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(HEIGHT * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    resize();
 
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-
-    // Draw a zigzag spring coil between two points along a vertical line at cx.
-    function drawSpring(cx, yTop, yBottom) {
-        const innerTop    = yTop + END_STRAIGHT;
-        const innerBottom = yBottom - END_STRAIGHT;
-        const span        = innerBottom - innerTop;
-        if (span <= 0) return;
-
-        // Each coil has two segments (one to the left peak, one to the right peak).
-        const segs   = COILS * 2;
-        const segLen = span / segs;
-
-        ctx.strokeStyle = cSpring;
-        ctx.lineWidth   = 3.8;
-        ctx.lineCap     = 'round';
-        ctx.lineJoin    = 'round';
-        ctx.setLineDash([]);
-
-        ctx.beginPath();
-        ctx.moveTo(cx, yTop);
-        ctx.lineTo(cx, innerTop);
-        for (let i = 0; i < segs; i++) {
-            const y = innerTop + segLen * (i + 0.5);
-            const x = cx + (i % 2 === 0 ? +COIL_WIDE : -COIL_WIDE);
-            ctx.lineTo(x, y);
+    function coil(cx, yTop, yBot, R) {
+        const L = yBot - yTop, TURNS = COILS * 2 * Math.PI, steps = COILS * 24;
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(cx, yTop);
+        for (let i = 0; i <= steps; i++) {
+            const ph = TURNS * i / steps;
+            ctx.lineTo(cx + R * Math.sin(ph), yTop + L * i / steps + R * 0.22 * (1 - Math.cos(ph)));
         }
-        ctx.lineTo(cx, innerBottom);
-        ctx.lineTo(cx, yBottom);
         ctx.stroke();
     }
 
-    function drawArrow(cx, y0, y1) {
-        // Small vertical arrow from y0 to y1; head at y1.
-        const dy = y1 - y0;
-        if (Math.abs(dy) < 1) return;
-        const dir = dy > 0 ? 1 : -1;
-        const headLen = 4;
-        const headWide = 3;
+    const t0 = performance.now();
+    function draw(now) {
+        if (!show) return;
+        const t = reduced ? 0 : (now - t0) / 1000;
+        const cx = W / 2, anchorY = 16, yEq = 300, A = 104 * Math.min(1, s);
+        const x = A * Math.sin(OMEGA * t);
+        const mw = 50 * s, mh = 42 * s, yMass = yEq + x;
+        const massTop = yMass - mh / 2;
+        ctx.clearRect(0, 0, W, HEIGHT);
 
-        ctx.save();
-        ctx.globalAlpha = 0.45;
-        ctx.strokeStyle = cInk;
-        ctx.fillStyle   = cInk;
-        ctx.lineWidth   = 1.25;
-        ctx.lineCap     = 'round';
-        ctx.setLineDash([]);
+        const leadTop = anchorY + 10 * s, leadBot = massTop - 10 * s;
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(cx, anchorY); ctx.lineTo(cx, leadTop); ctx.moveTo(cx, leadBot); ctx.lineTo(cx, massTop); ctx.stroke();
+        coil(cx, leadTop, leadBot - 3.5 * s, 15 * s);
+        ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(cx, anchorY, 5.5, 0, Math.PI * 2); ctx.fill();
 
-        ctx.beginPath();
-        ctx.moveTo(cx, y0);
-        ctx.lineTo(cx, y1 - dir * headLen * 0.5);
-        ctx.stroke();
+        ctx.fillStyle = C.spring; ctx.fillRect(cx - mw / 2, massTop, mw, mh);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.strokeRect(cx - mw / 2, massTop, mw, mh);
+        ctx.font = 'italic ' + Math.max(14, Math.round(17 * s)) + 'px ' + SERIF;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = C.paper;
+        ctx.fillText('m', cx, yMass + 1);
 
-        ctx.beginPath();
-        ctx.moveTo(cx, y1);
-        ctx.lineTo(cx - headWide, y1 - dir * headLen);
-        ctx.lineTo(cx + headWide, y1 - dir * headLen);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
     }
 
-    // Start phase so the mass begins at equilibrium moving downward:
-    //   y(t) = Y_EQ + A * cos(ω t + φ)
-    //   want y(0) = Y_EQ → cos(φ) = 0 → φ = ±π/2
-    //   want dy/dt(0) > 0 → -A ω sin(φ) > 0 → sin(φ) < 0 → φ = -π/2
-    const PHI = -Math.PI / 2;
-    const t0  = performance.now();
-
-    function frame(now) {
-        const t = (now - t0) / 1000;
-        const cx     = W / 2;
-        const yMass  = Y_EQ + AMP * Math.cos(OMEGA * t + PHI);
-        const massTop = yMass - MASS_SIZE / 2;
-
-        ctx.clearRect(0, 0, W, H);
-
-        // Spring coil: anchor → top of mass
-        drawSpring(cx, ANCHOR_Y, massTop);
-
-        // Attachment dot
-        ctx.fillStyle = cInk;
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.arc(cx, ANCHOR_Y, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Mass — filled square with ink border
-        ctx.fillStyle   = cSpring;
-        ctx.strokeStyle = cInk;
-        ctx.lineWidth   = 1;
-        ctx.beginPath();
-        ctx.rect(cx - MASS_SIZE / 2, yMass - MASS_SIZE / 2, MASS_SIZE, MASS_SIZE);
-        ctx.fill();
-        ctx.stroke();
-
-        // Force arrow — restoring force points back toward equilibrium.
-        // F = -k x, where x = yMass - Y_EQ (positive = below eq).
-        const disp = yMass - Y_EQ;
-        if (Math.abs(disp) >= 3) {
-            const maxLen = 51;
-            const len = Math.min(maxLen, Math.abs(disp) * (maxLen / AMP));
-            const dir = disp > 0 ? -1 : +1;   // restoring direction
-            const arrowX  = cx + MASS_SIZE / 2 + 10;
-            const arrowY0 = yMass;
-            const arrowY1 = yMass + dir * len;
-            drawArrow(arrowX, arrowY0, arrowY1);
-
-            // F⃗ label — italic "F" with vector arrow above it
-            const lx  = arrowX + 14;
-            const ly  = (arrowY0 + arrowY1) / 2;
-            const aly = ly - 14;   // arrow mark sits above letter
-            ctx.save();
-            ctx.globalAlpha = 0.55;
-            ctx.fillStyle   = cInk;
-            ctx.strokeStyle = cInk;
-            ctx.lineWidth   = 1;
-            ctx.lineCap     = 'round';
-            ctx.setLineDash([]);
-            // shaft of vector accent
-            ctx.beginPath();
-            ctx.moveTo(lx - 5, aly);
-            ctx.lineTo(lx + 1, aly);
-            ctx.stroke();
-            // arrowhead
-            ctx.beginPath();
-            ctx.moveTo(lx + 5, aly);
-            ctx.lineTo(lx + 1, aly - 2.5);
-            ctx.lineTo(lx + 1, aly + 2.5);
-            ctx.closePath();
-            ctx.fill();
-            // letter
-            ctx.font         = 'italic 13px "Source Serif 4", Georgia, serif';
-            ctx.textAlign    = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('F', lx, ly);
-            ctx.restore();
-        }
-
-        requestAnimationFrame(frame);
-    }
-
-    requestAnimationFrame(frame);
+    let raf = 0, visible = true;
+    const tick = now => { raf = 0; draw(now); if (visible && !reduced) raf = requestAnimationFrame(tick); };
+    layout();
+    window.addEventListener('resize', () => { layout(); draw(performance.now()); });
+    if (window.IntersectionObserver) new IntersectionObserver(es => {
+        visible = es.some(e => e.isIntersecting);
+        if (visible && !raf) raf = requestAnimationFrame(tick);
+    }).observe(canvas);
+    raf = requestAnimationFrame(tick);
+    if (document.fonts) document.fonts.ready.then(() => draw(performance.now()));
 }());
 </script>
 
-<!-- Rocket decoration animation -->
 <script>
 (function () {
     'use strict';
 
-    // ── Rocket geometry — all px relative to rocket centre ───────────────
-    const BW   = 12;   // body half-width
-    const BH   = 30;   // body half-height
-    const NOSE = 30;   // nose cone height above body top
-    const FW   = 14;   // fin outward extension
-    const FH   = 30;   // fin vertical span
-    const NZH  = 11;   // nozzle height below body bottom
-    const NZW  = 6;    // nozzle half-width at tip
-    const WR   = 6;    // porthole radius
+    const yard = document.getElementById('launch-yard');
+    const ycv = document.getElementById('yard-canvas');
+    const mcv = document.getElementById('rocket-canvas');
+    if (!yard || !ycv) return;
+    const yctx = ycv.getContext('2d'), mctx = mcv ? mcv.getContext('2d') : null;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const SERIF = '"Source Serif 4",Georgia,serif';
+    const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+    const C = { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'), faint: tok('--ink-faint', '#7A6A52'),
+                body: '#f1ead6', trim: '#a8243b', glass: '#2a62a8', block: '#e9e1c6',
+                box: '#d9c59b', boxIn: '#b9a172', yarn: '#a8243b', yarnHi: '#d5566c',
+                steel: '#a39f97', steelDk: '#6f6b64' };
 
-    // ── Flight parameters ─────────────────────────────────────────────────
-    const CYCLE    = 13800;  // ms per pass
-    const ARC_OFF  = 15;     // px — gentle arc bulge at midpoint (near-straight)
+    function drawRocket(ctx, s) {
+        const bw = 11 * s, bh = 30 * s, nose = 30 * s, nzY = bh + 9 * s;
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+        [-1, 1].forEach(k => {
+            ctx.fillStyle = C.trim; ctx.beginPath();
+            ctx.moveTo(k * bw, bh - 22 * s); ctx.lineTo(k * (bw + 13 * s), bh + 6 * s);
+            ctx.lineTo(k * (bw + 13 * s), bh + 11 * s); ctx.lineTo(k * bw, bh + 2 * s); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        });
+        ctx.fillStyle = C.ink; ctx.beginPath();
+        ctx.moveTo(-7 * s, bh); ctx.lineTo(7 * s, bh); ctx.lineTo(6 * s, nzY); ctx.lineTo(-6 * s, nzY); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = C.body; ctx.fillRect(-bw, -bh, 2 * bw, 2 * bh); ctx.strokeRect(-bw, -bh, 2 * bw, 2 * bh);
+        ctx.lineWidth = 0.9; ctx.globalAlpha = 0.6;
+        [0.25, 0.62].forEach(f => { const y = -bh + 2 * bh * f; ctx.beginPath(); ctx.moveTo(-bw, y); ctx.lineTo(bw, y); ctx.stroke(); });
+        ctx.globalAlpha = 1; ctx.lineWidth = 1.5;
+        ctx.fillStyle = C.trim; ctx.beginPath();
+        ctx.moveTo(-bw, -bh); ctx.lineTo(0, -bh - nose); ctx.lineTo(bw, -bh); ctx.closePath(); ctx.fill(); ctx.stroke();
+        const py = -bh * 0.42, pr = 5.5 * s;
+        ctx.fillStyle = C.glass; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(0, py, pr, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+        ctx.lineWidth = 1.4; ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.arc(-1.8 * s, py - 1.8 * s, pr * 0.34, 0, Math.PI * 2); ctx.fill();
+    }
+    const ROCKET_BELOW = 41;
 
-    function colours() {
-        const s = getComputedStyle(document.documentElement);
+const KITTEN = (function () {
+    'use strict';
+    const F = { fur: '#e6a059', furHi: '#f0b777', furFar: '#c98a4f', stripe: '#c0722f',
+                cream: '#f9e6c8', creamFar: '#e7cda6', ear: '#f1b3a8', nose: '#d86a78',
+                eye: '#2d2a26', blush: 'rgba(233,120,120,0.28)', ink: '#363026' };
+    const mix = (a, b, f) => a + (b - a) * f;
+    const P = (x, y) => ({ x, y });
+    const add = (a, b) => P(a.x + b.x, a.y + b.y);
+
+    function ik(A, T, l1, l2, bend) {
+        const dx = T.x - A.x, dy = T.y - A.y;
+        const d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(l1 + l2 - 0.01, Math.hypot(dx, dy)));
+        const th = Math.atan2(dy, dx);
+        const a = Math.acos(Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d))));
+        const j = th + bend * a;
+        return P(A.x + l1 * Math.cos(j), A.y + l1 * Math.sin(j));
+    }
+
+    function skeleton(p) {
+        const cr = p.crouch || 0, hp = p.hips || 0, sit = p.sit || 0;
+        let H = P(mix(-10.5, -10.5, cr), mix(-17.2, -14.2, cr) - 5 * hp);
+        let S = P(mix(8.5, 9.5, cr), mix(-18.8, -13.4, cr));
+        H = P(mix(H.x, -5, sit), mix(H.y, -10.5, sit));
+        S = P(mix(S.x, 3.5, sit), mix(S.y, -25, sit));
+        const head = add(S, P(mix(mix(9.5, 12.5, cr), 4.5, sit), mix(mix(-12.5, -8, cr), -14, sit)));
+        return { H, S, rh: mix(10, 10.5, sit), rc: 10.5, head };
+    }
+
+    function restFeet(p) {
+        const cr = p.crouch || 0, sit = p.sit || 0;
         return {
-            ink:   s.getPropertyValue('--ink').trim()   || '#363026',
-            paper: s.getPropertyValue('--paper').trim() || '#f5f0e8',
+            nf: P(mix(mix(11, 14, cr), 8.5, sit), 0), ff: P(mix(mix(6.5, 9.5, cr), 5, sit), 0),
+            nh: P(mix(mix(-8, -8.5, cr), -1, sit), 0), fh: P(mix(mix(-4, -4.5, cr), 2.5, sit), 0),
         };
     }
 
-    // Draw rocket at origin, pointing straight up. Caller handles translate+rotate.
-    function drawRocket(ctx, col) {
-        ctx.setLineDash([]);
-
-        // Body
-        ctx.fillStyle   = col.paper;
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth   = 1.8;
-        ctx.beginPath();
-        ctx.rect(-BW, -BH, BW * 2, BH * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Nose cone
-        ctx.fillStyle = col.ink;
-        ctx.beginPath();
-        ctx.moveTo(-BW, -BH);
-        ctx.lineTo(BW,  -BH);
-        ctx.lineTo(0,   -BH - NOSE);
-        ctx.closePath();
-        ctx.fill();
-
-        // Left fin
-        ctx.beginPath();
-        ctx.moveTo(-BW, BH - FH);
-        ctx.lineTo(-BW - FW, BH + FH * 0.35);
-        ctx.lineTo(-BW, BH);
-        ctx.closePath();
-        ctx.fill();
-
-        // Right fin
-        ctx.beginPath();
-        ctx.moveTo(BW, BH - FH);
-        ctx.lineTo(BW + FW, BH + FH * 0.35);
-        ctx.lineTo(BW, BH);
-        ctx.closePath();
-        ctx.fill();
-
-        // Nozzle bell
-        ctx.beginPath();
-        ctx.moveTo(-BW + 2, BH);
-        ctx.lineTo(BW  - 2, BH);
-        ctx.lineTo(NZW,    BH + NZH);
-        ctx.lineTo(-NZW,   BH + NZH);
-        ctx.closePath();
-        ctx.fill();
-
-        // Porthole
-        ctx.fillStyle   = '#b05a18';
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth   = 1.3;
-        ctx.beginPath();
-        ctx.arc(0, -BH * 0.38, WR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Porthole glint
-        ctx.fillStyle = 'rgba(255,255,255,0.45)';
-        ctx.beginPath();
-        ctx.arc(-2, -BH * 0.38 - 2, WR * 0.38, 0, Math.PI * 2);
-        ctx.fill();
+    function tailTarget(mode, t, n) {
+        const out = [];
+        for (let i = 0; i < n; i++) {
+            const f = i / (n - 1);
+            let a;
+            if (mode === 'up')        a = -Math.PI / 2 - 0.5 + f * 1.5 + 0.12 * Math.sin(t * 2.2 - f * 2.5);
+            else if (mode === 'low')  a = Math.PI + 0.1 + f * f * 1.0 + (f > 0.6 ? 0.45 * Math.sin(t * 13) * (f - 0.6) * 2.5 : 0);
+            else if (mode === 'sit')  a = Math.PI * 0.72 - f * 2.9;
+            else                      a = Math.PI + 0.55 + f * 1.0 + 0.16 * Math.sin(t * 1.6 - f * 3);
+            out.push(a);
+        }
+        return out;
     }
 
-    function mount(canvas) {
-        const ctx = canvas.getContext('2d');
-        const dpr = window.devicePixelRatio || 1;
-        let W = 0, H = 0, col;
-        let particles = [];
+    function limb(ctx, A, J, B, w, fill, ow) {
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(J.x, J.y); ctx.lineTo(B.x, B.y);
+        ctx.strokeStyle = F.ink; ctx.lineWidth = w + ow; ctx.stroke();
+        ctx.strokeStyle = fill; ctx.lineWidth = w; ctx.stroke();
+    }
+    function paw(ctx, c, fill, ow) {
+        ctx.fillStyle = fill; ctx.strokeStyle = F.ink; ctx.lineWidth = ow;
+        ctx.beginPath(); ctx.ellipse(c.x + 0.6, c.y - 2.4, 4.3, 2.6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.lineWidth = ow * 0.7; ctx.beginPath();
+        ctx.moveTo(c.x + 2.2, c.y - 0.4); ctx.lineTo(c.x + 2.2, c.y - 1.9);
+        ctx.moveTo(c.x + 3.9, c.y - 0.6); ctx.lineTo(c.x + 3.9, c.y - 1.8); ctx.stroke();
+    }
 
-        let TRAVEL = 0;
+    function bodyPath(ctx, k) {
+        const { H, S, rh, rc } = k;
+        ctx.beginPath();
+        ctx.arc(H.x, H.y, rh, Math.PI / 2, Math.PI * 1.5);
+        const mx = (H.x + S.x) / 2;
+        ctx.bezierCurveTo(mx - 3, H.y - rh + 1.5, mx + 3, S.y - rc + 1.2, S.x, S.y - rc);
+        ctx.arc(S.x, S.y, rc, -Math.PI / 2, Math.PI / 2);
+        ctx.bezierCurveTo(mx + 3, S.y + rc + 1.2, mx - 3, H.y + rh + 1.5, H.x, H.y + rh);
+        ctx.closePath();
+    }
 
-        function resize() {
-            W = canvas.offsetWidth;
-            H = document.documentElement.scrollHeight;
-            canvas.style.height = H + 'px';
-            canvas.width  = Math.round(W * dpr);
-            canvas.height = Math.round(H * dpr);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            TRAVEL = H + 180;
+    function drawTail(ctx, base, angles, ow, t) {
+        const n = angles.length, seg = 2.55, pts = [base];
+        let q = base;
+        for (let i = 0; i < n; i++) {
+            let a = angles[i], nx = q.x + seg * Math.cos(a), ny = q.y + seg * Math.sin(a);
+            if (ny > -2.4) { a = Math.cos(a) >= 0 ? 0 : Math.PI; nx = q.x + seg * Math.cos(a); ny = q.y; }
+            q = P(nx, ny); pts.push(q);
         }
-        resize();
-        col = colours();
-        window.addEventListener('resize', resize);
+        const w = i => mix(5.9, 4.3, i / n) + (i >= n - 2 ? 0.7 : 0);
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for (let i = 0; i < n; i++) { ctx.strokeStyle = F.ink; ctx.lineWidth = w(i) + ow * 1.8; ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[i + 1].x, pts[i + 1].y); ctx.stroke(); }
+        for (let i = 0; i < n; i++) {
+            ctx.strokeStyle = (i % 3 === 2 || i >= n - 2) ? F.stripe : F.fur; ctx.lineWidth = w(i);
+            ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[i + 1].x, pts[i + 1].y); ctx.stroke();
+        }
+    }
 
-        const t0 = performance.now();
+    function ear(ctx, b0, b1, tip, rot, ow, far) {
+        const cx = (b0.x + b1.x) / 2, cy = (b0.y + b1.y) / 2;
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.translate(-cx, -cy);
+        ctx.fillStyle = far ? F.furFar : F.fur; ctx.strokeStyle = F.ink; ctx.lineWidth = ow;
+        ctx.beginPath(); ctx.moveTo(b0.x, b0.y);
+        ctx.quadraticCurveTo(mix(b0.x, tip.x, 0.55) - 0.6, mix(b0.y, tip.y, 0.55), tip.x, tip.y);
+        ctx.quadraticCurveTo(mix(b1.x, tip.x, 0.55) + 0.6, mix(b1.y, tip.y, 0.55), b1.x, b1.y);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        const i0 = P(mix(b0.x, b1.x, 0.22), mix(b0.y, b1.y, 0.22)), i1 = P(mix(b0.x, b1.x, 0.78), mix(b0.y, b1.y, 0.78));
+        const it = P(mix(tip.x, cx, 0.3), mix(tip.y, cy, 0.3));
+        ctx.fillStyle = F.ear; ctx.beginPath(); ctx.moveTo(i0.x, i0.y); ctx.quadraticCurveTo(mix(i0.x, it.x, 0.5), mix(i0.y, it.y, 0.5), it.x, it.y);
+        ctx.quadraticCurveTo(mix(i1.x, it.x, 0.5), mix(i1.y, it.y, 0.5), i1.x, i1.y); ctx.closePath(); ctx.fill();
+        ctx.restore();
+    }
 
-        function spawnExhaust(x, y) {
-            for (let i = 0; i < 3; i++) {
-                particles.push({
-                    x, y,
-                    vx:      (Math.random() - 0.5) * 1.8,
-                    vy:      1.0 + Math.random() * 2.2,   // downward in canvas
-                    life:    0,
-                    maxLife: 26 + Math.random() * 30,
-                    r:       2.5 + Math.random() * 3,
-                });
+    function eye(ctx, c, style, look, ow) {
+        ctx.strokeStyle = F.eye; ctx.lineCap = 'round';
+        if (style === 'open') {
+            ctx.fillStyle = F.eye; ctx.beginPath(); ctx.ellipse(c.x, c.y, 2.5, 3.2, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(c.x + 0.8 + look[0] * 0.6, c.y - 1.1 + look[1] * 0.5, 1.05, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(c.x - 0.8 + look[0] * 0.6, c.y + 1.2 + look[1] * 0.5, 0.45, 0, Math.PI * 2); ctx.fill();
+        } else if (style === 'blink') {
+            ctx.lineWidth = ow * 1.25; ctx.beginPath(); ctx.arc(c.x, c.y - 1, 2.5, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+        } else {
+            ctx.lineWidth = ow * 1.35; ctx.beginPath(); ctx.arc(c.x, c.y + 1.4, 2.6, 1.15 * Math.PI, 1.85 * Math.PI); ctx.stroke();
+        }
+    }
+
+    function drawHead(ctx, hc, p, ow) {
+        const h = p.head || {};
+        const px = hc.x - 3, py = hc.y + 9;
+        ctx.save(); ctx.translate(px, py); ctx.rotate(h.tilt || 0); ctx.translate(-px, -py);
+        const c = hc, fx = 1.5, R = (x, y) => P(c.x + x, c.y + y);
+        const perk = h.ear || 0;
+        ear(ctx, R(-12.2, -4.2), R(-4, -11.8), R(-11.4, -20.6 - 1.4 * perk), -0.1 - 0.28 * (h.flick || 0), ow, false);
+        ear(ctx, R(6.6, -11.6), R(13.6, -3.4), R(13.2, -20.4 - 1.4 * perk), 0.1, ow, false);
+        const g = ctx.createLinearGradient(0, c.y - 13, 0, c.y + 13);
+        g.addColorStop(0, F.fur); g.addColorStop(0.6, F.furHi); g.addColorStop(1, F.cream);
+        ctx.fillStyle = g; ctx.strokeStyle = F.ink; ctx.lineWidth = ow;
+        ctx.beginPath(); ctx.ellipse(c.x, c.y, 13.6, 12.7, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = F.stripe; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+        [[-2.6, -11.4, -2, -7.6], [fx, -12.2, fx, -8], [5.6, -11.4, 5, -7.6]].forEach(([a0, b0, d0, e0]) => {
+            ctx.beginPath(); ctx.moveTo(c.x + a0, c.y + b0); ctx.lineTo(c.x + d0, c.y + e0); ctx.stroke(); });
+        ctx.fillStyle = F.cream; ctx.beginPath(); ctx.ellipse(c.x + fx, c.y + 5.3, 5.3, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = F.blush;
+        [-7.4, 7.4].forEach(dx => { ctx.beginPath(); ctx.ellipse(c.x + fx + dx, c.y + 3.6, 2.5, 1.5, 0, 0, Math.PI * 2); ctx.fill(); });
+        const look = h.look || [0, 0], style = h.eyes || 'happy';
+        eye(ctx, R(fx - 4.7, -0.6), style, look, ow);
+        eye(ctx, R(fx + 4.7, -0.6), style, look, ow);
+        ctx.fillStyle = F.nose; ctx.strokeStyle = F.ink; ctx.lineWidth = ow * 0.7;
+        ctx.beginPath(); ctx.moveTo(c.x + fx - 1.5, c.y + 2.4); ctx.lineTo(c.x + fx + 1.5, c.y + 2.4); ctx.lineTo(c.x + fx, c.y + 4);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        const mo = h.mouth || 0;
+        ctx.lineWidth = ow * 0.8;
+        if (mo > 0.1) {
+            ctx.fillStyle = '#8a4040'; ctx.beginPath(); ctx.ellipse(c.x + fx, c.y + 6.2, 1.5, 0.9 * mo + 0.5, 0, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.beginPath(); ctx.moveTo(c.x + fx, c.y + 4); ctx.quadraticCurveTo(c.x + fx - 0.3, c.y + 5.7, c.x + fx - 2.1, c.y + 5.3);
+        ctx.moveTo(c.x + fx, c.y + 4); ctx.quadraticCurveTo(c.x + fx + 0.3, c.y + 5.7, c.x + fx + 2.1, c.y + 5.3); ctx.stroke();
+        ctx.globalAlpha = 0.55; ctx.lineWidth = ow * 0.55;
+        [[1, 4.3, 12.5, 2.6], [1, 5.3, 12.8, 5.7], [1, 6.2, 11.8, 8.4]].forEach(([k, b0, d0, e0]) => {
+            [-1, 1].forEach(sg => {
+                const x0 = c.x + fx + sg * 4.6, x1 = c.x + fx + sg * (d0 + 2);
+                ctx.beginPath(); ctx.moveTo(x0, c.y + b0); ctx.quadraticCurveTo((x0 + x1) / 2, c.y + (b0 + e0) / 2 - 0.5, x1, c.y + e0); ctx.stroke();
+            });
+        });
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function draw(ctx, u, p) {
+        const ow = 1.45 / u;
+        ctx.save(); ctx.scale(u, u);
+        const sq = p.squash || 0;
+        if (sq) ctx.scale(1 + 0.12 * sq, 1 - 0.14 * sq);
+        const k = skeleton(p), rf = restFeet(p), feet = Object.assign({}, rf, p.feet || {});
+        const sit = p.sit || 0;
+        if (p.swat) feet.nf = P(mix(feet.nf.x, p.swatTarget ? p.swatTarget.x : 27, p.swat), mix(feet.nf.y, p.swatTarget ? p.swatTarget.y : -13, p.swat));
+        const roots = { nf: add(k.S, P(2.5, 5)), ff: add(k.S, P(-1.5, 4.5)), nh: add(k.H, P(2.5, 4.5)), fh: add(k.H, P(6, 3.5)) };
+        const hl = mix(8.3, 5.2, sit);
+        const leg = (n, l1, l2) => {
+            const A = roots[n], Tg = P(feet[n].x, feet[n].y - 2.2), J = ik(A, Tg, l1, l2, 1);
+            const dx = Tg.x - J.x, dy = Tg.y - J.y, d = Math.hypot(dx, dy) || 1;
+            const B = d > l2 ? P(J.x + dx / d * l2, J.y + dy / d * l2) : Tg;
+            return [A, J, B];
+        };
+        const legs = { nf: leg('nf', 7.8, 7.8), ff: leg('ff', 7.8, 7.8), nh: leg('nh', hl, hl), fh: leg('fh', hl, hl) };
+        ['fh', 'ff'].forEach(n => { const L = legs[n]; limb(ctx, L[0], L[1], L[2], 5.4, F.furFar, ow * 1.7); paw(ctx, P(L[2].x, L[2].y + 2.2), F.creamFar, ow); });
+        const base = add(k.H, P(-7.5, -3.5 + 3 * sit));
+        drawTail(ctx, base, p.tail || tailTarget(p.tailMode || 'idle', p.t || 0, 11), ow, p.t || 0);
+        const g = ctx.createLinearGradient(0, Math.min(k.H.y - k.rh, k.S.y - k.rc), 0, Math.max(k.H.y + k.rh, k.S.y + k.rc));
+        g.addColorStop(0, F.fur); g.addColorStop(0.6, F.furHi); g.addColorStop(1, F.cream);
+        bodyPath(ctx, k); ctx.fillStyle = g; ctx.fill();
+        ctx.save(); bodyPath(ctx, k); ctx.clip();
+        ctx.strokeStyle = F.stripe; ctx.lineWidth = 2.3; ctx.lineCap = 'round';
+        for (let i = 0; i < 4; i++) {
+            const f = 0.12 + i * 0.25, x = mix(k.H.x, k.S.x, f), y = mix(k.H.y - k.rh, k.S.y - k.rc, f);
+            ctx.beginPath(); ctx.moveTo(x + 1.8, y - 1.5); ctx.quadraticCurveTo(x + 1.2, y + 4, x - 1.2, y + 7.5); ctx.stroke();
+        }
+        ctx.restore();
+        bodyPath(ctx, k); ctx.strokeStyle = F.ink; ctx.lineWidth = ow; ctx.stroke();
+        ctx.strokeStyle = F.ink; ctx.lineWidth = ow * 0.8; ctx.globalAlpha = 0.55;
+        ctx.beginPath(); ctx.arc(k.H.x + 2, k.H.y + 1, 7.5, -0.95 * Math.PI, 0.1 * Math.PI); ctx.stroke(); ctx.globalAlpha = 1;
+        ['nh', 'nf'].forEach(n => { const L = legs[n]; limb(ctx, L[0], L[1], L[2], 5.8, F.fur, ow * 1.7); paw(ctx, P(L[2].x, L[2].y + 2.2), F.cream, ow); });
+        drawHead(ctx, k.head, p, ow);
+        ctx.restore();
+    }
+
+    function gait(p, s, stride, lift, kind) {
+        const rf = restFeet(p), beta = kind === 'trot' ? 0.5 : 0.64;
+        const ph = kind === 'trot' ? { nf: 0, fh: 0, ff: 0.5, nh: 0.5 } : { nh: 0, nf: 0.25, fh: 0.5, ff: 0.75 };
+        const out = {};
+        Object.keys(ph).forEach(n => {
+            const c = ((s / stride + ph[n]) % 1 + 1) % 1;
+            let off, y = 0;
+            if (c < beta) off = beta * stride / 2 - c * stride;
+            else { const f = (c - beta) / (1 - beta); off = -beta * stride / 2 + f * beta * stride; y = -Math.sin(Math.PI * f) * lift; }
+            out[n] = P(rf[n].x + off, y);
+        });
+        return out;
+    }
+
+    return { draw, gait, tailTarget, restFeet, skeleton, colours: F };
+}());
+
+    let BW = 34, BH = 40, BD = 9;
+    function boxBack(ctx, x, gy, open) {
+        ctx.fillStyle = C.boxIn; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(x - BW, gy - BH); ctx.lineTo(x - BW + BD, gy - BH - BD); ctx.lineTo(x + BW + BD, gy - BH - BD); ctx.lineTo(x + BW, gy - BH);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        const a = open * 1.95;
+        [[-1, x - BW], [1, x + BW]].forEach(([k, hx]) => {
+            const fx = hx - k * BW * Math.cos(a), fy = gy - BH - BW * Math.sin(a);
+            ctx.fillStyle = C.box; ctx.beginPath();
+            ctx.moveTo(hx, gy - BH); ctx.lineTo(hx + BD, gy - BH - BD); ctx.lineTo(fx + BD, fy - BD); ctx.lineTo(fx, fy); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        });
+    }
+    function boxFront(ctx, x, gy) {
+        ctx.fillStyle = '#c9b184'; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(x + BW, gy); ctx.lineTo(x + BW + BD, gy - BD); ctx.lineTo(x + BW + BD, gy - BH - BD); ctx.lineTo(x + BW, gy - BH);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = C.box; ctx.fillRect(x - BW, gy - BH, 2 * BW, BH); ctx.strokeRect(x - BW, gy - BH, 2 * BW, BH);
+        ctx.font = 'italic ' + Math.round(BH * 0.52) + 'px ' + SERIF; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = C.soft; ctx.globalAlpha = 0.75; ctx.fillText('ψ', x, gy - BH / 2 + 1); ctx.globalAlpha = 1;
+    }
+
+    function drawYarn(ctx, x, y, r, roll) {
+        ctx.fillStyle = C.yarn; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.save(); ctx.beginPath(); ctx.arc(x, y, r - 0.6, 0, Math.PI * 2); ctx.clip();
+        ctx.strokeStyle = C.yarnHi; ctx.lineWidth = 1;
+        for (let k = 0; k < 3; k++) {
+            const a = roll + k * 1.05;
+            ctx.beginPath(); ctx.ellipse(x, y, r * 0.95, r * 0.42, a, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function drawStand(ctx, bx, gy, armY, rocketX, open, s, wheelA) {
+        const post = 6 * s, bw = 11 * s;
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4;
+        ctx.fillStyle = C.steel; ctx.fillRect(bx - 22 * s, gy - 12 * s, 44 * s, 7 * s); ctx.strokeRect(bx - 22 * s, gy - 12 * s, 44 * s, 7 * s);
+        [-13, 13].forEach(wx => {
+            ctx.fillStyle = C.steelDk; ctx.beginPath(); ctx.arc(bx + wx * s, gy - 5 * s, 5 * s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.strokeStyle = '#d8d4cc'; ctx.lineWidth = 1; ctx.beginPath();
+            ctx.moveTo(bx + wx * s, gy - 5 * s); ctx.lineTo(bx + wx * s + Math.cos(wheelA) * 4 * s, gy - 5 * s + Math.sin(wheelA) * 4 * s); ctx.stroke();
+            ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4;
+        });
+        ctx.fillStyle = C.steel;
+        ctx.fillRect(bx - post / 2, armY - 10 * s, post, gy - 12 * s - armY + 10 * s); ctx.strokeRect(bx - post / 2, armY - 10 * s, post, gy - 12 * s - armY + 10 * s);
+        const armX = rocketX + bw + 2;
+        ctx.fillRect(armX, armY - 3 * s, bx - armX, 6 * s); ctx.strokeRect(armX, armY - 3 * s, bx - armX, 6 * s);
+        ctx.fillStyle = C.steelDk; ctx.beginPath(); ctx.arc(bx, armY, 4 * s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        const x0 = rocketX - bw - 3 + open * (2 * bw + 6), x1 = rocketX + bw + 4;
+        if (x1 - x0 > 1) { ctx.fillStyle = C.steelDk; ctx.fillRect(x0, armY - 3.5 * s, x1 - x0, 7 * s); ctx.strokeRect(x0, armY - 3.5 * s, x1 - x0, 7 * s); }
+    }
+
+    let YW = 0, YH = 0, u = 1, rs = 0.9, wide = false, MW = 0, MH = 0, ms = 1;
+    let padX = 0, gy = 0, boxX = 0, contentL = 0, yardTop = 0;
+    function layout() {
+        const dpr = window.devicePixelRatio || 1;
+        const page = document.querySelector('.page');
+        const pr = page.getBoundingClientRect(), pcs = getComputedStyle(page);
+        const cw = document.documentElement.clientWidth;
+        contentL = pr.left + (parseFloat(pcs.paddingLeft) || 0);
+        const gutter = cw - pr.right + (parseFloat(pcs.paddingRight) || 0) - 14;
+        wide = !!mctx && !reduced && gutter >= 118 && !window.matchMedia('(max-width: 1360px)').matches;
+        if (mcv) {
+            mcv.style.display = wide ? 'block' : 'none';
+            if (wide) {
+                MW = Math.min(gutter, 360); MH = window.innerHeight;
+                ms = Math.max(0.72, Math.min(1.1, MW / 200));
+                mcv.style.right = Math.max(0, gutter - MW) / 2 + 'px';
+                mcv.style.width = MW + 'px'; mcv.style.height = MH + 'px';
+                mcv.width = Math.round(MW * dpr); mcv.height = Math.round(MH * dpr);
+                mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             }
         }
+        YW = yard.clientWidth; YH = yard.clientHeight;
+        ycv.width = Math.round(YW * dpr); ycv.height = Math.round(YH * dpr);
+        yctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        u = Math.max(0.85, Math.min(1.25, YW / 620));
+        BW = 34 * u; BH = 40 * u; BD = 9 * u;
+        rs = wide ? ms : Math.max(0.66, Math.min(0.95, YW / 520));
+        gy = YH - 30;
+        padX = wide ? cw - gutter / 2 - (cw - YW) : YW - 84 * rs;
+        yardTop = yard.getBoundingClientRect().top + window.scrollY;
+    }
 
-        function frame(ts) {
-            const elapsed  = (ts - t0) % CYCLE;
-            const progress = elapsed / CYCLE;   // 0 → 1
-
-            const ry    = H + 90 - TRAVEL * progress;
-            // Gentle arc: peaks ARC_OFF px at midpoint, zero at start and end
-            const drift = Math.sin(progress * Math.PI) * ARC_OFF;
-            // Tilt = slope of arc path (d drift / d progress) / TRAVEL, small angle
-            const tilt  = (Math.PI * Math.cos(progress * Math.PI) * ARC_OFF) / TRAVEL;
-            const rx    = W / 2 + drift;
-
-            // Nozzle tip position (small-angle approx)
-            const nozzleX = rx + Math.sin(tilt) * (BH + NZH);
-            const nozzleY = ry + Math.cos(tilt) * (BH + NZH);
-            spawnExhaust(nozzleX, nozzleY);
-
-            particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life++; });
-            particles = particles.filter(p => p.life < p.maxLife);
-
-            ctx.clearRect(0, 0, W, H);
-
-            // Exhaust particles — amber core fading to dark orange
-            particles.forEach(p => {
-                const frac  = p.life / p.maxLife;
-                const alpha = (1 - frac) * 0.82;
-                const rad   = Math.max(0.5, p.r * (1 - frac * 0.45));
-                const rC = Math.round(210 - frac * 110);
-                const gC = Math.round(95  - frac * 80);
-                ctx.save();
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle   = `rgb(${rC},${gC},12)`;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            });
-
-            // Rocket
-            ctx.save();
-            ctx.translate(rx, ry);
-            ctx.rotate(tilt);
-            drawRocket(ctx, col);
-            ctx.restore();
-
-            requestAnimationFrame(frame);
+    const E = 0.5, KX = 0.72;
+    let plan = null;
+    function shotArcs(x0, dist, apex, g) {
+        const vy0 = Math.sqrt(2 * g * apex), vmin = 55 * u;
+        let n = 0; while (vy0 * Math.pow(E, n + 1) > vmin) n++;
+        let sum = 0; for (let i = 0; i <= n; i++) sum += Math.pow(E * KX, i);
+        const d1 = dist / sum, arcs = [];
+        let t = 0, x = x0;
+        for (let i = 0; i <= n; i++) {
+            const vy = vy0 * Math.pow(E, i), T = 2 * vy / g, d = d1 * Math.pow(E * KX, i);
+            arcs.push({ t0: t, T, x0: x, vx: d / T, vy }); t += T; x += d;
         }
+        return { arcs, dur: t, x1: x };
+    }
+    const KU = () => 0.72 * u;
+    function jump(x0, y0, x1, y1, clear, g) {
+        let A = 0;
+        clear.forEach(([xc, yc]) => {
+            const f = (xc - x0) / (x1 - x0);
+            if (f > 0 && f < 1) A = Math.max(A, (y0 + (y1 - y0) * f - yc) / (f * (1 - f)));
+        });
+        return { x0, y0, x1, y1, A, T: Math.sqrt(2 * A / g) };
+    }
+    function buildPlan() {
+        const g = 1700 * u, r = 7 * u, ku = KU();
+        const CAP = 24 * u;
+        const reach = 38 * ku;
+        const walkV = 36 * ku, trotV = 70 * ku, PEEK = -17 * u, HIDE = 66 * ku;
+        const wallX = padX - 11 * rs - r;
+        const hitH = 58 * rs;
+        const xs = wallX - 56 * u;
+        const buttonX = xs;
+        const vy = Math.sqrt(2 * g * Math.max(12 * u, hitH - CAP - r));
+        const vx = (wallX - xs) * g / vy;
+        const vy0 = Math.sqrt(vy * vy + 2 * g * CAP);
+        const Tlob = (vy0 + vy) / g, Dlob = vx * Tlob, Tbank = 2 * vy / g;
+        const minBox = 1.42 * BW + 10;
+        const PATS = [36 * u, 34 * u, 32 * u];
+        const need = n => BW + BD + 30 * u + reach + 16 * u + PATS.slice(0, n).reduce((a0, b0) => a0 + b0, 0) + Dlob;
+        let nP = 3; while (nP > 0 && xs - need(nP) < minBox) nP--;
+        boxX = Math.max(minBox, xs - need(nP));
+        const inX = boxX - 3 * u, L1 = boxX + BW + BD + 30 * u, ball0 = L1 + reach + 16 * u;
+        const P = { r, g, CAP, buttonX, ball0, inX, cat: [], ball: [], lands: [], springHits: [], len: 0 };
+        let t = 0;
+        const add = (arr, seg) => { arr.push(Object.assign({ t0: t }, seg)); };
+        add(P.cat, { t1: 0.7, kind: 'box', oy: HIDE, open: 0 }); t = 0.7;
+        add(P.cat, { t1: 1.1, kind: 'box', oy: HIDE, open: [0, 1] }); t = 1.1;
+        add(P.cat, { t1: 1.6, kind: 'box', oy: [HIDE, PEEK], open: 1 }); t = 1.6;
+        add(P.cat, { t1: 2.4, kind: 'box', oy: PEEK, open: 1, look: true }); t = 2.4;
+        add(P.cat, { t1: 2.62, kind: 'box', oy: PEEK, open: 1, prep: true }); t = 2.62;
+        const J1 = jump(inX, PEEK, L1, 0, [[boxX + BW + BD + 10 * u, -BH - 3 * u]], g);
+        add(P.cat, Object.assign({ t1: t + J1.T, kind: 'jump' }, J1)); t += J1.T; P.lands.push(t);
+        add(P.cat, { t1: t + 0.35, kind: 'stand', x: L1 }); t += 0.35;
+        add(P.ball, { t1: t, kind: 'rest', x: ball0 });
+        let cx = L1, bx = ball0;
+        const walkTo = (x1, trot) => {
+            const d = Math.abs(x1 - cx); if (d < 1) return;
+            const T = d / (trot ? trotV : walkV);
+            add(P.cat, { t1: t + T, kind: 'walk', x0: cx, x1, trot }); add(P.ball, { t1: t + T, kind: 'rest', x: bx });
+            t += T; cx = x1;
+        };
+        const hold = (T, seg) => { add(P.cat, Object.assign({ t1: t + T, x: cx }, seg)); add(P.ball, { t1: t + T, kind: 'rest', x: bx }); t += T; };
+        const swat = () => { add(P.cat, { t1: t + 0.3, kind: 'swat', x: cx, bx }); add(P.ball, { t1: t + 0.17, kind: 'rest', x: bx }); t += 0.17; };
+        PATS.slice(0, nP).forEach(d => {
+            walkTo(bx - reach);
+            hold(0.55, { kind: 'wiggle' }); swat();
+            const S = shotArcs(bx, d, 20 * u, g);
+            add(P.ball, { t1: t + S.dur, kind: 'arcs', arcs: S.arcs }); add(P.cat, { t1: t + S.dur, kind: 'watch', x: cx });
+            t += S.dur; bx = S.x1;
+        });
+        walkTo(bx - reach);
+        hold(0.8, { kind: 'glance' });
+        hold(0.9, { kind: 'wiggle', big: true }); swat();
+        const x0 = bx;
+        P.springHits.push(t + Tlob, t + Tlob + Tbank);
+        P.rocketHit = t + Tlob + Tbank / 2;
+        P.hit = t + Tlob; P.ignite = P.hit + 0.08; P.lift = P.rocketHit + 0.95;
+        const flight = [
+            { t0: 0, T: Tlob, x0, vx, vy: vy0 },
+            { t0: Tlob, T: Tbank, x0: xs, vx, vy, h0: CAP, turn: Tbank / 2 },
+            { t0: Tlob + Tbank, T: Tlob, x0: xs, vx: -vx, vy, h0: CAP },
+        ];
+        add(P.ball, { t1: t + 2 * Tlob + Tbank, kind: 'arcs', arcs: flight });
+        add(P.cat, { t1: t + 2 * Tlob + Tbank, kind: 'watch', x: cx, big: true });
+        t += 2 * Tlob + Tbank;
+        add(P.ball, { t1: t + 3.0, kind: 'rest', x: x0 });
+        add(P.cat, { t1: t + 0.45, kind: 'catch', x: cx, bx: x0 }); t += 0.45;
+        add(P.cat, { t1: t + 2.55, kind: 'cheer', x: cx }); t += 2.55;
+        const MOUTH = 26 * ku;
+        walkTo(x0 - MOUTH); add(P.ball, { t1: t, kind: 'rest', x: x0 });
+        hold(0.45, { kind: 'pickup' }); P.ball[P.ball.length - 1] = Object.assign(P.ball[P.ball.length - 1], { x: x0 });
+        add(P.ball, { t1: t + 0.3, kind: 'carried' }); add(P.cat, { t1: t + 0.3, kind: 'turnCarry', x: cx }); t += 0.3;
+        const skD = KITTEN.skeleton({ crouch: 0.6 });
+        {
+            const x1 = ball0 + (skD.head.x + 6.5) * ku, d = Math.abs(cx - x1), T = d / walkV;
+            add(P.cat, { t1: t + T, kind: 'walk', x0: cx, x1, carry: true }); add(P.ball, { t1: t + T, kind: 'carried' });
+            t += T; cx = x1;
+        }
+        add(P.cat, { t1: t + 0.55, kind: 'drop', x: cx, face: -1 });
+        {
+            const hm = Math.max(1 * u, -(skD.head.y + 13.5) * ku - r), vi = Math.sqrt(2 * g * hm);
+            const arcs = [{ t0: 0, T: vi / g, x0: ball0, vx: 0, vy: 0, h0: hm }];
+            let tt = vi / g;
+            for (let v = 0.45 * vi; v > 40 * u; v *= 0.45) { arcs.push({ t0: tt, T: 2 * v / g, x0: ball0, vx: 0, vy: v }); tt += 2 * v / g; }
+            add(P.ball, { t1: t + 0.3 + tt, kind: 'dropped', release: t + 0.3, arcs });
+        }
+        t += 0.55;
+        bx = ball0;
+        add(P.ball, { t1: t, kind: 'rest', x: ball0 });
+        P.ballHome = t;
+        walkTo(L1, true);
+        add(P.cat, { t1: t + 0.22, kind: 'stand', x: cx, face: -1, prep: true }); t += 0.22;
+        const J2 = jump(L1, 0, inX, 0, [[boxX + BW + BD + 4 * u, -BH - 3 * u], [boxX + BW - 12 * u, -BH - 3 * u]], g);
+        add(P.cat, Object.assign({ t1: t + J2.T, kind: 'jump' }, J2)); t += J2.T; P.lands.push(t);
+        add(P.cat, { t1: t + 0.5, kind: 'box', oy: 0, open: 1, face: -1 }); t += 0.5;
+        add(P.cat, { t1: t + 0.55, kind: 'box', oy: [0, HIDE], open: 1, face: -1 }); t += 0.55;
+        add(P.cat, { t1: t + 0.45, kind: 'box', oy: HIDE, open: [1, 0], face: -1 }); t += 0.45;
+        P.stand = { t0: P.lift + 2.6 };
+        const st = P.stand;
+        st.inEnd = st.t0 + 2.6; st.lowEnd = st.inEnd + 0.9; st.relEnd = st.lowEnd + 0.4; st.upEnd = st.relEnd + 0.5; st.outEnd = st.upEnd + 2.4;
+        P.len = Math.max(t, st.outEnd, P.ballHome) + 0.8;
+        add(P.cat, { t1: P.len, kind: 'box', oy: HIDE, open: 0 });
+        add(P.ball, { t1: P.len, kind: 'rest', x: ball0 });
+        P.stillT = P.cat.find(sg => sg.kind === 'wiggle').t0 - 0.05;
+        return P;
+    }
 
+    const lerp = (a, b, f) => a + (b - a) * f;
+    const ease = f => f < 0 ? 0 : f > 1 ? 1 : 0.5 - 0.5 * Math.cos(Math.PI * f);
+    const val = (v, f) => Array.isArray(v) ? lerp(v[0], v[1], ease(f)) : v;
+    const segAt = (arr, t) => arr.find(sg => t < sg.t1) || arr[arr.length - 1];
+
+    const capDip = t => {
+        let d = 0;
+        plan.springHits.forEach(th => { const q = t - th; if (q > 0 && q < 0.35) d += 4.5 * u * Math.exp(-9 * q) * Math.sin(Math.PI * q / 0.12); });
+        return Math.max(-2 * u, d);
+    };
+    function ballState(t) {
+        const sg = segAt(plan.ball, t), r = plan.r, f0 = gy - r;
+        if (sg.kind === 'rest') return { x: sg.x, y: f0 };
+        const tau = t - sg.t0;
+        if (sg.kind === 'kick' && tau >= sg.roll.t0) {
+            const q = Math.min(tau - sg.roll.t0, sg.roll.T);
+            return { x: sg.roll.x0 - (sg.roll.v0 * q - 0.5 * sg.roll.a * q * q), y: f0 };
+        }
+        if (sg.kind === 'carried') return { carried: true };
+        const tq = sg.kind === 'dropped' ? t - sg.release : tau;
+        if (sg.kind === 'dropped' && tq < 0) return { carried: true };
+        const arc = sg.arcs.find(a => tq < a.t0 + a.T) || sg.arcs[sg.arcs.length - 1];
+        const q = Math.min(tq - arc.t0, arc.T);
+        const x = arc.turn !== undefined && q > arc.turn ? arc.x0 + arc.vx * (2 * arc.turn - q) : arc.x0 + arc.vx * q;
+        return { x, y: f0 - ((arc.h0 || 0) + arc.vy * q - 0.5 * plan.g * q * q) };
+    }
+
+    function catTarget(t) {
+        const sg = segAt(plan.cat, t), f = Math.max(0, Math.min(1, (t - sg.t0) / Math.max(1e-6, sg.t1 - sg.t0)));
+        const ku = KU(), b = ballState(t);
+        const T = { x: sg.x !== undefined ? sg.x : plan.inX, oy: 0, face: sg.face || 1, open: 1, crouch: 0, hips: 0, sit: 0,
+                    air: 0, swat: 0, tailMode: 'idle', tilt: 0, mouth: 0, ear: 0, walk: null, squash: 0, look: null };
+        const toward = (px, py) => {
+            if (px === undefined) return 0;
+            const hx = T.x + T.face * 20 * ku, hy = gy + T.oy - 34 * ku;
+            const dx = (px - hx) * T.face, dy = py - hy;
+            return Math.max(-0.6, Math.min(0.28, Math.atan2(dy, Math.max(Math.abs(dx), 26 * u)) * 0.8));
+        };
+        switch (sg.kind) {
+            case 'box':
+                T.x = plan.inX; T.oy = val(sg.oy, f); T.open = val(sg.open, f); T.sit = 1; T.tailMode = 'sit';
+                if (sg.look) T.tilt = 0.2 * Math.sin(f * 2 * Math.PI);
+                if (sg.prep) { T.sit = 0.25; T.crouch = 0.8; T.ear = 1; T.tailMode = 'low'; }
+                break;
+            case 'jump':
+                T.x = lerp(sg.x0, sg.x1, f); T.oy = sg.y0 + (sg.y1 - sg.y0) * f - sg.A * f * (1 - f);
+                T.face = sg.x1 >= sg.x0 ? 1 : -1; T.air = Math.sin(Math.PI * f); T.squash = -0.5 * Math.sin(Math.PI * f);
+                T.tailMode = 'up'; T.ear = 1; T.open = 1;
+                break;
+            case 'stand': if (sg.prep) { T.crouch = 0.8; T.ear = 1; } T.tailMode = 'up'; break;
+            case 'walk':
+                T.x = lerp(sg.x0, sg.x1, ease(f) * 0.12 + f * 0.88); T.face = sg.x1 >= sg.x0 ? 1 : -1;
+                T.walk = sg.trot ? 'trot' : 'walk'; T.tailMode = 'up';
+                if (sg.carry) { T.carry = 1; T.tilt = 0.06; }
+                break;
+            case 'wiggle':
+                T.crouch = 1; T.hips = 0.55 + 0.45 * Math.sin(t * (sg.big ? 19 : 15)); T.tailMode = 'low'; T.ear = 1;
+                T.tilt = toward(b.x, b.y);
+                break;
+            case 'glance': T.tilt = toward(plan.buttonX, gy - 30 * u) - 0.1 * Math.sin(f * Math.PI); T.ear = 1; T.tailMode = 'idle'; break;
+            case 'swat':
+                T.crouch = 0.5; T.hips = 0.4; T.swat = Math.sin(Math.PI * f); T.mouth = 0.8 * Math.sin(Math.PI * f); T.tailMode = 'low'; T.ear = 1;
+                T.swatT = { x: (sg.bx - T.x) * T.face / ku, y: -plan.r / ku };
+                break;
+            case 'watch': T.tilt = toward(b.x, b.y); T.tailMode = 'idle'; T.ear = sg.big ? 1 : 0.4; break;
+            case 'cheer':
+                T.sit = 1; T.tailMode = 'sit'; T.ear = 1; T.tilt = -0.55 + 0.05 * Math.sin(t * 3);
+                T.mouth = f < 0.7 ? 0.9 : 0.3;
+                break;
+            case 'turn': T.face = -1; T.sit = 1; T.tailMode = 'sit'; T.tilt = toward(b.x, b.y); T.ear = 0.6; break;
+            case 'catch':
+                T.crouch = 0.6; T.swat = Math.min(1, f * 3); T.mouth = 0.8 * (1 - f); T.ear = 1; T.tailMode = 'low';
+                T.swatT = { x: (sg.bx - T.x) / ku, y: -plan.r / ku * 0.6 };
+                break;
+            case 'pickup': T.crouch = 1; T.tilt = 0.35 * Math.sin(Math.PI * Math.min(1, f * 1.4)); T.tailMode = 'idle'; T.ear = 0.6; break;
+            case 'turnCarry': T.face = f < 0.5 ? 1 : -1; T.tailMode = 'up'; T.carry = f; break;
+            case 'drop': T.crouch = 0.6; T.tilt = 0.25; T.tailMode = 'up'; break;
+        }
+        plan.lands.forEach(tl => { const q = t - tl; if (q >= 0 && q < 0.9) T.squash += 0.85 * Math.exp(-8 * q) * Math.cos(15 * q); });
+        return T;
+    }
+
+    const TAIL_N = 11;
+    const sm = { init: false };
+    const wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+    function smoothCat(T, t, dt) {
+        const ease1 = (k, rate) => { sm[k] += (T[k] - sm[k]) * (1 - Math.exp(-rate * dt)); };
+        if (!sm.init || dt === 0) {
+            Object.assign(sm, { crouch: T.crouch, hips: T.hips, sit: T.sit, air: T.air, tilt: T.tilt, mouth: T.mouth, ear: T.ear,
+                                amp: T.walk ? 1 : 0, s: 0, lastX: T.x, tail: KITTEN.tailTarget(T.tailMode, t, TAIL_N), tailv: new Array(TAIL_N).fill(0), init: true });
+        }
+        ease1('crouch', 14); ease1('hips', 22); ease1('sit', 9); ease1('air', 20); ease1('tilt', 7); ease1('mouth', 12); ease1('ear', 8);
+        sm.amp += ((T.walk ? 1 : 0) - sm.amp) * (1 - Math.exp(-12 * dt));
+        sm.s += Math.abs(T.x - sm.lastX) / KU(); sm.lastX = T.x;
+        const tgt = KITTEN.tailTarget(T.tailMode, t, TAIL_N);
+        for (let i = 0; i < TAIL_N; i++) {
+            const k = 150 * (1 - 0.6 * i / TAIL_N), c = 2 * Math.sqrt(k) * 0.8;
+            sm.tailv[i] += (k * wrap(tgt[i] - sm.tail[i]) - c * sm.tailv[i]) * dt;
+            sm.tail[i] += sm.tailv[i] * dt;
+        }
+    }
+    function catPose(T, t) {
+        const p = { crouch: sm.crouch, hips: sm.hips, sit: sm.sit, squash: T.squash, swat: T.swat, swatTarget: T.swatT,
+                    tail: sm.tail.slice(), t,
+                    head: { tilt: sm.tilt, mouth: sm.mouth, ear: sm.ear, flick: (t % 4.7) < 0.25 ? Math.sin((t % 4.7) / 0.25 * Math.PI) : 0 } };
+        const rest = KITTEN.restFeet(p), kind = T.walk || 'walk';
+        const g = KITTEN.gait(p, sm.s, kind === 'trot' ? 28 : 22, kind === 'trot' ? 4.5 : 3.2, kind);
+        const air = { nf: { x: 14, y: -6 }, ff: { x: 10, y: -5 }, nh: { x: -13, y: -4 }, fh: { x: -9, y: -3 } };
+        p.feet = {};
+        Object.keys(rest).forEach(n => {
+            const a = sm.amp, q = sm.air;
+            p.feet[n] = { x: lerp(lerp(rest[n].x, g[n].x, a), air[n].x, q), y: lerp(lerp(rest[n].y, g[n].y, a), air[n].y, q) };
+        });
+        return p;
+    }
+
+    const A_UP = 260, V_UP = 330;
+    let flights = [], bubbles = [], spawn = 0;
+    const rise = t => t < V_UP / A_UP ? 0.5 * A_UP * t * t : 0.5 * V_UP * V_UP / A_UP + V_UP * (t - V_UP / A_UP);
+
+    let cycle0 = performance.now(), last = cycle0, yardVisible = true, marginDrawn = false;
+    function frame(now) {
         requestAnimationFrame(frame);
+        const dt = Math.min(0.05, (now - last) / 1000); last = now;
+        yardTop = yard.getBoundingClientRect().top + window.scrollY;
+        let t = (now - cycle0) / 1000;
+        if (!plan) plan = buildPlan();
+        if (t >= plan.len) { cycle0 += plan.len * 1000; t -= plan.len; plan = buildPlan(); plan.launched = false; sm.s = 0; }
+        const padTop = gy - 9 * rs;
+        const seatY = padTop - ROCKET_BELOW * rs;
+        if (!plan.launched && t >= plan.lift) {
+            plan.launched = true;
+            flights.push({ t0: now, y0: yardTop + seatY, x: padX, s: rs });
+        }
+        const firing = t >= plan.ignite && t < plan.lift;
+        const emit = (x, yPage, s) => {
+            spawn += dt * 180;
+            while (spawn >= 1) { spawn -= 1;
+                bubbles.push({ x: x + (Math.random() - 0.5) * 3, y: yPage + 39 * s, vx: (Math.random() - 0.5) * 54,
+                               vy: 60 + Math.random() * 130, age: 0, life: 0.43 + Math.random() * 0.5, r: (2.5 + Math.random() * 3) * s });
+            }
+        };
+        if (firing) emit(padX, yardTop + seatY, rs);
+        flights.forEach(fl => { fl.y = fl.y0 - rise((now - fl.t0) / 1000); if (fl.y > -200) emit(fl.x, fl.y, fl.s); });
+        flights = flights.filter(fl => fl.y > -220);
+        const floor = yardTop + gy;
+        bubbles.forEach(q => { q.x += q.vx * dt; q.y += q.vy * dt; q.age += dt; });
+        bubbles = bubbles.filter(q => q.age < q.life && q.y < floor);
+
+        yardDt = dt;
+        if (yardVisible) drawYard(t, padTop, seatY, firing);
+        if (wide) {
+            const top = window.scrollY, left = mcv.getBoundingClientRect().left;
+            const any = flights.some(fl => fl.y - 80 < top + MH && fl.y + 120 > top) || bubbles.some(q => q.y > top && q.y < top + MH);
+            if (any || marginDrawn) { mctx.clearRect(0, 0, MW, MH); marginDrawn = any; }
+            if (any) {
+                bubbles.forEach(q => drawBubble(mctx, q, left, top));
+                flights.forEach(fl => { mctx.save(); mctx.translate(fl.x - left, fl.y - top); drawRocket(mctx, fl.s); mctx.restore(); });
+            }
+        }
     }
 
-    function init() {
-        const canvas = document.getElementById('rocket-canvas');
-        if (canvas) mount(canvas);
+    function drawBubble(ctx, q, left, top) {
+        const f = q.age / q.life;
+        ctx.globalAlpha = (1 - f) * 0.82;
+        ctx.fillStyle = 'rgb(' + Math.round(210 - f * 110) + ',' + Math.round(95 - f * 80) + ',12)';
+        ctx.beginPath(); ctx.arc(q.x - left, q.y - top, Math.max(0.5, q.r * (1 - f * 0.45)), 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+    let yardDt = 0;
+    function drawYard(t, padTop, seatY, firing, still) {
+        const ctx = yctx;
+        ctx.clearRect(0, 0, YW, YH);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.6;
+        ctx.beginPath(); ctx.moveTo(8, gy); ctx.lineTo(YW - 8, gy); ctx.stroke(); ctx.globalAlpha = 1;
+        if (!wide) {
+            bubbles.forEach(q => drawBubble(ctx, q, 0, yardTop));
+            flights.forEach(fl => { ctx.save(); ctx.translate(fl.x, fl.y - yardTop); drawRocket(ctx, fl.s); ctx.restore(); });
+        }
+        {
+            const bX = plan.buttonX, dip = capDip(t), baseH = 4 * u, capH = 4 * u, springTop = gy - plan.CAP + capH + dip;
+            ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(bX + 12 * u, gy - 2); ctx.lineTo(padX - 22 * rs, gy - 2); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = C.block; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4;
+            ctx.fillRect(bX - 12 * u, gy - baseH, 24 * u, baseH); ctx.strokeRect(bX - 12 * u, gy - baseH, 24 * u, baseH);
+            const y0 = gy - baseH, L = y0 - springTop, R = 5.5 * u, coils = 4, steps = coils * 24;
+            ctx.lineWidth = 1.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(bX, y0);
+            for (let i = 0; i <= steps; i++) {
+                const ph = coils * 2 * Math.PI * i / steps;
+                ctx.lineTo(bX + R * Math.sin(ph), y0 - L * i / steps - R * 0.22 * (1 - Math.cos(ph)));
+            }
+            ctx.stroke();
+            ctx.fillStyle = C.trim; ctx.beginPath();
+            ctx.moveTo(bX - 9 * u, springTop); ctx.lineTo(bX - 9 * u, springTop - capH * 0.5);
+            ctx.quadraticCurveTo(bX - 9 * u, springTop - capH, bX - 5 * u, springTop - capH);
+            ctx.lineTo(bX + 5 * u, springTop - capH); ctx.quadraticCurveTo(bX + 9 * u, springTop - capH, bX + 9 * u, springTop - capH * 0.5);
+            ctx.lineTo(bX + 9 * u, springTop); ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+        ctx.fillStyle = C.block; ctx.fillRect(padX - 24 * rs, padTop, 48 * rs, gy - padTop); ctx.strokeRect(padX - 24 * rs, padTop, 48 * rs, gy - padTop);
+        ctx.globalAlpha = 0.45; ctx.lineWidth = 0.9;
+        for (let hx = padX - 22 * rs; hx < padX + 22 * rs; hx += 7) { ctx.beginPath(); ctx.moveTo(hx, gy); ctx.lineTo(hx + 5, padTop + 1); ctx.stroke(); }
+        ctx.globalAlpha = 1; ctx.lineWidth = 1.4;
+        const st = plan.stand, onPadOld = t < plan.lift, onPadNew = t >= st.lowEnd;
+        if (onPadOld || onPadNew) {
+            const shake = firing ? Math.sin(t * 90) * 0.8 : 0;
+            const q = t - plan.rocketHit, rock = onPadOld && q > 0 && q < 1 ? 0.07 * Math.exp(-5 * q) * Math.sin(q * 22) : 0;
+            ctx.save(); ctx.translate(padX + shake, padTop); ctx.rotate(rock); ctx.translate(0, seatY - padTop); drawRocket(ctx, rs); ctx.restore();
+        }
+        const T = catTarget(t);
+        let b = ballState(t);
+        smoothCat(T, t, still ? 0 : yardDt);
+        if (b.carried) {
+            const sk = KITTEN.skeleton({ crouch: sm.crouch, hips: sm.hips, sit: sm.sit }), ku = KU();
+            const mx = (sk.head.x + 6.5) * ku, my = gy + T.oy + (sk.head.y + 13.5) * ku;
+            const face = T.carry !== undefined && T.carry < 1 ? lerp(1, -1, ease(T.carry)) : T.face;
+            b = { x: T.x + face * mx, y: my - 3 * u * Math.sin(Math.PI * Math.min(1, T.carry || 1)) * (T.carry < 1 ? 1 : 0) };
+        }
+        boxBack(ctx, boxX, gy, T.open);
+        const byKitten = !ballState(t).carried && Math.abs(b.x - T.x) < 46 * KU() && b.y > gy - 22 * u;
+        if (byKitten) drawYarn(ctx, b.x, b.y, plan.r, b.x / plan.r);
+        ctx.save();
+        ctx.beginPath(); ctx.rect(0, 0, YW, gy + 0.5); ctx.clip();
+        ctx.translate(T.x, gy + T.oy); ctx.scale(T.face, 1);
+        KITTEN.draw(ctx, KU(), catPose(T, t));
+        ctx.restore();
+        boxFront(ctx, boxX, gy);
+        if (!byKitten) drawYarn(ctx, b.x, b.y, plan.r, b.x / plan.r);
+        if (t >= st.t0 && t < st.outEnd) {
+            const armL = 58 * rs, parkX = padX + armL, offX = YW + 60 + armL;
+            let sx, lower = 0, open = 0, carry = t < st.lowEnd;
+            if (t < st.inEnd) sx = lerp(offX, parkX, ease((t - st.t0) / (st.inEnd - st.t0)));
+            else if (t < st.lowEnd) { sx = parkX; lower = ease((t - st.inEnd) / (st.lowEnd - st.inEnd)); }
+            else if (t < st.relEnd) { sx = parkX; lower = 1; open = ease((t - st.lowEnd) / (st.relEnd - st.lowEnd)); }
+            else if (t < st.upEnd) { sx = parkX; lower = 1 - ease((t - st.relEnd) / (st.upEnd - st.relEnd)); open = 1; }
+            else { sx = lerp(parkX, offX, ease((t - st.upEnd) / (st.outEnd - st.upEnd))); open = 1; }
+            const lift = 18 * rs * (1 - lower);
+            const armY = seatY - lift;
+            if (carry) { ctx.save(); ctx.translate(sx - armL, armY); drawRocket(ctx, rs); ctx.restore(); }
+            drawStand(ctx, sx, gy, armY, sx - armL, open, rs, -sx / (5 * rs));
+        }
     }
+
+    layout();
+    plan = buildPlan();
+    window.addEventListener('resize', () => { layout(); plan = buildPlan(); cycle0 = performance.now(); sm.init = false; });
+    if (reduced) {
+        const still = () => {
+            plan = buildPlan();
+            sm.init = false;
+            drawYard(plan.stillT, gy - 9 * rs, gy - 9 * rs - ROCKET_BELOW * rs, false, true);
+        };
+        still(); window.addEventListener('resize', still);
+        if (document.fonts) document.fonts.ready.then(still);
+        return;
+    }
+    if (window.IntersectionObserver) new IntersectionObserver(es => { yardVisible = es.some(e => e.isIntersecting); }).observe(yard);
+    requestAnimationFrame(frame);
 }());
 </script>
 

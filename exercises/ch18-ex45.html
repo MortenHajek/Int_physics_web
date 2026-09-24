@@ -81,7 +81,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">pV sandbox</span><span lang="cs">Sandbox: pV diagram</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -127,7 +126,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Work done by the gas</span><span lang="cs">Práce vykonaná plynem</span></div>
@@ -243,6 +241,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/thermodynamics.html"><span lang="en">← Topic: Thermodynamics</span><span lang="cs">← Téma: Termodynamika</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -266,205 +265,312 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 18-45 — a gas goes from (1.0 m³, 40 Pa) to (4.0 m³, 10 Pa) along three
+   paths. The work is the area under each: (a) across then down,
+   W = p₁ΔV = 120 J; (b) the straight line, W = ½(p₁ + p₂)ΔV = 75 J;
+   (c) down then across, W = p₂ΔV = 30 J — same end states, different work.
+   A marker sweeps the chosen path and the area under it fills as it goes,
+   so W is watched accumulating; the other two paths stay drawn for
+   comparison. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b05a18',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
-    const V1 = 1.0;
+    const V1 = 1.0, T_RUN = 3.2, T_HOLD = 1.2;
     const DEFAULTS = { v2: 4.0, p1: 40, p2: 10 };
-    let state = { ...DEFAULTS };
-    let mode = 'a';
-
-    /* ── Slider wiring ──────────────────────────────────────────── */
-    const fmtV = v => v.toFixed(1) + ' m³';
-    const fmtP = v => v.toFixed(0) + ' Pa';
-    const SLIDERS = [['p-v2', 'v2', fmtV], ['p-p1', 'p1', fmtP], ['p-p2', 'p2', fmtP]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    let state = { ...DEFAULTS }, mode = 'a', clock = 0;
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const SLIDERS = [
+        ['p-v2', 'v2', v => KIT.dec(v.toFixed(1)) + ' m³'],
+        ['p-p1', 'p1', v => v.toFixed(0) + ' Pa'],
+        ['p-p2', 'p2', v => v.toFixed(0) + ' Pa'],
+    ];
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => { state[key] = +inp.value; lbl.textContent = fmt(state[key]); clock = T_RUN; });
     });
-
-    /* radio-style path selector */
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); clock = 0; });
     ['a', 'b', 'c'].forEach(m => {
-        document.getElementById('mode-' + m)?.addEventListener('click', () => {
-            mode = m;
-            ['a', 'b', 'c'].forEach(mm => {
-                document.querySelector('#mode-' + mm + ' .toggle-box')
-                    ?.classList.toggle('on', mm === mode);
-            });
+        document.getElementById('mode-' + m).addEventListener('click', () => {
+            mode = m; clock = 0;
+            ['a', 'b', 'c'].forEach(mm => document.querySelector('#mode-' + mm + ' .toggle-box').classList.toggle('on', mm === mode));
         });
     });
+    document.addEventListener('langchange', syncLabels);
+    syncLabels();
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
+    /* each path as its corner points in (V, p) */
+    function path(m) {
         const { v2, p1, p2 } = state;
-
-        /* plot frame */
-        const mx0 = 62, mx1 = W - 34, my0 = 30, my1 = H - 56;
-        const vMax = 7, pMax = 65;
-        const SX = v => mx0 + v / vMax * (mx1 - mx0);
-        const SY = p => my1 - p / pMax * (my1 - my0);
-
-        /* axes + ticks */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(mx0, my0 - 6); ctx.lineTo(mx0, my1); ctx.lineTo(mx1 + 6, my1);
-        ctx.stroke();
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        for (let v = 1; v <= 6; v++) {
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText(v.toFixed(0), SX(v), my1 + 6);
+        return m === 'a' ? [[V1, p1], [v2, p1], [v2, p2]]
+             : m === 'b' ? [[V1, p1], [v2, p2]]
+                         : [[V1, p1], [V1, p2], [v2, p2]];
+    }
+    /* the part of a path up to fraction s of its length on the drawing */
+    function partial(pts, s, X, Y) {
+        const segs = [];
+        let total = 0;
+        for (let i = 1; i < pts.length; i++) {
+            const L = Math.hypot(X(pts[i][0]) - X(pts[i - 1][0]), Y(pts[i][1]) - Y(pts[i - 1][1]));
+            segs.push(L); total += L;
         }
-        ctx.textAlign = 'center';
-        ctx.fillText('V (m³)', (mx0 + mx1) / 2, my1 + 22);
-        for (let p = 10; p <= 60; p += 10) {
-            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-            ctx.fillText(p.toFixed(0), mx0 - 7, SY(p));
+        let left = s * total;
+        const out = [pts[0]];
+        for (let i = 1; i < pts.length; i++) {
+            if (left >= segs[i - 1]) { out.push(pts[i]); left -= segs[i - 1]; continue; }
+            const f = segs[i - 1] ? left / segs[i - 1] : 1;
+            out.push([pts[i - 1][0] + f * (pts[i][0] - pts[i - 1][0]), pts[i - 1][1] + f * (pts[i][1] - pts[i - 1][1])]);
+            break;
         }
-        ctx.save();
-        ctx.translate(mx0 - 40, (my0 + my1) / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('p (Pa)', 0, 0);
-        ctx.restore();
+        return out;
+    }
+    const work = m => { const { v2, p1, p2 } = state; return m === 'a' ? p1 * (v2 - V1) : m === 'b' ? 0.5 * (p1 + p2) * (v2 - V1) : p2 * (v2 - V1); };
 
-        const iPt = [SX(V1), SY(p1)], fPt = [SX(v2), SY(p2)];
-        const cornerA = [SX(v2), SY(p1)], cornerC = [SX(V1), SY(p2)];
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        clock += v.dt;
+        if (clock > T_RUN + T_HOLD) clock = 0;
+        const s = Math.min(1, clock / T_RUN), ease = s < 1 ? 0.5 - 0.5 * Math.cos(Math.PI * s) : 1;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 84, bot = H - (low ? 108 : 30);
+        const box = { x: narrow ? 50 : 70, y: top + 24, w: W - (narrow ? 76 : 110), h: bot - top - 66 };
+        const G = KIT.graph(ctx, box, [0, 6.5], [0, 65], { xStep: 1, yStep: 10,
+            xFmt: x => x.toFixed(0), yFmt: y => y.toFixed(0), xTitle: 'V (m³)', yTitle: 'p (Pa)' });
 
-        /* path polylines (in screen coords) */
-        const PATHS = {
-            a: [iPt, cornerA, fPt],
-            b: [iPt, fPt],
-            c: [iPt, cornerC, fPt],
-        };
-
-        /* shaded area under the ACTIVE path (only V-changing segments) */
-        ctx.globalAlpha = 0.14;
-        ctx.fillStyle = col.acc;
-        ctx.beginPath();
-        if (mode === 'a') {
-            ctx.rect(iPt[0], SY(p1), fPt[0] - iPt[0], my1 - SY(p1));
-        } else if (mode === 'c') {
-            ctx.rect(iPt[0], SY(p2), fPt[0] - iPt[0], my1 - SY(p2));
-        } else {
-            ctx.moveTo(iPt[0], iPt[1]);
-            ctx.lineTo(fPt[0], fPt[1]);
-            ctx.lineTo(fPt[0], my1);
-            ctx.lineTo(iPt[0], my1);
-            ctx.closePath();
-        }
-        ctx.fill();
-        ctx.globalAlpha = 1;
-
-        /* all three paths: active solid accent, others faint dashed */
-        Object.entries(PATHS).forEach(([m, pts]) => {
-            const active = m === mode;
-            ctx.strokeStyle = active ? col.acc : col.faint;
-            ctx.lineWidth = active ? 2.4 : 1.2;
-            if (!active) ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
-            ctx.stroke();
+        /* the swept area under the chosen path, growing with the marker */
+        const done = partial(path(mode), ease, G.X, G.Y), last = done[done.length - 1];
+        ctx.fillStyle = C.acc; ctx.globalAlpha = 0.22; ctx.beginPath();
+        ctx.moveTo(G.X(done[0][0]), G.Y(0));
+        done.forEach(([x, y]) => ctx.lineTo(G.X(x), G.Y(y)));
+        ctx.lineTo(G.X(last[0]), G.Y(0)); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+        /* all three paths; the chosen one solid */
+        ['c', 'b', 'a'].forEach(m => {
+            const pts = path(m), sel = m === mode;
+            ctx.strokeStyle = sel ? C.acc : C.faint; ctx.lineWidth = sel ? 2.6 : 1.3; ctx.setLineDash(sel ? [] : [5, 4]);
+            ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(G.X(x), G.Y(y)) : ctx.moveTo(G.X(x), G.Y(y))); ctx.stroke();
             ctx.setLineDash([]);
+            /* its name, beside its middle */
+            const mid = m === 'a' ? [(V1 + state.v2) / 2, state.p1] : m === 'b' ? [(V1 + state.v2) / 2, (state.p1 + state.p2) / 2] : [(V1 + state.v2) / 2, state.p2];
+            KIT.sym(ctx, m, G.X(mid[0]), G.Y(mid[1]) - 14, sel ? C.acc : C.soft, 16);
+            /* a direction arrow on each leg */
+            for (let i = 1; i < pts.length; i++) {
+                const ax = (G.X(pts[i - 1][0]) + G.X(pts[i][0])) / 2, ay = (G.Y(pts[i - 1][1]) + G.Y(pts[i][1])) / 2;
+                const dx = G.X(pts[i][0]) - G.X(pts[i - 1][0]), dy = G.Y(pts[i][1]) - G.Y(pts[i - 1][1]), L = Math.hypot(dx, dy) || 1;
+                if (L > 30) KIT.arrow(ctx, ax - dx / L * 6, ay - dy / L * 6, ax + dx / L * 6, ay + dy / L * 6, sel ? C.acc : C.faint, sel ? 2 : 1.2);
+            }
         });
-
-        /* path letters near their middles */
-        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
-        ctx.fillStyle = col.soft;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('a', (iPt[0] + cornerA[0]) / 2, SY(p1) - 6);
-        ctx.fillText('b', (iPt[0] + fPt[0]) / 2 - 12, (iPt[1] + fPt[1]) / 2 - 4);
-        ctx.textAlign = 'right';
-        ctx.fillText('c', SX(V1) - 8, (iPt[1] + cornerC[1]) / 2);
-
-        /* endpoints */
-        [[iPt, 'i'], [fPt, 'f']].forEach(([p, name]) => {
-            ctx.beginPath(); ctx.arc(p[0], p[1], 4.5, 0, Math.PI * 2);
-            ctx.fillStyle = col.ink; ctx.fill();
-            ctx.fillStyle = col.soft;
-            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText(name, p[0] + 7, p[1] - 4);
+        /* the two states */
+        [[V1, state.p1, '1'], [state.v2, state.p2, '2']].forEach(([x, y, n]) => {
+            KIT.dot(ctx, G.X(x), G.Y(y), 5, C.ink);
+            KIT.small(ctx, n === '1' ? '①' : '②', G.X(x) + (n === '1' ? -12 : 12), G.Y(y) - 12, C.ink, 13, 'center');
         });
+        /* the marker, and the work so far named inside the area */
+        KIT.dot(ctx, G.X(last[0]), G.Y(last[1]), 5.5, C.acc, C.ink);
+        let wSoFar = 0;
+        for (let i = 1; i < done.length; i++) wSoFar += 0.5 * (done[i][1] + done[i - 1][1]) * (done[i][0] - done[i - 1][0]);
+        if (wSoFar > 3) KIT.symSub(ctx, 'W', mode, G.X((V1 + last[0]) / 2), G.Y(Math.min(state.p2, 12) / 2) - 2, C.acc, 17);
 
-        /* animated state dot along the active path */
-        const pts = PATHS[mode];
-        const cyc = (ts / 1000 % 3.4) / 2.8;                 /* 2.8 s travel + pause */
-        const u = Math.min(cyc, 1);
-        let dot;
-        if (pts.length === 2) {
-            dot = [pts[0][0] + (pts[1][0] - pts[0][0]) * u,
-                   pts[0][1] + (pts[1][1] - pts[0][1]) * u];
-        } else {
-            const uu = u * 2;
-            dot = uu <= 1
-                ? [pts[0][0] + (pts[1][0] - pts[0][0]) * uu,
-                   pts[0][1] + (pts[1][1] - pts[0][1]) * uu]
-                : [pts[1][0] + (pts[2][0] - pts[1][0]) * (uu - 1),
-                   pts[1][1] + (pts[2][1] - pts[1][1]) * (uu - 1)];
-        }
-        ctx.beginPath(); ctx.arc(dot[0], dot[1], 6, 0, Math.PI * 2);
-        ctx.fillStyle = col.acc; ctx.fill();
-        ctx.lineWidth = 1.8; ctx.strokeStyle = col.paper; ctx.stroke();
+        KIT.caption(ctx, KIT.T('WORK IS THE AREA UNDER THE PATH', 'PRÁCE JE PLOCHA POD CESTOU'),
+                    KIT.T('same two states, three different areas', 'stejné dva stavy, tři různé plochy'));
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        const dV = v2 - V1;
-        const Wa = p1 * dV, Wb = 0.5 * (p1 + p2) * dV, Wc = p2 * dV;
-        if ($('r-wa')) $('r-wa').textContent = Wa.toFixed(0) + ' J';
-        if ($('r-wb')) $('r-wb').textContent = Wb.toFixed(1) + ' J';
-        if ($('r-wc')) $('r-wc').textContent = Wc.toFixed(0) + ' J';
+        KIT.put('r-wa', work('a').toFixed(0) + ' J');
+        KIT.put('r-wb', KIT.dec(work('b').toFixed(1)) + ' J');
+        KIT.put('r-wc', work('c').toFixed(0) + ' J');
     }
-
-    function frame(ts) {
-        draw(ts || 0);
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
 }());
 </script>
 

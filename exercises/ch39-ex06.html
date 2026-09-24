@@ -77,7 +77,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Energy-level sandbox</span><span lang="cs">Sandbox: energiové hladiny</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -115,12 +114,11 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Electron in the well</span><span lang="cs">Elektron v jámě</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="E_1\ \text{(electron)}"></span>
+                        <span class="readout-label" data-tex="E_1 = h^2/8m_eL^2"></span>
                         <span class="readout-val" id="r-e1">—</span>
                     </div>
                     <div class="readout-row">
@@ -133,7 +131,7 @@
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Proton · same well</span><span lang="cs">Proton · stejná jáma</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="E_1\ \text{(proton)}"></span>
+                        <span class="readout-label" data-tex="E_1 = h^2/8m_pL^2"></span>
                         <span class="readout-val" id="r-e1p">—</span>
                     </div>
                 </div>
@@ -256,251 +254,360 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 39-6 — a particle in an infinite well of width L = 200 pm:
+   E_n = n²h²/8mL², so the electron's ground state is 9.40 eV and the
+   proton's, 1836× heavier, 5.12 meV. Left, the well: its width follows L,
+   and its level ladder is drawn in units of E_1 (the ladder's shape, n²,
+   does not depend on L — only its unit does). Right, the same well's
+   ground states for both particles on a logarithmic energy axis, where the
+   factor m_p/m_e is a fixed gap. Static: redrawn on input only. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2a1f50',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: tok('--paper-cool', '#eef0ea'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
-    const HP = 6.626e-34;   /* Planck, J s          */
-    const ME = 9.109e-31;   /* electron mass, kg    */
-    const MP = 1.673e-27;   /* proton mass, kg      */
-    const QE = 1.602e-19;   /* elementary charge, C */
-
+    const HP = 6.626e-34, ME = 9.109e-31, MP = 1.673e-27, QE = 1.602e-19;
     const DEFAULTS = { L: 200, n: 1 };   /* L in pm */
     let state = { ...DEFAULTS };
     const show = { psi: true, all: true };
-
-    /* ── Slider wiring ──────────────────────────────────────────── */
-    function bindSlider(id, key, fmt) {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    }
-    const fmtL = v => v.toFixed(0) + ' pm';
-    const fmtN = v => 'n = ' + v.toFixed(0);
-    bindSlider('p-l', 'L', fmtL);
-    bindSlider('p-n', 'n', fmtN);
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        [['p-l', 'L', fmtL], ['p-n', 'n', fmtN]].forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw);
+    const SLIDERS = [
+        ['p-l', 'L', v => v.toFixed(0) + ' pm'],
+        ['p-n', 'n', v => 'n = ' + v.toFixed(0)],
+    ];
+    function syncLabels() {
+        SLIDERS.forEach(([id, key, fmt]) => {
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => { state[key] = +inp.value; lbl.textContent = fmt(state[key]); V.redraw(); });
     });
-
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); V.redraw(); });
     function wireToggle(id, key) {
-        document.getElementById(id)?.addEventListener('click', function () {
+        document.getElementById(id).addEventListener('click', function () {
             show[key] = !show[key];
-            this.querySelector('.toggle-box')?.classList.toggle('on');
+            this.querySelector('.toggle-box').classList.toggle('on', show[key]);
+            V.redraw();
         });
     }
     wireToggle('tgl-psi', 'psi');
     wireToggle('tgl-all', 'all');
+    syncLabels();
 
-    /* ── Physics ────────────────────────────────────────────────── */
     function physics() {
-        const Lm  = state.L * 1e-12;
-        const e1e = HP * HP / (8 * ME * Lm * Lm);   /* J */
-        const e1p = HP * HP / (8 * MP * Lm * Lm);   /* J */
-        return {
-            e1eV:   e1e / QE,
-            enEV:   state.n * state.n * e1e / QE,
-            e1pMeV: e1p / QE * 1e3,
-            lamPm:  2 * state.L / state.n,
-        };
+        const Lm = state.L * 1e-12;
+        const e1e = HP * HP / (8 * ME * Lm * Lm) / QE;   /* eV */
+        const e1p = HP * HP / (8 * MP * Lm * Lm) / QE;
+        return { e1e, e1p, en: state.n * state.n * e1e, lam: 2 * state.L / state.n };
     }
+    /* an energy in eV, written in the unit that suits it */
     function fmtE(v) {
-        if (v >= 1000) return (v / 1000).toFixed(2) + ' keV';
-        if (v >= 100)  return v.toFixed(0) + ' eV';
-        if (v >= 10)   return v.toFixed(1) + ' eV';
-        return v.toFixed(2) + ' eV';
-    }
-    function fmtMeV(v) {
-        if (v >= 100) return v.toFixed(0) + ' meV';
-        if (v >= 10)  return v.toFixed(1) + ' meV';
-        return v.toFixed(2) + ' meV';
+        const [x, u] = v >= 1000 ? [v / 1000, 'keV'] : v >= 1 ? [v, 'eV'] : [v * 1000, 'meV'];
+        return KIT.dec(x.toFixed(x >= 100 ? 0 : x >= 10 ? 1 : 2)) + ' ' + u;
     }
 
-    /* ── Drawing helpers ────────────────────────────────────────── */
-    function line(x1, y1, x2, y2) {
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    }
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const f = physics();
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 92, floorY = H - (low ? 108 : 30) - 44;
+        const usable = floorY - top - 22;
 
-    /* wall idiom: hatching on the OUTER side of each wall */
-    function hatch(x, y0, y1, dir) {
-        ctx.save();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 0.9; ctx.globalAlpha = 0.45;
-        const step = 9, len = 7;
-        for (let y = y0 + 3; y < y1; y += step) {
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + dir * len, y - len);
-            ctx.stroke();
-        }
-        ctx.restore();
-    }
-
-    function arrowHead(x, y, dir) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x - dir * 6, y - 3);
-        ctx.lineTo(x - dir * 6, y + 3);
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    /* compressed n² ladder so n = 5 fits on screen */
-    function yLevel(k, floorY, usable) {
-        return floorY - usable * Math.pow(k * k, 0.62) / Math.pow(25, 0.62);
-    }
-
-    /* ── Main draw ──────────────────────────────────────────────── */
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const ph = physics();
-
-        const wallTop = 30;
-        const floorY  = H - 112;   /* leaves the bottom strip to the equation badge */
-        const topY    = 56;
-        const usable  = floorY - topY - 4;
-        const cx   = W * 0.46;
-        const half = W * (0.10 + 0.24 * (state.L - 50) / 450);
+        /* ── the well ─────────────────────────────────────────────────── */
+        const logW = narrow ? 128 : Math.min(250, W * 0.3);
+        const areaL = narrow ? 52 : 70, areaR = W - logW - (narrow ? 34 : 60);
+        const maxHalf = (areaR - areaL) / 2, cx = (areaL + areaR) / 2;
+        const half = Math.max(22, maxHalf * state.L / 500);
         const xl = cx - half, xr = cx + half;
+        const yOf = k => floorY - usable * k * k / 25;
+        /* walls: V = ∞ outside, hatched on the outer side */
+        const wallTop = top - 8;
+        KIT.line(ctx, xl, wallTop, xl, floorY, C.ink, 1.8);
+        KIT.line(ctx, xr, wallTop, xr, floorY, C.ink, 1.8);
+        KIT.line(ctx, xl, floorY, xr, floorY, C.ink, 1.4);
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.45; ctx.lineWidth = 0.9;
+        for (let y = wallTop + 4; y < floorY; y += 9) {
+            ctx.beginPath(); ctx.moveTo(xl, y); ctx.lineTo(xl - 7, y + 7); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(xr, y); ctx.lineTo(xr + 7, y + 7); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        KIT.small(ctx, 'V = ∞', xl - 12, wallTop + 4, C.faint, 10.5, 'right');
+        KIT.small(ctx, 'V = ∞', xr + 12, wallTop + 4, C.faint, 10.5, 'left');
+        KIT.dim(ctx, xl, floorY + 18, xr, floorY + 18, 0, '');
+        KIT.sym(ctx, 'L', cx, floorY + 34, C.soft, 16);
 
-        /* caption */
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        ctx.fillText('PROTON LEVELS SIT 1836× LOWER', 14, 12);
-
-        /* walls + floor (infinite well) */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.lineCap = 'butt';
-        line(xl, wallTop, xl, floorY);
-        line(xr, wallTop, xr, floorY);
-        ctx.lineWidth = 1.6;
-        line(xl, floorY, xr, floorY);
-        hatch(xl, wallTop, floorY, -1);
-        hatch(xr, wallTop, floorY, +1);
-
-        /* width dimension under the floor */
-        const dimY = floorY + 20;
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        ctx.setLineDash([3, 3]);
-        line(xl, floorY + 4, xl, dimY + 4);
-        line(xr, floorY + 4, xr, dimY + 4);
-        ctx.setLineDash([]);
-        ctx.fillStyle = col.faint;
-        line(xl, dimY, xr, dimY);
-        arrowHead(xl, dimY, -1);
-        arrowHead(xr, dimY, +1);
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('L = ' + state.L.toFixed(0) + ' pm', cx, dimY - 5);
-
-        /* electron energy levels, heights ∝ n² (compressed) */
+        /* the ladder, in units of E_1 */
         for (let k = 1; k <= 5; k++) {
             const sel = k === state.n;
             if (!show.all && !sel) continue;
-            const y = yLevel(k, floorY, usable);
-            ctx.strokeStyle = sel ? col.acc : col.soft;
-            ctx.lineWidth = sel ? 2.2 : 1.2;
-            ctx.globalAlpha = sel ? 1 : 0.65;
-            line(xl + 2, y, xr - 2, y);
-            ctx.globalAlpha = 1;
-            ctx.fillStyle = sel ? col.acc : col.faint;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-            ctx.fillText('n = ' + k + ' · ' + fmtE(k * k * ph.e1eV), xr - 8, y - 3);
-        }
-
-        /* standing wave ψₙ(x) = sin(nπx/L) on the selected level */
-        if (show.psi) {
-            const y0  = yLevel(state.n, floorY, usable);
-            const A   = 15;
-            const osc = reduced ? 1 : (0.70 + 0.30 * Math.sin(ts * 0.0021));
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.7;
-            ctx.lineJoin = 'round'; ctx.globalAlpha = 0.9;
-            ctx.beginPath();
-            const nSeg = 160;
-            for (let i = 0; i <= nSeg; i++) {
-                const s = i / nSeg;
-                const x = xl + s * (xr - xl);
-                const y = y0 - A * osc * Math.sin(state.n * Math.PI * s);
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            const y = yOf(k);
+            KIT.line(ctx, xl + 1, y, xr - 1, y, sel ? C.acc : C.soft, sel ? 2.2 : 1.1, sel ? null : [5, 4]);
+            KIT.small(ctx, 'n = ' + k, xl - 12, y, sel ? C.acc : C.faint, 11, 'right');
+            const end = KIT.symSub(ctx, 'E', String(k), xr + 12, y, sel ? C.acc : C.soft, 16, 'left');
+            if (!narrow && k > 1) {
+                const t = '= ' + (k * k);
+                KIT.small(ctx, t, end + 5, y, C.faint, 11, 'left');
+                ctx.font = '11px "Geist",ui-sans-serif,sans-serif';
+                KIT.symSub(ctx, 'E', '1', end + 9 + ctx.measureText(t).width, y, C.faint, 14, 'left');
             }
-            ctx.stroke();
-            ctx.globalAlpha = 1;
-            ctx.fillStyle = col.acc;
-            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText('ψ', xl + 9, y0 - A - 4);
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.fillText(String(state.n), xl + 18, y0 - A - 2);
         }
 
-        /* the proton's ground state — 1836× lower, a whisker off the floor */
-        const pty = floorY - 3;
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.4;
-        line(xl + 6, pty, xl + 20, pty);
-        const note = 'proton n=1 (×1/1836)';
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        const nw = ctx.measureText(note).width;
-        ctx.fillStyle = col.paper; ctx.globalAlpha = 0.85;
-        ctx.fillRect(xl + 24, pty - 6, nw + 4, 12);
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = col.faint;
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText(note, xl + 26, pty);
+        /* the standing wave ψ_n = sin(nπx/L), on its own level */
+        if (show.psi) {
+            const y0 = yOf(state.n);
+            const above = state.n < 5 ? yOf(state.n) - yOf(state.n + 1) : 80;
+            const A = Math.min(38, above * 0.42);
+            ctx.beginPath();
+            for (let i = 0; i <= 200; i++) {
+                const s = i / 200, x = xl + s * (xr - xl), y = y0 - A * Math.sin(state.n * Math.PI * s);
+                i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+            }
+            ctx.lineTo(xr, y0); ctx.lineTo(xl, y0); ctx.closePath();
+            ctx.fillStyle = I.violet; ctx.globalAlpha = 0.12; ctx.fill(); ctx.globalAlpha = 1;
+            ctx.beginPath();
+            for (let i = 0; i <= 200; i++) {
+                const s = i / 200, x = xl + s * (xr - xl), y = y0 - A * Math.sin(state.n * Math.PI * s);
+                i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+            }
+            ctx.strokeStyle = I.violet; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+            /* the nodes, where the particle is never found */
+            for (let j = 1; j < state.n; j++) KIT.dot(ctx, xl + (xr - xl) * j / state.n, y0, 2.6, I.violet);
+            const lx = xl + (xr - xl) / (2 * state.n);
+            KIT.symSub(ctx, 'ψ', String(state.n), lx, y0 - A - 12, I.violet, 16);
+        }
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        if ($('r-e1'))  $('r-e1').textContent  = fmtE(ph.e1eV);
-        if ($('r-en'))  $('r-en').textContent  = fmtE(ph.enEV);
-        if ($('r-lam')) $('r-lam').textContent =
-            (ph.lamPm >= 100 ? ph.lamPm.toFixed(0) : ph.lamPm.toFixed(1)) + ' pm';
-        if ($('r-e1p')) $('r-e1p').textContent = fmtMeV(ph.e1pMeV);
-    }
+        /* ── same well, both particles, on a log axis ────────────────── */
+        const ax = W - logW + (narrow ? 50 : 76), aT = top, aB = floorY;
+        const LO = -4, HI = 4;   /* log10(E / eV): 0.1 meV … 10 keV */
+        const Y = e => aB - (Math.log10(e) - LO) / (HI - LO) * (aB - aT);
+        KIT.line(ctx, ax, aT, ax, aB, C.soft, 1.2);
+        const units = ['0,1 meV', '1 meV', '10 meV', '100 meV', '1 eV', '10 eV', '100 eV', '1 keV', '10 keV'];
+        for (let d = LO; d <= HI; d++) {
+            const y = Y(Math.pow(10, d));
+            KIT.line(ctx, ax - 4, y, ax, y, C.soft, 1);
+            KIT.small(ctx, KIT.isCS() ? units[d - LO] : units[d - LO].replace(',', '.'), ax - 7, y, C.faint, 10.5, 'right');
+        }
+        KIT.small(ctx, KIT.T('energy, log scale', 'energie, log. škála'), ax - 6, aT - 22, C.soft, 11, 'left');
+        const mark = (e, col, lw, sub, bold) => {
+            const y = Y(e);
+            KIT.line(ctx, ax - 2, y, ax + 30, y, col, lw);
+            KIT.symSub(ctx, 'E', sub, ax + 36, y, col, bold ? 16 : 14, 'left');
+            return y;
+        };
+        if (state.n > 1) mark(f.en, C.acc, 1.2, String(state.n), false);
+        const yE = mark(f.e1e, C.acc, 2.2, '1', true);
+        const yP = mark(f.e1p, I.teal, 2.2, '1', true);
+        KIT.small(ctx, KIT.T('electron', 'elektron'), ax + 36, yE + 17, C.acc, 10.5);
+        KIT.small(ctx, 'proton', ax + 36, yP + 17, I.teal, 10.5);
+        /* the gap between them is the mass ratio, whatever L is */
+        const bx = ax + (narrow ? 60 : 88);
+        KIT.line(ctx, bx, yE + 4, bx, yP - 4, C.soft, 1);
+        KIT.line(ctx, bx - 4, yE + 4, bx + 4, yE + 4, C.soft, 1);
+        KIT.line(ctx, bx - 4, yP - 4, bx + 4, yP - 4, C.soft, 1);
+        if (!narrow) {
+            const my = (yE + yP) / 2;
+            const e1 = KIT.symSub(ctx, 'm', 'p', bx + 8, my, C.soft, 15, 'left', '/');
+            KIT.symSub(ctx, 'm', 'e', e1 + 3, my, C.soft, 15, 'left');
+        }
 
-    function frame(ts) {
-        draw(ts || 0);
-        requestAnimationFrame(frame);
+        KIT.caption(ctx, KIT.T('INFINITE WELL', 'NEKONEČNĚ HLUBOKÁ JÁMA'),
+                    KIT.T('the proton’s levels sit 1836× lower', 'hladiny protonu leží 1836× níž'));
+
+        KIT.put('r-e1',  fmtE(f.e1e));
+        KIT.put('r-en',  fmtE(f.en));
+        KIT.put('r-lam', KIT.dec(f.lam >= 100 ? f.lam.toFixed(0) : f.lam.toFixed(1)) + ' pm');
+        KIT.put('r-e1p', fmtE(f.e1p));
     }
-    requestAnimationFrame(frame);
 }());
 </script>
 

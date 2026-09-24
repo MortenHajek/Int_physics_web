@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>09 Maxwell’s equations and conservation laws · Electrodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="electrodynamics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Electrodynamics</span><span lang="cs">Elektrodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="electrodynamics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 09 · EM field in vacuum I</span><span lang="cs">Kapitola 09 · EM pole ve vakuu I</span> · Griffiths 7.2–7.3, 8</div>
+            <h1><span lang="en">Maxwell’s equations and conservation laws</span><span lang="cs">Maxwellovy rovnice a zákony zachování</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\nabla\times\vec E = -\dfrac{\partial\vec B}{\partial t}"></div>
+            <div class="eq-caption"><span lang="en">A changing magnetic field drives a circulating electric field</span><span lang="cs">Proměnné magnetické pole vyvolává vírové elektrické pole</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Once the fields change in time the two halves of the theory are no longer separate: a changing magnetic field produces an electric field and a changing electric field a magnetic one, each sustaining the other. The induced electric field is not conservative, so it has no potential, and the voltage between two points depends on the path — a voltmeter reads a value that depends on how its leads are routed.</span><span lang="cs">Jakmile se pole mění v čase, nejsou už obě poloviny teorie oddělené: proměnné magnetické pole vytváří elektrické pole a proměnné elektrické pole magnetické, každé udržuje to druhé. Indukované elektrické pole není konzervativní, nemá tedy potenciál, a napětí mezi dvěma body závisí na cestě — voltmetr ukazuje hodnotu, která závisí na tom, kudy vedou jeho přívody.</span></p>
+                <p><span lang="en">Maxwell’s equations then do more than determine the fields: they imply <em>conservation laws</em>. Charge is conserved locally (the continuity equation). Energy is conserved once the field is given an energy density and an energy flux, the <em>Poynting vector</em>. Momentum is conserved once the field is given a momentum density and a stress, the <em>Maxwell stress tensor</em>, and the same holds for angular momentum. The field becomes a physical system in its own right, able to carry energy and momentum from one set of charges to another.</span><span lang="cs">Maxwellovy rovnice pak pole nejen určují, ale mají za důsledek i <em>zákony zachování</em>. Náboj se zachovává lokálně (rovnice kontinuity). Energie se zachovává, přiřadí-li se poli hustota energie a tok energie, <em>Poyntingův vektor</em>. Hybnost se zachovává, přiřadí-li se poli hustota hybnosti a napětí, <em>Maxwellův tenzor napětí</em>; totéž platí pro moment hybnosti. Pole se stává samostatnou fyzikální soustavou, která dokáže přenášet energii a hybnost od jedněch nábojů k druhým.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\dfrac{\partial\rho}{\partial t} + \nabla\cdot\vec J = 0"></span>
+                        <span class="ck-eq" data-tex="\dfrac{\partial u}{\partial t} + \nabla\cdot\vec S = -\vec J\cdot\vec E"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The continuity equation and Poynting’s theorem, both consequences of Maxwell’s equations. Each has the form of a local balance: the rate of change of a density plus the divergence of a flux equals what is created or removed at that point. For charge nothing is created; for field energy, <span data-tex="\vec J\cdot\vec E"></span> is the power per unit volume the field delivers to the charges.</span><span lang="cs">Rovnice kontinuity a Poyntingova věta, obě důsledky Maxwellových rovnic. Každá má tvar lokální bilance: rychlost změny hustoty plus divergence toku je rovna tomu, co v daném bodě vzniká nebo zaniká. Náboj nevzniká; u energie pole je <span data-tex="\vec J\cdot\vec E"></span> výkon na jednotku objemu, který pole předává nábojům.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Faraday’s law and the induced field</span><span lang="cs">Faradayův zákon a indukované pole</span></span>
+                        <span class="cf-eq" data-tex="\oint\vec E\cdot\mathrm{d}\vec l = -\dfrac{\mathrm{d}\Phi}{\mathrm{d}t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The same law covers a loop moving through a field (motional emf) and a changing field through a fixed loop (induced electric field). Where <span data-tex="\partial\vec B/\partial t \ne 0"></span> the field <span data-tex="\vec E"></span> has a curl, so no potential exists: a voltmeter measures <span data-tex="-\int\vec E\cdot\mathrm{d}\vec l"></span> along its own leads, and two voltmeters connected to the same two points round a solenoid can read different values. <span class="cf-ref">(Griffiths 7.2, Problem 7.53)</span></span>
+                        <span lang="cs">Týž zákon popisuje smyčku pohybující se v poli (pohybové indukované napětí) i proměnné pole procházející pevnou smyčkou (indukované elektrické pole). Kde <span data-tex="\partial\vec B/\partial t \ne 0"></span>, má <span data-tex="\vec E"></span> nenulovou rotaci, a potenciál proto neexistuje: voltmetr měří <span data-tex="-\int\vec E\cdot\mathrm{d}\vec l"></span> podél svých přívodů a dva voltmetry připojené ke stejným dvěma bodům kolem solenoidu mohou ukazovat různé hodnoty. <span class="cf-ref">(Griffiths 7.2, Problem 7.53)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Maxwell’s correction and charge conservation</span><span lang="cs">Maxwellova oprava a zachování náboje</span></span>
+                        <span class="cf-eq" data-tex="\nabla\cdot(\nabla\times\vec B) = 0 = \mu_0\Big(\nabla\cdot\vec J + \varepsilon_0\dfrac{\partial}{\partial t}\nabla\cdot\vec E\Big)"></span>
+                        <span class="cf-eq" data-tex="\dfrac{\mathrm{d}}{\mathrm{d}t}\int_\Omega\rho\,\mathrm{d}\tau = -\oint_{\partial\Omega}\vec J\cdot\mathrm{d}\vec a"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Without the displacement current, the divergence of Ampère’s law would demand <span data-tex="\nabla\cdot\vec J = 0"></span> always, which a charging capacitor contradicts. With it, Gauss’s law turns the bracket into the continuity equation: charge leaves a region only by flowing across its boundary. <span class="cf-ref">(Griffiths 7.3.2, 8.1.1)</span></span>
+                        <span lang="cs">Bez posuvného proudu by divergence Ampérova zákona vyžadovala vždy <span data-tex="\nabla\cdot\vec J = 0"></span>, čemuž odporuje nabíjení kondenzátoru. S ním převede Gaussův zákon závorku na rovnici kontinuity: náboj může oblast opustit jen tak, že proteče její hranicí. <span class="cf-ref">(Griffiths 7.3.2, 8.1.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy — Poynting’s theorem</span><span lang="cs">Energie — Poyntingova věta</span></span>
+                        <span class="cf-eq" data-tex="u = \dfrac{1}{2}\Big(\varepsilon_0E^2 + \dfrac{B^2}{\mu_0}\Big)"></span>
+                        <span class="cf-eq" data-tex="\vec S = \dfrac{1}{\mu_0}\vec E\times\vec B"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In integral form, the work done on the charges in a region equals the decrease of field energy inside it minus the energy flowing out through the boundary, <span data-tex="\oint\vec S\cdot\mathrm{d}\vec a"></span>. In a resistor <span data-tex="\vec J\cdot\vec E"></span> is Joule heating, and the energy arrives through the surrounding space, not along the wire. <span data-tex="\vec S"></span> is fixed only up to a curl, and static crossed fields have <span data-tex="\vec S \ne 0"></span> with nothing visibly flowing — a reminder that only <span data-tex="\oint\vec S\cdot\mathrm{d}\vec a"></span> is measured. <span class="cf-ref">(Griffiths 8.1.2)</span></span>
+                        <span lang="cs">V integrálním tvaru je práce vykonaná na nábojích v oblasti rovna úbytku energie pole uvnitř zmenšenému o energii, která vyteče hranicí, <span data-tex="\oint\vec S\cdot\mathrm{d}\vec a"></span>. V rezistoru je <span data-tex="\vec J\cdot\vec E"></span> Jouleovo teplo a energie přichází okolním prostorem, nikoli podél vodiče. <span data-tex="\vec S"></span> je určen jen až na rotaci a statická zkřížená pole mají <span data-tex="\vec S \ne 0"></span>, aniž by viditelně cokoli teklo — připomínka, že měřitelný je jen <span data-tex="\oint\vec S\cdot\mathrm{d}\vec a"></span>. <span class="cf-ref">(Griffiths 8.1.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Momentum of the field</span><span lang="cs">Hybnost pole</span></span>
+                        <span class="cf-eq" data-tex="\vec g = \varepsilon_0\,\vec E\times\vec B = \dfrac{\vec S}{c^2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The momentum per unit volume stored in the field. It restores Newton’s third law for the two moving charges of chapter 06: the mechanical momenta of the particles do not balance, but the particles and the field together conserve momentum. <span class="cf-ref">(Griffiths 8.2.3)</span></span>
+                        <span lang="cs">Hybnost připadající na jednotkový objem pole. Obnovuje třetí Newtonův zákon pro dva pohybující se náboje z kapitoly 06: mechanické hybnosti částic se nevyrovnají, částice a pole dohromady však hybnost zachovávají. <span class="cf-ref">(Griffiths 8.2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Maxwell’s stress tensor</span><span lang="cs">Maxwellův tenzor napětí</span></span>
+                        <span class="cf-eq" data-tex="T_{ij} = \varepsilon_0\Big(E_iE_j - \dfrac{1}{2}\delta_{ij}E^2\Big) + \dfrac{1}{\mu_0}\Big(B_iB_j - \dfrac{1}{2}\delta_{ij}B^2\Big)"></span>
+                        <span class="cf-eq" data-tex="\dfrac{\partial}{\partial t}\big(\pi_i + g_i\big) = \partial_jT_{ij}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en"><span data-tex="\pi_i"></span> is the mechanical momentum density of the charges. <span data-tex="T_{ij}"></span> is the force per unit area in direction <span data-tex="i"></span> acting across a surface with normal <span data-tex="j"></span>; its diagonal elements are pressures. The force on the charges inside any closed surface is <span data-tex="\oint T_{ij}\,\mathrm{d}a_j"></span> minus the rate of change of the field momentum inside. For isotropic radiation the pressure is <span data-tex="u/3"></span>, the equation of state of the electromagnetic field. <span class="cf-ref">(Griffiths 8.2.2–8.2.3)</span></span>
+                        <span lang="cs"><span data-tex="\pi_i"></span> je hustota mechanické hybnosti nábojů. <span data-tex="T_{ij}"></span> je síla na jednotku plochy ve směru <span data-tex="i"></span> působící přes plochu s normálou <span data-tex="j"></span>; diagonální prvky jsou tlaky. Síla na náboje uvnitř libovolné uzavřené plochy je <span data-tex="\oint T_{ij}\,\mathrm{d}a_j"></span> zmenšená o rychlost změny hybnosti pole uvnitř. Pro izotropní záření je tlak roven <span data-tex="u/3"></span>, což je stavová rovnice elektromagnetického pole. <span class="cf-ref">(Griffiths 8.2.2–8.2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Momentum of a charge in a magnetic field</span><span lang="cs">Hybnost náboje v magnetickém poli</span></span>
+                        <span class="cf-eq" data-tex="\int\vec g\,\mathrm{d}\tau = q\vec A(\vec r_q)"></span>
+                        <span class="cf-eq" data-tex="\vec p = m\vec v + q\vec A"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A charge at rest in a static external magnetic field has field momentum — the cross term between its Coulomb field and the external <span data-tex="\vec B"></span> — equal to <span data-tex="q\vec A"></span> in the Coulomb gauge (Semon and Taylor). The same combination is the canonical momentum of a charged particle in Lagrangian mechanics.</span>
+                        <span lang="cs">Náboj v klidu ve statickém vnějším magnetickém poli má hybnost pole — smíšený člen mezi jeho coulombovským polem a vnějším <span data-tex="\vec B"></span> — rovnou <span data-tex="q\vec A"></span> v Coulombově kalibraci (Semon a Taylor). Tatáž kombinace je kanonickou hybností nabité částice v Lagrangeově mechanice.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Angular momentum of the field</span><span lang="cs">Moment hybnosti pole</span></span>
+                        <span class="cf-eq" data-tex="\vec\ell = \vec r\times\vec g = \varepsilon_0\,\vec r\times(\vec E\times\vec B)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Feynman’s disk: a disk carrying charges near its rim and a solenoid along its axis, all at rest. When the current is switched off, the disk starts to rotate. Angular momentum is conserved because the static fields held it from the start. <span class="cf-ref">(Griffiths 8.2.4)</span></span>
+                        <span lang="cs">Feynmanův disk: kotouč s náboji u okraje a solenoid v jeho ose, vše v klidu. Po vypnutí proudu se kotouč roztočí. Moment hybnosti se zachovává, protože jej od počátku neslo statické pole. <span class="cf-ref">(Griffiths 8.2.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Time averages in complex notation</span><span lang="cs">Časové střední hodnoty v komplexním zápisu</span></span>
+                        <span class="cf-eq" data-tex="\langle\vec S\rangle = \dfrac{1}{2\mu_0}\,\mathrm{Re}\big(\tilde{\vec E}\times\tilde{\vec B}^{*}\big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For harmonic fields written as <span data-tex="\mathrm{Re}(\tilde{\vec E}\mathrm{e}^{-\mathrm{i}\omega t})"></span>. Products must be formed from the real fields: the terms oscillating as <span data-tex="\mathrm{e}^{\mp2\mathrm{i}\omega t}"></span> average to zero and what remains is half the real part of the product with the complex conjugate. The average <span data-tex="\langle S\rangle"></span> is the intensity of the wave. <span class="cf-ref">(Griffiths 9.1.2, 9.2.3)</span></span>
+                        <span lang="cs">Pro harmonická pole zapsaná jako <span data-tex="\mathrm{Re}(\tilde{\vec E}\mathrm{e}^{-\mathrm{i}\omega t})"></span>. Součiny je nutné tvořit z reálných polí: členy kmitající jako <span data-tex="\mathrm{e}^{\mp2\mathrm{i}\omega t}"></span> mají nulovou střední hodnotu a zbývá polovina reálné části součinu s komplexně sdruženou veličinou. Střední hodnota <span data-tex="\langle S\rangle"></span> je intenzita vlny. <span class="cf-ref">(Griffiths 9.1.2, 9.2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Maxwell’s equations as differential forms</span><span lang="cs">Maxwellovy rovnice jako diferenciální formy</span></span>
+                        <span class="cf-eq" data-tex="\int_\Omega\mathrm{d}\omega = \oint_{\partial\Omega}\omega"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In the language of differential forms gradient, curl and divergence become one exterior derivative, and the fundamental theorems — for gradients, Stokes’ and the divergence theorem — become one generalised Stokes theorem. Maxwell’s four equations reduce to two, <span data-tex="\mathrm{d}F = 0"></span> and <span data-tex="\mathrm{d}{\star F} = \mu_0\,{\star J}"></span> (up to sign conventions).</span>
+                        <span lang="cs">V jazyce diferenciálních forem se gradient, rotace i divergence stávají jedinou vnější derivací a základní věty — pro gradient, Stokesova i Gaussova–Ostrogradského — jedinou zobecněnou Stokesovou větou. Čtyři Maxwellovy rovnice se zredukují na dvě, <span data-tex="\mathrm{d}F = 0"></span> a <span data-tex="\mathrm{d}{\star F} = \mu_0\,{\star J}"></span> (až na znaménkové konvence).</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Magnetic charge</span><span lang="cs">Magnetický náboj</span></span>
+                        <span class="cf-eq" data-tex="\nabla\cdot\vec B = \mu_0\rho_m"></span>
+                        <span class="cf-eq" data-tex="\nabla\times\vec E = -\mu_0\vec J_m - \dfrac{\partial\vec B}{\partial t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With magnetic charge the equations would be fully symmetric between <span data-tex="\vec E"></span> and <span data-tex="\vec B"></span>. Dirac showed that a single monopole anywhere would explain why electric charge is quantized; none has been found. (Here the unit of <span data-tex="q_m"></span> is A·m, as in Griffiths; with Wb the factor <span data-tex="\mu_0"></span> is absorbed.) <span class="cf-ref">(Griffiths 7.3.4)</span></span>
+                        <span lang="cs">S magnetickým nábojem by rovnice byly v <span data-tex="\vec E"></span> a <span data-tex="\vec B"></span> zcela symetrické. Dirac ukázal, že existence jediného monopólu kdekoli by vysvětlila, proč je elektrický náboj kvantovaný; žádný však nalezen nebyl. (Jednotkou <span data-tex="q_m"></span> je zde A·m, jako u Griffithse; při jednotce Wb se faktor <span data-tex="\mu_0"></span> pohltí.) <span class="cf-ref">(Griffiths 7.3.4)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="electrodynamics-08.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">08 · <span lang="en">Magnetic field in matter</span><span lang="cs">Magnetické pole v látce</span></div>
+        </a>
+        <a href="electrodynamics-10.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">10 · <span lang="en">The wave equation and the plane wave</span><span lang="cs">Vlnová rovnice a rovinná vlna</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="electrodynamics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

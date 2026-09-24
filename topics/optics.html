@@ -206,23 +206,6 @@
     }
 
     /* ── TIR label on canvas ─────────────────────────────────────────── */
-    #tir-label {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: var(--f-mono);
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-        color: var(--accent);
-        background: var(--paper);
-        border: 1px solid var(--accent);
-        padding: 4px 12px;
-        pointer-events: none;
-        display: none;
-        z-index: 3;
-    }
 
     /* ── Responsive ──────────────────────────────────────────────────── */
         @media (max-width: 900px) {
@@ -581,11 +564,9 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Refraction &amp; TIR at a flat interface</span><span lang="cs">Lom a totální odraz na rovinném rozhraní</span></span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
-                <div id="tir-label"><span lang="en">Total Internal Reflection</span><span lang="cs">Totální odraz</span></div>
                 <div class="canvas-formula-badge" data-tex="n_1\sin\theta_1 = n_2\sin\theta_2"></div>
             </div>
         </div>
@@ -636,23 +617,22 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
-                        <span class="readout-label"><span lang="en">θ₂ refracted</span><span lang="cs">θ₂ lomený</span></span>
+                        <span class="readout-label"><span data-tex="\theta_2"></span> <span lang="en">refracted</span><span lang="cs">lomený</span></span>
                         <span class="readout-val" id="r-theta2">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label"><span lang="en">θ<sub>c</sub> critical</span><span lang="cs">θ<sub>c</sub> mezní</span></span>
+                        <span class="readout-label"><span data-tex="\theta_c"></span> <span lang="en">critical</span><span lang="cs">mezní</span></span>
                         <span class="readout-val" id="r-thetac">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">TIR</span>
+                        <span class="readout-label"><span lang="en">total internal reflection</span><span lang="cs">totální odraz</span></span>
                         <span class="readout-val" id="r-tir">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label">n₁ / n₂</span>
+                        <span class="readout-label" data-tex="n_1/n_2"></span>
                         <span class="readout-val" id="r-ratio">—</span>
                     </div>
                 </div>
@@ -728,7 +708,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
-    new ResizeObserver(resize).observe(wrap);
 
     /* ── Colour tokens ─────────────────────────────────────────── */
     function readCol() {
@@ -749,74 +728,71 @@ document.addEventListener('DOMContentLoaded', () => {
     let state = { ...DEFAULTS };
 
     /* ── Slider wiring ─────────────────────────────────────────── */
-    function bindSlider(inputId, valId, decimals, suffix, key) {
-        const inp = document.getElementById(inputId);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = (+inp.value).toFixed(decimals) + suffix;
+    const SLIDERS = [['p-theta', 0, '°', 'theta1'], ['p-n1', 2, '', 'n1'], ['p-n2', 2, '', 'n2']];
+    function syncVals() {
+        const cs = document.documentElement.getAttribute('data-lang') === 'cs';
+        SLIDERS.forEach(([id, d, suffix, key]) => {
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+            if (inp) inp.value = state[key];
+            if (lbl) lbl.textContent = (cs ? state[key].toFixed(d).replace('.', ',') : state[key].toFixed(d)) + suffix;
         });
     }
-    bindSlider('p-theta', 'p-theta-val', 0, '°',   'theta1');
-    bindSlider('p-n1',    'p-n1-val',    2, '',     'n1');
-    bindSlider('p-n2',    'p-n2-val',    2, '',     'n2');
+    SLIDERS.forEach(([id, d, suffix, key]) => {
+        const inp = document.getElementById(id);
+        if (inp) inp.addEventListener('input', () => { state[key] = +inp.value; syncVals(); });
+    });
+    document.addEventListener('langchange', syncVals);
+    syncVals();
 
     /* ── Reset ─────────────────────────────────────────────────── */
     document.getElementById('btn-reset')?.addEventListener('click', () => {
         state = { ...DEFAULTS };
-        document.getElementById('p-theta').value = DEFAULTS.theta1;
-        document.getElementById('p-theta-val').textContent = DEFAULTS.theta1 + '°';
-        document.getElementById('p-n1').value = DEFAULTS.n1;
-        document.getElementById('p-n1-val').textContent = DEFAULTS.n1.toFixed(2);
-        document.getElementById('p-n2').value = DEFAULTS.n2;
-        document.getElementById('p-n2-val').textContent = DEFAULTS.n2.toFixed(2);
+        syncVals();
     });
 
-    /* ── Drawing helpers ───────────────────────────────────────── */
-    function drawRay(x0, y0, x1, y1, color, lw, dashed) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = lw || 2;
-        ctx.lineCap = 'round';
-        if (dashed) ctx.setLineDash([6, 4]);
-        else ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(x0, y0);
-        ctx.lineTo(x1, y1);
-        ctx.stroke();
-        ctx.setLineDash([]);
+    /* ── Drawing helpers (the house style) ─────────────────────── */
+    const SERIF = '"Source Serif 4",Georgia,serif', MONO = '"Geist",ui-sans-serif,sans-serif';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const stage = () => getComputedStyle(document.documentElement).getPropertyValue('--paper-cool').trim() || col.deep;
+    function sym(txt, x, y, colr, size, align) {
+        ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = stage();
+        ctx.strokeText(txt, x, y); ctx.fillStyle = colr; ctx.fillText(txt, x, y); ctx.lineWidth = 1;
     }
-
-    function drawArrowhead(x, y, angle, color, size) {
-        size = size || 10;
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x - size * Math.cos(angle - 0.35), y - size * Math.sin(angle - 0.35));
-        ctx.lineTo(x - size * Math.cos(angle + 0.35), y - size * Math.sin(angle + 0.35));
-        ctx.closePath();
-        ctx.fill();
+    function symSub(main, sb, x, y, colr, size, align) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        ctx.font = 'italic ' + size + 'px ' + SERIF; const w1 = ctx.measureText(main).width;
+        ctx.font = 'italic ' + ss + 'px ' + SERIF; const tw = w1 + 1 + ctx.measureText(sb).width;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        sym(main, x0, y, colr, size, 'left'); sym(sb, x0 + w1 + 1, y + size * 0.28, colr, ss, 'left');
+        return x0 + tw;
     }
-
-    function drawAngleArc(cx, cy, startAngle, endAngle, r, color, label) {
-        // Sweep the shorter arc
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 3]);
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, startAngle, endAngle);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        if (label) {
-            const midA = (startAngle + endAngle) / 2;
-            const lx = cx + (r + 14) * Math.cos(midA);
-            const ly = cy + (r + 14) * Math.sin(midA);
-            ctx.fillStyle = color;
-            ctx.font = 'italic 13px var(--f-serif, Georgia, serif)';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(label, lx, ly);
-        }
+    function small(txt, x, y, colr, size, align) {
+        ctx.font = (size || 11) + 'px ' + MONO;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = colr; ctx.fillText(txt, x, y);
+    }
+    /* a ray with its arrowhead halfway along, where it reads as a direction */
+    function ray(x0, y0, x1, y1, colr, lw, dash) {
+        ctx.strokeStyle = colr; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash(dash || []);
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.setLineDash([]);
+        const L = Math.hypot(x1 - x0, y1 - y0) || 1, ux = (x1 - x0) / L, uy = (y1 - y0) / L;
+        const mx = x0 + ux * L * 0.56, my = y0 + uy * L * 0.56, h = 11, w = 5.5;
+        ctx.fillStyle = colr; ctx.beginPath(); ctx.moveTo(mx + ux * h / 2, my + uy * h / 2);
+        ctx.lineTo(mx - ux * h / 2 + uy * w, my - uy * h / 2 - ux * w);
+        ctx.lineTo(mx - ux * h / 2 - uy * w, my - uy * h / 2 + ux * w);
+        ctx.closePath(); ctx.fill();
+    }
+    /* the short sweep between two directions, with its symbol */
+    function angleArc(cx, cy, a0, a1, r, colr) {
+        let d = a1 - a0;
+        while (d > Math.PI) d -= 2 * Math.PI;
+        while (d < -Math.PI) d += 2 * Math.PI;
+        ctx.strokeStyle = colr; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(cx, cy, r, a0, a0 + d, d < 0); ctx.stroke();
+        return a0 + d / 2;
     }
 
     /* ── Physics ───────────────────────────────────────────────── */
@@ -833,153 +809,87 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ── Main draw ─────────────────────────────────────────────── */
     function draw() {
         ctx.clearRect(0, 0, W, H);
-        col = readCol(); // re-read in case CSS updates
-
+        col = readCol();
         const { theta1, theta2, tir, thetaC } = calcRefraction(state.theta1, state.n1, state.n2);
+        const ix = W / 2, iy = H * 0.5;
 
-        // Interface point at canvas centre
-        const ix = W / 2;
-        const iy = H / 2;
-
-        // Medium labels and background tint
-        const upperCol = col.acc + '10';
-        const lowerCol = col.soft + '08';
-
-        // Upper medium fill (n1)
-        ctx.fillStyle = upperCol;
-        ctx.fillRect(0, 0, W, iy);
-
-        // Lower medium fill (n2)
-        ctx.fillStyle = lowerCol;
-        ctx.fillRect(0, iy, W, H - iy);
-
-        // Interface line
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
+        /* the two media, tinted by how optically dense they are */
+        const tint = n => 0.03 + 0.09 * Math.max(0, Math.min(1, (n - 1) / 1.5));
+        ctx.fillStyle = col.ink;
+        ctx.globalAlpha = tint(state.n1); ctx.fillRect(0, 0, W, iy);
+        ctx.globalAlpha = tint(state.n2); ctx.fillRect(0, iy, W, H - iy);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(0, iy); ctx.lineTo(W, iy); ctx.stroke();
+        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(ix, iy - H * 0.44); ctx.lineTo(ix, iy + H * 0.44); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(0, iy);
-        ctx.lineTo(W, iy);
-        ctx.stroke();
+        const dec = v => (isCS() ? v.toFixed(2).replace('.', ',') : v.toFixed(2));
+        /* each medium named by its index, flush left: the rays leave the
+           interface to the right (reflected, refracted) and arrive from above,
+           so the left end of the interface stays clear at every angle */
+        const medium = (sb, n, y) => {
+            const e2 = symSub('n', sb, 16, y, col.ink, 18, 'left');
+            small('= ' + dec(n), e2 + 6, y, col.soft, 12, 'left');
+        };
+        medium('1', state.n1, iy - 22);
+        medium('2', state.n2, iy + 24);
 
-        // Normal (dashed vertical)
-        ctx.strokeStyle = col.faint;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([5, 4]);
-        ctx.beginPath();
-        ctx.moveTo(ix, 0);
-        ctx.lineTo(ix, H);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Medium labels
-        ctx.fillStyle = col.faint;
-        ctx.font = 'italic 13px var(--f-serif, Georgia, serif)';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText('n₁ = ' + state.n1.toFixed(2), 12, 10);
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('n₂ = ' + state.n2.toFixed(2), 12, H - 96);
-
-        // Ray lengths
-        const rayLen = Math.min(W, H) * 0.45;
-
-        // Incident ray direction: comes from upper-left toward (ix, iy)
-        // theta1 is angle from the normal (vertical). Positive = right side of normal.
-        // Incident ray arrives going DOWN-right, so direction is (sin θ₁, cos θ₁) from source
-        const incAngle = theta1; // from normal (upward), measured clockwise
-        // Source point: upper-left of interface
-        const srcX = ix - rayLen * Math.sin(incAngle);
-        const srcY = iy - rayLen * Math.cos(incAngle);
-
-        // Draw incident ray
-        const rayColor = col.acc;
-        drawRay(srcX, srcY, ix, iy, rayColor, 2.5);
-        // Arrowhead on incident ray (pointing toward interface)
-        const incDir = Math.atan2(iy - srcY, ix - srcX);
-        drawArrowhead(ix - 6 * Math.cos(incDir), iy - 6 * Math.sin(incDir), incDir, rayColor, 9);
-
-        // Reflected ray: angle θr = θ1, other side of normal
-        const reflX = ix + rayLen * Math.sin(incAngle);
-        const reflY = iy - rayLen * Math.cos(incAngle);
-        drawRay(ix, iy, reflX, reflY, col.soft, 1.5, true);
-        const reflDir = Math.atan2(reflY - iy, reflX - ix);
-        drawArrowhead(reflX - 6 * Math.cos(reflDir), reflY - 6 * Math.sin(reflDir), reflDir, col.soft + 'cc', 8);
-
-        // Refracted ray (or TIR label)
-        const tirLabel = document.getElementById('tir-label');
-        if (tir) {
-            if (tirLabel) tirLabel.style.display = 'block';
-        } else {
-            if (tirLabel) tirLabel.style.display = 'none';
-            // Refracted ray goes downward, bent according to theta2
-            const refX = ix + rayLen * Math.sin(theta2);
-            const refY = iy + rayLen * Math.cos(theta2);
-            drawRay(ix, iy, refX, refY, rayColor, 2.5);
-            const refDir = Math.atan2(refY - iy, refX - ix);
-            drawArrowhead(refX - 6 * Math.cos(refDir), refY - 6 * Math.sin(refDir), refDir, rayColor, 9);
-
-            // Angle arc for θ₂ (below interface, between normal and refracted ray)
-            // Normal points downward from interface: angle = π/2 (down)
-            // Refracted ray direction: atan2(cos θ₂, sin θ₂) from down = ...
-            const normalDown = Math.PI / 2;
-            const refAngleFromOrigin = Math.atan2(refY - iy, refX - ix);
-            drawAngleArc(ix, iy, normalDown, refAngleFromOrigin, 44, col.acc + 'aa', 'θ₂');
-        }
-
-        // Angle arc for θ₁ (above interface, between normal and incident ray)
-        // Normal points up: angle from origin is -π/2 (up)
-        // Incident ray arrives at interface from direction (srcX, srcY)
-        // The "arrival direction" from interface outward toward source:
-        const normalUp = -Math.PI / 2; // pointing up
-        const incOutwardAngle = Math.atan2(srcY - iy, srcX - ix);
-        drawAngleArc(ix, iy, incOutwardAngle, normalUp, 44, col.acc + 'aa', 'θ₁');
-
-        // Critical angle marker (if applicable)
+        const L = Math.min(W * 0.46, H * 0.42);
+        /* the critical angle belongs to the incident side: any ray arriving
+           steeper than θ_c from the normal is totally reflected */
         if (state.n1 > state.n2) {
-            ctx.strokeStyle = col.acc + '55';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([3, 6]);
-            const critX = ix + rayLen * 0.7 * Math.sin(thetaC);
-            const critY = iy + rayLen * 0.7 * Math.cos(thetaC);
-            ctx.beginPath();
-            ctx.moveTo(ix, iy);
-            ctx.lineTo(critX, critY);
-            ctx.stroke();
+            const cx2 = ix - L * 0.9 * Math.sin(thetaC), cy2 = iy - L * 0.9 * Math.cos(thetaC);
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.1; ctx.setLineDash([3, 5]);
+            ctx.beginPath(); ctx.moveTo(ix, iy); ctx.lineTo(cx2, cy2); ctx.stroke();
             ctx.setLineDash([]);
-            ctx.fillStyle = col.acc + '99';
-            ctx.font = '10px var(--f-mono, monospace)';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('θc', critX + 5, critY);
+            symSub('θ', 'c', cx2 - 8, cy2 - 4, col.soft, 16, 'right');
         }
 
-        /* ── Readout spans ── */
-        const $ = id => document.getElementById(id);
-        const theta2Deg = tir ? null : (theta2 * 180 / Math.PI);
-        const thetaCDeg = thetaC * 180 / Math.PI;
-
-        $('r-theta2').textContent = tir ? 'TIR' : theta2Deg.toFixed(1) + '°';
-        $('r-thetac').textContent = (state.n1 > state.n2) ? thetaCDeg.toFixed(1) + '°' : 'n/a';
-        $('r-tir').textContent    = document.documentElement.getAttribute('data-lang') === 'cs'
-            ? (tir ? 'ano' : 'ne') : (tir ? 'yes' : 'no');
-        $('r-ratio').textContent  = (state.n1 / state.n2).toFixed(3);
-    }
-
-    /* ── RAF loop ───────────────────────────────────────────────── */
-    let lastT = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
-
-    function frame(ts) {
-        draw();
-        frames++;
-        if (ts - lastT >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; lastT = ts;
+        /* incident, reflected, refracted */
+        const sx = ix - L * Math.sin(theta1), sy = iy - L * Math.cos(theta1);
+        const rx = ix + L * Math.sin(theta1), ry = iy - L * Math.cos(theta1);
+        ray(sx, sy, ix, iy, col.acc, 2.8);
+        if (tir) ray(ix, iy, rx, ry, col.acc, 2.8);
+        else {
+            ctx.globalAlpha = 0.55; ray(ix, iy, rx, ry, col.acc, 1.6, [6, 5]); ctx.globalAlpha = 1;
+            const tx = ix + L * Math.sin(theta2), ty = iy + L * Math.cos(theta2);
+            ray(ix, iy, tx, ty, col.acc, 2.8);
+            const m2 = angleArc(ix, iy, Math.PI / 2, Math.atan2(ty - iy, tx - ix), 52, col.ink);
+            symSub('θ', '2', ix + 70 * Math.cos(m2), iy + 70 * Math.sin(m2), col.ink, 17, 'center');
         }
-        requestAnimationFrame(frame);
+        const m1 = angleArc(ix, iy, -Math.PI / 2, Math.atan2(sy - iy, sx - ix), 52, col.ink);
+        symSub('θ', '1', ix + 70 * Math.cos(m1), iy + 70 * Math.sin(m1), col.ink, 17, 'center');
+        ctx.fillStyle = col.ink; ctx.beginPath(); ctx.arc(ix, iy, 3.5, 0, Math.PI * 2); ctx.fill();
+
+        /* caption: what happens at the interface */
+        small(isCS() ? 'NA ROZHRANÍ' : 'AT THE INTERFACE', 16, 18, col.soft, 10.5);
+        ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = tir ? col.acc : col.ink;
+        ctx.fillText(tir ? (isCS() ? 'totální odraz — nic neprojde' : 'total internal reflection — nothing gets through')
+                         : (isCS() ? 'lom a částečný odraz' : 'refraction and partial reflection'), 16, 39);
+
+        /* readouts, written only when they change */
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        const deg = v => (isCS() ? v.toFixed(1).replace('.', ',') : v.toFixed(1)) + '°';
+        put('r-theta2', tir ? (isCS() ? 'totální odraz' : 'TIR') : deg(theta2 * 180 / Math.PI));
+        put('r-thetac', state.n1 > state.n2 ? deg(thetaC * 180 / Math.PI) : (isCS() ? 'není' : 'n/a'));
+        put('r-tir', isCS() ? (tir ? 'ano' : 'ne') : (tir ? 'yes' : 'no'));
+        put('r-ratio', isCS() ? (state.n1 / state.n2).toFixed(3).replace('.', ',') : (state.n1 / state.n2).toFixed(3));
     }
-    requestAnimationFrame(frame);
+
+    /* ── redraw on demand: the scene only changes when a control does ── */
+    let queued = false;
+    function redraw() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; draw(); });
+    }
+    ['p-theta', 'p-n1', 'p-n2'].forEach(id => document.getElementById(id)?.addEventListener('input', redraw));
+    document.getElementById('btn-reset')?.addEventListener('click', redraw);
+    document.addEventListener('langchange', redraw);
+    new ResizeObserver(() => { resize(); redraw(); }).observe(wrap);
+    redraw();
 
 }());
 </script>

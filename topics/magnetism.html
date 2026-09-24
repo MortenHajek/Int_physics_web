@@ -1083,6 +1083,9 @@ document.addEventListener('DOMContentLoaded', () => {
             faint: g('--ink-faint',  '#7A6A52'),
             paper: g('--paper',      '#FFFDF6'),
             deep:  g('--paper-deep', '#efead6'),
+            /* the charge in the site's crimson (+) / blue (−); the electric
+               force in amber, the magnetic one in the page accent */
+            pos: '#a8243b', neg: '#2a62a8', fe: '#c47a17',
         };
     }
     const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
@@ -1133,28 +1136,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function label(txt, x, y, size, colr, align, bg) {
         ctx.save();
-        ctx.font = size + 'px ' + MONO;
+        ctx.font = Math.max(10.5, size) + 'px ' + MONO;
         ctx.textAlign = align || 'center';
         ctx.textBaseline = 'middle';
-        if (bg) {
-            const w = ctx.measureText(txt).width;
-            let bx = x - w / 2 - 3;
-            if (align === 'left')  bx = x - 3;
-            if (align === 'right') bx = x - w - 3;
-            ctx.fillStyle = bg; ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
-        }
+        if (bg) { ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.deep; ctx.strokeText(txt, x, y); }
         ctx.fillStyle = colr; ctx.fillText(txt, x, y);
         ctx.restore();
     }
-    function arrow(x1, y1, x2, y2, head) {
-        head = head || 7;
-        const a = Math.atan2(y2 - y1, x2 - x1);
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - head * Math.cos(a - 0.4), y2 - head * Math.sin(a - 0.4));
-        ctx.lineTo(x2 - head * Math.cos(a + 0.4), y2 - head * Math.sin(a + 0.4));
+    /* a symbol with a vector arrow and a drawn subscript, haloed */
+    function vsym(main, sub, x, y, colr) {
+        const size = 17, ss = 12;
+        ctx.save();
+        ctx.font = 'italic ' + size + 'px ' + SERIF;
+        const w = ctx.measureText(main).width;
+        ctx.font = 'italic ' + ss + 'px ' + SERIF;
+        const w2 = sub ? ctx.measureText(sub).width + 1 : 0;
+        const x0 = x - (w + w2) / 2;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.deep; ctx.fillStyle = colr;
+        ctx.font = 'italic ' + size + 'px ' + SERIF;
+        ctx.strokeText(main, x0, y); ctx.fillText(main, x0, y);
+        if (sub) { ctx.font = 'italic ' + ss + 'px ' + SERIF;
+                   ctx.strokeText(sub, x0 + w + 1, y + 5); ctx.fillText(sub, x0 + w + 1, y + 5); }
+        const ay = y - size * 0.62, a1 = x0 + 1, a2 = x0 + w + 2;
+        ctx.strokeStyle = colr; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a2 + 1, ay); ctx.lineTo(a2 - 4, ay - 2.6); ctx.lineTo(a2 - 4, ay + 2.6);
         ctx.closePath(); ctx.fill();
+        ctx.restore();
+    }
+    /* the site's arrow: a filled head sized to the shaft */
+    function arrow(x1, y1, x2, y2) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 2) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        ctx.save(); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
     }
 
     function draw() {
@@ -1176,13 +1198,25 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.restore();
             if (P.E > 0) {
                 ctx.save();
-                ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.globalAlpha = 0.28;
+                ctx.strokeStyle = col.fe; ctx.fillStyle = col.fe; ctx.globalAlpha = 0.24;
                 ctx.lineWidth = 1.2;
-                for (let x = st; x < W; x += st * 2) arrow(x, H - 16, x, H - 46, 5);
+                for (let x = st; x < W; x += st * 2)
+                    for (let y = st * 1.5; y < H - 30; y += st * 3) arrow(x, y + 14, x, y - 14);
                 ctx.restore();
-                label('E ↑', 12, H - 30, 10, col.soft, 'left', col.paper);
             }
-            label('B ⊙ ' + t('out of the page', 'z papíru'), 12, H - 14, 10, col.acc, 'left', col.paper);
+            /* the key, top right: what the symbols mean */
+            const kx = W - 18;
+            ctx.save();
+            ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(kx - 6, 20, 5.5, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(kx - 6, 20, 1.8, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+            label(t('B out of the page', 'B z papíru'), kx - 18, 20, 11, col.acc, 'right', true);
+            if (P.E > 0) {
+                ctx.save(); ctx.strokeStyle = col.fe; ctx.fillStyle = col.fe; ctx.lineWidth = 1.4;
+                arrow(kx - 6, 48, kx - 6, 32); ctx.restore();
+                label(t('E up the page', 'E vzhůru'), kx - 18, 41, 11, col.fe, 'right', true);
+            }
         }
 
         /* trail */
@@ -1199,45 +1233,49 @@ document.addEventListener('DOMContentLoaded', () => {
         const px = sx(pos.x), py = sy(pos.y);
         const sp = Math.hypot(vel.x, vel.y) || 1;
 
-        /* velocity and the two forces */
+        /* velocity, and the two forces drawn to ONE scale, so the velocity
+           selector's balance QE = QvB is seen as two equal arrows */
         if (show.vel) {
-            ctx.strokeStyle = col.ink; ctx.fillStyle = col.ink; ctx.lineWidth = 1.8;
-            arrow(px, py, px + vel.x / sp * 46, py - vel.y / sp * 46, 7);
-            label('v', px + vel.x / sp * 58, py - vel.y / sp * 58, 11, col.ink, 'center', col.paper);
+            ctx.strokeStyle = col.ink; ctx.fillStyle = col.ink; ctx.lineWidth = 2.2;
+            arrow(px, py, px + vel.x / sp * 50, py - vel.y / sp * 50);
+            vsym('v', '', px + vel.x / sp * 66, py - vel.y / sp * 66 - 2, col.ink);
         }
         if (show.force) {
-            const fbx = P.sign * vel.y * P.B, fby = -P.sign * vel.x * P.B;
-            const fb = Math.hypot(fbx, fby);
+            const fbx = P.sign * vel.y * P.B, fby = -P.sign * vel.x * P.B;   /* per unit |Q| */
+            const fb = Math.hypot(fbx, fby), fe = P.E;
+            const k = 46 / Math.max(fb, fe, 1e-12);
             if (fb > 1e-12) {
-                ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 2;
-                arrow(px, py, px + fbx / fb * 38, py - fby / fb * 38, 7);
-                label('F_B', px + fbx / fb * 50, py - fby / fb * 50, 10, col.acc, 'center', col.paper);
+                ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 2.4;
+                arrow(px, py, px + fbx * k, py - fby * k);
+                vsym('F', 'B', px + fbx * k * 1.3 + fbx / fb * 12, py - fby * k * 1.3 - fby / fb * 12, col.acc);
             }
             if (P.E > 0) {
-                const s = P.sign > 0 ? 1 : -1;
-                ctx.strokeStyle = col.soft; ctx.fillStyle = col.soft; ctx.lineWidth = 2;
-                arrow(px, py, px, py - s * 34, 7);
-                label('F_e', px + 16, py - s * 44, 10, col.soft, 'center', col.paper);
+                const sg = P.sign > 0 ? 1 : -1;
+                ctx.strokeStyle = col.fe; ctx.fillStyle = col.fe; ctx.lineWidth = 2.4;
+                arrow(px, py, px, py - sg * fe * k);
+                vsym('F', 'e', px + 22, py - sg * (fe * k + 10), col.fe);
             }
         }
 
         /* the particle */
-        ctx.fillStyle = P.sign > 0 ? col.acc : col.soft;
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        label(P.sign > 0 ? '+' : '−', px, py - 0.5, 13, col.paper);
+        ctx.fillStyle = P.sign > 0 ? col.pos : col.neg;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.save();
+        ctx.strokeStyle = '#FFFFEC'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(px - 3.5, py); ctx.lineTo(px + 3.5, py);
+        if (P.sign > 0) { ctx.moveTo(px, py - 3.5); ctx.lineTo(px, py + 3.5); }
+        ctx.stroke(); ctx.restore();
 
-        /* headline */
+        /* when E/B matches v the path straightens: say so */
         const near = P.E > 0 && Math.abs(sp - vsel()) / Math.max(sp, 1) < 0.02;
-        label(near ? t('E/B matches v — the path is straight', 'E/B se rovná v — dráha je rovná')
-                   : 'r = ' + dec((radius() * 100).toFixed(1)) + ' cm   ·   T = '
-                     + dec((period() * 1e6).toFixed(2)) + ' μs',
-              12, 16, 11, near ? col.acc : col.faint, 'left', col.paper);
+        if (near) label(t('E/B equals v — the path is straight', 'E/B se rovná v — dráha je rovná'),
+                        16, 18, 11.5, col.acc, 'left', true);
     }
 
     /* ── Readout ───────────────────────────────────────────────────────── */
     const $ = id => document.getElementById(id);
-    const setTxt = (id, s) => { const e = $(id); if (e) e.textContent = s; };
+    const setTxt = (id, s) => { const e = $(id); if (e && e.textContent !== s) e.textContent = s; };
     function readout() {
         setTxt('cy-r', dec((radius() * 100).toFixed(2)) + ' cm');
         setTxt('cy-T', dec((period() * 1e6).toFixed(2)) + ' μs');
@@ -1304,8 +1342,13 @@ document.addEventListener('DOMContentLoaded', () => {
             pos.y > hh * 1.15 || pos.y < -hh * 1.15) reset();
         draw();
         readout();
-        requestAnimationFrame(frame);
+        if (visible) requestAnimationFrame(frame); else running = false;
     }
+    /* the loop runs only while the canvas is on screen */
+    let visible = true, running = false;
+    function start() { if (!running && visible) { running = true; requestAnimationFrame(frame); } }
+    if (window.IntersectionObserver)
+        new IntersectionObserver(es => { visible = es[0].isIntersecting; start(); }).observe(wrap);
     function resize() {
         const dpr = window.devicePixelRatio || 1;
         const r = wrap.getBoundingClientRect();
@@ -1316,10 +1359,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
-    if (window.ResizeObserver) new ResizeObserver(resize).observe(wrap);
+    /* a resize clears the canvas: paint it again at once, even while paused */
+    if (window.ResizeObserver) new ResizeObserver(() => { resize(); draw(); }).observe(wrap);
     reset();
     readout();
-    requestAnimationFrame(frame);
+    start();
 }());
 </script>
 
@@ -1345,7 +1389,9 @@ document.addEventListener('DOMContentLoaded', () => {
        elements — the sandbox performs the integral the topic describes.       */
 
     const MU0 = 4 * Math.PI * 1e-7;
-    const PXCM = 9;                    /* px per cm on the board */
+    /* px per cm on the board — set from the canvas, so a preset fills it:
+       the loop and the wire-and-loop presets span about ±16 cm */
+    let PXCM = 9;
     const MONO  = '"Geist", ui-sans-serif, system-ui, sans-serif';
     const SERIF = '"Source Serif 4", Georgia, serif';
 
@@ -1459,17 +1505,10 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ══ Drawing ═════════════════════════════════════════════════════════ */
     function label(txt, x, y, size, colr, align, bg) {
         ctx.save();
-        ctx.font = size + 'px ' + MONO;
+        ctx.font = Math.max(10.5, size) + 'px ' + MONO;
         ctx.textAlign = align || 'center';
         ctx.textBaseline = 'middle';
-        if (bg) {
-            const w = ctx.measureText(txt).width;
-            let bx = x - w / 2 - 3;
-            if (align === 'left')  bx = x - 3;
-            if (align === 'right') bx = x - w - 3;
-            ctx.fillStyle = bg;
-            ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
-        }
+        if (bg) { ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.deep; ctx.strokeText(txt, x, y); }
         ctx.fillStyle = colr;
         ctx.fillText(txt, x, y);
         ctx.restore();
@@ -1547,8 +1586,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         dot(x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 1.6);
                     }
                 }
-                label(dec(s.I.toFixed(1)) + ' A', (x1 + x2) / 2, (y1 + y2) / 2 - 14,
-                      10, hot ? col.acc : col.faint, 'center', col.paper);
+                label(dec(s.I.toFixed(1)) + ' A', (x1 + x2) / 2, (y1 + y2) / 2 - 15,
+                      11, hot ? col.acc : col.soft, 'center', true);
             } else {
                 const c = { x: sx(s.cx), y: sy(s.cy) }, R = s.R * PXCM;
                 ctx.beginPath(); ctx.arc(c.x, c.y, R, 0, Math.PI * 2); ctx.stroke();
@@ -1558,8 +1597,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     arrowOn(c.x + R * Math.cos(th), c.y - R * Math.sin(th),
                             s.dir * Math.sin(th), s.dir * Math.cos(th), 6);
                 }
-                label(dec(s.I.toFixed(1)) + ' A', c.x, c.y - R - 12,
-                      10, hot ? col.acc : col.faint, 'center', col.paper);
+                label(dec(s.I.toFixed(1)) + ' A', c.x, c.y - R - 13,
+                      11, hot ? col.acc : col.soft, 'center', true);
             }
         });
 
@@ -1599,8 +1638,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(px, py); ctx.stroke();
                 ctx.restore();
                 label((B >= 0 ? '+' : '−') + fmtB(Math.abs(B)),
-                      (ax + px) / 2, (ay + py) / 2,
-                      10, B >= 0 ? col.acc : col.soft, 'center', col.paper);
+                      (ax + px) / 2 + 8, (ay + py) / 2,
+                      11, B >= 0 ? col.acc : col.soft, 'left', true);
             });
         }
 
@@ -1618,21 +1657,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (B > 0) { dot(px, py, 2.2); }
             else { cross(px, py, 3.4); }
         }
-        ctx.font = '13px ' + SERIF;
-        ctx.fillStyle = col.ink;
+        ctx.save();
+        ctx.font = 'italic 17px ' + SERIF;
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('P', px + 12, py - 11);
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.deep;
+        ctx.strokeText('P', px + 12, py - 13);
+        ctx.fillStyle = col.ink; ctx.fillText('P', px + 12, py - 13);
+        ctx.restore();
 
-        label('B(P) = ' + (B >= 0 ? '' : '−') + fmtB(Math.abs(B)) + '  ' + (B >= 0 ? '⊙' : '⊗'),
-              12, 16, 11, col.acc, 'left', col.paper);
-        label(t('all wires in the page · B perpendicular to it',
-                'všechny vodiče v rovině papíru · B kolmo k ní'),
-              12, 34, 10, col.faint, 'left', col.paper);
+        label(t('every wire lies in the page · B is perpendicular to it',
+                'všechny vodiče leží v rovině papíru · B je k ní kolmé'),
+              16, 18, 11.5, col.soft, 'left', true);
     }
 
     /* ══ Readout ═════════════════════════════════════════════════════════ */
     const $ = id => document.getElementById(id);
-    const setTxt = (id, s) => { const e = $(id); if (e) e.textContent = s; };
+    const setTxt = (id, s) => { const e = $(id); if (e && e.textContent !== s) e.textContent = s; };
 
     function refresh() {
         const B = totalField(probe);
@@ -1653,9 +1693,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             setTxt('bs-cmp', '—');
         }
-        const st = $('bs-status');
-        if (st) st.textContent = srcs.length
-            ? t('solved', 'spočteno') : t('empty board', 'prázdná deska');
+        setTxt('bs-status', srcs.length ? t('solved', 'spočteno') : t('empty board', 'prázdná deska'));
         syncPanel();
         request();
     }
@@ -1836,6 +1874,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const r = wrap.getBoundingClientRect();
         W = Math.max(r.width, 320);
         H = Math.max(r.height, 260);
+        PXCM = Math.max(9, Math.min(22, W / 40, (H - 120) / 30));
         canvas.width  = Math.round(W * dpr);
         canvas.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

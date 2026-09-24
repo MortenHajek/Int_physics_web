@@ -99,7 +99,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Orbit geometry</span><span lang="cs">Geometrie dráhy</span></div>
@@ -117,7 +116,7 @@
                         <span class="readout-val" id="r-t">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label"><span lang="en" data-tex="T\ \text{in minutes}"></span><span lang="cs" data-tex="T\ \text{v minutách}"></span></span>
+                        <span class="readout-label"><span data-tex="T"></span> <span lang="en">in minutes</span><span lang="cs">v minutách</span></span>
                         <span class="readout-val" id="r-tmin">—</span>
                     </div>
                 </div>
@@ -202,6 +201,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/gravity.html"><span lang="en">← Topic: Gravity</span><span lang="cs">← Téma: Gravitace</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -225,170 +225,297 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 13-49 — a circular orbit h = 160 km above the Earth: gravity is the
+   whole centripetal force, GMm/r² = mv²/r, so v = √(GM/r) = 7.82 km/s with
+   r = R_Z + h = 6530 km, and T = 2πr/v = 5250 s = 87.5 min. The globe and
+   the orbit are drawn to one scale — which is why a low orbit hugs the
+   surface — and an inset magnifies the strip between them to show h.
+   The satellite goes round once every 12 s (the real period is ~440× longer);
+   its velocity and the gravitational pull are drawn on it. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#163868',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
-    const G = 6.67e-11, ME = 5.98e24, RE = 6.37e6;
+    const G = 6.67e-11, ME = 5.98e24, RE = 6.37e6, LAP = 12;   /* s on screen per orbit */
     const DEFAULTS = { h: 160 };
     let state = { ...DEFAULTS };
     const show = { vec: true, dim: true };
-    let orbAngle = 0, lastTs = 0;
-
-    /* ── Slider wiring ──────────────────────────────────────────── */
+    let phase = 0;
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const inp = document.getElementById('p-h'), lbl = document.getElementById('p-h-val');
     const fmtH = v => v.toFixed(0) + ' km';
-    const inp = document.getElementById('p-h');
-    const lbl = document.getElementById('p-h-val');
-    inp?.addEventListener('input', () => {
-        state.h = +inp.value;
-        if (lbl) lbl.textContent = fmtH(state.h);
-    });
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        if (inp) inp.value = state.h;
-        if (lbl) lbl.textContent = fmtH(state.h);
-    });
-
+    function syncLabels() { inp.value = state.h; lbl.textContent = fmtH(state.h); }
+    inp.addEventListener('input', () => { state.h = +inp.value; lbl.textContent = fmtH(state.h); });
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); });
     function wireToggle(id, key) {
-        document.getElementById(id)?.addEventListener('click', function () {
+        document.getElementById(id).addEventListener('click', function () {
             show[key] = !show[key];
-            this.querySelector('.toggle-box')?.classList.toggle('on');
+            this.querySelector('.toggle-box').classList.toggle('on', show[key]);
         });
     }
     wireToggle('tgl-vec', 'vec');
     wireToggle('tgl-dim', 'dim');
+    document.addEventListener('langchange', syncLabels);
+    syncLabels();
 
-    function draw(ts) {
-        const dt = Math.min((ts - lastTs) / 1000, 0.05) || 0.016;
-        lastTs = ts;
-        ctx.clearRect(0, 0, W, H);
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const r = RE + state.h * 1e3, vel = Math.sqrt(G * ME / r), T = 2 * Math.PI * r / vel;
+        phase += v.dt / LAP * 2 * Math.PI;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 84, bot = H - (low ? 108 : 30);
 
-        const r = RE + state.h * 1000;
-        const v = Math.sqrt(G * ME / r);
-        const T = 2 * Math.PI * r / v;
-
-        /* animate at 700× real speed */
-        orbAngle += (2 * Math.PI / T) * 700 * dt;
-
-        const cx = W * 0.5, cy = H * 0.52;
-        /* scale chosen so the largest orbit still fits */
-        const rMaxWorld = RE + 2000e3;
-        const pxPerM = Math.min(W, H) * 0.44 / rMaxWorld;
-        const rEarthPx = RE * pxPerM;
-        const rOrbPx = r * pxPerM;
-
-        /* Earth: soft radial highlight + latitude arcs */
-        const grad = ctx.createRadialGradient(cx - rEarthPx * 0.35, cy - rEarthPx * 0.35,
-                                              rEarthPx * 0.1, cx, cy, rEarthPx);
-        grad.addColorStop(0, col.paper);
-        grad.addColorStop(1, 'rgba(22,56,104,0.28)');
-        ctx.beginPath(); ctx.arc(cx, cy, rEarthPx, 0, Math.PI * 2);
-        ctx.fillStyle = grad; ctx.fill();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.stroke();
-        /* latitude arcs */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        [-0.55, 0, 0.55].forEach(f => {
-            ctx.beginPath();
-            ctx.ellipse(cx, cy + rEarthPx * f, rEarthPx * Math.sqrt(1 - f * f),
-                        rEarthPx * Math.sqrt(1 - f * f) * 0.24, 0, 0, Math.PI * 2);
-            ctx.stroke();
-        });
-        ctx.fillStyle = col.soft;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('EARTH', cx, cy + rEarthPx + 14);
-
-        /* orbit */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
-        ctx.beginPath(); ctx.arc(cx, cy, rOrbPx, 0, Math.PI * 2); ctx.stroke();
-        ctx.setLineDash([]);
-
-        /* altitude dimension at 45° */
-        if (show.dim) {
-            const a = -Math.PI / 4;
-            const x1 = cx + Math.cos(a) * rEarthPx, y1 = cy + Math.sin(a) * rEarthPx;
-            const x2 = cx + Math.cos(a) * rOrbPx,  y2 = cy + Math.sin(a) * rOrbPx;
-            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
-            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-            ctx.fillStyle = col.soft;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText('h = ' + state.h.toFixed(0) + ' km', x2 + 6, y2 - 2);
-        }
-
-        /* satellite */
-        const sx = cx + Math.cos(orbAngle) * rOrbPx;
-        const sy = cy + Math.sin(orbAngle) * rOrbPx;
-        ctx.save();
-        ctx.translate(sx, sy);
-        ctx.rotate(orbAngle);
-        ctx.fillStyle = col.acc;
-        ctx.fillRect(-4, -4, 8, 8);
-        /* solar panels */
-        ctx.fillRect(-14, -2.5, 8, 5);
-        ctx.fillRect(6, -2.5, 8, 5);
-        ctx.restore();
-
-        /* velocity vector, tangential */
+        /* ── globe and orbit, one scale ── */
+        const insetW = narrow ? 0 : Math.min(220, W * 0.3);
+        const cx = narrow ? W / 2 : (W - insetW) / 2 + 6, cy = (top + bot) / 2 + (narrow ? 10 : 0);
+        const RMAXKM = RE / 1e3 + 2000;
+        const k = Math.min((W - insetW - 60) / 2, (bot - top - 30) / 2) / RMAXKM;   /* px per km */
+        const Rp = RE / 1e3 * k, rp = r / 1e3 * k;
+        const g = ctx.createRadialGradient(cx - Rp * 0.35, cy - Rp * 0.4, Rp * 0.1, cx, cy, Rp);
+        g.addColorStop(0, '#e5ede9'); g.addColorStop(1, '#9fb6ae');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Rp, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4; ctx.stroke();
+        ctx.strokeStyle = 'rgba(54,48,38,0.22)'; ctx.lineWidth = 1;
+        [-0.5, 0, 0.5].forEach(la => { ctx.beginPath(); ctx.ellipse(cx, cy + Rp * Math.sin(la), Rp * Math.cos(la), Rp * Math.cos(la) * 0.22, 0, 0, Math.PI * 2); ctx.stroke(); });
+        [0.35, 0.75].forEach(w => { ctx.beginPath(); ctx.ellipse(cx, cy, Rp * w, Rp, 0, 0, Math.PI * 2); ctx.stroke(); });
+        KIT.small(ctx, KIT.T('Earth', 'Země'), cx, cy + Rp * 0.35, C.soft, 11, 'center');
+        /* the orbit */
+        ctx.strokeStyle = C.acc; ctx.lineWidth = 1.4; ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.arc(cx, cy, rp, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+        /* R_Z and r from the centre */
+        KIT.dot(ctx, cx, cy, 2.5, C.ink);
+        KIT.line(ctx, cx, cy, cx - Rp * 0.7071, cy + Rp * 0.7071, C.soft, 1.1);
+        KIT.symSub(ctx, 'R', 'Z', cx - Rp * 0.36 - 12, cy + Rp * 0.36 - 4, C.soft, 16, 'right');
+        /* the satellite, anticlockwise */
+        const sx = cx + rp * Math.cos(-phase), sy = cy + rp * Math.sin(-phase);
         if (show.vec) {
-            const tx = -Math.sin(orbAngle), ty = Math.cos(orbAngle);
-            const vl = 46;
-            const ex = sx + tx * vl, ey = sy + ty * vl;
-            const ux = tx, uy = ty, hl = 10, hw = 4;
-            ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc;
-            ctx.lineWidth = 2; ctx.lineCap = 'round';
-            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex - ux * 6, ey - uy * 6); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(ex, ey);
-            ctx.lineTo(ex - ux * hl - uy * hw, ey - uy * hl + ux * hw);
-            ctx.lineTo(ex - ux * hl + uy * hw, ey - uy * hl - ux * hw);
-            ctx.closePath(); ctx.fill();
-            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText('v', ex + 6, ey - 2);
+            const ux = Math.sin(-phase), uy = -Math.cos(-phase);           /* direction of motion */
+            const Lv = vel / 1000 * 11;                                     /* 11 px per km/s */
+            KIT.arrow(ctx, sx, sy, sx + ux * Lv, sy + uy * Lv, I.green, 2.2, true);
+            KIT.vec(ctx, 'v', sx + ux * (Lv + 14), sy + uy * (Lv + 14), I.green, 17);
+            const nx = (cx - sx) / rp, ny = (cy - sy) / rp;
+            KIT.arrow(ctx, sx, sy, sx + nx * 46, sy + ny * 46, I.crimson, 2.2, true);
+            KIT.vec(ctx, 'F', sx + nx * 60 + 10, sy + ny * 60, I.crimson, 16, 'g');
+        }
+        KIT.dot(ctx, sx, sy, 5, C.acc, C.ink);
+
+        /* ── the inset: the strip between surface and orbit, magnified ── */
+        if (!narrow && show.dim) {
+            const ix = W - insetW - 14, iy = top + 6, iw = insetW, ih = 150;
+            ctx.fillStyle = 'rgba(255,253,246,0.9)'; ctx.fillRect(ix, iy, iw, ih);
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1; ctx.strokeRect(ix, iy, iw, ih);
+            /* magnified by a round factor chosen so h fills the inset; the factor is printed */
+            const mag = [20, 10, 5, 2, 1].find(z => state.h * k * z <= ih - 46) || 1, kz = k * mag;
+            const surf = iy + ih - 18, orb = surf - state.h * kz;
+            ctx.fillStyle = '#b9cbc4'; ctx.fillRect(ix + 1, surf, iw - 2, ih - 19 + iy - surf + 18);
+            KIT.line(ctx, ix + 1, surf, ix + iw - 1, surf, C.ink, 1.4);
+            KIT.line(ctx, ix + 1, orb, ix + iw - 1, orb, C.acc, 1.4, [6, 4]);
+            KIT.dot(ctx, ix + iw * 0.62, orb, 4.5, C.acc, C.ink);
+            KIT.dim(ctx, ix + 30, surf, ix + 30, orb, 0, '');
+            KIT.sym(ctx, 'h', ix + 42, (surf + orb) / 2, C.soft, 16, 'left');
+            KIT.small(ctx, KIT.T('magnified ', 'zvětšeno ') + mag + '×', ix + iw - 8, iy + 12, C.faint, 10.5, 'right');
+        } else if (show.dim) {
+            const ang = -2.4, ax = cx + Math.cos(ang) * Rp, ay = cy + Math.sin(ang) * Rp;
+            KIT.line(ctx, ax, ay, cx + Math.cos(ang) * rp, cy + Math.sin(ang) * rp, C.acc, 1.4);
+            KIT.sym(ctx, 'h', ax - 12, ay - 6, C.soft, 16, 'right');
         }
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        if ($('r-r'))    $('r-r').textContent    = (r / 1000).toFixed(0) + ' km';
-        if ($('r-v'))    $('r-v').textContent    = (v / 1000).toFixed(2) + ' km/s';
-        if ($('r-t'))    $('r-t').textContent    = T.toFixed(0) + ' s';
-        if ($('r-tmin')) $('r-tmin').textContent = (T / 60).toFixed(1) + ' min';
-    }
+        KIT.caption(ctx, KIT.T('A CIRCULAR ORBIT, TO SCALE', 'KRUHOVÁ DRÁHA V MĚŘÍTKU'),
+                    KIT.T('gravity supplies exactly mv²/r', 'gravitace dodá právě mv²/r'));
+        KIT.small(ctx, KIT.T('one orbit = 12 s on screen', 'jeden oběh = 12 s na obrazovce'), 16, 64, C.faint, 10.5);
 
-    function frame(ts) {
-        draw(ts || 0);
-        requestAnimationFrame(frame);
+        KIT.put('r-r', (r / 1e3).toFixed(0) + ' km');
+        KIT.put('r-v', KIT.dec((vel / 1e3).toFixed(2)) + ' km/s');
+        KIT.put('r-t', T.toFixed(0) + ' s');
+        KIT.put('r-tmin', KIT.dec((T / 60).toFixed(1)) + ' min');
     }
-    requestAnimationFrame(frame);
 }());
 </script>
 

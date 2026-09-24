@@ -813,7 +813,7 @@
                         <span class="readout-val" id="r2-sum">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\varphi\ \text{(exact)}"></span>
+                        <span class="readout-label"><span lang="en"><span data-tex="\varphi"></span> (exact)</span><span lang="cs"><span data-tex="\varphi"></span> (přesně)</span></span>
                         <span class="readout-val" id="r2-exact">—</span>
                     </div>
                     <div class="readout-row">
@@ -964,11 +964,11 @@
                         <span class="readout-val" id="r3-U">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="E_1\ \text{(gap)}"></span>
+                        <span class="readout-label"><span lang="en"><span data-tex="E_1"></span> (gap)</span><span lang="cs"><span data-tex="E_1"></span> (mezera)</span></span>
                         <span class="readout-val" id="r3-E1">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="E_2\ \text{(slab)}"></span>
+                        <span class="readout-label"><span lang="en"><span data-tex="E_2"></span> (slab)</span><span lang="cs"><span data-tex="E_2"></span> (deska)</span></span>
                         <span class="readout-val" id="r3-E2">—</span>
                     </div>
                     <div class="readout-row">
@@ -1053,6 +1053,12 @@ const PP = (function () {
             paper:  get('--paper',      '#fffdf6'),
             deep:   get('--paper-deep', '#efead6'),
             edge:   get('--paper-edge', '#e6dfc9'),
+            /* the canvas is transparent over the Vol II grid paper: halos
+               take that tone, never an opaque plate */
+            stage:  get('--paper-cool', '#FFFFEC'),
+            /* the site's muted set, one colour per quantity */
+            blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b',
+            violet: '#6d4a9c', teal: '#127070', amber: '#c47a17', block: '#e9e1c6',
         };
     }
 
@@ -1073,7 +1079,7 @@ const PP = (function () {
     }
     function fmtNum(v, dp) { return dec((+v).toFixed(dp === undefined ? 1 : dp)); }
 
-    function setText(id, s) { const e = document.getElementById(id); if (e) e.textContent = s; }
+    function setText(id, s) { const e = document.getElementById(id); if (e && e.textContent !== s) e.textContent = s; }
     function show(id, on) { const e = document.getElementById(id); if (e) e.style.display = on ? '' : 'none'; }
 
     /* Canvas mount: dpr sizing, resize observer, coalesced on-demand redraw */
@@ -1196,23 +1202,79 @@ const PP = (function () {
     function label(ctx, text, x, y, opt) {
         opt = opt || {};
         ctx.save();
-        ctx.font = (opt.size || 11) + 'px ' + (opt.mono === false
-            ? 'Source Serif 4, Georgia, serif'
-            : 'Geist, ui-sans-serif, sans-serif');
+        const sz = Math.max(10, opt.size || 11);
+        ctx.font = opt.mono === false
+            ? 'italic ' + (sz + 3) + 'px "Source Serif 4", Georgia, serif'
+            : sz + 'px "Geist", ui-sans-serif, sans-serif';
         ctx.textAlign    = opt.align  || 'center';
         ctx.textBaseline = opt.base   || 'middle';
         if (opt.bg) {
-            const w = ctx.measureText(text).width;
-            const h = (opt.size || 11) + 6;
-            let bx = x - w / 2 - 4;
-            if (opt.align === 'left')  bx = x - 4;
-            if (opt.align === 'right') bx = x - w - 4;
-            ctx.fillStyle = opt.bg;
-            ctx.fillRect(bx, y - h / 2, w + 8, h);
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4;
+            ctx.strokeStyle = cols().stage;
+            ctx.strokeText(text, x, y);
         }
         ctx.fillStyle = opt.color || '#000';
         ctx.fillText(text, x, y);
         ctx.restore();
+    }
+    /* italic serif symbol with a stage-toned halo */
+    function serif(ctx, text, x, y, color, size, align) {
+        ctx.save();
+        ctx.font = 'italic ' + (size || 16) + 'px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = cols().stage;
+        ctx.strokeText(text, x, y);
+        ctx.fillStyle = color; ctx.fillText(text, x, y);
+        ctx.restore();
+    }
+    /* a symbol with a drawn subscript; returns where it ends */
+    function sub(ctx, main, s, x, y, color, size, align) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        ctx.save();
+        ctx.font = 'italic ' + size + 'px "Source Serif 4", Georgia, serif';
+        const w1 = ctx.measureText(main).width;
+        ctx.font = 'italic ' + ss + 'px "Source Serif 4", Georgia, serif';
+        const w2 = ctx.measureText(s).width;
+        ctx.restore();
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        serif(ctx, main, x0, y, color, size, 'left');
+        serif(ctx, s, x0 + w1 + 1, y + size * 0.28, color, ss, 'left');
+        return x0 + tw;
+    }
+    /* a letter with a stroked vector arrow over it */
+    function vsym(ctx, text, x, y, color, size) {
+        size = size || 17;
+        ctx.save();
+        ctx.font = 'italic ' + size + 'px "Source Serif 4", Georgia, serif';
+        const w = ctx.measureText(text).width;
+        ctx.restore();
+        serif(ctx, text, x, y, color, size, 'center');
+        const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+        ctx.save();
+        ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+    }
+    /* a dimension line: end ticks, and a symbol beside its middle */
+    function dim(ctx, x1, y1, x2, y2, off, text, color) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L, ny = dx / L;
+        const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+        ctx.save();
+        ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+        ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+        ctx.stroke();
+        ctx.restore();
+        if (text) {
+            const k = off >= 0 ? 13 : -13;
+            serif(ctx, text, (ax + bx) / 2 + nx * k, (ay + by) / 2 + ny * k, color, 16, 'center');
+        }
     }
     function dashed(ctx, x1, y1, x2, y2, pattern) {
         ctx.save();
@@ -1223,22 +1285,28 @@ const PP = (function () {
         ctx.restore();
     }
     function arrow(ctx, x1, y1, x2, y2, head) {
-        head = head || 7;
-        const a = Math.atan2(y2 - y1, x2 - x1);
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 2) return;
+        const ux = dx / L, uy = dy / L;
+        const hl = Math.min(head ? Math.max(head, 7) + 2 : 11, L * 0.36), hw = hl * 0.5;
+        ctx.save();
+        ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - head * Math.cos(a - 0.4), y2 - head * Math.sin(a - 0.4));
-        ctx.lineTo(x2 - head * Math.cos(a + 0.4), y2 - head * Math.sin(a + 0.4));
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
         ctx.closePath();
         ctx.fill();
+        ctx.restore();
     }
 
     return { K: K, EPS0: EPS0, isCS: isCS, t: t, cols: cols, fmtSI: fmtSI, fmtNum: fmtNum,
              dec: dec, setText: setText, show: show, mount: mount, radios: radios,
-             toggle: toggle, slider: slider, drag: drag, label: label, dashed: dashed, arrow: arrow };
+             toggle: toggle, slider: slider, drag: drag, label: label, dashed: dashed, arrow: arrow,
+             serif: serif, sub: sub, vsym: vsym, dim: dim };
 }());
 </script>
 
@@ -1345,6 +1413,25 @@ const PP = (function () {
     }
 
     /* ── drawing ────────────────────────────────────────────────────── */
+    /* positive charges and positive potentials in the accent, negative in
+       the site's blue; everything on the paper, halos instead of plates */
+    function charge(ctx, col, cx, cy, pos) {
+        const rad = 12, fill = pos ? col.accent : col.blue;
+        ctx.save();
+        ctx.fillStyle = fill;
+        ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
+        const hi = ctx.createRadialGradient(cx - 4, cy - 5, 1, cx - 2, cy - 3, rad);
+        hi.addColorStop(0, 'rgba(255,255,236,0.45)'); hi.addColorStop(1, 'rgba(255,255,236,0)');
+        ctx.fillStyle = hi; ctx.fill();
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.fillStyle = col.paper; ctx.strokeStyle = col.paper; ctx.lineWidth = 2; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(cx - 5, cy); ctx.lineTo(cx + 5, cy);
+        if (pos) { ctx.moveTo(cx, cy - 5); ctx.lineTo(cx, cy + 5); }
+        ctx.stroke();
+        ctx.restore();
+    }
     function draw(v) {
         const ctx = v.ctx, col = v.col;
 
@@ -1356,46 +1443,57 @@ const PP = (function () {
                 for (let i = 0; i < nx; i++)
                     g[j * nx + i] = phiAt(wx(i * STEP), wy(j * STEP));
 
-            ctx.lineWidth = 1.1;
+            ctx.lineWidth = 1.2;
+            ctx.lineJoin = 'round';
             for (let li = 0; li < LEVELS.length; li++) {
-                const alpha = 0.62 - li * 0.055;
+                const alpha = 0.7 - li * 0.07;
                 for (let sgn = 1; sgn >= -1; sgn -= 2) {
                     const lvl  = sgn * LEVELS[li];
                     const segs = contours(lvl, g, nx, ny);
                     if (!segs.length) continue;
                     ctx.save();
-                    ctx.globalAlpha = Math.max(alpha, 0.16);
-                    ctx.strokeStyle = sgn > 0 ? col.accent : col.soft;
-                    ctx.setLineDash(sgn > 0 ? [] : [3, 3]);
+                    ctx.globalAlpha = Math.max(alpha, 0.2);
+                    ctx.strokeStyle = sgn > 0 ? col.accent : col.blue;
+                    ctx.setLineDash(sgn > 0 ? [] : [4, 3]);
                     ctx.beginPath();
-                    for (let s = 0; s < segs.length; s++) {
-                        ctx.moveTo(segs[s][0], segs[s][1]);
-                        ctx.lineTo(segs[s][2], segs[s][3]);
+                    for (let s2 = 0; s2 < segs.length; s2++) {
+                        ctx.moveTo(segs[s2][0], segs[s2][1]);
+                        ctx.lineTo(segs[s2][2], segs[s2][3]);
                     }
                     ctx.stroke();
                     ctx.restore();
                 }
             }
-            PP.label(ctx, PP.t('equipotentials  ± 25 · 50 · 100 · 200 · 400 · 800 V',
-                               'ekvipotenciály  ± 25 · 50 · 100 · 200 · 400 · 800 V'),
-                     12, 35, { align: 'left', size: 10, color: col.faint, bg: col.paper });
+            /* the key to the contours, top left */
+            ctx.save();
+            ctx.strokeStyle = col.accent; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.moveTo(14, 18); ctx.lineTo(34, 18); ctx.stroke();
+            ctx.strokeStyle = col.blue; ctx.setLineDash([4, 3]);
+            ctx.beginPath(); ctx.moveTo(14, 36); ctx.lineTo(34, 36); ctx.stroke();
+            ctx.restore();
+            PP.label(ctx, 'φ = +25 · 50 · 100 · 200 · 400 · 800 V', 42, 18,
+                     { align: 'left', size: 11, color: col.soft, bg: true });
+            PP.label(ctx, 'φ = −25 · 50 · 100 · 200 · 400 · 800 V', 42, 36,
+                     { align: 'left', size: 11, color: col.soft, bg: true });
         }
 
         const px = sx(st.probe.x), py = sy(st.probe.y);
 
         /* contributions: one dashed line per term of φ = Σ kQᵢ/rᵢ */
         if (showF.contrib) {
-            ctx.strokeStyle = col.faint;
-            ctx.lineWidth   = 1;
+            ctx.lineWidth = 1;
             for (let i = 0; i < st.q.length; i++) {
                 const c  = st.q[i];
                 const cx = sx(c.x), cy = sy(c.y);
-                PP.dashed(ctx, cx, cy, px, py, [3, 3]);
                 const r  = Math.max(Math.hypot(st.probe.x - c.x, st.probe.y - c.y), RMIN);
                 const pi = PP.K * (c.s * Qn * 1e-9) / (r * 1e-2);
+                ctx.strokeStyle = pi >= 0 ? col.accent : col.blue;
+                ctx.globalAlpha = 0.75;
+                PP.dashed(ctx, cx, cy, px, py, [3, 4]);
+                ctx.globalAlpha = 1;
                 PP.label(ctx, (pi >= 0 ? '+' : '−') + PP.fmtSI(Math.abs(pi), 'V', 0),
                          (cx + px) / 2, (cy + py) / 2,
-                         { size: 10, color: pi >= 0 ? col.accent : col.soft, bg: col.paper });
+                         { size: 11, color: pi >= 0 ? col.accent : col.blue, bg: true });
             }
         }
 
@@ -1403,38 +1501,31 @@ const PP = (function () {
         for (let i = 0; i < st.q.length; i++) {
             const c   = st.q[i];
             const cx  = sx(c.x), cy = sy(c.y);
-            const pos = c.s > 0;
-            const rad = 12;
-            const grd = ctx.createRadialGradient(cx - 3, cy - 4, 1, cx, cy, rad);
-            grd.addColorStop(0, pos ? col.accent : col.soft);
-            grd.addColorStop(1, pos ? col.accent : col.ink);
-            ctx.fillStyle = grd;
-            ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.stroke();
-            PP.label(ctx, pos ? '+' : '−', cx, cy - 0.5, { size: 15, color: col.paper });
+            charge(ctx, col, cx, cy, c.s > 0);
             PP.label(ctx, (c.s > 0 ? '+' : '−') + PP.fmtNum(Qn, 1) + ' nC',
-                     cx, cy + rad + 10, { size: 10, color: col.faint });
+                     cx, cy + 12 + 13, { size: 10.5, color: col.soft, bg: true });
         }
 
-        /* probe P */
+        /* probe P, and the field there (its direction; the length grows
+           with |E| on a log scale, which the readout gives exactly) */
         const f = fieldAt(st.probe.x, st.probe.y);
         if (showF.evec && f.mag > 0) {
-            const len = Math.min(58, 16 + 26 * Math.log10(1 + f.mag / 400));
-            ctx.strokeStyle = col.ink; ctx.fillStyle = col.ink; ctx.lineWidth = 2;
-            PP.arrow(ctx, px, py, px + f.ex / f.mag * len, py - f.ey / f.mag * len, 7);
-            PP.label(ctx, 'E', px + f.ex / f.mag * (len + 12), py - f.ey / f.mag * (len + 12),
-                     { size: 11, color: col.ink, bg: col.paper });
+            const len = Math.min(64, 18 + 28 * Math.log10(1 + f.mag / 400));
+            const ex = px + f.ex / f.mag * len, ey = py - f.ey / f.mag * len;
+            ctx.strokeStyle = col.stage; ctx.fillStyle = col.stage; ctx.lineWidth = 5.5;
+            PP.arrow(ctx, px, py, ex, ey);
+            ctx.strokeStyle = col.ink; ctx.fillStyle = col.ink; ctx.lineWidth = 2.2;
+            PP.arrow(ctx, px, py, ex, ey);
+            PP.vsym(ctx, 'E', px + f.ex / f.mag * (len + 15), py - f.ey / f.mag * (len + 15), col.ink, 17);
         }
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(px - 9, py); ctx.lineTo(px + 9, py);
-        ctx.moveTo(px, py - 9); ctx.lineTo(px, py + 9); ctx.stroke();
-        ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(px - 10, py); ctx.lineTo(px - 4, py);
+        ctx.moveTo(px + 4, py); ctx.lineTo(px + 10, py);
+        ctx.moveTo(px, py - 10); ctx.lineTo(px, py - 4);
+        ctx.moveTo(px, py + 4); ctx.lineTo(px, py + 10); ctx.stroke();
+        ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2);
         ctx.fillStyle = col.paper; ctx.fill(); ctx.stroke();
-        PP.label(ctx, 'P', px + 14, py - 12, { size: 12, color: col.ink, mono: false, bg: col.paper });
-
-        const phi = phiAt(st.probe.x, st.probe.y);
-        PP.label(ctx, 'φ(P) = ' + PP.fmtSI(phi, 'V', 1), 12, 16,
-                 { align: 'left', size: 11, color: col.accent, bg: col.paper });
+        PP.serif(ctx, 'P', px - 14, py - 14, col.ink, 17, 'center');
     }
 
     /* ── readout ────────────────────────────────────────────────────── */
@@ -1585,182 +1676,200 @@ const PP = (function () {
     }
 
     /* ── drawing ────────────────────────────────────────────────────── */
+    /* The scene takes the canvas below the caption and left of the running-
+       sum graph; the equation badge owns the bottom-left strip while it is
+       on the canvas (a phone moves it out). */
     function draw(v) {
         const ctx = v.ctx, col = v.col;
-        const cx  = v.W * 0.46, cy = v.H * 0.56;
         const done = Math.round(prog * N);
+        const badge = document.getElementById('m2-badge') || v.wrap.querySelector('.canvas-formula-badge');
+        const low = !!badge && badge.parentElement === v.wrap;
+        const narrow = v.W < 560;
+        const gw = narrow ? v.W - 40 : Math.min(300, v.W * 0.36), gh = narrow ? 96 : Math.min(170, v.H * 0.26);
+        const gx = v.W - gw - 20, gy = narrow ? 46 : 24;
+        const top = (showF.graph ? gy + gh + 34 : 56), bot = v.H - (low ? 104 : 24);
+        const sc = { x: 20, y: top, w: v.W - 40, h: Math.max(140, bot - top) };
+        const cx = sc.x + sc.w / 2, cy = sc.y + sc.h / 2;
 
         if (body === 'rod' || body === 'rodx') {
-            /* scale so that P and the whole rod always fit side by side */
-            const span = L + dist * 1e-2;                     /* P → far end, metres */
-            const px   = Math.min((v.W - 150) / span, 2600);  /* px per metre */
-            const ppx  = 70;                                  /* P pinned to the left margin */
-            const x0   = ppx + dist * 1e-2 * px, y0 = cy;
-            /* rod, split into done / remaining */
-            for (let i = 0; i < N; i += 3) {
-                const e = element(i);
-                const xa = x0 + (i / N) * L * px, w = (3 / N) * L * px + 0.6;
-                const dens = body === 'rod' ? 1 : (i + 0.5) / N;   /* τ = c·x grows */
-                const h = 7 + 15 * dens;
-                ctx.fillStyle   = i < done ? col.accent : col.edge;
-                ctx.globalAlpha = i < done ? 0.85 : 1;
-                ctx.fillRect(xa, y0 - h / 2, w, h);
+            /* P and the whole rod share one scale, fitted to the width */
+            const d = dist * 1e-2, span = L + d;
+            const ml = 46, mr = 30;
+            const px = (sc.w - ml - mr) / span;              /* px per metre */
+            const ppx = sc.x + ml, x0 = ppx + d * px, y0 = cy + 6;
+            const th = 30;                                   /* rod thickness */
+            /* the rod: done in the accent, the rest pale; for τ = c·x the
+               charge density shows as a darker fill further out */
+            for (let i = 0; i < N; i++) {
+                const xa = x0 + (i / N) * L * px, w = L * px / N + 0.4;
+                const dens = body === 'rod' ? 1 : (i + 0.5) / N;
+                ctx.fillStyle = i < done ? col.accent : col.block;
+                ctx.globalAlpha = i < done ? 0.35 + 0.55 * dens : 0.55 + 0.45 * dens;
+                ctx.fillRect(xa, y0 - th / 2, w, th);
             }
             ctx.globalAlpha = 1;
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
-            ctx.strokeRect(x0, y0 - 11, L * px, 22);
-            PP.label(ctx, body === 'rod' ? 'τₑ = konst' : 'τₑ = c·x',
-                     x0 + L * px / 2, y0 - 58, { size: 10, color: col.soft });
-            PP.label(ctx, 'L = 12 cm', x0 + L * px / 2, y0 + 26, { size: 10, color: col.faint });
+            /* the elements themselves: every tenth boundary drawn */
+            ctx.strokeStyle = col.stage; ctx.lineWidth = 1;
+            for (let i = 10; i < N; i += 10) {
+                const xa = x0 + (i / N) * L * px;
+                ctx.beginPath(); ctx.moveTo(xa, y0 - th / 2 + 1); ctx.lineTo(xa, y0 + th / 2 - 1); ctx.stroke();
+            }
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
+            ctx.strokeRect(x0, y0 - th / 2, L * px, th);
+            const tauEnd = PP.sub(ctx, 'τ', 'e', x0 + L * px / 2 - 30, y0 - th / 2 - 50, col.soft, 16, 'left');
+            PP.serif(ctx, body === 'rod' ? PP.t('= const.', '= konst.') : '= c x', tauEnd + 4, y0 - th / 2 - 50, col.soft, 16, 'left');
+            PP.dim(ctx, x0, y0 + th / 2, x0 + L * px, y0 + th / 2, 16, 'L', col.soft);
+            PP.dim(ctx, ppx, y0 + th / 2, x0, y0 + th / 2, 16, 'd', col.soft);
 
             drawP(ctx, col, ppx, y0);
-            PP.label(ctx, 'd = ' + PP.fmtNum(dist, 1) + ' cm', (ppx + x0) / 2, y0 + 44,
-                     { size: 10, color: col.faint });
 
             if (done > 0 && done <= N) {
-                const e  = element(Math.min(done - 1, N - 1));
                 const ex = x0 + ((done - 0.5) / N) * L * px;
                 ctx.fillStyle = col.ink;
-                ctx.fillRect(ex - 1.5, y0 - 15, 3, 30);
-                if (showF.r) {
-                    ctx.strokeStyle = col.ink; ctx.lineWidth = 1;
-                    PP.dashed(ctx, ppx, y0 - 34, ex, y0 - 34, [3, 3]);
-                    ctx.beginPath();
-                    ctx.moveTo(ppx, y0 - 6);  ctx.lineTo(ppx, y0 - 38);
-                    ctx.moveTo(ex,  y0 - 16); ctx.lineTo(ex,  y0 - 38);
-                    ctx.stroke();
-                    PP.label(ctx, 'r = ' + PP.fmtNum(e.r * 100, 1) + ' cm',
-                             (ppx + ex) / 2, y0 - 34, { size: 10, color: col.ink, bg: col.paper });
-                }
+                ctx.fillRect(ex - 1.5, y0 - th / 2 - 4, 3, th + 8);
+                PP.serif(ctx, 'dQ', ex, y0 + th / 2 + 44, col.ink, 15, 'center');
+                if (showF.r) PP.dim(ctx, ppx, y0 - th / 2, ex, y0 - th / 2, -18, 'r', col.ink);
             }
 
         } else if (body === 'arc') {
-            const Rp = Math.min(v.W * 0.20, v.H * 0.34);
+            const Rp = Math.min(sc.w * 0.30, sc.h * 0.42);
             const a0 = arcA * Math.PI / 180;
-            ctx.lineWidth = 12;
-            ctx.strokeStyle = col.edge;
-            ctx.beginPath(); ctx.arc(cx, cy, Rp, -a0 / 2 - Math.PI / 2, a0 / 2 - Math.PI / 2); ctx.stroke();
+            const ccy = cy + Rp * 0.35;
+            ctx.lineCap = 'butt';
+            ctx.lineWidth = 16;
+            ctx.strokeStyle = col.block;
+            ctx.beginPath(); ctx.arc(cx, ccy, Rp, -a0 / 2 - Math.PI / 2, a0 / 2 - Math.PI / 2); ctx.stroke();
             if (done > 0) {
-                ctx.strokeStyle = col.accent;
+                ctx.strokeStyle = col.accent; ctx.globalAlpha = 0.85;
                 ctx.beginPath();
-                ctx.arc(cx, cy, Rp, -a0 / 2 - Math.PI / 2, (-a0 / 2 + prog * a0) - Math.PI / 2);
+                ctx.arc(cx, ccy, Rp, -a0 / 2 - Math.PI / 2, (-a0 / 2 + prog * a0) - Math.PI / 2);
                 ctx.stroke();
+                ctx.globalAlpha = 1;
             }
+            ctx.lineWidth = 1.2; ctx.strokeStyle = col.ink;
+            ctx.beginPath(); ctx.arc(cx, ccy, Rp + 8, -a0 / 2 - Math.PI / 2, a0 / 2 - Math.PI / 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx, ccy, Rp - 8, -a0 / 2 - Math.PI / 2, a0 / 2 - Math.PI / 2); ctx.stroke();
             ctx.lineWidth = 1;
-            drawP(ctx, col, cx, cy);
+            drawP(ctx, col, cx, ccy);
             const ang = (-a0 / 2 + prog * a0) - Math.PI / 2;
-            const ex = cx + Rp * Math.cos(ang), ey = cy + Rp * Math.sin(ang);
+            const ex = cx + Rp * Math.cos(ang), ey = ccy + Rp * Math.sin(ang);
+            if (done > 0) {
+                ctx.fillStyle = col.ink;
+                ctx.beginPath(); ctx.arc(ex, ey, 4, 0, Math.PI * 2); ctx.fill();
+            }
             if (showF.r) {
-                ctx.strokeStyle = col.ink;
-                PP.dashed(ctx, cx, cy, ex, ey, [3, 3]);
-                PP.label(ctx, 'r = R = ' + PP.fmtNum(dist, 1) + ' cm',
-                         (cx + ex) / 2, (cy + ey) / 2 - 10,
-                         { size: 10, color: col.ink, bg: col.paper });
+                ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+                PP.dashed(ctx, cx, ccy, ex, ey, [4, 4]);
+                PP.serif(ctx, 'r = R', (cx + ex) / 2 + 12, (ccy + ey) / 2 - 12, col.ink, 16, 'left');
             }
             PP.label(ctx, PP.t('every element is the same distance from P',
                                'každý element je od P stejně daleko'),
-                     cx, Math.min(cy + Rp + 26, v.H - 100), { size: 10, color: col.faint });
+                     cx, Math.min(ccy + 30, bot - 8), { size: 11, color: col.soft, bg: true });
 
         } else {
-            /* axial bodies drawn as a perspective ellipse with P above the centre */
-            const Rp  = Math.min(v.W * 0.19, v.H * 0.30);
-            const ky  = 0.34;
-            const zPx = Math.min(v.H * 0.34, (dist / 40) * v.H * 0.7 + 26);
-            const pxP = cx, pyP = cy - zPx;
+            /* axial bodies in perspective, P on the axis above the centre */
+            const Rp  = Math.min(sc.w * 0.34, sc.h * 0.62);
+            const ky  = 0.32;
+            const bcy = sc.y + sc.h - Rp * ky - 26;
+            const zPx = 22 + (dist / 30) * Math.max(40, bcy - Rp * ky - sc.y - 36);
+            const pxP = cx, pyP = bcy - zPx;
             const isRing = (body === 'ring');
-            const r0f = (body === 'annulus' ? riF : (isRing ? 0.94 : 0));
+            const r0f = (body === 'annulus' ? riF : (isRing ? 0.93 : 0));
 
-            /* body disc */
             ctx.save();
             ctx.beginPath();
-            ctx.ellipse(cx, cy, Rp, Rp * ky, 0, 0, Math.PI * 2);
-            if (r0f > 0) { ctx.ellipse(cx, cy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2, true); }
-            ctx.fillStyle = col.edge; ctx.fill('evenodd');
+            ctx.ellipse(cx, bcy, Rp, Rp * ky, 0, 0, Math.PI * 2);
+            if (r0f > 0) { ctx.ellipse(cx, bcy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2, true); }
+            ctx.fillStyle = col.block; ctx.fill('evenodd');
             ctx.restore();
 
-            /* filled-so-far part: a ring sweeps round, a disc/annulus grows outward */
             const rNow = isRing ? 1 : r0f + (1 - r0f) * prog;
             if (prog > 0 && isRing) {
                 ctx.save();
-                ctx.strokeStyle = col.accent; ctx.lineWidth = Rp * (1 - 0.94) * 2;
+                ctx.strokeStyle = col.accent; ctx.lineWidth = Rp * (1 - 0.93) * 2 * ky + 3;
+                ctx.globalAlpha = 0.85;
                 ctx.beginPath();
-                ctx.ellipse(cx, cy, Rp * 0.97, Rp * 0.97 * ky, 0,
+                ctx.ellipse(cx, bcy, Rp * 0.965, Rp * 0.965 * ky, 0,
                             -Math.PI / 2, -Math.PI / 2 + prog * Math.PI * 2);
                 ctx.stroke();
                 ctx.restore();
             } else if (prog > 0) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.ellipse(cx, cy, Rp * rNow, Rp * rNow * ky, 0, 0, Math.PI * 2);
-                if (r0f > 0) ctx.ellipse(cx, cy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2, true);
+                ctx.ellipse(cx, bcy, Rp * rNow, Rp * rNow * ky, 0, 0, Math.PI * 2);
+                if (r0f > 0) ctx.ellipse(cx, bcy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2, true);
                 ctx.globalAlpha = 0.8;
                 ctx.fillStyle = col.accent; ctx.fill('evenodd');
                 ctx.restore();
             }
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
-            ctx.beginPath(); ctx.ellipse(cx, cy, Rp, Rp * ky, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.ellipse(cx, bcy, Rp, Rp * ky, 0, 0, Math.PI * 2); ctx.stroke();
             if (r0f > 0) {
-                ctx.beginPath(); ctx.ellipse(cx, cy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.ellipse(cx, bcy, Rp * r0f, Rp * r0f * ky, 0, 0, Math.PI * 2); ctx.stroke();
             }
-            /* the sub-ring currently being added */
-            if (!isRing) {
-                ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.ellipse(cx, cy, Rp * rNow, Rp * rNow * ky, 0, 0, Math.PI * 2); ctx.stroke();
+            if (!isRing && prog > 0) {
+                ctx.strokeStyle = col.ink; ctx.lineWidth = 2.2;
+                ctx.beginPath(); ctx.ellipse(cx, bcy, Rp * rNow, Rp * rNow * ky, 0, 0, Math.PI * 2); ctx.stroke();
             }
-
+            /* the axis, z, and the radius R */
             ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-            PP.dashed(ctx, cx, cy, pxP, pyP, [4, 4]);
+            PP.dashed(ctx, cx, bcy + Rp * ky + 10, pxP, pyP - 18, [4, 4]);
+            PP.dim(ctx, cx, bcy, pxP, pyP, 22, 'z', col.soft);
+            PP.dim(ctx, cx, bcy, cx + Rp, bcy, 0, '', col.soft);
+            PP.serif(ctx, 'R', cx + Rp * 0.5, bcy + Rp * ky + 16, col.soft, 16, 'center');
             drawP(ctx, col, pxP, pyP);
-            PP.label(ctx, 'z = ' + PP.fmtNum(dist, 1) + ' cm', cx - 8, (cy + pyP) / 2,
-                     { align: 'right', size: 10, color: col.faint, bg: col.paper });
-            if (showF.r) {
-                ctx.strokeStyle = col.ink;
-                PP.dashed(ctx, pxP, pyP, cx + Rp * rNow, cy, [3, 3]);
-                const e = element(Math.max(0, Math.min(done - 1, N - 1)));
-                PP.label(ctx, 'r = ' + PP.fmtNum(e.r * 100, 1) + ' cm',
-                         (pxP + cx + Rp * rNow) / 2 + 22, (pyP + cy) / 2 + 6,
-                         { size: 10, color: col.ink, bg: col.paper });
+            if (showF.r && prog > 0) {
+                ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+                PP.dashed(ctx, pxP, pyP, cx + Rp * rNow, bcy, [4, 4]);
+                PP.serif(ctx, 'r', (pxP + cx + Rp * rNow) / 2 + 12, (pyP + bcy) / 2, col.ink, 16, 'left');
             }
-            PP.label(ctx, 'R = 13 cm', cx, Math.min(cy + Rp * ky + 20, v.H - 100),
-                     { size: 10, color: col.faint });
         }
 
-        /* running-sum graph */
+        /* the running sum against the share integrated, with the exact φ
+           as the level it has to reach */
         if (showF.graph) {
-            const gw = Math.min(190, v.W * 0.30), gh = 74;
-            const gx = v.W - gw - 16, gy = 16;
             const ex = exact();
+            const top2 = Math.abs(ex) * 1.15 || 1;
+            const fx = gx + 8, fy = gy + 8, fw = gw - 16, fh = gh - 16;
             ctx.save();
-            ctx.fillStyle = col.paper; ctx.globalAlpha = 0.92;
+            ctx.fillStyle = col.paper; ctx.globalAlpha = 0.9;
             ctx.fillRect(gx, gy, gw, gh);
             ctx.globalAlpha = 1;
             ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-            ctx.strokeRect(gx, gy, gw, gh);
-            const top = Math.abs(ex) * 1.12 || 1;
-            ctx.strokeStyle = col.faint;
-            PP.dashed(ctx, gx, gy + gh - (Math.abs(ex) / top) * gh, gx + gw,
-                      gy + gh - (Math.abs(ex) / top) * gh, [3, 3]);
-            ctx.strokeStyle = col.accent; ctx.lineWidth = 1.6;
+            ctx.strokeRect(gx + 0.5, gy + 0.5, gw - 1, gh - 1);
+            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.1;
+            ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx, fy + fh); ctx.lineTo(fx + fw, fy + fh); ctx.stroke();
+            const ly = fy + fh - (Math.abs(ex) / top2) * fh;
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1;
+            PP.dashed(ctx, fx, ly, fx + fw, ly, [4, 4]);
+            ctx.strokeStyle = col.accent; ctx.lineWidth = 2; ctx.lineJoin = 'round';
             ctx.beginPath();
-            for (let s = 0; s <= 40; s++) {
-                const u = (s / 40) * prog;
-                const y = gy + gh - (Math.abs(runningSum(u)) / top) * gh;
-                if (s === 0) ctx.moveTo(gx, y); else ctx.lineTo(gx + (u) * gw, y);
+            let lx = fx, lyy = fy + fh;
+            for (let k = 0; k <= 60; k++) {
+                const u = (k / 60) * prog;
+                const y = fy + fh - (Math.abs(runningSum(u)) / top2) * fh;
+                lx = fx + u * fw; lyy = y;
+                if (k === 0) ctx.moveTo(lx, y); else ctx.lineTo(lx, y);
             }
             ctx.stroke();
-            PP.label(ctx, 'Σ dφ → φ', gx, gy + gh + 10, { align: 'left', size: 10, color: col.faint });
+            ctx.fillStyle = col.accent;
+            ctx.beginPath(); ctx.arc(lx, lyy, 3.5, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
+            PP.serif(ctx, 'φ', fx + fw - 6, ly - 11, col.ink, 16, 'right');
+            PP.serif(ctx, 'Σ dφ', fx + 8, fy + 10, col.accent, 15, 'left');
+            PP.label(ctx, PP.t('share of the body added →', 'přičtená část tělesa →'), fx + fw, gy + gh + 11,
+                     { align: 'right', size: 10.5, color: col.soft, bg: true });
         }
 
-        PP.label(ctx, formula(), 12, 16,
-                 { align: 'left', size: 11, color: col.accent, bg: col.paper });
+        PP.label(ctx, formula(), 16, 18,
+                 { align: 'left', size: 11.5, color: col.accent, bg: true });
     }
 
     function drawP(ctx, col, x, y) {
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2);
         ctx.fillStyle = col.paper; ctx.fill(); ctx.stroke();
-        PP.label(ctx, 'P', x, y - 15, { size: 12, color: col.ink, mono: false });
+        PP.serif(ctx, 'P', x, y - 18, col.ink, 17, 'center');
     }
 
     /* ── readout ────────────────────────────────────────────────────── */
@@ -1886,118 +1995,135 @@ const PP = (function () {
     }
 
     /* ── drawing ────────────────────────────────────────────────────── */
+    /* The plates span most of the canvas and the gap is drawn to the slider
+       range (2–20 mm), so moving d visibly moves the plate. With U held the
+       battery is drawn wired to the plates; isolated, it is not there. */
+    function hatchRect(ctx, x, y, w, h, color) {
+        ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+        ctx.strokeStyle = color; ctx.lineWidth = 1;
+        for (let d = -h; d < w + h; d += 9) { ctx.beginPath(); ctx.moveTo(x + d, y + h); ctx.lineTo(x + d + h, y); ctx.stroke(); }
+        ctx.restore();
+    }
     function draw(v) {
         const ctx = v.ctx, col = v.col;
         const s = state(), g = s.g;
-
-        const plateW = Math.min(v.W * 0.60, 420);
-        const gapPx  = Math.min(v.H * 0.42, 40 + g.d * 1e3 * 9);
-        const cx = v.W * 0.5, cy = v.H * 0.5;
+        const badge = v.wrap.querySelector('.canvas-formula-badge');
+        const low = !!badge && badge.parentElement === v.wrap;
+        const top = 64, bot = v.H - (low ? 104 : 28);
+        const band = Math.max(160, bot - top);
+        const narrow = v.W < 520, ml = narrow ? 44 : 60;
+        const battW = hold === 'U' ? (narrow ? 66 : 90) : 0;
+        const plateW = Math.min((v.W - 2 * ml - battW), 680);
+        const cx = ml + plateW / 2 + Math.max(0, (v.W - 2 * ml - battW - plateW) / 2), cy = top + band / 2;
+        const gapPx  = 56 + (g.d * 1e3 - 2) / 18 * Math.max(60, band * 0.72 - 56);
         const lx = cx - plateW / 2, rx = cx + plateW / 2;
         const topY = cy - gapPx / 2, botY = cy + gapPx / 2;
         const bPx  = gapPx * (g.b / g.d);
-
-        /* plates */
-        ctx.fillStyle = col.ink;
-        ctx.fillRect(lx, topY - 9, plateW, 9);
-        ctx.fillRect(lx, botY,     plateW, 9);
+        const PT = 10;                                   /* plate thickness */
 
         /* the insert */
         if (ins !== 'none' && g.b > 0) {
             if (arr === 'parallel' && ins === 'diel') {
-                ctx.save();
-                ctx.globalAlpha = 0.30; ctx.fillStyle = col.accent;
-                ctx.fillRect(cx, topY, plateW / 2, gapPx);
-                ctx.restore();
+                ctx.save(); ctx.globalAlpha = 0.16; ctx.fillStyle = col.accent;
+                ctx.fillRect(cx, topY, plateW / 2, gapPx); ctx.restore();
+                hatchRect(ctx, cx, topY, plateW / 2, gapPx, 'rgba(122,40,104,0.28)');
                 ctx.strokeStyle = col.accent; ctx.lineWidth = 1.2;
                 ctx.strokeRect(cx, topY, plateW / 2, gapPx);
-                PP.label(ctx, 'εᵣ₂ = ' + PP.fmtNum(er2, 1), cx + plateW / 4, topY - 24,
-                         { size: 10, color: col.accent });
-                PP.label(ctx, 'εᵣ₁ = ' + PP.fmtNum(er1, 1), cx - plateW / 4, topY - 24,
-                         { size: 10, color: col.faint });
+                PP.sub(ctx, 'ε', 'r2', cx + plateW / 4, topY - PT - 18, col.accent, 16);
+                PP.sub(ctx, 'ε', 'r1', cx - plateW / 4, topY - PT - 18, col.soft, 16);
             } else {
                 const sy0 = cy - bPx / 2;
                 if (ins === 'metal') {
-                    ctx.fillStyle = col.soft;
-                    ctx.fillRect(lx + 14, sy0, plateW - 28, bPx);
-                    ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
-                    ctx.strokeRect(lx + 14, sy0, plateW - 28, bPx);
+                    ctx.fillStyle = '#c49a6c';
+                    ctx.fillRect(lx + 16, sy0, plateW - 32, bPx);
+                    ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4;
+                    ctx.strokeRect(lx + 16, sy0, plateW - 32, bPx);
                     /* induced surface charge */
-                    for (let i = 0; i < 9; i++) {
-                        const x = lx + 30 + i * (plateW - 60) / 8;
-                        PP.label(ctx, '−', x, sy0 + 5,        { size: 12, color: col.paper });
-                        PP.label(ctx, '+', x, sy0 + bPx - 5,  { size: 12, color: col.paper });
+                    const n = Math.max(5, Math.round((plateW - 60) / 44));
+                    for (let i = 0; i < n; i++) {
+                        const x = lx + 32 + i * (plateW - 64) / (n - 1);
+                        if (bPx > 22) {
+                            PP.label(ctx, '−', x, sy0 + 7, { size: 12, color: col.ink });
+                            PP.label(ctx, '+', x, sy0 + bPx - 7, { size: 12, color: col.ink });
+                        }
                     }
-                    PP.label(ctx, PP.t('copper — E = 0 inside', 'měď — uvnitř E = 0'),
-                             cx, sy0 + bPx / 2, { size: 10, color: col.paper });
+                    if (bPx > 44) PP.serif(ctx, PP.t('E = 0 inside the copper', 'v mědi E = 0'), cx, sy0 + bPx / 2, col.ink, 15);
                 } else {
-                    ctx.save();
-                    ctx.globalAlpha = 0.30; ctx.fillStyle = col.accent;
-                    ctx.fillRect(lx + 14, sy0, plateW - 28, bPx);
-                    ctx.restore();
+                    ctx.save(); ctx.globalAlpha = 0.16; ctx.fillStyle = col.accent;
+                    ctx.fillRect(lx + 16, sy0, plateW - 32, bPx); ctx.restore();
+                    hatchRect(ctx, lx + 16, sy0, plateW - 32, bPx, 'rgba(122,40,104,0.28)');
                     ctx.strokeStyle = col.accent; ctx.lineWidth = 1.2;
-                    ctx.strokeRect(lx + 14, sy0, plateW - 28, bPx);
-                    PP.label(ctx, 'εᵣ₂ = ' + PP.fmtNum(er2, 1), cx, sy0 + bPx / 2,
-                             { size: 10, color: col.ink });
+                    ctx.strokeRect(lx + 16, sy0, plateW - 32, bPx);
+                    PP.sub(ctx, 'ε', 'r2', rx - 44, sy0 + bPx / 2, col.accent, 16);
                 }
-                /* b dimension */
-                ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-                PP.dashed(ctx, rx + 10, sy0, rx + 26, sy0, [3, 3]);
-                PP.dashed(ctx, rx + 10, sy0 + bPx, rx + 26, sy0 + bPx, [3, 3]);
-                PP.label(ctx, 'b', rx + 34, sy0 + bPx / 2, { size: 11, color: col.faint });
+                PP.dim(ctx, lx - 44, sy0, lx - 44, sy0 + bPx, 0, '', col.soft);
+                PP.serif(ctx, 'b', lx - 56, sy0 + bPx / 2, col.soft, 16, 'center');
             }
         }
 
-        /* field lines — spacing reflects the local magnitude */
-        const nLines = 11;
-        ctx.strokeStyle = col.accent; ctx.fillStyle = col.accent; ctx.lineWidth = 1.3;
+        /* field lines, spaced across the plates; paler where E is weaker */
+        const nLines = Math.max(9, Math.round(plateW / 44));
+        ctx.lineWidth = 1.5;
         for (let i = 0; i < nLines; i++) {
-            const x = lx + 18 + i * (plateW - 36) / (nLines - 1);
+            const x = lx + 22 + i * (plateW - 44) / (nLines - 1);
+            ctx.strokeStyle = col.accent; ctx.fillStyle = col.accent;
             if (arr === 'parallel' && ins === 'diel' && g.b > 0) {
                 ctx.save();
-                ctx.globalAlpha = (x > cx) ? 0.45 : 0.85;
-                PP.arrow(ctx, x, topY + 2, x, botY - 3, 6);
+                ctx.globalAlpha = (x > cx) ? Math.max(0.3, er1 / er2) : 0.9;
+                PP.arrow(ctx, x, topY + 3, x, botY - 3);
                 ctx.restore();
             } else if (ins === 'metal' && g.b > 0) {
                 const sy0 = cy - bPx / 2;
-                PP.arrow(ctx, x, topY + 2, x, sy0 - 2, 6);
-                PP.arrow(ctx, x, sy0 + bPx + 2, x, botY - 3, 6);
+                if (sy0 - topY > 14) PP.arrow(ctx, x, topY + 3, x, sy0 - 3);
+                if (botY - sy0 - bPx > 14) PP.arrow(ctx, x, sy0 + bPx + 3, x, botY - 3);
             } else if (ins === 'diel' && g.b > 0) {
                 const sy0 = cy - bPx / 2;
-                PP.arrow(ctx, x, topY + 2, x, sy0 - 2, 6);
+                if (sy0 - topY > 14) PP.arrow(ctx, x, topY + 3, x, sy0 - 3);
                 ctx.save();
                 ctx.globalAlpha = Math.max(0.25, Math.min(1, er1 / er2));
-                PP.arrow(ctx, x, sy0 + 2, x, sy0 + bPx - 2, 5);
+                if (bPx > 14) PP.arrow(ctx, x, sy0 + 3, x, sy0 + bPx - 3);
                 ctx.restore();
-                PP.arrow(ctx, x, sy0 + bPx + 2, x, botY - 3, 6);
+                if (botY - sy0 - bPx > 14) PP.arrow(ctx, x, sy0 + bPx + 3, x, botY - 3);
             } else {
-                PP.arrow(ctx, x, topY + 2, x, botY - 3, 6);
+                PP.arrow(ctx, x, topY + 3, x, botY - 3);
             }
         }
 
-        /* plate charges */
-        for (let i = 0; i < 9; i++) {
-            const x = lx + 22 + i * (plateW - 44) / 8;
-            PP.label(ctx, s.Q >= 0 ? '+' : '−', x, topY - 4.5, { size: 12, color: col.paper });
-            PP.label(ctx, s.Q >= 0 ? '−' : '+', x, botY + 4.5, { size: 12, color: col.paper });
+        /* plates and their charge */
+        ctx.fillStyle = col.ink;
+        ctx.fillRect(lx, topY - PT, plateW, PT);
+        ctx.fillRect(lx, botY,      plateW, PT);
+        const nq = Math.max(7, Math.round(plateW / 48));
+        for (let i = 0; i < nq; i++) {
+            const x = lx + 20 + i * (plateW - 40) / (nq - 1);
+            PP.label(ctx, s.Q >= 0 ? '+' : '−', x, topY - PT / 2, { size: 12, color: col.paper });
+            PP.label(ctx, s.Q >= 0 ? '−' : '+', x, botY + PT / 2, { size: 12, color: col.paper });
         }
 
-        /* d dimension */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        PP.dashed(ctx, lx - 26, topY, lx - 10, topY, [3, 3]);
-        PP.dashed(ctx, lx - 26, botY, lx - 10, botY, [3, 3]);
-        ctx.beginPath(); ctx.moveTo(lx - 18, topY); ctx.lineTo(lx - 18, botY); ctx.stroke();
-        PP.label(ctx, 'd', lx - 30, cy, { size: 11, color: col.faint });
+        /* d, on the left */
+        PP.dim(ctx, lx - 20, topY, lx - 20, botY, 0, '', col.soft);
+        PP.serif(ctx, 'd', lx - 32, cy, col.soft, 17, 'center');
 
-        /* held-constant banner */
+        /* the battery that holds U: wired to both plates on the right */
+        if (hold === 'U') {
+            const bx = rx + (narrow ? 38 : 56);
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(rx, topY - PT / 2); ctx.lineTo(bx, topY - PT / 2); ctx.lineTo(bx, cy - 7);
+            ctx.moveTo(rx, botY + PT / 2); ctx.lineTo(bx, botY + PT / 2); ctx.lineTo(bx, cy + 7);
+            ctx.stroke();
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(bx - 16, cy - 7); ctx.lineTo(bx + 16, cy - 7); ctx.stroke();
+            ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(bx - 8, cy + 7); ctx.lineTo(bx + 8, cy + 7); ctx.stroke();
+            PP.serif(ctx, 'U', bx + 24, cy, col.ink, 17, 'left');
+        }
+
+        /* what is held constant */
         const heldTxt = hold === 'U'
-            ? PP.t('battery holds U constant', 'baterie drží U konstantní')
+            ? PP.t('connected to the battery — U constant', 'připojen k baterii — U konstantní')
             : PP.t('isolated — Q constant', 'izolovaný — Q konstantní');
-        PP.label(ctx,
-                 'U = ' + PP.fmtSI(s.U, 'V', 1) + '   ·   Q = ' + PP.fmtSI(s.Q, 'C', 2) +
-                 '   ·   C = ' + PP.fmtSI(s.C, 'F', 2),
-                 12, 16, { align: 'left', size: 11, color: col.accent, bg: col.paper });
-        PP.label(ctx, heldTxt, 12, 35, { align: 'left', size: 10, color: col.faint, bg: col.paper });
+        PP.label(ctx, heldTxt, 16, 18, { align: 'left', size: 11.5, color: col.soft, bg: true });
     }
 
     /* ── readout ────────────────────────────────────────────────────── */

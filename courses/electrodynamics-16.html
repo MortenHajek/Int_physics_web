@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>16 Dispersive media · Electrodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="electrodynamics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Electrodynamics</span><span lang="cs">Elektrodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="electrodynamics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 16 · EM field in matter II</span><span lang="cs">Kapitola 16 · EM pole v látce II</span> · Griffiths 9.4.3</div>
+            <h1><span lang="en">Dispersive media</span><span lang="cs">Disperzní prostředí</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\tilde{\vec D}(\omega) = \varepsilon(\omega)\,\tilde{\vec E}(\omega)"></div>
+            <div class="eq-caption"><span lang="en">In a dispersive medium the response is local in frequency, not in time</span><span lang="cs">V disperzním prostředí je odezva lokální ve frekvenci, nikoli v čase</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">A real medium does not respond instantly. The polarization at a given moment depends on the field at earlier moments, because the charges that make up the medium have inertia and damping. For a linear medium this memory is a convolution in time, which the Fourier transform turns into a product: each frequency component of <span data-tex="\vec E"></span> produces the same frequency in <span data-tex="\vec D"></span>, weighted by the <em>dielectric function</em> <span data-tex="\varepsilon(\omega)"></span>.</span><span lang="cs">Skutečné prostředí neodpovídá okamžitě. Polarizace v daném okamžiku závisí na poli v dřívějších okamžicích, protože náboje, z nichž se prostředí skládá, mají setrvačnost a tlumení. Pro lineární prostředí je tato paměť konvolucí v čase, kterou Fourierova transformace převede na součin: každá frekvenční složka <span data-tex="\vec E"></span> vyvolá stejnou frekvenci v <span data-tex="\vec D"></span>, váženou <em>dielektrickou funkcí</em> <span data-tex="\varepsilon(\omega)"></span>.</span></p>
+                <p><span lang="en">Two general principles shape <span data-tex="\varepsilon(\omega)"></span>. <em>Causality</em> — the response cannot precede the cause — ties its real part, which governs the speed of waves, to its imaginary part, which governs absorption: the <em>Kramers–Kronig relations</em>. And a simple mechanical model, electrons bound to their atoms by springs and damped, reproduces its typical shape. Energy and momentum in such a medium need more care than in vacuum.</span><span lang="cs">Tvar <span data-tex="\varepsilon(\omega)"></span> určují dva obecné principy. <em>Kauzalita</em> — odezva nemůže předcházet příčině — svazuje reálnou část, která určuje rychlost vln, s imaginární částí, která určuje absorpci: <em>Kramersovy–Kronigovy relace</em>. A jednoduchý mechanický model, elektrony vázané k atomům pružinami a tlumené, reprodukuje její typický průběh. Energie a hybnost v takovém prostředí vyžadují větší pozornost než ve vakuu.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\vec D(t) = \varepsilon_0\Big[\vec E(t) + \int_0^\infty\chi_e(\tau)\,\vec E(t - \tau)\,\mathrm{d}\tau\Big]"></span>
+                        <span class="ck-eq" data-tex="\varepsilon(\omega) = \varepsilon_0\Big[1 + \int_0^\infty\chi_e(\tau)\,\mathrm{e}^{\mathrm{i}\omega\tau}\,\mathrm{d}\tau\Big]"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">Linearity makes <span data-tex="\vec D"></span> a weighted sum of the field at all earlier times; causality makes the integral start at <span data-tex="\tau = 0"></span>. The Fourier transform, with the convention <span data-tex="\vec E(t) = (2\pi)^{-1}\int\tilde{\vec E}(\omega)\mathrm{e}^{-\mathrm{i}\omega t}\mathrm{d}\omega"></span>, turns the convolution into the product <span data-tex="\tilde{\vec D} = \varepsilon\tilde{\vec E}"></span>. Because <span data-tex="\vec D"></span> and <span data-tex="\vec E"></span> are real, <span data-tex="\varepsilon(-\omega) = \varepsilon^*(\omega)"></span>.</span><span lang="cs">Linearita činí z <span data-tex="\vec D"></span> vážený součet pole ve všech dřívějších okamžicích; kauzalita určuje, že integrál začíná v <span data-tex="\tau = 0"></span>. Fourierova transformace, s konvencí <span data-tex="\vec E(t) = (2\pi)^{-1}\int\tilde{\vec E}(\omega)\mathrm{e}^{-\mathrm{i}\omega t}\mathrm{d}\omega"></span>, převede konvoluci na součin <span data-tex="\tilde{\vec D} = \varepsilon\tilde{\vec E}"></span>. Protože <span data-tex="\vec D"></span> i <span data-tex="\vec E"></span> jsou reálné, platí <span data-tex="\varepsilon(-\omega) = \varepsilon^*(\omega)"></span>.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The Lorentz oscillator model</span><span lang="cs">Lorentzův model oscilátoru</span></span>
+                        <span class="cf-eq" data-tex="m\ddot x + m\gamma\dot x + m\omega_0^2x = qE"></span>
+                        <span class="cf-eq" data-tex="\dfrac{\varepsilon(\omega)}{\varepsilon_0} = 1 + \dfrac{Nq^2}{m\varepsilon_0}\sum_j\dfrac{f_j}{\omega_j^2 - \omega^2 - \mathrm{i}\gamma_j\omega}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Each electron is a damped oscillator driven by the wave; <span data-tex="N"></span> molecules per unit volume, with <span data-tex="f_j"></span> electrons of resonant frequency <span data-tex="\omega_j"></span> and damping <span data-tex="\gamma_j"></span>. Far below all resonances <span data-tex="\varepsilon"></span> is real and nearly constant — the static permittivity; near a resonance it varies rapidly and acquires a large imaginary part. <span class="cf-ref">(Griffiths 9.4.3)</span></span>
+                        <span lang="cs">Každý elektron je tlumený oscilátor buzený vlnou; <span data-tex="N"></span> molekul v jednotkovém objemu, s <span data-tex="f_j"></span> elektrony o rezonanční frekvenci <span data-tex="\omega_j"></span> a tlumení <span data-tex="\gamma_j"></span>. Hluboko pod všemi rezonancemi je <span data-tex="\varepsilon"></span> reálná a téměř stálá — statická permitivita; poblíž rezonance se mění rychle a získává velkou imaginární část. <span class="cf-ref">(Griffiths 9.4.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Absorption and anomalous dispersion</span><span lang="cs">Absorpce a anomální disperze</span></span>
+                        <span class="cf-eq" data-tex="\tilde k = \dfrac{\omega}{c}\sqrt{\dfrac{\varepsilon(\omega)}{\varepsilon_0}} = k + \mathrm{i}\kappa"></span>
+                        <span class="cf-eq" data-tex="n = \dfrac{ck}{\omega},\qquad \alpha = 2\kappa"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A complex wave number: the real part gives the phase velocity, the imaginary part an attenuation, <span data-tex="E \propto \mathrm{e}^{-\kappa z}"></span>, so the intensity falls with the absorption coefficient <span data-tex="\alpha"></span>. Away from resonances <span data-tex="n"></span> grows with frequency (normal dispersion); within the absorption band it falls (anomalous dispersion). <span class="cf-ref">(Griffiths 9.4.3)</span></span>
+                        <span lang="cs">Komplexní vlnové číslo: reálná část určuje fázovou rychlost, imaginární útlum, <span data-tex="E \propto \mathrm{e}^{-\kappa z}"></span>, takže intenzita klesá s absorpčním koeficientem <span data-tex="\alpha"></span>. Mimo rezonance <span data-tex="n"></span> s frekvencí roste (normální disperze); uvnitř absorpčního pásu klesá (anomální disperze). <span class="cf-ref">(Griffiths 9.4.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Kramers–Kronig relations</span><span lang="cs">Kramersovy–Kronigovy relace</span></span>
+                        <span class="cf-eq" data-tex="\mathrm{Re}\,\chi_e(\omega) = \dfrac{1}{\pi}\,\mathcal P\!\!\int_{-\infty}^{\infty}\dfrac{\mathrm{Im}\,\chi_e(\omega&#x27;)}{\omega&#x27; - \omega}\,\mathrm{d}\omega&#x27;"></span>
+                        <span class="cf-eq" data-tex="\mathrm{Im}\,\chi_e(\omega) = -\dfrac{1}{\pi}\,\mathcal P\!\!\int_{-\infty}^{\infty}\dfrac{\mathrm{Re}\,\chi_e(\omega&#x27;)}{\omega&#x27; - \omega}\,\mathrm{d}\omega&#x27;"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Because <span data-tex="\chi_e(\tau) = 0"></span> for <span data-tex="\tau &lt; 0"></span>, the function <span data-tex="\chi_e(\omega)"></span> is analytic in the upper half of the complex <span data-tex="\omega"></span> plane, and Cauchy’s theorem relates its real and imaginary parts (<span data-tex="\mathcal P"></span> is the principal value). Dispersion and absorption are not independent: a medium that refracts must absorb somewhere in the spectrum.</span>
+                        <span lang="cs">Protože <span data-tex="\chi_e(\tau) = 0"></span> pro <span data-tex="\tau &lt; 0"></span>, je funkce <span data-tex="\chi_e(\omega)"></span> analytická v horní polorovině komplexní proměnné <span data-tex="\omega"></span> a Cauchyova věta svazuje její reálnou a imaginární část (<span data-tex="\mathcal P"></span> značí hlavní hodnotu). Disperze a absorpce nejsou nezávislé: prostředí, které láme světlo, musí někde ve spektru absorbovat.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Poynting’s theorem in matter</span><span lang="cs">Poyntingova věta v látce</span></span>
+                        <span class="cf-eq" data-tex="\nabla\cdot(\vec E\times\vec H) + \vec E\cdot\dfrac{\partial\vec D}{\partial t} + \vec H\cdot\dfrac{\partial\vec B}{\partial t} = -\vec J_f\cdot\vec E"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">From Maxwell’s equations in matter. The energy flux is <span data-tex="\vec E\times\vec H"></span>, and in a linear medium without dispersion the energy density is <span data-tex="\tfrac12(\vec E\cdot\vec D + \vec B\cdot\vec H)"></span> — including the energy stored in the polarization of the medium. A capacitor with a dielectric shows this: whether the source stays connected or not changes where the work goes, but part of the energy is always held in the polarized dielectric. <span class="cf-ref">(Griffiths 8.1.2)</span></span>
+                        <span lang="cs">Z Maxwellových rovnic v látce. Tok energie je <span data-tex="\vec E\times\vec H"></span> a v lineárním prostředí bez disperze je hustota energie <span data-tex="\tfrac12(\vec E\cdot\vec D + \vec B\cdot\vec H)"></span> — včetně energie uložené v polarizaci prostředí. Ukazuje to kondenzátor s dielektrikem: zda zdroj zůstane připojen, nebo ne, mění, kam práce jde, část energie je však vždy uložena ve zpolarizovaném dielektriku. <span class="cf-ref">(Griffiths 8.1.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy of a wave in a dispersive medium</span><span lang="cs">Energie vlny v disperzním prostředí</span></span>
+                        <span class="cf-eq" data-tex="\langle u\rangle = \dfrac{1}{4}\Big[\dfrac{\mathrm{d}(\omega\varepsilon)}{\mathrm{d}\omega}\,|\tilde E_0|^2 + \dfrac{\mathrm{d}(\omega\mu)}{\mathrm{d}\omega}\,|\tilde H_0|^2\Big]"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For a quasi-monochromatic wave, in a frequency range where absorption is negligible (Brillouin). Without dispersion it reduces to the time average of <span data-tex="\tfrac12(\varepsilon E^2 + \mu H^2)"></span>. It stays positive even where <span data-tex="\varepsilon"></span> and <span data-tex="\mu"></span> are negative, as in the metamaterials of chapter 17, because there <span data-tex="\mathrm{d}(\omega\varepsilon)/\mathrm{d}\omega &gt; 0"></span>.</span>
+                        <span lang="cs">Pro kvazimonochromatickou vlnu, ve frekvenčním oboru, kde lze zanedbat absorpci (Brillouin). Bez disperze přechází v časovou střední hodnotu <span data-tex="\tfrac12(\varepsilon E^2 + \mu H^2)"></span>. Zůstává kladná i tam, kde jsou <span data-tex="\varepsilon"></span> a <span data-tex="\mu"></span> záporné, jako v metamateriálech z kapitoly 17, protože tam je <span data-tex="\mathrm{d}(\omega\varepsilon)/\mathrm{d}\omega &gt; 0"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Momentum of light in matter</span><span lang="cs">Hybnost světla v látce</span></span>
+                        <span class="cf-eq" data-tex="\vec g_A = \dfrac{\vec E\times\vec H}{c^2}"></span>
+                        <span class="cf-eq" data-tex="\vec g_M = \vec D\times\vec B"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Abraham (1909) and Minkowski (1908) proposed different momentum densities for a wave in a medium, which give a photon momentum <span data-tex="\hbar k_0/n"></span> and <span data-tex="n\hbar k_0"></span> respectively. Both are right once the mechanical momentum of the medium is accounted for consistently; which one an experiment measures depends on what it measures.</span>
+                        <span lang="cs">Abraham (1909) a Minkowski (1908) navrhli pro vlnu v prostředí různé hustoty hybnosti, které dávají hybnost fotonu <span data-tex="\hbar k_0/n"></span>, resp. <span data-tex="n\hbar k_0"></span>. Obě jsou správné, započte-li se důsledně mechanická hybnost prostředí; kterou z nich pokus změří, závisí na tom, co přesně měří.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="electrodynamics-15.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">15 · <span lang="en">Maxwell’s equations in matter and boundary conditions</span><span lang="cs">Maxwellovy rovnice v látce a okrajové podmínky</span></div>
+        </a>
+        <a href="electrodynamics-17.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">17 · <span lang="en">Waves in dielectrics and metals</span><span lang="cs">Vlny v dielektriku a v kovu</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="electrodynamics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

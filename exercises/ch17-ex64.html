@@ -83,7 +83,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Doppler sandbox</span><span lang="cs">Sandbox: Dopplerův jev</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -137,7 +136,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Selected pipe</span><span lang="cs">Vybraná trubice</span></div>
@@ -155,7 +153,7 @@
                         <span class="readout-val" id="r-ratio">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\text{status}"></span>
+                        <span class="readout-label"><span lang="en">match</span><span lang="cs">shoda</span></span>
                         <span class="readout-val" id="r-status">—</span>
                     </div>
                 </div>
@@ -226,6 +224,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/waves.html"><span lang="en">← Topic: Waves</span><span lang="cs">← Téma: Vlny</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -247,193 +246,313 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Ex. 17-64 — four pipes (1.0 m or 2.0 m, both ends open or one closed) each
+   sound their third harmonic, f₃ = 3f₁, toward a detector moving away at u.
+   The detector hears f' = f₃(v − u)/v; asking for f' = f₁ gives
+   3(1 − u/v) = 1, so u = ⅔v for every pipe. Match-the-target (default 0.30).
+   Top, the four pipes with the displacement pattern of their third harmonic
+   (antinodes at open ends, a node at a closed one), 1 m = the same length for
+   all; below, the selected pipe's crests leave its mouth at v while D recedes
+   at u — it flashes each time a crest catches it, i.e. at f' (both slowed by
+   the same factor, so the ratio f'/f₃ = 1 − u/v is what the eye sees). */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#1a6678',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
-    const VS = 343;
-    const PIPES = [
-        { L: 1.0, closed: false },   /* 1 */
-        { L: 1.0, closed: true  },   /* 2 */
-        { L: 2.0, closed: false },   /* 3 */
-        { L: 2.0, closed: true  },   /* 4 */
-    ];
+    const VS = 343, SLOW = 1 / 300;
+    const PIPES = [{ L: 1, closed: false }, { L: 1, closed: true }, { L: 2, closed: false }, { L: 2, closed: true }];
     const DEFAULTS = { u: 0.30 };    /* wrong on purpose */
-    let state = { ...DEFAULTS };
-    let pipe = 0;
-
-    const fmtU = v => v.toFixed(3);
-    const inp = document.getElementById('p-u');
-    const lbl = document.getElementById('p-u-val');
-    inp?.addEventListener('input', () => {
-        state.u = +inp.value;
-        if (lbl) lbl.textContent = fmtU(state.u);
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        if (inp) inp.value = state.u;
-        if (lbl) lbl.textContent = fmtU(state.u);
-    });
-
-    /* radio-style pipe selector */
+    let state = { ...DEFAULTS }, pipe = 0;
+    let clock = 0, dStart = 0, lastPhase = 0, flash = 0;
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const inp = document.getElementById('p-u'), lbl = document.getElementById('p-u-val');
+    const fmtU = v => KIT.dec(v.toFixed(3));
+    function syncLabels() { inp.value = state.u; lbl.textContent = fmtU(state.u); }
+    function restart() { dStart = clock; }
+    inp.addEventListener('input', () => { state.u = +inp.value; lbl.textContent = fmtU(state.u); restart(); });
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); restart(); });
     [0, 1, 2, 3].forEach(i => {
-        document.getElementById('mode-' + (i + 1))?.addEventListener('click', () => {
+        document.getElementById('mode-' + (i + 1)).addEventListener('click', () => {
             pipe = i;
-            [0, 1, 2, 3].forEach(j => {
-                document.querySelector('#mode-' + (j + 1) + ' .toggle-box')
-                    ?.classList.toggle('on', j === pipe);
-            });
+            [0, 1, 2, 3].forEach(j => document.querySelector('#mode-' + (j + 1) + ' .toggle-box').classList.toggle('on', j === pipe));
+            restart();
         });
     });
+    document.addEventListener('langchange', syncLabels);
+    syncLabels();
 
-    function drawPipe(x, y, wPx, hPx, p, selected, idx, ts) {
-        /* body */
-        ctx.strokeStyle = selected ? col.acc : col.faint;
-        ctx.lineWidth = selected ? 2 : 1.2;
-        ctx.beginPath();
-        ctx.moveTo(x, y); ctx.lineTo(x + wPx, y);
-        ctx.moveTo(x, y + hPx); ctx.lineTo(x + wPx, y + hPx);
-        ctx.stroke();
-        /* closed cap at the left end */
-        if (p.closed) {
-            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + hPx); ctx.stroke();
-        }
-        /* number */
-        ctx.fillStyle = selected ? col.acc : col.faint;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-        ctx.fillText((idx + 1) + '', x - 10, y + hPx / 2);
+    const f1Of = p => p.closed ? VS / (4 * p.L) : VS / (2 * p.L);
 
-        /* third-harmonic displacement mode inside the selected pipe */
-        if (selected) {
-            const phase = Math.sin(ts / 1000 * 5);
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.3;
-            [1, -1].forEach(sgn => {
-                ctx.beginPath();
-                for (let i = 0; i <= 70; i++) {
-                    const fr = i / 70;
-                    /* open-open: antinodes at both ends → cos(3πx/L)
-                       closed-open: node at closed end → sin(3π x / 2L) with x from closed end */
-                    const amp = p.closed
-                        ? Math.sin(3 * Math.PI * fr / 2)
-                        : Math.cos(3 * Math.PI * fr);
-                    const px = x + fr * wPx;
-                    const py = y + hPx / 2 - sgn * amp * phase * hPx * 0.34;
-                    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        clock += v.dt;
+        const p = PIPES[pipe], f1 = f1Of(p), f3 = 3 * f1, fh = f3 * (1 - state.u), ratio = fh / f1;
+        const matched = Math.abs(ratio - 1) <= 0.02;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 84, bot = H - (low ? 108 : 30);
+
+        /* ── the four pipes, one length scale ── */
+        const x0 = narrow ? 34 : 50, kx = Math.min(narrow ? 120 : 150, (W - x0 - 40) / 2.2);
+        const rowH = narrow ? 42 : 50, gap = narrow ? 18 : 22;
+        PIPES.forEach((q, i) => {
+            const y = top + 14 + i * rowH, len = q.L * kx, sel = i === pipe;
+            const col = sel ? C.ink : C.faint;
+            KIT.small(ctx, String(i + 1), x0 - 16, y, sel ? C.acc : C.faint, 11, 'center');
+            /* the third harmonic's displacement envelope */
+            const env = x => q.closed ? Math.sin(3 * Math.PI * x / (2 * q.L)) : Math.cos(3 * Math.PI * x / q.L);
+            ctx.fillStyle = C.acc; ctx.globalAlpha = sel ? 0.28 : 0.1; ctx.beginPath();
+            for (let j = 0; j <= 120; j++) { const x = q.L * j / 120; ctx.lineTo(x0 + x * kx, y - Math.abs(env(x)) * (gap / 2 - 2)); }
+            for (let j = 120; j >= 0; j--) { const x = q.L * j / 120; ctx.lineTo(x0 + x * kx, y + Math.abs(env(x)) * (gap / 2 - 2)); }
+            ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+            KIT.line(ctx, x0, y - gap / 2, x0 + len, y - gap / 2, col, sel ? 1.8 : 1.2);
+            KIT.line(ctx, x0, y + gap / 2, x0 + len, y + gap / 2, col, sel ? 1.8 : 1.2);
+            if (q.closed) KIT.line(ctx, x0, y - gap / 2 - 2, x0, y + gap / 2 + 2, col, 4);
+            if (sel) {
+                /* nodes of displacement */
+                for (let j = 0; j <= 12; j++) {
+                    const x = q.L * j / 12;
+                    if (Math.abs(env(x)) < 0.02) KIT.dot(ctx, x0 + x * kx, y, 3, I.crimson);
                 }
-                ctx.stroke();
-            });
-        }
-    }
-
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const p = PIPES[pipe];
-        const f1 = p.closed ? VS / (4 * p.L) : VS / (2 * p.L);
-        const f3 = 3 * f1;
-        const ratio = 3 * (1 - state.u);
-        const matched = Math.abs(ratio - 1) <= 0.03;
-
-        /* pipes at left */
-        const px0 = 54, pipeH = 22, gap = 20;
-        const maxW = W * 0.42;
-        PIPES.forEach((pp, i) => {
-            const wPx = maxW * (pp.L / 2.0);
-            const y = 44 + i * (pipeH + gap);
-            drawPipe(px0, y, wPx, pipeH, pp, i === pipe, i, ts);
+            }
+            KIT.small(ctx, KIT.dec(q.L.toFixed(1)) + ' m', x0 + len + 10, y, sel ? C.soft : C.faint, 10.5);
         });
 
-        /* detector D running right */
-        const dy = 44 + pipe * (pipeH + gap) + pipeH / 2;
-        const dx = W * 0.60 + ((ts / 1000 * (20 + state.u * 60)) % (W * 0.26));
-        /* sound rings coming from the selected pipe mouth */
-        const mouthX = px0 + maxW * (p.L / 2.0);
-        ctx.strokeStyle = col.faint; ctx.globalAlpha = 0.5; ctx.lineWidth = 1;
-        for (let k = 0; k < 4; k++) {
-            const r = ((ts / 1000 * 60) + k * 34) % 136;
-            ctx.beginPath(); ctx.arc(mouthX, dy, r, -0.7, 0.7); ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-        ctx.beginPath(); ctx.arc(dx, dy, 8, 0, Math.PI * 2);
-        ctx.fillStyle = col.acc; ctx.fill();
-        ctx.lineWidth = 1.6; ctx.strokeStyle = col.paper; ctx.stroke();
-        ctx.fillStyle = col.soft;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('D →  u = ' + state.u.toFixed(2) + ' v', dx, dy + 14);
+        /* ── the chase: crests at v, the detector at u ── */
+        const laneY = top + 14 + 4 * rowH + (narrow ? 34 : 50);
+        const mouth = x0 + p.L * kx, lam = VS / f3 * kx;                  /* px */
+        const vPx = VS * kx * SLOW, uPx = state.u * vPx;
+        const t = clock - dStart;
+        const Dx0 = mouth + 40, Dx = Dx0 + uPx * t;
+        if (Dx > W - 30) restart();
+        KIT.line(ctx, x0, laneY, W - 20, laneY, C.faint, 1, [2, 4]);
+        /* the selected pipe again, at the lane's start */
+        KIT.line(ctx, x0, laneY - gap / 2, mouth, laneY - gap / 2, C.ink, 1.6);
+        KIT.line(ctx, x0, laneY + gap / 2, mouth, laneY + gap / 2, C.ink, 1.6);
+        if (p.closed) KIT.line(ctx, x0, laneY - gap / 2 - 2, x0, laneY + gap / 2 + 2, C.ink, 4);
+        const ph = (vPx * clock) % lam;
+        ctx.strokeStyle = C.acc; ctx.lineWidth = 2;
+        for (let xc = mouth + ph; xc < W - 20; xc += lam) { ctx.beginPath(); ctx.moveTo(xc, laneY - 22); ctx.lineTo(xc, laneY + 22); ctx.stroke(); }
+        /* a crest reaching D makes it flash */
+        const phaseD = Math.floor((vPx * clock - (Dx - mouth)) / lam);
+        if (phaseD !== lastPhase) { flash = 0.18; lastPhase = phaseD; }
+        flash = Math.max(0, flash - v.dt);
+        ctx.fillStyle = flash > 0 ? C.acc : '#f4eedb'; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(Dx, laneY, 13, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        KIT.small(ctx, 'D', Dx, laneY, flash > 0 ? '#fff' : C.ink, 11, 'center');
+        KIT.arrow(ctx, Dx + 16, laneY - 30, Dx + 16 + Math.max(4, state.u * 70), laneY - 30, I.green, 2, true);
+        KIT.vec(ctx, 'u', Dx + 22 + Math.max(4, state.u * 70), laneY - 30, I.green, 16);
+        KIT.arrow(ctx, mouth + 6, laneY + 34, mouth + 76, laneY + 34, C.acc, 2, true);
+        KIT.vec(ctx, 'v', mouth + 86, laneY + 34, C.acc, 16);
+        KIT.dim(ctx, mouth + ph, laneY - 32, mouth + ph + lam, laneY - 32, 0, '');
+        KIT.symSub(ctx, 'λ', '3', mouth + ph + lam / 2, laneY - 44, C.acc, 15);
 
-        /* frequency-ratio gauge at the bottom */
-        const gx0 = 60, gx1 = W - 50, gy = H - 52;
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.4;
-        ctx.beginPath(); ctx.moveTo(gx0, gy); ctx.lineTo(gx1, gy); ctx.stroke();
-        [0, 1, 2, 3].forEach(r => {
-            const x = gx0 + r / 3 * (gx1 - gx0);
-            ctx.beginPath(); ctx.moveTo(x, gy - 5); ctx.lineTo(x, gy + 5); ctx.stroke();
-            ctx.fillStyle = col.faint;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText(r + '', x, gy + 8);
-        });
-        ctx.fillText("f ' / f₁", (gx0 + gx1) / 2, gy + 22);
-        /* dashed target at ratio 1 */
-        const tx = gx0 + 1 / 3 * (gx1 - gx0);
-        ctx.strokeStyle = matched ? col.acc : col.ink;
-        ctx.lineWidth = 1.6; ctx.setLineDash([3, 3]);
-        ctx.beginPath(); ctx.moveTo(tx, gy - 18); ctx.lineTo(tx, gy + 5); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = col.soft;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('target: fundamental', tx, gy - 22);
-        /* live needle */
-        const nx = gx0 + Math.max(0, Math.min(3, ratio)) / 3 * (gx1 - gx0);
-        ctx.beginPath(); ctx.arc(nx, gy, 6, 0, Math.PI * 2);
-        ctx.fillStyle = col.acc; ctx.fill();
-        ctx.lineWidth = 1.6; ctx.strokeStyle = col.paper; ctx.stroke();
+        /* ── heard frequency against the target f₁ ── */
+        const gx0 = narrow ? 24 : 50, gx1 = W - 40, gy = Math.min(bot - 24, laneY + 96);
+        const FM = f3 * 1.08, Xf = f => gx0 + f / FM * (gx1 - gx0);
+        KIT.line(ctx, gx0, gy, gx1, gy, C.soft, 1.2);
+        ctx.fillStyle = matched ? I.green : C.acc; ctx.globalAlpha = 0.7; ctx.fillRect(gx0, gy - 5, Xf(fh) - gx0, 10); ctx.globalAlpha = 1;
+        KIT.line(ctx, Xf(f1), gy - 14, Xf(f1), gy + 14, matched ? I.green : C.ink, 1.6, [3, 2]);
+        KIT.symSub(ctx, 'f', '1', Xf(f1), gy + 24, matched ? I.green : C.ink, 15);
+        KIT.line(ctx, Xf(f3), gy - 10, Xf(f3), gy + 10, C.soft, 1.4);
+        KIT.symSub(ctx, 'f', '3', Xf(f3), gy + 24, C.soft, 15);
+        KIT.sym(ctx, "f'", Xf(fh), gy - 18, matched ? I.green : C.acc, 16);
 
-        if (matched) {
-            ctx.fillStyle = col.acc;
-            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText('● MATCHED at u = 2v/3 — for every pipe', (gx0 + gx1) / 2, 16);
-        }
+        KIT.caption(ctx, KIT.T('FOUR PIPES AND A RECEDING DETECTOR', 'ČTYŘI TRUBICE A VZDALUJÍCÍ SE DETEKTOR'),
+            matched ? KIT.T("f' = f₁ at u = ⅔v — for every pipe", "f' = f₁ při u = ⅔v — pro každou trubici")
+                    : KIT.T("the aim: a detector speed that makes f' = f₁", "cíl: rychlost detektoru, při níž f' = f₁"));
 
-        const $ = id => document.getElementById(id);
-        if ($('r-f1'))     $('r-f1').textContent     = f1.toFixed(1) + ' Hz';
-        if ($('r-f3'))     $('r-f3').textContent     = f3.toFixed(1) + ' Hz';
-        if ($('r-ratio'))  $('r-ratio').textContent  = ratio.toFixed(2);
-        if ($('r-status')) $('r-status').textContent = matched ? 'matched ✓' : 'keep running…';
+        KIT.put('r-f1', KIT.dec(f1.toFixed(1)) + ' Hz');
+        KIT.put('r-f3', KIT.dec(f3.toFixed(1)) + ' Hz');
+        KIT.put('r-ratio', KIT.dec(ratio.toFixed(2)));
+        KIT.put('r-status', matched ? '✓ u = ' + KIT.dec(state.u.toFixed(3)) + ' v' : '—');
     }
-
-    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
 }());
 </script>
 

@@ -109,7 +109,7 @@
                 <div class="panel-body">
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name"><span lang="en">Torque M_s (×10⁻³ N·m)</span><span lang="cs">Moment M_s (×10⁻³ N·m)</span></span>
+                            <span class="sim-control-name"><span lang="en">Torque M<sub>s</sub> (×10⁻³ N·m)</span><span lang="cs">Moment M<sub>s</sub> (×10⁻³ N·m)</span></span>
                             <span class="sim-control-val" id="p-ms-val">4.0</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -125,7 +125,7 @@
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name"><span lang="en">Period t_s</span><span lang="cs">Perioda t_s</span></span>
+                            <span class="sim-control-name"><span lang="en">Period t<sub>s</sub></span><span lang="cs">Perioda t<sub>s</sub></span></span>
                             <span class="sim-control-val" id="p-ts-val">0.40 s</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -137,12 +137,11 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">From graph (a)</span><span lang="cs">Z grafu (a)</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\varkappa = M_s/0{,}20"></span>
+                        <span class="readout-label"><span lang="en" data-tex="\varkappa = M_s/(0.20\ \mathrm{rad})"></span><span lang="cs" data-tex="\varkappa = M_s/(0{,}20\ \mathrm{rad})"></span></span>
                         <span class="readout-val" id="r-kap">—</span>
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">From graph (b)</span><span lang="cs">Z grafu (b)</span></div>
@@ -243,6 +242,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/oscillation.html"><span lang="en">← Topic: Oscillation</span><span lang="cs">← Téma: Kmity</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -264,183 +264,325 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Ex. 15-101 — a torsion pendulum read off two graphs. Graph (a), torque
+   against twist, is a line through M_s = 4.0·10⁻³ N·m at 0.20 rad, so
+   ϰ = 0.020 N·m/rad (its slope). Graph (b), θ(t), has period t_s = 0.40 s,
+   so ω = 2π/t_s = 15.7 rad/s. Then I = ϰ/ω² = 8.1·10⁻⁵ kg·m² and the
+   largest angular speed is θ₀ω = 3.1 rad/s — not ω itself.
+   Left, the disc on its wire in three-quarter view, a mark on its face
+   turning by θ(t) = θ₀cos ωt (slowed so one period takes 3 s); right, the
+   two graphs, with the slope drawn on (a) and a dot running along (b) in
+   step with the disc. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6e6a',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
-    /* ms ×1e-3 N·m, th0 rad, ts s */
+    const TH_S = 0.20, T_SHOW = 3;
     const DEFAULTS = { ms: 4.0, th0: 0.20, ts: 0.40 };
     let state = { ...DEFAULTS };
     const show = { graphs: true };
-
-    const fmtMs = v => v.toFixed(1);
-    const fmtTh = v => v.toFixed(3) + ' rad';
-    const fmtTs = v => v.toFixed(2) + ' s';
-    const SLIDERS = [['p-ms', 'ms', fmtMs], ['p-th0', 'th0', fmtTh], ['p-ts', 'ts', fmtTs]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    let clock = 0;
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const SLIDERS = [
+        ['p-ms',  'ms',  v => KIT.dec(v.toFixed(1))],
+        ['p-th0', 'th0', v => KIT.dec(v.toFixed(3)) + ' rad'],
+        ['p-ts',  'ts',  v => KIT.dec(v.toFixed(2)) + ' s'],
+    ];
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => { state[key] = +inp.value; lbl.textContent = fmt(state[key]); });
     });
-    document.getElementById('tgl-graphs')?.addEventListener('click', function () {
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); });
+    document.getElementById('tgl-graphs').addEventListener('click', function () {
         show.graphs = !show.graphs;
-        this.querySelector('.toggle-box')?.classList.toggle('on');
+        this.querySelector('.toggle-box').classList.toggle('on', show.graphs);
     });
+    document.addEventListener('langchange', syncLabels);
+    syncLabels();
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const kap = state.ms * 1e-3 / 0.20;
-        const om  = 2 * Math.PI / state.ts;
-        const I   = kap / (om * om);
-        const vmax = state.th0 * om;
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const { ms, th0, ts } = state;
+        const kap = ms * 1e-3 / TH_S, om = 2 * Math.PI / ts, In = kap / (om * om);
+        clock += v.dt;
+        const t = (clock / T_SHOW * ts) % (2 * ts), th = th0 * Math.cos(om * t);
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 84, bot = H - (low ? 108 : 30);
 
-        /* slow-motion disc oscillation (visual ×0.12) */
-        const tv = ts / 1000 * 0.12;
-        const th = state.th0 * Math.cos(om * tv);
+        /* ── the pendulum: clamp, wire, disc; the mark turns by θ ── */
+        const colW = !show.graphs ? W : narrow ? W : W * 0.38;
+        const cx = colW / 2 + (narrow || !show.graphs ? 0 : 6);
+        const rx = Math.min(narrow ? 62 : 100, colW * 0.36), ry = rx * 0.34, tk = narrow ? 9 : 12;
+        const clampY = top + 14, cy = narrow ? top + 96 : Math.min(bot - 90, top + 240);
+        ctx.fillStyle = C.ink; ctx.fillRect(cx - 40, clampY - 8, 80, 8);
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.45; ctx.lineWidth = 0.9;
+        for (let x = cx - 38; x < cx + 40; x += 9) { ctx.beginPath(); ctx.moveTo(x, clampY - 8); ctx.lineTo(x - 7, clampY - 15); ctx.stroke(); }
+        ctx.globalAlpha = 1;
+        /* disc: rim band then the top face */
+        ctx.fillStyle = I.block; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.ellipse(cx, cy + tk, rx, ry, 0, 0, Math.PI); ctx.lineTo(cx - rx, cy);
+        ctx.ellipse(cx, cy, rx, ry, 0, Math.PI, 0, true); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#f4eedb'; ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        /* the reference mark (θ = 0) and the turning one; θ between them on the face */
+        const face = a => [cx + rx * 0.92 * Math.cos(a), cy + ry * 0.92 * Math.sin(a)];
+        const a0 = Math.PI / 2, [rx0, ry0] = face(a0), [rx1, ry1] = face(a0 - th);
+        KIT.line(ctx, cx, cy, rx0, ry0, C.faint, 1, [3, 3]);
+        KIT.line(ctx, cx, cy, rx1, ry1, C.acc, 2.4);
+        if (Math.abs(th) > 0.01) {
+            ctx.strokeStyle = I.amber; ctx.lineWidth = 1.4; ctx.beginPath();
+            ctx.ellipse(cx, cy, rx * 0.55, ry * 0.55, 0, Math.min(a0, a0 - th), Math.max(a0, a0 - th)); ctx.stroke();
+        }
+        KIT.sym(ctx, 'θ', cx + rx * 0.2 * Math.sign(-th || 1), cy + ry * 0.55 + 14, I.amber, 16);
+        /* the wire over the disc, meeting its centre */
+        KIT.line(ctx, cx, clampY, cx, cy, C.ink, 1.6);
+        KIT.dot(ctx, cx, cy, 3.2, C.ink);
+        KIT.sym(ctx, 'ϰ', cx + 10, (clampY + cy) / 2, C.soft, 16, 'left');
+        KIT.sym(ctx, 'I', cx + rx + 12, cy + tk / 2, C.soft, 16, 'left');
 
-        /* ── left: disc on a wire, top view ── */
-        const dx = W * 0.24, dy = H * 0.42, dr = Math.min(W, H) * 0.16;
-        /* clamp + wire hint */
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('DISC · TOP VIEW', dx, dy - dr - 14);
-        ctx.beginPath(); ctx.arc(dx, dy, dr, 0, Math.PI * 2);
-        const grad = ctx.createRadialGradient(dx - dr * 0.3, dy - dr * 0.3, 2, dx, dy, dr);
-        grad.addColorStop(0, col.paper); grad.addColorStop(1, 'rgba(45,110,106,0.22)');
-        ctx.fillStyle = grad; ctx.fill();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.stroke();
-        /* equilibrium mark + rotating marker line (angle exaggerated ×3) */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-        ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx, dy - dr); ctx.stroke();
-        ctx.setLineDash([]);
-        const va = -Math.PI / 2 + th * 3;
-        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
-        ctx.beginPath(); ctx.moveTo(dx, dy);
-        ctx.lineTo(dx + Math.cos(va) * dr, dy + Math.sin(va) * dr); ctx.stroke();
-        ctx.beginPath(); ctx.arc(dx, dy, 3, 0, Math.PI * 2);
-        ctx.fillStyle = col.ink; ctx.fill();
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('θ = ' + th.toFixed(3) + ' rad (drawn ×3)', dx, dy + dr + 10);
-
-        /* ── right: the two book graphs ── */
+        /* ── the two graphs ── */
         if (show.graphs) {
-            const gx0 = W * 0.48, gx1 = W - 34;
-            /* (a) M vs θ */
-            const g1y0 = 34, g1y1 = H * 0.42;
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.1;
-            ctx.beginPath();
-            ctx.moveTo(gx0, g1y0 - 4); ctx.lineTo(gx0, g1y1); ctx.lineTo(gx1 + 4, g1y1);
-            ctx.stroke();
-            ctx.fillStyle = col.faint;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            /* a narrow graph has no room for its title beside the M_s label: lift it over the axis */
-            if (gx1 - gx0 < 260) ctx.fillText('(a)  M vs θ', gx0 - 6, g1y0 - 10);
-            else ctx.fillText('(a)  M vs θ', gx0 + 4, g1y0 + 10);
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
-            ctx.beginPath(); ctx.moveTo(gx0, g1y1);
-            ctx.lineTo(gx1, g1y0 + 8); ctx.stroke();
-            ctx.strokeStyle = col.faint; ctx.setLineDash([3, 3]);
-            ctx.beginPath(); ctx.moveTo(gx0, g1y0 + 8); ctx.lineTo(gx1, g1y0 + 8); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-            ctx.fillText('M_s at 0.20 rad', gx1, g1y0 + 6);
-            /* live point at the current twist */
-            const uu = Math.abs(th) / 0.20;
-            const px1 = gx0 + Math.min(uu, 1) * (gx1 - gx0);
-            const py1 = g1y1 - Math.min(uu, 1) * (g1y1 - g1y0 - 8);
-            ctx.beginPath(); ctx.arc(px1, py1, 4.5, 0, Math.PI * 2);
-            ctx.fillStyle = col.acc; ctx.fill();
-
-            /* (b) θ vs t */
-            const g2y0 = H * 0.54, g2y1 = H - 44, g2mid = (g2y0 + g2y1) / 2;
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1.1;
-            ctx.beginPath(); ctx.moveTo(gx0, g2mid); ctx.lineTo(gx1 + 4, g2mid); ctx.stroke();
-            ctx.fillStyle = col.faint;
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText('(b)  θ vs t', gx0 + 4, g2y0 - 2);
-            const tWin = state.ts * 2.2;
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
-            ctx.beginPath();
-            for (let i = 0; i <= 120; i++) {
-                const t = i / 120 * tWin;
-                const y = g2mid - Math.cos(om * t) * (g2y1 - g2y0) / 2 * (state.th0 / 0.3);
-                i ? ctx.lineTo(gx0 + i / 120 * (gx1 - gx0), y)
-                  : ctx.moveTo(gx0, y);
+            const gx = narrow ? 52 : colW + 58, gw = W - gx - 30;
+            const gTop = narrow ? cy + ry + tk + 30 : top + 20, gBot = bot - 30;
+            const gh = (gBot - gTop - 56) / 2;
+            /* (a) M against θ: a line through the origin, its slope ϰ */
+            const A = { x: gx, y: gTop, w: gw, h: gh };
+            const Ga = KIT.graph(ctx, A, [0, 0.3], [0, 8], { xStep: 0.1, yStep: narrow ? 4 : 2,
+                xFmt: x => KIT.num(x, 1), yFmt: y => y.toFixed(0), xTitle: 'θ (rad)', yTitle: 'M (10⁻³ N·m)' });
+            KIT.line(ctx, Ga.X(0), Ga.Y(0), Ga.X(0.3), Ga.Y(ms / TH_S * 0.3), C.acc, 2.2);
+            KIT.line(ctx, Ga.X(TH_S), Ga.Y(0), Ga.X(TH_S), Ga.Y(ms), C.faint, 1, [3, 3]);
+            KIT.line(ctx, A.x, Ga.Y(ms), Ga.X(TH_S), Ga.Y(ms), C.faint, 1, [3, 3]);
+            KIT.dot(ctx, Ga.X(TH_S), Ga.Y(ms), 4.5, C.acc, C.ink);
+            KIT.symSub(ctx, 'M', 's', Ga.X(TH_S) - 8, Ga.Y(ms) - 14, C.acc, 16, 'right');
+            /* the slope, as rise over run */
+            const x1 = 0.05, x2 = 0.15;
+            ctx.strokeStyle = I.violet; ctx.lineWidth = 1.2; ctx.beginPath();
+            ctx.moveTo(Ga.X(x1), Ga.Y(ms / TH_S * x1)); ctx.lineTo(Ga.X(x2), Ga.Y(ms / TH_S * x1)); ctx.lineTo(Ga.X(x2), Ga.Y(ms / TH_S * x2)); ctx.stroke();
+            KIT.sym(ctx, 'ϰ', Ga.X(x2) + 8, Ga.Y(ms / TH_S * (x1 + x2) / 2), I.violet, 16, 'left');
+            KIT.small(ctx, '(a)', A.x + A.w, A.y + 4, C.soft, 11, 'right');
+            /* (b) θ(t): period t_s, the dot in step with the disc */
+            const B = { x: gx, y: gTop + gh + 56, w: gw, h: gh };
+            const Gb = KIT.graph(ctx, B, [0, 2 * ts], [-0.32, 0.32], { xStep: ts / 2, yStep: narrow ? 0.3 : 0.1,
+                xFmt: x => KIT.num(x, 2), yFmt: y => KIT.num(y, 1), xTitle: 't (s)', yTitle: 'θ (rad)' });
+            ctx.strokeStyle = C.acc; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
+            for (let i = 0; i <= 240; i++) {
+                const tt = 2 * ts * i / 240, y = Gb.Y(th0 * Math.cos(om * tt));
+                i ? ctx.lineTo(Gb.X(tt), y) : ctx.moveTo(Gb.X(tt), y);
             }
             ctx.stroke();
-            /* t_s span marker (one period) */
-            const xs0 = gx0, xs1 = gx0 + state.ts / tWin * (gx1 - gx0);
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 1.4;
-            ctx.beginPath(); ctx.moveTo(xs0, g2y1 + 6); ctx.lineTo(xs1, g2y1 + 6); ctx.stroke();
-            [xs0, xs1].forEach(x => {
-                ctx.beginPath(); ctx.moveTo(x, g2y1 + 2); ctx.lineTo(x, g2y1 + 10); ctx.stroke();
-            });
-            ctx.fillStyle = col.acc;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText('t_s', (xs0 + xs1) / 2, g2y1 + 12);
-            /* live dot riding the curve */
-            const tc = (tv % tWin);
-            ctx.beginPath();
-            ctx.arc(gx0 + tc / tWin * (gx1 - gx0),
-                    g2mid - Math.cos(om * tc) * (g2y1 - g2y0) / 2 * (state.th0 / 0.3),
-                    4.5, 0, Math.PI * 2);
-            ctx.fillStyle = col.acc; ctx.fill();
+            KIT.dot(ctx, Gb.X(t), Gb.Y(th), 4.5, C.acc, C.ink);
+            const yb = Gb.Y(0.3);
+            KIT.dim(ctx, Gb.X(0), yb, Gb.X(ts), yb, 0, '');
+            KIT.symSub(ctx, 't', 's', Gb.X(ts / 2), yb - 12, C.acc, 16);
+            /* the steepest point: the largest angular speed θ₀ω */
+            const tz = ts / 4, sl = -th0 * om;
+            const d = 0.11 * ts;
+            KIT.line(ctx, Gb.X(tz - d), Gb.Y(-sl * d), Gb.X(tz + d), Gb.Y(sl * d), I.violet, 1.6, [5, 3]);
+            KIT.symSub(ctx, 'θ', '0', Gb.X(tz + d) + 6, Gb.Y(sl * d) + 4, I.violet, 15, 'left', 'ω');
+            KIT.small(ctx, '(b)', B.x + B.w, B.y + 4, C.soft, 11, 'right');
         }
 
-        const $ = id => document.getElementById(id);
-        if ($('r-kap'))  $('r-kap').textContent  = kap.toFixed(3) + ' N·m/rad';
-        if ($('r-om'))   $('r-om').textContent   = om.toFixed(1) + ' rad/s';
-        if ($('r-i'))    $('r-i').textContent    = (I * 1e5).toFixed(1) + ' ×10⁻⁵ kg·m²';
-        if ($('r-vmax')) $('r-vmax').textContent = vmax.toFixed(2) + ' rad/s';
-    }
+        KIT.caption(ctx, KIT.T('A TORSION PENDULUM, FROM TWO GRAPHS', 'TORZNÍ KYVADLO ZE DVOU GRAFŮ'),
+                    KIT.T('(a) gives ϰ, (b) gives ω — then I = ϰ/ω²', '(a) dá ϰ, (b) dá ω — pak I = ϰ/ω²'));
 
-    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
+        KIT.put('r-kap', KIT.dec(kap.toFixed(3)) + ' N·m/rad');
+        KIT.put('r-om', KIT.dec(om.toFixed(1)) + ' rad/s');
+        KIT.put('r-i', KIT.dec((In * 1e5).toFixed(1)) + ' ×10⁻⁵ kg·m²');
+        KIT.put('r-vmax', KIT.dec((th0 * om).toFixed(2)) + ' rad/s');
+    }
 }());
 </script>
 

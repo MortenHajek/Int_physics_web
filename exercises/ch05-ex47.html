@@ -85,7 +85,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Force sandbox</span><span lang="cs">Sandbox: síly</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -131,7 +130,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Current state</span><span lang="cs">Aktuální stav</span></div>
@@ -145,11 +143,11 @@
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Lift-off point</span><span lang="cs">Bod nadzvednutí</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="F_{\text{lift}} = mg/\sin\theta"></span>
+                        <span class="readout-label" data-tex="F = mg/\sin\theta"></span>
                         <span class="readout-val" id="r-flift">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label"><span lang="en" data-tex="a_x\ \text{at lift-off}"></span><span lang="cs" data-tex="a_x\ \text{při nadzvednutí}"></span></span>
+                        <span class="readout-label" data-tex="a_x = g/\tan\theta"></span>
                         <span class="readout-val" id="r-alift">—</span>
                     </div>
                 </div>
@@ -166,7 +164,7 @@
                     </div>
                     <div class="toggle-row" id="tgl-forces">
                         <div class="toggle-box on"></div>
-                        <span class="toggle-name"><span lang="en">weight &amp; normal force</span><span lang="cs">tíha a normálová síla</span></span>
+                        <span class="toggle-name"><span lang="en">weight <em>G</em> and normal force <em>N</em></span><span lang="cs">tíha <em>G</em> a normálová síla <em>N</em></span></span>
                     </div>
                 </div>
             </div>
@@ -234,6 +232,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/force-and-motion.html"><span lang="en">← Topic: Force &amp; Motion</span><span lang="cs">← Téma: Síla a pohyb</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -257,190 +256,354 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 5-47 — m = 5,00 kg on a frictionless floor, pulled by F = 12,0 N at
+   θ = 25,0°: a = F cos θ/m = 2,18 m/s²; N = mg − F sin θ = 43,9 N; the
+   block leaves the floor when F sin θ = mg, at F = mg/sin θ = 116 N, and
+   then a = g/tan θ = 21,0 m/s².
+   The free-body diagram with every force to one newton scale (bar shown),
+   in the topic's force colours (G accent, N blue, F teal); beside it the
+   vertical balance as a column: G = N + F sin θ, so lift-off is the moment
+   F sin θ fills the whole column. Static: redrawn on input. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b94d28',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
+    /* the caption; on a narrow stage a long title wraps onto a second line */
+    function cap(ctx, kicker, title, sub) {
+        const W = ctx.canvas.width / (window.devicePixelRatio || 1), SER = 'italic 17px "Source Serif 4",Georgia,serif';
+        ctx.font = SER;
+        if (ctx.measureText(title).width <= W - 32) { KIT.caption(ctx, kicker, title, sub); return; }
+        const words = title.split(' ');
+        let a = '';
+        while (words.length > 1 && ctx.measureText(a ? a + ' ' + words[0] : words[0]).width <= W - 32) a = a ? a + ' ' + words.shift() : words.shift();
+        KIT.caption(ctx, kicker, a);
+        ctx.font = SER; ctx.fillStyle = KIT.colours().ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(words.join(' '), 16, 60);
+        if (sub) KIT.small(ctx, sub, 16, 79, KIT.colours().faint, 10.5);
     }
-    const col = readCol();
+
 
     const g = 9.8;
     const DEFAULTS = { F: 12.0, th: 25.0, m: 5.0 };
     let state = { ...DEFAULTS };
     const show = { comp: true, forces: true };
-
-    /* ── Slider wiring ──────────────────────────────────────────── */
-    const fmtF  = v => v.toFixed(1) + ' N';
-    const fmtTh = v => v.toFixed(1) + '°';
-    const fmtM  = v => v.toFixed(2) + ' kg';
-    const SLIDERS = [['p-f', 'F', fmtF], ['p-th', 'th', fmtTh], ['p-m', 'm', fmtM]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw);
+    const SLIDERS = [
+        ['p-f', 'F', v => KIT.dec(v.toFixed(1)) + ' N'],
+        ['p-th', 'th', v => KIT.dec(v.toFixed(1)) + '°'],
+        ['p-m', 'm', v => KIT.dec(v.toFixed(2)) + ' kg'],
+    ];
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SLIDERS.forEach(([id, key]) => {
+        document.getElementById(id).addEventListener('input', e => { state[key] = +e.target.value; syncLabels(); V.redraw(); });
     });
-
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); V.redraw(); });
+    document.addEventListener('langchange', syncLabels);
     function wireToggle(id, key) {
-        document.getElementById(id)?.addEventListener('click', function () {
+        document.getElementById(id).addEventListener('click', function () {
             show[key] = !show[key];
-            this.querySelector('.toggle-box')?.classList.toggle('on');
+            this.querySelector('.toggle-box').classList.toggle('on', show[key]);
+            V.redraw();
         });
     }
-    wireToggle('tgl-comp',   'comp');
+    wireToggle('tgl-comp', 'comp');
     wireToggle('tgl-forces', 'forces');
+    syncLabels();
 
-    /* ── Drawing helpers ────────────────────────────────────────── */
-    function arrow(x1, y1, x2, y2, color, lw, dashed) {
-        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
-        if (len < 2) return;
-        const ux = dx / len, uy = dy / len;
-        const hl = Math.min(12, len * 0.3), hw = hl * 0.42;
-        ctx.strokeStyle = color; ctx.fillStyle = color;
-        ctx.lineWidth = lw; ctx.lineCap = 'round';
-        if (dashed) ctx.setLineDash([5, 4]);
-        ctx.beginPath(); ctx.moveTo(x1, y1);
-        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
-        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
-        ctx.closePath(); ctx.fill();
+    const TEAL = '#127070';
+    function hatch(ctx, x0, x1, y, C) {
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.4; ctx.lineWidth = 0.9;
+        for (let x = x0 + 4; x < x1; x += 10) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 7, y + 7); ctx.stroke(); }
+        ctx.globalAlpha = 1;
     }
 
-    function fLabel(txt, x, y, color) {
-        ctx.fillStyle = color;
-        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText(txt, x, y);
-    }
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const th = state.th * Math.PI / 180, G = state.m * g;
+        const Fx = state.F * Math.cos(th), Fy = state.F * Math.sin(th);
+        const N = Math.max(0, G - Fy), lifted = Fy >= G;
 
-    function draw() {
-        ctx.clearRect(0, 0, W, H);
-        const th = state.th * Math.PI / 180;
-        const mg = state.m * g;
-        const Fv = state.F * Math.sin(th);
-        const N  = Math.max(0, mg - Fv);
-        const lifted = Fv >= mg;
+        /* the column on the right; the scene takes the rest */
+        const colW = narrow ? 70 : 150;
+        const sceneR = W - colW - (narrow ? 12 : 30);
+        const top = 104, bot = H - (low ? 108 : 34);
+        const bw = narrow ? 64 : 92, bh = narrow ? 48 : 64;
+        const bx = Math.max(narrow ? 30 : 70, sceneR * 0.3 - bw / 2);
+        /* the floor sits where N (above it) and G (below the centre) share the height */
+        const up = Math.max(N, Fy, 1), down = G;
+        const gy = Math.round(top + (bot - top - bh / 2) * up / (up + down) + bh / 2 * down / (up + down));
+        const by = gy - bh - (lifted ? 14 : 0);
+        const cx = bx + bw / 2, cy = by + bh / 2;
+        /* one newton scale for every arrow */
+        const kN = Math.min((bot - cy - 22) / down, (gy - top - 10) / up, (sceneR - bx - bw - 70) / Math.max(state.F, 1));
 
-        /* ground */
-        const gy = H * 0.72;
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(24, gy); ctx.lineTo(W - 24, gy); ctx.stroke();
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        for (let x = 30; x < W - 26; x += 13) {
-            ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x - 8, gy + 9); ctx.stroke();
+        /* the floor */
+        KIT.line(ctx, 16, gy, sceneR, gy, C.ink, 1.6);
+        hatch(ctx, 16, sceneR, gy, C);
+        /* the block */
+        ctx.fillStyle = I.block; ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.strokeRect(bx, by, bw, bh);
+        KIT.sym(ctx, 'm', bx + bw * 0.76, cy + 4, C.ink, 17);
+
+        /* the rope and its pull F, from the block's corner */
+        const ax = bx + bw, ay = by + bh * 0.35;
+        const Lf = state.F * kN;
+        KIT.line(ctx, ax, ay, ax + Math.cos(th) * (Lf + 60), ay - Math.sin(th) * (Lf + 60), C.faint, 1.2);
+        if (show.comp && Lf > 8) {
+            KIT.arrow(ctx, ax, ay, ax + Fx * kN, ay, TEAL, 1.4);
+            KIT.arrow(ctx, ax + Fx * kN, ay, ax + Fx * kN, ay - Fy * kN, TEAL, 1.4);
+            KIT.line(ctx, ax + Fx * kN, ay, ax + Fx * kN, ay - Fy * kN, TEAL, 1, [4, 3]);
+            if (Fx * kN > 40) KIT.sym(ctx, 'F cos θ', ax + Fx * kN / 2, ay + 14, TEAL, 14);
+            if (Fy * kN > 22) KIT.sym(ctx, 'F sin θ', ax + Fx * kN + 8, ay - Fy * kN / 2, TEAL, 14, 'left');
         }
-
-        /* block (raised slightly when lifted) */
-        const bw = 74, bh = 54;
-        const bx = W * 0.34;
-        const by = gy - bh - (lifted ? 16 : 0);
-        ctx.fillStyle = col.paper;
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.strokeRect(bx, by, bw, bh);
-        ctx.fillStyle = col.ink;
-        ctx.font = 'italic 16px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('m', bx + bw / 2, by + bh / 2);
-
-        if (lifted) {
-            ctx.fillStyle = col.acc;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText('LIFT-OFF · N = 0', bx + bw / 2, gy + 14);
-        }
-
-        /* rope + applied force from the top-right corner */
-        const ax0 = bx + bw, ay0 = by + 10;
-        const fScale = 2.1;
-        const fx = ax0 + Math.cos(th) * state.F * fScale;
-        const fy = ay0 - Math.sin(th) * state.F * fScale;
-        /* angle guide */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-        ctx.beginPath(); ctx.moveTo(ax0, ay0); ctx.lineTo(ax0 + 84, ay0); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.arc(ax0, ay0, 30, -th, 0);
-        ctx.stroke();
-        ctx.fillStyle = col.soft;
-        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('θ', ax0 + 36, ay0 - Math.sin(th / 2) * 26);
-
-        if (show.comp) {
-            arrow(ax0, ay0, fx, ay0, col.soft, 1.4, true);
-            arrow(ax0, ay0, ax0, fy, col.soft, 1.4, true);
-        }
-        arrow(ax0, ay0, fx, fy, col.acc, 2.6, false);
-        fLabel('F', fx + 8, fy - 4, col.acc);
+        if (Lf > 4) KIT.arrow(ctx, ax, ay, ax + Math.cos(th) * Lf, ay - Math.sin(th) * Lf, TEAL, 2.6, true);
+        KIT.vec(ctx, 'F', ax + Math.cos(th) * Lf + 12, ay - Math.sin(th) * Lf - 10, TEAL, 17);
+        /* the angle */
+        ctx.strokeStyle = C.soft; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(ax, ay, 30, -th, 0); ctx.stroke();
+        KIT.line(ctx, ax, ay, ax + 44, ay, C.faint, 1, [3, 3]);
+        KIT.sym(ctx, 'θ', ax + 38, ay - Math.sin(th / 2) * 30 - 2, C.soft, 15, 'left');
 
         if (show.forces) {
-            const cx = bx + bw / 2;
-            const wScale = 1.35;
-            arrow(cx, by + bh, cx, by + bh + mg * wScale, col.soft, 1.8, false);
-            fLabel('mg', cx + 8, by + bh + mg * wScale + 4, col.soft);
-            if (N > 0.2) {
-                arrow(cx - 20, by + bh, cx - 20, by + bh - N * wScale, col.soft, 1.8, false);
-                fLabel('N', cx - 44, by + bh - N * wScale + 2, col.soft);
+            KIT.arrow(ctx, cx, cy, cx, cy + G * kN, C.acc, 2.6, true);
+            KIT.vec(ctx, 'G', cx + 14, cy + G * kN - 6, C.acc, 17);
+            if (N * kN > 3) {
+                KIT.arrow(ctx, bx + bw * 0.24, gy, bx + bw * 0.24, gy - N * kN, I.blue, 2.6, true);
+                KIT.vec(ctx, 'N', bx + bw * 0.24 - 16, gy - N * kN + 6, I.blue, 17);
             }
         }
+        /* the acceleration: horizontal, not on the force scale */
+        const aNow = Fx / state.m;
+        if (aNow > 0.05) {
+            const la = Math.min(narrow ? 40 : 60, 10 + aNow * 3);
+            KIT.arrow(ctx, bx - 14 - la, cy - 6, bx - 14, cy - 6, I.violet, 2, true);
+            KIT.vec(ctx, 'a', bx - 14 - la / 2, cy - 24, I.violet, 16);
+        }
+        /* the scale bar, under the caption */
+        const step = [5, 10, 20, 50, 100].find(s => s * kN >= 40) || 100;
+        const sy = 80;
+        KIT.line(ctx, 16, sy, 16 + step * kN, sy, C.soft, 1.4);
+        KIT.line(ctx, 16, sy - 4, 16, sy + 4, C.soft, 1); KIT.line(ctx, 16 + step * kN, sy - 4, 16 + step * kN, sy + 4, C.soft, 1);
+        KIT.small(ctx, step + ' N', 22 + step * kN, sy, C.soft, 10.5);
+        if (lifted) KIT.small(ctx, KIT.T('N = 0 — the block leaves the floor', 'N = 0 — kvádr opouští podlahu'), cx + bw, gy + 16, C.acc, 11, 'left');
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        const aNow  = state.F * Math.cos(th) / state.m;
-        const Flift = mg / Math.sin(th);
-        const aLift = Flift * Math.cos(th) / state.m;
-        if ($('r-a'))     $('r-a').textContent     = aNow.toFixed(2) + ' m/s²';
-        if ($('r-n'))     $('r-n').textContent     = N.toFixed(1) + ' N';
-        if ($('r-flift')) $('r-flift').textContent = Flift.toFixed(1) + ' N';
-        if ($('r-alift')) $('r-alift').textContent = aLift.toFixed(1) + ' m/s²';
-    }
+        /* ── the vertical balance: G = N + F sin θ ───────────────────── */
+        const cxL = W - colW + (narrow ? 8 : 40), cw = narrow ? 30 : 44;
+        const hmax = gy - top - 20, kc = hmax / Math.max(G, Fy, 1);
+        const base = gy;
+        ctx.fillStyle = I.blue; ctx.globalAlpha = 0.7; ctx.fillRect(cxL, base - N * kc, cw, N * kc);
+        ctx.fillStyle = TEAL; ctx.globalAlpha = 0.28; ctx.fillRect(cxL, base - N * kc - Fy * kc, cw, Fy * kc);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.strokeRect(cxL, base - Math.max(G, Fy + N) * kc, cw, Math.max(G, Fy + N) * kc);
+        KIT.line(ctx, cxL - 8, base - G * kc, cxL + cw + 8, base - G * kc, C.acc, 2);
+        KIT.sym(ctx, 'G', cxL - 12, base - G * kc, C.acc, 16, 'right');
+        if (!narrow) {
+            if (N * kc > 18) KIT.sym(ctx, 'N', cxL + cw + 8, base - N * kc / 2, I.blue, 16, 'left');
+            if (Fy * kc > 18) KIT.sym(ctx, 'F sin θ', cxL + cw + 8, base - N * kc - Fy * kc / 2, TEAL, 14, 'left');
+        }
+        KIT.line(ctx, cxL - 10, base, cxL + cw + 10, base, C.ink, 1.4);
 
-    function frame() {
-        draw();
-        requestAnimationFrame(frame);
+        cap(ctx, KIT.T('A BLOCK ON A ROPE', 'KVÁDR NA LANĚ'),
+                    lifted ? KIT.T('F sin θ now outweighs G: the block lifts off', 'F sin θ teď převáží G: kvádr se zvedá')
+                           : KIT.T('the rope lifts part of the weight, so N < G', 'lano nese část tíhy, proto N < G'));
+
+        KIT.put('r-a', KIT.dec(aNow.toFixed(2)) + ' m/s²');
+        KIT.put('r-n', KIT.dec(N.toFixed(1)) + ' N');
+        KIT.put('r-flift', KIT.dec((G / Math.sin(th)).toFixed(1)) + ' N');
+        KIT.put('r-alift', KIT.dec((g / Math.tan(th)).toFixed(1)) + ' m/s²');
     }
-    requestAnimationFrame(frame);
 }());
 </script>
 

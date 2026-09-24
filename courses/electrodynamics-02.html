@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>02 Multipoles · Electrodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="electrodynamics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Electrodynamics</span><span lang="cs">Elektrodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="electrodynamics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 02 · Electrostatics II</span><span lang="cs">Kapitola 02 · Elektrostatika II</span> · Griffiths 3.4, 4.1</div>
+            <h1><span lang="en">Multipoles</span><span lang="cs">Multipóly</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\dfrac{1}{R} = \sum_{l=0}^{\infty}\dfrac{r&#x27;^{\,l}}{r^{l+1}}\,P_l(\cos\alpha)"></div>
+            <div class="eq-caption"><span lang="en">The expansion that separates the source from the observer</span><span lang="cs">Rozvoj, který oddělí zdroj od pozorovatele</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Far from a localised charge distribution its detailed shape matters less and less. The <em>multipole expansion</em> makes this precise: <span data-tex="1/R"></span> is expanded in powers of <span data-tex="r&#x27;/r"></span>, and the potential becomes a series in which the source enters only through a few numbers — its total charge, its dipole moment, its quadrupole moment, and so on — while the position of the observer enters only through powers of <span data-tex="1/r"></span> and functions of direction.</span><span lang="cs">Daleko od lokalizovaného rozložení náboje záleží na jeho podrobném tvaru stále méně. Přesně to vyjadřuje <em>multipólový rozvoj</em>: <span data-tex="1/R"></span> se rozvine v mocniny <span data-tex="r&#x27;/r"></span> a potenciál přejde v řadu, v níž zdroj vystupuje jen několika čísly — celkovým nábojem, dipólovým momentem, kvadrupólovým momentem atd. — kdežto poloha pozorovatele jen mocninami <span data-tex="1/r"></span> a funkcemi směru.</span></p>
+                <p><span lang="en">The mathematical tool is the generating function of the <em>Legendre polynomials</em>; the <em>spherical harmonics</em> then split the angle between source and observer into the angles of each. The dipole term, the first one that survives for a neutral body, governs the field of molecules, their response to an external field and their interaction with each other.</span><span lang="cs">Matematickým nástrojem je vytvořující funkce <em>Legendreových polynomů</em>; <em>kulové funkce</em> pak úhel mezi zdrojem a pozorovatelem rozloží na úhly každého z nich zvlášť. Dipólový člen, první, který u neutrálního tělesa přetrvá, určuje pole molekul, jejich odezvu na vnější pole i jejich vzájemné působení.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="V(\vec r) = \dfrac{1}{4\pi\varepsilon_0}\Big(\dfrac{Q}{r} + \dfrac{\vec p\cdot\hat r}{r^2} + \dfrac{\hat r_i\,Q_{ij}\,\hat r_j}{r^3} + \cdots\Big)"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">Monopole, dipole, quadrupole: each term falls off with one more power of <span data-tex="r"></span>, so far away only the first non-vanishing one matters. The moments (below) are properties of the source alone; the powers of <span data-tex="r"></span> and the unit vector <span data-tex="\hat r"></span> belong to the observer alone. Summation over repeated indices is implied.</span><span lang="cs">Monopól, dipól, kvadrupól: každý další člen klesá o jednu mocninu <span data-tex="r"></span> rychleji, takže daleko od zdroje rozhoduje jen první nenulový. Momenty (níže) jsou vlastností samotného zdroje; mocniny <span data-tex="r"></span> a jednotkový vektor <span data-tex="\hat r"></span> patří jen pozorovateli. Přes opakované indexy se sčítá.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Legendre polynomials</span><span lang="cs">Legendreovy polynomy</span></span>
+                        <span class="cf-eq" data-tex="\dfrac{1}{\sqrt{r^2 + r&#x27;^2 - 2rr&#x27;\cos\alpha}} = \sum_{l=0}^{\infty}\dfrac{r&#x27;^{\,l}}{r^{l+1}}P_l(\cos\alpha)"></span>
+                        <span class="cf-eq" data-tex="P_0 = 1,\quad P_1 = x,\quad P_2 = \dfrac{3x^2 - 1}{2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">For <span data-tex="r &gt; r&#x27;"></span>, with <span data-tex="\alpha"></span> the angle between <span data-tex="\vec r"></span> and <span data-tex="\vec r\,{}&#x27;"></span>. The left-hand side is the generating function of the Legendre polynomials, which is why they appear. Inserted into <span data-tex="V = (4\pi\varepsilon_0)^{-1}\int\rho/R\,\mathrm{d}\tau&#x27;"></span>, it gives the expansion term by term, and it is valid at any distance outside the source. <span class="cf-ref">(Griffiths 3.4.1)</span></span>
+                        <span lang="cs">Pro <span data-tex="r &gt; r&#x27;"></span>, kde <span data-tex="\alpha"></span> je úhel mezi <span data-tex="\vec r"></span> a <span data-tex="\vec r\,{}&#x27;"></span>. Levá strana je vytvořující funkcí Legendreových polynomů, proto se objevují. Po dosazení do <span data-tex="V = (4\pi\varepsilon_0)^{-1}\int\rho/R\,\mathrm{d}\tau&#x27;"></span> dává rozvoj člen po členu a platí v jakékoli vzdálenosti vně zdroje. <span class="cf-ref">(Griffiths 3.4.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The moments</span><span lang="cs">Momenty</span></span>
+                        <span class="cf-eq" data-tex="Q = \int\rho\,\mathrm{d}\tau&#x27;,\qquad \vec p = \int\vec r\,{}&#x27;\rho\,\mathrm{d}\tau&#x27;"></span>
+                        <span class="cf-eq" data-tex="Q_{ij} = \dfrac{1}{2}\int\big(3r&#x27;_ir&#x27;_j - r&#x27;^2\delta_{ij}\big)\,\rho\,\mathrm{d}\tau&#x27;"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A scalar, a vector and a symmetric traceless second-rank tensor with five independent components — the <span data-tex="2l + 1"></span> of the order <span data-tex="l = 2"></span>. Only the lowest non-vanishing moment is independent of the choice of origin: the dipole moment of a charged body shifts when the origin moves, that of a neutral body does not. <span class="cf-ref">(Griffiths 3.4.2–3.4.3, Problem 3.52)</span></span>
+                        <span lang="cs">Skalár, vektor a symetrický tenzor druhého řádu s nulovou stopou a pěti nezávislými složkami — <span data-tex="2l + 1"></span> pro řád <span data-tex="l = 2"></span>. Na volbě počátku nezávisí jen nejnižší nenulový moment: dipólový moment nabitého tělesa se při posunutí počátku mění, u neutrálního tělesa nikoli. <span class="cf-ref">(Griffiths 3.4.2–3.4.3, Problem 3.52)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Spherical harmonics</span><span lang="cs">Kulové funkce</span></span>
+                        <span class="cf-eq" data-tex="P_l(\cos\alpha) = \dfrac{4\pi}{2l + 1}\sum_{m=-l}^{l}Y_{lm}^*(\theta&#x27;,\phi&#x27;)\,Y_{lm}(\theta,\phi)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The addition theorem separates the angle between the two directions into the angles of each, so the moments become the numbers <span data-tex="q_{lm} = \int r&#x27;^{\,l}\,Y^*_{lm}\,\rho\,\mathrm{d}\tau&#x27;"></span> and the potential a sum of <span data-tex="q_{lm}Y_{lm}(\theta,\phi)/r^{l+1}"></span>. The same functions solve Laplace’s equation in spherical coordinates and describe angular momentum in quantum mechanics.</span>
+                        <span lang="cs">Adiční teorém rozloží úhel mezi oběma směry na úhly každého z nich, takže momenty přejdou v čísla <span data-tex="q_{lm} = \int r&#x27;^{\,l}\,Y^*_{lm}\,\rho\,\mathrm{d}\tau&#x27;"></span> a potenciál v součet členů <span data-tex="q_{lm}Y_{lm}(\theta,\phi)/r^{l+1}"></span>. Tytéž funkce řeší Laplaceovu rovnici ve sférických souřadnicích a popisují moment hybnosti v kvantové mechanice.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Field of a dipole</span><span lang="cs">Pole dipólu</span></span>
+                        <span class="cf-eq" data-tex="\vec E = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{3(\vec p\cdot\hat r)\,\hat r - \vec p}{r^3}"></span>
+                        <span class="cf-eq" data-tex="\vec E = \dfrac{p}{4\pi\varepsilon_0r^3}\big(2\cos\theta\,\hat r + \sin\theta\,\hat\theta\big)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The gradient of <span data-tex="V = \vec p\cdot\hat r/4\pi\varepsilon_0r^2"></span>, in coordinate-free form and in spherical coordinates with <span data-tex="\vec p"></span> along <span data-tex="z"></span>. It falls off as <span data-tex="1/r^3"></span> — one power faster than a point charge’s field — and along the axis it is twice as strong as at the same distance in the equatorial plane. <span class="cf-ref">(Griffiths 3.4.4)</span></span>
+                        <span lang="cs">Gradient <span data-tex="V = \vec p\cdot\hat r/4\pi\varepsilon_0r^2"></span>, v tvaru nezávislém na souřadnicích a ve sférických souřadnicích s <span data-tex="\vec p"></span> podél osy <span data-tex="z"></span>. Klesá jako <span data-tex="1/r^3"></span> — o mocninu rychleji než pole bodového náboje — a na ose je dvakrát silnější než ve stejné vzdálenosti v rovníkové rovině. <span class="cf-ref">(Griffiths 3.4.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A dipole in an external field</span><span lang="cs">Dipól ve vnějším poli</span></span>
+                        <span class="cf-eq" data-tex="U = -\vec p\cdot\vec E"></span>
+                        <span class="cf-eq" data-tex="\vec N = \vec p\times\vec E,\qquad \vec F = (\vec p\cdot\nabla)\vec E"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In a uniform field the net force vanishes and only the torque remains, turning <span data-tex="\vec p"></span> towards <span data-tex="\vec E"></span>, where the energy is lowest. In a non-uniform field the dipole is also pulled — towards stronger field if it is aligned with it. This is why neutral bits of paper are attracted to a charged comb. <span class="cf-ref">(Griffiths 4.1.3, Problem 4.7)</span></span>
+                        <span lang="cs">V homogenním poli je výsledná síla nulová a zůstává jen moment síly, který natáčí <span data-tex="\vec p"></span> do směru <span data-tex="\vec E"></span>, kde je energie nejnižší. V nehomogenním poli je dipól navíc vtahován — do silnějšího pole, je-li s ním souhlasně orientován. Proto nabitý hřeben přitahuje neutrální útržky papíru. <span class="cf-ref">(Griffiths 4.1.3, Problem 4.7)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Dipole–dipole interaction</span><span lang="cs">Dipól-dipólová interakce</span></span>
+                        <span class="cf-eq" data-tex="U = \dfrac{1}{4\pi\varepsilon_0}\,\dfrac{\vec p_1\cdot\vec p_2 - 3(\vec p_1\cdot\hat r)(\vec p_2\cdot\hat r)}{r^3}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The energy of <span data-tex="\vec p_2"></span> in the field of <span data-tex="\vec p_1"></span>. Its sign depends on the mutual orientation: two dipoles in line, head to tail, attract; side by side and parallel, they repel. The force, <span data-tex="-\nabla U"></span>, falls off as <span data-tex="1/r^4"></span>. <span class="cf-ref">(Griffiths Problem 4.8)</span></span>
+                        <span lang="cs">Energie dipólu <span data-tex="\vec p_2"></span> v poli dipólu <span data-tex="\vec p_1"></span>. Její znaménko závisí na vzájemném natočení: dva dipóly v jedné přímce, orientované za sebou, se přitahují; vedle sebe a rovnoběžně se odpuzují. Síla <span data-tex="-\nabla U"></span> klesá jako <span data-tex="1/r^4"></span>. <span class="cf-ref">(Griffiths Problem 4.8)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Van der Waals attraction</span><span lang="cs">Van der Waalsova přitažlivost</span></span>
+                        <span class="cf-eq" data-tex="\vec p = \alpha\vec E"></span>
+                        <span class="cf-eq" data-tex="U \propto -\dfrac{1}{r^6}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two neutral atoms without permanent moments still attract. A momentary dipole of one produces a field <span data-tex="\propto 1/r^3"></span> at the other and induces a dipole there through the polarizability <span data-tex="\alpha"></span>; the energy of the pair, <span data-tex="\propto p_1p_2/r^3"></span>, then goes as <span data-tex="1/r^6"></span> and is always negative. <span class="cf-ref">(Griffiths 4.1.2)</span></span>
+                        <span lang="cs">Dva neutrální atomy bez permanentních momentů se přesto přitahují. Okamžitý dipól jednoho vytváří u druhého pole <span data-tex="\propto 1/r^3"></span> a indukuje v něm dipól prostřednictvím polarizovatelnosti <span data-tex="\alpha"></span>; energie dvojice, <span data-tex="\propto p_1p_2/r^3"></span>, pak klesá jako <span data-tex="1/r^6"></span> a je vždy záporná. <span class="cf-ref">(Griffiths 4.1.2)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="electrodynamics-01.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">01 · <span lang="en">Scalar potential and Poisson’s equation</span><span lang="cs">Skalární potenciál a Poissonova rovnice</span></div>
+        </a>
+        <a href="electrodynamics-03.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">03 · <span lang="en">Energy of the electric field</span><span lang="cs">Energie elektrického pole</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="electrodynamics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

@@ -89,7 +89,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Launch sandbox</span><span lang="cs">Sandbox: vystřelení</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -135,7 +134,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Spring</span><span lang="cs">Pružina</span></div>
@@ -144,16 +142,16 @@
                         <span class="readout-val" id="r-k">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="E_p = \tfrac12 k(x_0+\Delta x)^2"></span>
+                        <span class="readout-label" data-tex="E_{p,s} = \tfrac12 k(x_0+\Delta x)^2"></span>
                         <span class="readout-val" id="r-ep">—</span>
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Flight</span><span lang="cs">Let</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\Delta U_g"></span>
+                        <span class="readout-label" data-tex="\Delta E_{p,g}"></span>
                         <span class="readout-val" id="r-dug">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="h = E_p/mg"></span>
+                        <span class="readout-label" data-tex="h = E_{p,s}/mg"></span>
                         <span class="readout-val" id="r-h">—</span>
                     </div>
                 </div>
@@ -248,6 +246,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -269,187 +268,336 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Ex. 8-27 — an 8,00 kg stone rests on a spring compressed x₀ = 10,0 cm:
+   k = mg/x₀ = 784 N/m. Pushed a further 30,0 cm (position U) and released:
+   E_p,s = ½k(x₀ + Δx)² = 62,7 J, all of which ends as gravitational
+   energy at the top: mgh = 62,7 J, h = 80,0 cm above U.
+   The launch is the real motion, slowed 5×: while the stone touches the
+   spring it oscillates about the resting point, it leaves the spring at
+   the spring's natural length, then flies up to h. Right: one stacked
+   bar of constant height — spring, kinetic, gravitational. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
+    /* the caption; on a narrow stage a long title wraps onto a second line */
+    function cap(ctx, kicker, title, sub) {
+        const W = ctx.canvas.width / (window.devicePixelRatio || 1), SER = 'italic 17px "Source Serif 4",Georgia,serif';
+        ctx.font = SER;
+        if (ctx.measureText(title).width <= W - 32) { KIT.caption(ctx, kicker, title, sub); return; }
+        const words = title.split(' ');
+        let a = '';
+        while (words.length > 1 && ctx.measureText(a ? a + ' ' + words[0] : words[0]).width <= W - 32) a = a ? a + ' ' + words.shift() : words.shift();
+        KIT.caption(ctx, kicker, a);
+        ctx.font = SER; ctx.fillStyle = KIT.colours().ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(words.join(' '), 16, 60);
+        if (sub) KIT.small(ctx, sub, 16, 79, KIT.colours().faint, 10.5);
     }
-    const col = readCol();
 
-    const g = 9.8;
-    /* m kg, x0 cm, dx cm */
-    const DEFAULTS = { m: 8.0, x0: 10, dx: 30 };
+
+    const g = 9.8, SLOW = 5;
+    const DEFAULTS = { m: 8.0, x0: 10, dx: 30 };   /* kg, cm, cm */
     let state = { ...DEFAULTS };
     const show = { bars: true };
-
-    const fmtM = v => v.toFixed(2) + ' kg';
-    const fmtC = v => v.toFixed(1) + ' cm';
-    const SLIDERS = [['p-m', 'm', fmtM], ['p-x0', 'x0', fmtC], ['p-dx', 'dx', fmtC]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const SLIDERS = [
+        ['p-m', 'm', v => KIT.dec(v.toFixed(2)) + ' kg'],
+        ['p-x0', 'x0', v => KIT.dec(v.toFixed(1)) + ' cm'],
+        ['p-dx', 'dx', v => KIT.dec(v.toFixed(1)) + ' cm'],
+    ];
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
-    });
-    document.getElementById('tgl-bars')?.addEventListener('click', function () {
-        show.bars = !show.bars;
-        this.querySelector('.toggle-box')?.classList.toggle('on');
-    });
-
-    function physics() {
-        const x0 = state.x0 / 100, dx = state.dx / 100;
-        const k  = state.m * g / x0;
-        const xt = x0 + dx;
-        const Ep = 0.5 * k * xt * xt;
-        const h  = Ep / (state.m * g);
-        return { k, xt, Ep, h };
     }
+    let t0 = 0;
+    SLIDERS.forEach(([id, key]) => {
+        document.getElementById(id).addEventListener('input', e => { state[key] = +e.target.value; syncLabels(); t0 = V.t; });
+    });
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); t0 = V.t; });
+    document.addEventListener('langchange', syncLabels);
+    document.getElementById('tgl-bars').addEventListener('click', function () {
+        show.bars = !show.bars;
+        this.querySelector('.toggle-box').classList.toggle('on', show.bars);
+    });
+    syncLabels();
 
-    function spring(x, y0, y1, coils, width) {
-        const seg = (y1 - y0) / coils;
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(x, y0);
-        for (let i = 0; i < coils; i++) {
-            ctx.lineTo(x + (i % 2 ? -16 : 16), y0 + seg * (i + 0.5));
-        }
+    function spring(ctx, x, y0, y1, w, col) {
+        const n = 12, seg = (y1 - y0) / n;
+        ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(x, y0);
+        for (let i = 0; i < n; i++) ctx.lineTo(x + (i % 2 ? -w : w), y0 + seg * (i + 0.5));
         ctx.lineTo(x, y1); ctx.stroke();
     }
 
-    const ease = u => u * u * (3 - 2 * u);
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const m = state.m, x0 = state.x0 / 100, dx = state.dx / 100, xt = x0 + dx;
+        const k = m * g / x0, Ep = 0.5 * k * xt * xt, h = Ep / (m * g);
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const ph = physics();
+        /* the motion: z = height above U */
+        const om = Math.sqrt(k / m);
+        const c1 = 1 - xt / dx;                            /* cos ωt at the moment the spring is relaxed */
+        const t1 = c1 >= -1 ? Math.acos(c1) / om : Math.PI / om;
+        const v1 = dx * om * Math.sin(om * t1);
+        const t2 = v1 / g, T = (v.t - t0) / SLOW % (t1 + t2 + 0.25);
+        let z, vz;
+        if (T < t1) { z = dx * (1 - Math.cos(om * T)); vz = dx * om * Math.sin(om * T); }
+        else if (T < t1 + t2) { const s = T - t1; z = xt + v1 * s - 0.5 * g * s * s; vz = v1 - g * s; }
+        else { z = h; vz = 0; }
+        const spr = Math.min(z, xt);                        /* the spring's top, height above U */
 
-        /* keyframed loop: sit(1) push(1.2) launch-up(1.1) hang(0.3) fall(0.9) settle(0.5) */
-        const T = [1.0, 1.2, 1.1, 0.3, 0.9, 0.5];
-        const total = T.reduce((a, b) => a + b, 0);
-        let tau = (ts / 1000) % total, phase = 0;
-        while (tau > T[phase]) { tau -= T[phase]; phase++; }
-        const u = tau / T[phase];
+        const top = 100, bot = H - (low ? 108 : 34);
+        const L0 = 0.62;                                   /* the relaxed spring's drawn length, m */
+        const kpx = (bot - top - 40) / (L0 + h + 0.1);
+        const floor = bot - 6, yU = floor - (L0 - xt) * kpx, Y = zz => yU - zz * kpx;
+        const cx = narrow ? W * 0.3 : W * 0.34, r = Math.max(10, Math.min(22, 0.1 * kpx));
 
-        const cx = W * 0.42;
-        const groundY = H - 36;
-        const natTop = groundY - H * 0.34;              /* relaxed spring top */
-        const pxPerM = (H * 0.30) / Math.max(ph.h, 0.5); /* flight scale */
-        const pxPerC = 160;                              /* compression scale */
+        KIT.line(ctx, cx - 80, floor, cx + 80, floor, C.ink, 1.6);
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.4; ctx.lineWidth = 0.9;
+        for (let x = cx - 76; x < cx + 80; x += 10) { ctx.beginPath(); ctx.moveTo(x, floor); ctx.lineTo(x - 7, floor + 7); ctx.stroke(); }
+        ctx.globalAlpha = 1;
+        spring(ctx, cx, floor, Y(spr), 16, I.violet);
+        KIT.line(ctx, cx - 24, Y(spr), cx + 24, Y(spr), C.ink, 2);
 
-        const x0 = state.x0 / 100, xt = ph.xt;
-        const ySit  = natTop + x0 * pxPerC;
-        const yU    = natTop + xt * pxPerC;
-        const yTop  = yU - ph.h * pxPerM;
+        /* the levels: U, the resting point, the relaxed spring, the top */
+        /* the level names sit left of their lines; on a phone above them */
+        const lv = (zz, col, name) => {
+            KIT.line(ctx, cx - (narrow ? 90 : 110), Y(zz), cx + 60, Y(zz), col, 1, [3, 4]);
+            if (name) narrow ? KIT.small(ctx, name, cx - 90, Y(zz) - 8, col, 10.5, 'left') : KIT.small(ctx, name, cx - 114, Y(zz), col, 10.5, 'right');
+        };
+        lv(0, C.soft, 'U');
+        lv(dx, C.faint, KIT.T('at rest', 'v klidu'));
+        lv(xt, C.faint, KIT.T('spring relaxed', 'pružina volná'));
+        lv(h, C.soft, KIT.T('top', 'vrchol'));
+        const dxl = cx + 70;
+        KIT.dim(ctx, dxl, Y(0), dxl, Y(dx), 0, '', C.soft); KIT.sym(ctx, 'Δx', dxl + 8, Y(dx / 2), C.soft, 15, 'left');
+        KIT.dim(ctx, dxl, Y(dx), dxl, Y(xt), 0, '', C.soft); KIT.symSub(ctx, 'x', '0', dxl + 8, Y((dx + xt) / 2), C.soft, 15, 'left');
+        KIT.dim(ctx, dxl + 56, Y(0), dxl + 56, Y(h), 0, '', C.soft); KIT.sym(ctx, 'h', dxl + 64, Y(h / 2), C.soft, 16, 'left');
 
-        let stoneY, springTop, note;
-        if (phase === 0)      { stoneY = ySit; springTop = ySit; note = 'resting — spring compressed x₀'; }
-        else if (phase === 1) { const e = ease(u); stoneY = ySit + (yU - ySit) * e; springTop = stoneY; note = 'pushing down by Δx'; }
-        else if (phase === 2) { const e = 1 - (1 - u) * (1 - u); stoneY = yU + (yTop - yU) * e; springTop = Math.max(natTop, Math.min(stoneY, yU)); note = 'released!'; }
-        else if (phase === 3) { stoneY = yTop; springTop = natTop; note = 'highest point — all energy gravitational'; }
-        else if (phase === 4) { const e = u * u; stoneY = yTop + (ySit - yTop) * e; springTop = Math.max(natTop, Math.min(stoneY, natTop)); if (stoneY > natTop) springTop = stoneY; note = 'falling back'; }
-        else                  { stoneY = ySit; springTop = ySit; note = 'settled'; }
-
-        /* ground */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(30, groundY); ctx.lineTo(W - 30, groundY); ctx.stroke();
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        for (let x = 36; x < W - 32; x += 13) {
-            ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x - 8, groundY + 9); ctx.stroke();
+        /* the stone */
+        const sy = Y(z) - r;
+        ctx.fillStyle = '#a79f8c'; ctx.beginPath(); ctx.arc(cx, sy, r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.stroke();
+        if (vz > 0.05) {
+            const la = Math.min(60, vz / Math.max(v1, 0.1) * 50);
+            KIT.arrow(ctx, cx + r + 10, sy, cx + r + 10, sy - la, I.blue, 2, true);
+            KIT.vec(ctx, 'v', cx + r + 24, sy - la / 2, I.blue, 16);
         }
 
-        /* markers: U and the peak */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-        const narrow = W < 520;   /* phone: level names sit on their lines, not beside the bars */
-        [[yU, 'U (release)'], [yTop, 'top · h above U']].forEach(([y, name]) => {
-            ctx.beginPath(); ctx.moveTo(cx - 90, y); ctx.lineTo(cx + 90, y); ctx.stroke();
-            ctx.fillStyle = col.soft;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = narrow ? 'bottom' : 'middle';
-            if (narrow) ctx.fillText(name, cx - 90, y - 4);
-            else ctx.fillText(name, cx + 96, y);
-        });
-        ctx.setLineDash([]);
-
-        /* spring + stone */
-        spring(cx, springTop, groundY, 9);
-        const rs = 20;
-        const grad = ctx.createRadialGradient(cx - 6, stoneY - rs - 6, 3, cx, stoneY - rs, rs);
-        grad.addColorStop(0, col.paper); grad.addColorStop(1, col.acc);
-        ctx.beginPath(); ctx.arc(cx, stoneY - rs, rs, 0, Math.PI * 2);
-        ctx.fillStyle = grad; ctx.fill();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.stroke();
-
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        ctx.fillText(note, 26, 22);
-
-        /* energy bars — fractions of the release-point store E_p */
+        /* ── one stacked bar, constant height ─────────────────────────── */
         if (show.bars) {
-            const pitch = narrow ? 40 : 26;   /* room for each bar's name under it */
-            const bx = narrow ? W - 2 * pitch - 29 : W - 96, by1 = H * 0.72, span = H * 0.44;
-            const xNow = Math.max(0, (springTop - natTop)) / pxPerC;   /* current compression, m */
-            const elastic = Math.min(1, (xNow / xt) ** 2);
-            const grav = Math.max(0, Math.min(1, (yU - stoneY) / (yU - yTop)));
-            const kinetic = Math.max(0, 1 - elastic - grav);
-            [[elastic, 'spring', 0], [grav, 'grav', pitch], [kinetic, 'kin', 2 * pitch]]
-            .forEach(([f, name, off]) => {
-                ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
-                ctx.strokeRect(bx + off, by1 - span, 15, span);
-                ctx.fillStyle = col.acc;
-                ctx.fillRect(bx + off, by1 - f * span, 15, f * span);
-                ctx.fillStyle = col.soft;
-                ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-                ctx.fillText(name, bx + off + 7, by1 + 5);
+            const Es = z < xt ? 0.5 * k * (xt - z) * (xt - z) : 0;
+            const Eg = m * g * z, Ek = Math.max(0, Ep - Es - Eg);
+            const bx = narrow ? W - 70 : W - 150, bw = 40, b0 = bot - 10, kb = (b0 - top - 30) / Ep;
+            let y = b0;
+            [[Es, I.violet, 'E', 'p,s'], [Ek, I.amber, 'E', 'k'], [Eg, I.blue, 'E', 'p,g']].forEach(([e, col, n, s]) => {
+                const hh = e * kb;
+                ctx.fillStyle = col; ctx.globalAlpha = 0.55; ctx.fillRect(bx, y - hh, bw, hh); ctx.globalAlpha = 1;
+                if (hh > 16 && !narrow) KIT.symSub(ctx, n, s, bx + bw + 8, y - hh / 2, col, 15, 'left');
+                y -= hh;
             });
+            ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.strokeRect(bx, b0 - Ep * kb, bw, Ep * kb);
+            KIT.small(ctx, KIT.T('energy, constant total', 'energie, stálý součet'), bx + bw / 2, b0 - Ep * kb - 14, C.soft, 10.5, 'center');
         }
 
-        const $ = id => document.getElementById(id);
-        if ($('r-k'))   $('r-k').textContent   = ph.k.toFixed(0) + ' N/m';
-        if ($('r-ep'))  $('r-ep').textContent  = ph.Ep.toFixed(1) + ' J';
-        if ($('r-dug')) $('r-dug').textContent = ph.Ep.toFixed(1) + ' J';
-        if ($('r-h'))   $('r-h').textContent   = (ph.h * 100).toFixed(1) + ' cm';
-    }
+        cap(ctx, KIT.T('A STONE LAUNCHED BY A SPRING', 'KÁMEN VYSTŘELENÝ PRUŽINOU'),
+                    KIT.T('the spring’s energy ends as height', 'energie pružiny skončí jako výška'),
+                    KIT.T('real motion, 5× slower', 'skutečný pohyb, zpomaleno 5×'));
 
-    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
+        KIT.put('r-k', k.toFixed(0) + ' N/m');
+        KIT.put('r-ep', KIT.dec(Ep.toFixed(1)) + ' J');
+        KIT.put('r-dug', KIT.dec(Ep.toFixed(1)) + ' J');
+        KIT.put('r-h', KIT.dec((h * 100).toFixed(1)) + ' cm');
+    }
 }());
 </script>
 

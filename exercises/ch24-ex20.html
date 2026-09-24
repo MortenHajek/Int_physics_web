@@ -89,7 +89,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Match the potential curve</span><span lang="cs">Trefte křivku potenciálu</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -119,12 +118,11 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
                         <span class="readout-label" data-tex="\varphi_{\infty} = kQ_1/d"></span>
-                        <span class="readout-val">5.76 ×10⁻⁷ V</span>
+                        <span class="readout-val"><span lang="en">5.76 ×10⁻⁷ V</span><span lang="cs">5,76 ×10⁻⁷ V</span></span>
                     </div>
                     <div class="readout-row">
                         <span class="readout-label" data-tex="x_0\ (\varphi = 0)"></span>
@@ -240,38 +238,235 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   KIT — the house style for this page's sandbox (the same helpers as the
+   movies on the topic pages): a canvas that redraws only when something
+   changes or moves, pauses off-screen and repaints after a resize; serif
+   italic symbols with a halo in the stage's tone, drawn subscripts and
+   vector arrows, Geist for small text, one muted colour per quantity.
+   ══════════════════════════════════════════════════════════════════════ */
+const KIT = (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    /* a real minus sign, and the Czech decimal comma */
+    const num = (v, d) => {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const signed = (v, d) => (v > 0 && Math.abs(v) >= Math.pow(10, -d) / 2 ? '+' : '') + num(v, d);
+    function colours() {
+        const r = getComputedStyle(document.documentElement), b = getComputedStyle(document.body);
+        const g = (k, d) => r.getPropertyValue(k).trim() || d;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            grid:  s.getPropertyValue('--ink-grid').trim()  || 'rgba(70,60,40,0.14)',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink: g('--ink', '#363026'), soft: g('--ink-soft', '#4d4436'), faint: g('--ink-faint', '#7A6A52'),
+            paper: g('--paper', '#FFFFEC'), stage: g('--paper-cool', g('--paper-deep', '#efead6')),
+            acc: b.getPropertyValue('--accent').trim() || '#3D2E8A',
+            blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+            teal: '#127070', amber: '#c47a17', block: '#e9e1c6'
         };
     }
-    const col = readCol();
+    /* the canvas: sized from its wrap, redrawn on demand; `moving()` keeps
+       the loop running while it returns true and the canvas is on screen */
+    function mount(canvas, drawFn, moving) {
+        const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+        const V = { canvas, ctx, wrap, W: 0, H: 0 };
+        let raf = 0, last = 0, visible = true;
+        function size() {
+            const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+            const w = Math.max(r.width, 240), h = Math.max(r.height, 200);
+            if (w === V.W && h === V.H) return false;
+            V.W = w; V.H = h;
+            canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return true;
+        }
+        function paint(dt) { ctx.clearRect(0, 0, V.W, V.H); drawFn(V, dt); }
+        function frame(ts) {
+            raf = 0;
+            const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+            last = ts;
+            size(); paint(dt);
+            if (visible && moving && moving()) raf = requestAnimationFrame(frame);
+            else last = 0;
+        }
+        V.redraw = () => { if (!raf) raf = requestAnimationFrame(frame); };
+        V.badgeLow = () => { const bd = wrap.querySelector('.canvas-formula-badge');
+            return !!bd && !/top-|bottom-right/.test(bd.className); };
+        /* on a phone mobile.js lifts the badge out under the canvas: the corner it held is free */
+        V.badgeIn = () => !!wrap.querySelector('.canvas-formula-badge');
+        document.addEventListener('DOMContentLoaded', () => V.redraw());
+        const mq = window.matchMedia && window.matchMedia('(max-width: 640px)');
+        if (mq && mq.addEventListener) mq.addEventListener('change', () => V.redraw());
+        size();
+        /* a resize clears the canvas: paint it again at once, even when paused */
+        new ResizeObserver(() => { size(); paint(0); V.redraw(); }).observe(wrap);
+        if (window.IntersectionObserver) new IntersectionObserver(es => {
+            visible = es.some(e => e.isIntersecting);
+            if (visible) V.redraw();
+        }).observe(wrap);
+        document.addEventListener('langchange', () => V.redraw());
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => V.redraw());
+        V.redraw();
+        return V;
+    }
+    /* write a readout only when it changes */
+    function put(id, text, html) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (html) { if (el.innerHTML !== text) el.innerHTML = text; }
+        else if (el.textContent !== text) el.textContent = text;
+    }
+    /* the drawing primitives, bound to one context and one palette */
+    function pen(ctx, C) {
+        const P = {};
+        P.line = (x1, y1, x2, y2, col, lw, dash) => {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            ctx.setLineDash([]);
+        };
+        P.arrow = (x1, y1, x2, y2, col, lw, under, dash) => {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) P.arrow(x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.lineCap = 'round'; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        };
+        P.dot = (x, y, r, fill, stroke, lw) => {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
+        };
+        P.width = (text, size, italic, font) => {
+            ctx.font = (italic ? 'italic ' : '') + size + 'px ' + (font || SERIF);
+            return ctx.measureText(text).width;
+        };
+        /* serif italic with a halo in the stage's tone */
+        P.sym = (text, x, y, col, size, align, upright) => {
+            size = size || 16;
+            ctx.font = (upright ? '' : 'italic ') + size + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(text, x, y);
+            ctx.fillStyle = col; ctx.fillText(text, x, y);
+            ctx.lineWidth = 1;
+        };
+        /* a symbol with a subscript (and optionally a vector arrow over the
+           main letter); returns the x where it ends */
+        P.sub = (main, s, x, y, col, size, align, vec) => {
+            size = size || 16;
+            const ss = Math.round(size * 0.68);
+            const w1 = P.width(main, size, true), w2 = s ? P.width(s, ss, !/^[0-9]+$/.test(s)) : 0;
+            const tw = w1 + (s ? 1 + w2 : 0);
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            P.sym(main, x0, y, col, size, 'left');
+            if (s) P.sym(s, x0 + w1 + 1, y + size * 0.3, col, ss, 'left', /^[0-9]+$/.test(s));
+            if (vec) P.over(x0, x0 + w1, y - size * 0.62, col);
+            return x0 + tw;
+        };
+        /* the vector arrow over a symbol, stroked (a combining arrow is not
+           reliable on a canvas) */
+        P.over = (xa, xb, y, col) => {
+            ctx.strokeStyle = C.stage; ctx.lineWidth = 3.5; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(xa + 1, y); ctx.lineTo(xb + 2, y); ctx.stroke();
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(xa + 1, y); ctx.lineTo(xb, y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(xb + 3, y); ctx.lineTo(xb - 2, y - 2.6); ctx.lineTo(xb - 2, y + 2.6);
+            ctx.closePath(); ctx.fill();
+        };
+        P.vec = (main, s, x, y, col, size, align) => P.sub(main, s, x, y, col, size, align, true);
+        /* small text in Geist; halo optional */
+        P.small = (text, x, y, col, size, align, halo) => {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            if (halo) { ctx.lineJoin = 'round'; ctx.lineWidth = 3.5; ctx.strokeStyle = C.stage; ctx.strokeText(text, x, y); ctx.lineWidth = 1; }
+            ctx.fillStyle = col; ctx.fillText(text, x, y);
+        };
+        /* the caption, top left: a small kicker and a serif line */
+        P.caption = (kicker, title, extra) => {
+            P.small(kicker, 16, 18, C.soft, 10.5, 'left');
+            if (title) {
+                ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage; ctx.strokeText(title, 16, 39);
+                ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39); ctx.lineWidth = 1;
+            }
+            if (extra) P.small(extra, 16, 58, C.faint, 10.5, 'left', true);
+        };
+        /* a point charge: crimson for +, blue for −, the sign drawn */
+        P.charge = (x, y, r, sign, ghost) => {
+            const col = sign > 0 ? C.crimson : sign < 0 ? C.blue : C.faint;
+            ctx.globalAlpha = ghost ? 0.35 : 1;
+            P.dot(x, y, r, col, C.ink, 1.2);
+            ctx.strokeStyle = '#fffdf6'; ctx.lineWidth = Math.max(1.6, r * 0.16); ctx.lineCap = 'round';
+            const q = r * 0.46;
+            ctx.beginPath(); ctx.moveTo(x - q, y); ctx.lineTo(x + q, y);
+            if (sign > 0) { ctx.moveTo(x, y - q); ctx.lineTo(x, y + q); }
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        };
+        /* a dimension line between two points, offset to one side */
+        P.dim = (x1, y1, x2, y2, off, label, col, labelSub) => {
+            col = col || C.soft;
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+            const nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+            ctx.stroke();
+            if (label) {
+                const k = off >= 0 ? 14 : -14;
+                P.sub(label, labelSub || '', (ax + bx) / 2 + nx * k, (ay + by) / 2 + ny * k, col, 16, 'center');
+            }
+        };
+        /* axes of a plot: an arrowed line along each axis */
+        P.axis = (x1, y1, x2, y2, col) => {
+            P.line(x1, y1, x2, y2, col || C.soft, 1.2);
+            const L = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / L, uy = (y2 - y1) / L;
+            ctx.fillStyle = col || C.soft; ctx.beginPath();
+            ctx.moveTo(x2 + ux * 9, y2 + uy * 9);
+            ctx.lineTo(x2 - uy * 4.5, y2 + ux * 4.5); ctx.lineTo(x2 + uy * 4.5, y2 - ux * 4.5);
+            ctx.closePath(); ctx.fill();
+        };
+        /* the short sweep between two directions */
+        P.arc = (cx, cy, r, a0, a1, col, lw) => {
+            let d = a1 - a0;
+            while (d > Math.PI) d -= 2 * Math.PI;
+            while (d < -Math.PI) d += 2 * Math.PI;
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1.1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(cx, cy, r, a0, a0 + d, d < 0); ctx.stroke();
+            return a0 + d / 2;
+        };
+        return P;
+    }
+    /* a round step for axis ticks: 1, 2, 2.5, 5 × 10ⁿ */
+    function niceStep(range, px, want) {
+        const raw = range * want / Math.max(px, 1), p10 = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 2.5, 5, 10]) if (m * p10 >= raw) return m * p10;
+        return 10 * p10;
+    }
+    return { isCS, T, num, signed, colours, mount, put, pen, niceStep, SERIF, SANS };
+}());
+</script>
+
+<script>
+/* Ex. 24-20 — match the printed φ(x): the unknown charge Q2 sets where the
+   potential crosses zero. It starts deliberately off target. */
+(function () {
+    'use strict';
+    const canvas = document.getElementById('sim-canvas');
+    if (!canvas) return;
+    const $ = id => document.getElementById(id);
+    const { T, num } = KIT;
 
     const K = 8.99e9, E_CH = 1.602e-19;
     const PHI_INF = 5.76e-7;         /* V */
@@ -281,123 +476,98 @@ document.addEventListener('DOMContentLoaded', () => {
     let state = { ...DEFAULTS };
     const show = { target: true };
 
-    const inp = document.getElementById('p-q2');
-    const lbl = document.getElementById('p-q2-val');
-    inp.addEventListener('input', () => {
-        state.q2 = +inp.value;
-        lbl.textContent = state.q2.toFixed(0) + ' e';
-    });
-    document.getElementById('btn-reset').addEventListener('click', () => {
-        state = { ...DEFAULTS };
-        inp.value = state.q2;
-        lbl.textContent = state.q2.toFixed(0) + ' e';
-    });
-    document.getElementById('tgl-target')?.addEventListener('click', function () {
-        show.target = !show.target;
-        this.querySelector('.toggle-box')?.classList.toggle('on');
-    });
-
-    function phi(xCm) {
-        return PHI_INF + K * state.q2 * E_CH / (xCm / 100);
-    }
+    function phi(xCm) { return PHI_INF + K * state.q2 * E_CH / (xCm / 100); }
     /* zero crossing: x0 = -k q2 e / phi_inf */
-    function crossing() {
-        return -K * state.q2 * E_CH / PHI_INF * 100;   /* cm */
-    }
+    function crossing() { return -K * state.q2 * E_CH / PHI_INF * 100; }   /* cm */
     const isMatched = () => Math.abs(crossing() - X_TGT) < 0.15;
 
-    function draw() {
-        ctx.clearRect(0, 0, W, H);
+    function draw(V) {
+        const ctx = V.ctx, W = V.W, H = V.H, C = KIT.colours(), P = KIT.pen(ctx, C);
         const matched = isMatched();
-
-        const mL = 70, mR = 28, mT = 96, mB = 52;   /* mT clears the equation badge */
+        /* the frame keeps a band on top for the equation badge (top left);
+           on a phone the badge sits under the canvas and the band is not needed */
+        const mL = W < 520 ? 50 : 64, mR = 26, mT = V.badgeIn() ? 104 : 52, mB = 46;
         const pw = W - mL - mR, ph = H - mT - mB;
         const PHI_MIN = -10e-7, PHI_MAX = 6e-7;
         const xPix = x => mL + (x / XS) * pw;
         const yPix = p => mT + (PHI_MAX - p) / (PHI_MAX - PHI_MIN) * ph;
 
-        /* grid */
-        ctx.strokeStyle = col.grid; ctx.lineWidth = 1;
-        for (let g = 1; g <= 4; g++) {
-            ctx.beginPath(); ctx.moveTo(xPix(g * 4), mT); ctx.lineTo(xPix(g * 4), mT + ph); ctx.stroke();
-        }
-        for (let v = -10; v <= 6; v += 2) {
-            ctx.beginPath(); ctx.moveTo(mL, yPix(v * 1e-7)); ctx.lineTo(mL + pw, yPix(v * 1e-7)); ctx.stroke();
-        }
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.2;
-        ctx.strokeRect(mL, mT, pw, ph);
-        ctx.beginPath(); ctx.moveTo(mL, yPix(0)); ctx.lineTo(mL + pw, yPix(0)); ctx.stroke();
+        /* x0 is named below right of its dot, where the curve has already
+           risen above zero; any axis number under that name is left out */
+        const x0 = crossing(), x0In = x0 > 0 && x0 < XS, x0Lx = xPix(x0) + 8;
+        const underX0 = x => x0In && x > x0Lx - 12 && x < x0Lx + 34;
+        /* axes: φ at x = 0, the zero line across */
+        P.axis(mL, mT + ph, mL, mT - 6, C.soft);
+        P.line(mL, yPix(0), mL + pw, yPix(0), C.soft, 1.1);
+        ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+        [4, 8, 12, 16].forEach(x => {
+            ctx.beginPath(); ctx.moveTo(xPix(x), yPix(0) - 4); ctx.lineTo(xPix(x), yPix(0) + 4); ctx.stroke();
+            if (!underX0(xPix(x))) P.small(String(x), xPix(x), yPix(0) + 15, C.faint, 10.5, 'center', true);
+        });
+        [[4, '+4'], [-4, '−4'], [-8, '−8']].forEach(([v, t]) => {
+            ctx.beginPath(); ctx.moveTo(mL - 4, yPix(v * 1e-7)); ctx.lineTo(mL + 4, yPix(v * 1e-7)); ctx.stroke();
+            P.small(t, mL - 8, yPix(v * 1e-7), C.faint, 10.5, 'right');
+        });
+        P.small('0', mL - 8, yPix(0), C.faint, 10.5, 'right');
+        if (!underX0(xPix(14) - 14) && !underX0(xPix(14) + 14)) P.small('x (cm)', xPix(14), yPix(0) + 15, C.soft, 11, 'center', true);
+        P.sym('φ', mL + 10, mT - 8, C.soft, 16, 'left');
+        P.small('(10⁻⁷ V)', mL + 24, mT - 8, C.soft, 10.5, 'left');
 
-        /* labels */
-        ctx.fillStyle = col.soft;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        [4, 8, 12, 16].forEach(x => ctx.fillText(x.toFixed(0), xPix(x), mT + ph + 8));
-        ctx.fillText('x (cm)', mL + pw / 2, mT + ph + 24);
-        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-        ctx.fillText('+4', mL - 8, yPix(4e-7));
-        ctx.fillText('0',  mL - 8, yPix(0));
-        ctx.fillText('−10', mL - 8, yPix(-10e-7));
-        ctx.save();
-        ctx.translate(16, mT + ph / 2); ctx.rotate(-Math.PI / 2);
-        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText('φ (10⁻⁷ V)', 0, 0);
-        ctx.restore();
-
-        /* target markers */
+        /* the printed curve's two features: the asymptote and the zero */
         if (show.target) {
-            const tc = matched ? col.acc : col.soft;
-            ctx.setLineDash([6, 5]); ctx.lineWidth = 1.4;
-            /* asymptote */
-            ctx.strokeStyle = tc;
-            ctx.beginPath(); ctx.moveTo(mL, yPix(PHI_INF)); ctx.lineTo(mL + pw, yPix(PHI_INF)); ctx.stroke();
-            /* crossing */
-            ctx.beginPath(); ctx.moveTo(xPix(X_TGT), mT); ctx.lineTo(xPix(X_TGT), mT + ph); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = tc;
-            ctx.beginPath(); ctx.arc(xPix(X_TGT), yPix(0), 4.5, 0, Math.PI * 2); ctx.fill();
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-            ctx.fillText('asymptote 5.76·10⁻⁷ V', mL + 8, yPix(PHI_INF) - 4);
-            ctx.fillText((matched ? '✓ ' : '') + 'zero at 8.0 cm', xPix(X_TGT) + 7, mT + 16);
+            const tc = matched ? C.green : C.soft;
+            P.line(mL, yPix(PHI_INF), mL + pw, yPix(PHI_INF), tc, 1.4, [6, 5]);
+            /* broken where it would cross the axis's own "8" */
+            P.line(xPix(X_TGT), mT, xPix(X_TGT), yPix(0), tc, 1.4, [6, 5]);
+            P.line(xPix(X_TGT), yPix(0) + 25, xPix(X_TGT), mT + ph, tc, 1.4, [6, 5]);
+            P.dot(xPix(X_TGT), yPix(0), 5, C.stage, tc, 1.6);
+            P.small(T('printed asymptote', 'tištěná asymptota'), mL + pw - 6, yPix(PHI_INF) - 11, tc, 11, 'right', true);
+            /* low on its line: the curve never comes down there for x beyond 8 cm */
+            P.small((matched ? '✓ ' : '') + T('printed zero crossing', 'tištěný průchod nulou'),
+                    xPix(X_TGT) + 8, mT + ph - 14, tc, 11, 'left', true);
         }
 
-        /* live curve */
+        /* the live curve, clipped to the frame */
         ctx.save();
         ctx.beginPath(); ctx.rect(mL, mT, pw, ph); ctx.clip();
-        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+        ctx.strokeStyle = C.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
         ctx.beginPath();
-        let started = false;
         for (let i = 0; i <= 480; i++) {
             const x = 0.4 + (XS - 0.4) * i / 480;
-            const p = phi(x);
-            const px = xPix(x), py = yPix(Math.max(PHI_MIN * 3, p));
-            if (!started) { ctx.moveTo(px, py); started = true; }
-            else ctx.lineTo(px, py);
+            const px = xPix(x), py = yPix(Math.max(PHI_MIN * 3, phi(x)));
+            i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
         }
         ctx.stroke();
         ctx.restore();
-
-        /* live crossing dot */
-        const x0 = crossing();
-        if (x0 > 0 && x0 < XS) {
-            ctx.fillStyle = col.ink;
-            ctx.beginPath(); ctx.arc(xPix(x0), yPix(0), 3.5, 0, Math.PI * 2); ctx.fill();
+        if (x0In) {
+            P.dot(xPix(x0), yPix(0), 4.5, C.acc, C.ink);
+            P.sub('x', '0', x0Lx, yPix(0) + 16, C.acc, 16, 'left');
         }
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        $('r-x0').textContent = x0.toFixed(2) + ' cm';
-        $('r-q2').textContent = state.q2.toFixed(0) + ' e = ' +
-            (state.q2 * E_CH * 1e18).toFixed(2) + ' ×10⁻¹⁸ C';
-        $('r-match').textContent = matched ? '✓ matched · Q₂ = −32 e' : '—';
-    }
 
-    function frame() {
-        draw();
-        requestAnimationFrame(frame);
+        /* readouts, written only when they change */
+        KIT.put('r-x0', num(x0, 2) + ' cm');
+        KIT.put('r-q2', num(state.q2, 0) + ' e = ' + num(state.q2 * E_CH * 1e18, 2) + ' ×10⁻¹⁸ C');
+        KIT.put('r-match', matched ? T('✓ matched · Q₂ = −32 e', '✓ shoda · Q₂ = −32 e') : '—');
     }
-    requestAnimationFrame(frame);
+    const V = KIT.mount(canvas, draw);
+
+    /* ── controls ───────────────────────────────────────────────── */
+    const inp = $('p-q2');
+    const syncLabel = () => KIT.put('p-q2-val', num(state.q2, 0) + ' e');
+    inp?.addEventListener('input', () => { state.q2 = +inp.value; syncLabel(); V.redraw(); });
+    $('btn-reset')?.addEventListener('click', () => {
+        state = { ...DEFAULTS };
+        if (inp) inp.value = state.q2;
+        syncLabel(); V.redraw();
+    });
+    $('tgl-target')?.addEventListener('click', function () {
+        show.target = !show.target;
+        this.querySelector('.toggle-box')?.classList.toggle('on', show.target);
+        V.redraw();
+    });
+    document.addEventListener('langchange', syncLabel);
+    syncLabel();
 }());
 </script>
 

@@ -84,6 +84,19 @@
         document.dispatchEvent(new CustomEvent('langchange', { detail: { lang: l } }));
     }
 
+    /* A canvas painted before a web font has arrived draws its labels in the
+       fallback (Georgia, whose old-style digits turn n₁ into "nı" and 0 into
+       "o"), and a sandbox that redraws only on input keeps that picture. Every
+       sandbox already redraws on langchange, so send it once more, in the same
+       language, whenever a batch of fonts finishes loading. */
+    if (document.fonts && document.fonts.addEventListener) {
+        var repaint = function () {
+            document.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang, fonts: true } }));
+        };
+        document.fonts.addEventListener('loadingdone', repaint);
+        window.addEventListener('load', function () { document.fonts.ready.then(repaint); });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         syncButtons();
         rewriteLinks();

@@ -350,96 +350,95 @@
 
     /* ── Core concept ─────────────────────────────────────────────────── */
     .core-concept {
-        border: 1.5px solid var(--ink);
-        background: var(--paper);
-        padding: 40px 44px 44px;
-        margin-top: 26px;
         position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
     }
     .core-concept::before {
         content: "";
         position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 5px;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
         background: var(--accent);
     }
     .core-concept-text {
         font-family: var(--f-serif);
-        font-size: 21px;
-        line-height: 1.62;
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
         color: var(--ink);
-        max-width: 74ch;
-        margin-bottom: 34px;
+        max-width: 76ch;
     }
     .core-concept-text em { font-style: normal; font-weight: 600; }
     .core-formulas {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        border-top: 1px solid var(--ink-faint);
-        margin-bottom: 34px;
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
     }
     .core-formula {
-        padding: 16px 0 15px;
-        border-bottom: 1px dashed var(--ink-faint);
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
     }
     .cf-head {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-        gap: 10px 22px;
+        display: grid;
+        gap: 8px;
+        align-content: start;
     }
     .cf-desc {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.16em;
-        color: var(--ink-faint);
-        min-width: 152px;
+        color: var(--accent);
     }
     .cf-eq {
-        font-size: 17px;
-        color: var(--ink);
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
         white-space: nowrap;
     }
     .cf-note {
-        font-size: 14px;
-        line-height: 1.55;
+        font-size: 14.5px;
         color: var(--ink-soft);
-        margin: 8px 0 0 0;
-        max-width: 80ch;
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
     }
     .core-method-label {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.18em;
         color: var(--ink-faint);
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--ink-faint);
-        margin-bottom: 4px;
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
     }
     .core-method {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
     }
     .cm-step {
-        display: flex;
-        gap: 16px;
-        align-items: flex-start;
-        padding: 13px 0;
-        border-bottom: 1px dashed var(--ink-faint);
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
         font-size: 15px;
-        line-height: 1.6;
         color: var(--ink-soft);
+        line-height: 1.55;
     }
     .cm-num {
         font-family: var(--f-mono);
         font-size: 11px;
         color: var(--accent);
-        min-width: 20px;
-        padding-top: 3px;
+        letter-spacing: 0.05em;
     }
     .cm-step strong { color: var(--ink); }
 
@@ -467,6 +466,179 @@
         box-shadow: 3px 3px 0 var(--ink);
     }
     .ex-tab .ex-no { color: var(--accent); font-weight: 600; }
+
+    /* ── The movie sandbox — see topics/_movie-sandbox.html ──────────── */
+    /* The film sits in the text column until the gate is opened, then widens
+       out to the window. ONLY the margins move: the canvas keeps its height,
+       so nothing below the panel shifts and the play button stays under the
+       pointer. The 12px still matters — 50vw counts the scrollbar and the
+       content box does not, so a flush 100vw turns the page's vertical
+       scrollbar into a horizontal one. */
+    #lab.movie {
+        display: block;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        transition: margin 520ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #lab.movie.wide {
+        margin-left: calc(-50vw + 50% + 12px);
+        margin-right: calc(-50vw + 50% + 12px);
+    }
+    #lab.movie .canvas-panel { min-height: 0; }
+    /* The stage is the same graph paper as every other sandbox: the canvas
+       stays transparent over the .canvas-wrap grid. */
+    #lab.movie .canvas-wrap {
+        flex: 0 0 auto;             /* or `height` is ignored and it collapses */
+        min-height: 0;
+        height: clamp(400px, 62vh, 700px);
+    }
+    .gate {
+        position: absolute; inset: 0; z-index: 4;
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 20px; cursor: pointer;
+        background: rgba(255, 255, 236, 0.62);
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+        transition: opacity 900ms ease, backdrop-filter 900ms ease,
+                    -webkit-backdrop-filter 900ms ease, background 900ms ease;
+    }
+    .gate.away {
+        opacity: 0; pointer-events: none; background: rgba(255, 255, 236, 0);
+        backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+    }
+    .gate-btn {
+        width: 84px; height: 84px; border-radius: 50%;
+        border: 1.5px solid var(--ink); background: var(--paper);
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+    .gate:hover .gate-btn,
+    .gate:focus-visible .gate-btn {
+        transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink);
+        background: var(--paper-deep);
+    }
+    .gate:focus-visible { outline: none; }
+    .gate-btn::after {
+        content: ''; width: 0; height: 0; margin-left: 6px;
+        border-left: 24px solid var(--accent);
+        border-top: 15px solid transparent; border-bottom: 15px solid transparent;
+    }
+    .gate-title {
+        font-family: var(--f-serif); font-size: clamp(20px, 2.4vw, 30px);
+        color: var(--ink); text-align: center; padding: 0 24px;
+    }
+    .gate-sub {
+        font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.2em;
+        text-transform: uppercase; color: var(--ink-faint); text-align: center;
+    }
+    .canvas-wrap.armed canvas { filter: blur(8px); }
+    #lab.movie .canvas-wrap canvas { transition: filter 900ms ease; }
+    /* a step change is a cut, not a flight: the new scene fades up from the paper */
+    #lab.movie .canvas-wrap canvas.cut { animation: mv-cut 460ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes mv-cut { from { opacity: 0; } to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+        .gate, .gate-btn, #lab.movie, #lab.movie .canvas-wrap canvas { transition: none; }
+        #lab.movie .canvas-wrap canvas.cut { animation: none; }
+    }
+    #lab.movie .canvas-formula-badge {
+        top: auto; bottom: 16px; left: 16px; right: auto;
+        font-size: 20px; padding: 9px 16px;
+    }
+    .movie-bar {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--ink); border-top: none; background: var(--paper);
+    }
+    .bar-btn {
+        flex: 0 0 auto; font-family: var(--f-mono); font-size: 11px;
+        letter-spacing: 0.14em; text-transform: uppercase; padding: 0 20px;
+        border: none; border-right: 1.5px solid var(--ink);
+        background: var(--paper); color: var(--ink-soft); cursor: pointer;
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .bar-btn.next {
+        border-right: none; border-left: 1.5px solid var(--ink);
+        background: var(--accent); color: var(--paper);
+    }
+    .bar-btn:hover:not(:disabled) { background: var(--paper-deep); }
+    .bar-btn.next:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+    .bar-btn:disabled { color: var(--ink-faint); cursor: not-allowed; }
+    .ms-rail { flex: 1 1 auto; display: flex; overflow-x: auto; scrollbar-width: thin; }
+    .ms-chip {
+        flex: 1 1 0; min-width: 132px; display: flex; flex-direction: column; gap: 3px;
+        padding: 11px 14px 12px; border-right: 1px dashed var(--ink-faint);
+        cursor: pointer; color: var(--ink-faint);
+        transition: background 120ms ease, color 120ms ease;
+    }
+    .ms-chip:last-child { border-right: none; }
+    .ms-chip:hover { background: var(--paper-deep); color: var(--ink-soft); }
+    .ms-chip.on { background: var(--paper-deep); color: var(--ink); }
+    .ms-chip.on .ms-num { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .ms-num {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.06em;
+        width: 19px; height: 16px; line-height: 15px; text-align: center;
+        border: 1px solid currentColor;
+    }
+    .ms-name { font-size: 12.5px; line-height: 1.25; }
+    .ms-reads {
+        flex: 0 0 auto; display: flex; align-items: center; gap: 22px;
+        padding: 0 22px; border-left: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .ms-read { display: flex; flex-direction: column; gap: 3px; }
+    .ms-read-k {
+        font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faint);
+    }
+    .ms-read-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        letter-spacing: 0.02em; white-space: nowrap;
+    }
+    .movie-note {
+        margin: 10px 0 0; font-size: 11.5px; line-height: 1.5;
+        color: var(--ink-faint); text-align: center;
+    }
+    @media (max-width: 900px) {
+        #lab.movie.wide { margin-left: -48px; margin-right: -48px; }
+        .ms-reads { display: none; }
+        .ms-chip { min-width: 112px; }
+    }
+
+    /* ── The movie's log strip ───────────────────────────────────────── */
+    .fl-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    .fl-col { border: 1.5px solid var(--ink); background: var(--paper); }
+    .fl-head {
+        display: flex; align-items: baseline; gap: 12px; padding: 11px 20px;
+        border-bottom: 1.5px solid var(--ink); background: var(--paper-deep);
+    }
+    .fl-head .accent-pip { align-self: center; }
+    .fl-kicker {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.16em; color: var(--ink-faint);
+    }
+    .fl-title { font-family: var(--f-serif); font-size: 19px; color: var(--ink); line-height: 1.15; }
+    .fl-body { padding: 20px 20px 18px; }
+    .fl-text { font-size: 14.5px; line-height: 1.72; color: var(--ink-soft); margin: 0 0 16px; }
+    .fl-text em { font-style: italic; color: var(--ink); }
+    .fl-eq {
+        font-size: 18px; color: var(--ink); border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 18px; margin: 0 0 16px; overflow-x: auto;
+    }
+    .fl-rows { display: grid; grid-template-columns: 1fr auto; gap: 0 18px; }
+    .fl-k { font-size: 13.5px; color: var(--ink-soft); padding: 8px 0; border-bottom: 1px dashed var(--ink-faint); }
+    .fl-v {
+        font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
+        text-align: right; letter-spacing: 0.02em; white-space: nowrap;
+        padding: 8px 0; border-bottom: 1px dashed var(--ink-faint);
+    }
+    .fl-rows sub, .ms-read-k sub { font-size: 0.72em; }
+    /* the rail's readouts are named by symbols, which must not be set in
+       capitals: t is a time, T a period */
+    .ms-read-k { text-transform: none; font-family: var(--f-serif); font-style: italic;
+                 font-size: 13px; letter-spacing: 0; color: var(--ink-soft); }
+    .panel-reset {
+        font-family: var(--f-mono); font-size: 10px; text-transform: uppercase;
+        letter-spacing: 0.14em; background: none; border: none;
+        cursor: pointer; color: var(--ink-faint); padding: 0;
+    }
     </style>
 </head>
 
@@ -511,24 +683,194 @@
         <div class="section-head">
             <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
         </div>
-        <div class="wip">work in progress</div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">The motion of a particle is described by its <em>position vector</em> <span data-tex="\vec r(t)"></span>. The velocity is the time derivative of the position and the acceleration the time derivative of the velocity; going the other way, from acceleration to velocity to position, is integration, and the constants of integration are the initial position and the initial velocity. In two or three dimensions the vector equation splits into independent equations, one per coordinate: each axis has its own velocity and acceleration, and the motion along <span data-tex="x"></span> does not affect the motion along <span data-tex="y"></span>. This is the <em>principle of superposition</em> of motions, and the only quantity the axes share is time — which is why a stone thrown horizontally reaches the ground at the same moment as one dropped from the same height.</span>
+                <span lang="cs">Pohyb hmotného bodu popisuje <em>polohový vektor</em> <span data-tex="\vec r(t)"></span>. Rychlost je časovou derivací polohy a zrychlení časovou derivací rychlosti; opačný směr, od zrychlení k rychlosti a k poloze, je integrace a integračními konstantami jsou počáteční poloha a počáteční rychlost. Ve dvou či třech rozměrech se vektorová rovnice rozpadá na nezávislé rovnice, jednu pro každou souřadnici: každá osa má vlastní rychlost i zrychlení a pohyb ve směru <span data-tex="x"></span> neovlivňuje pohyb ve směru <span data-tex="y"></span>. To je <em>princip superpozice</em> (nezávislosti) pohybů a jedinou veličinou, kterou mají osy společnou, je čas — proto kámen vržený vodorovně dopadne na zem ve stejném okamžiku jako kámen z téže výšky upuštěný.</span>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where every calculation starts</span><span lang="cs">Odkud každý výpočet začíná</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\vec v = \dfrac{\mathrm{d}\vec r}{\mathrm{d}t}\,,\qquad \vec a = \dfrac{\mathrm{d}\vec v}{\mathrm{d}t}"></span>
+                        <span class="ck-eq" data-tex="\vec r(t) = \vec r_0 + \vec v_0 t + \dfrac{1}{2}\vec a\,t^2"></span>
+                    </div>
+                    <p class="ck-note">
+                        <span lang="en">The first pair is the chain of the topic: differentiation leads from position to velocity to acceleration, integration leads back. The second is that chain integrated for a <em>constant</em> acceleration. It is a vector equation, so written out it is one ordinary equation per axis — <span data-tex="x(t) = x_0 + v_{0x}t + \dfrac{1}{2}a_x t^2"></span> and the same for <span data-tex="y"></span> — and the two equations share nothing but <span data-tex="t"></span>. Free fall and projectile motion are this same equation with <span data-tex="\vec a = (0,\,-g)"></span>.</span>
+                        <span lang="cs">První dvojice je řetězem celého tématu: derivací se přechází od polohy k rychlosti a ke zrychlení, integrací zpět. Druhý vztah je tentýž řetěz zintegrovaný pro <em>konstantní</em> zrychlení. Je to vektorová rovnice, po rozepsání tedy jedna obyčejná rovnice pro každou osu — <span data-tex="x(t) = x_0 + v_{0x}t + \dfrac{1}{2}a_x t^2"></span> a stejně pro <span data-tex="y"></span> — a obě rovnice spojuje jen <span data-tex="t"></span>. Volný pád i šikmý vrh jsou touž rovnicí s <span data-tex="\vec a = (0,\,-g)"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Average and instantaneous</span><span lang="cs">Průměrná a okamžitá</span></span>
+                        <span class="cf-eq" data-tex="\bar v = \dfrac{\Delta x}{\Delta t}"></span>
+                        <span class="cf-eq" data-tex="v_x = \dfrac{\mathrm{d}x}{\mathrm{d}t}\,,\qquad a_x = \dfrac{\mathrm{d}v_x}{\mathrm{d}t}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Two different questions that look alike. The average velocity over an interval is the slope of the chord joining the end points of the <span data-tex="x(t)"></span> graph; the instantaneous velocity is the slope of the tangent at one instant. In the same way the acceleration is the slope of the <span data-tex="v(t)"></span> graph. &ldquo;During the first three seconds&rdquo; asks for an average.</span>
+                        <span lang="cs">Dvě různé otázky, které vypadají podobně. Průměrná rychlost za interval je směrnice sečny spojující krajní body grafu <span data-tex="x(t)"></span>; okamžitá rychlost je směrnice tečny v jednom okamžiku. Stejně je zrychlení směrnicí grafu <span data-tex="v(t)"></span>. &bdquo;Během prvních tří sekund&ldquo; se ptá na průměr.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Constant acceleration on one axis</span><span lang="cs">Konstantní zrychlení na jedné ose</span></span>
+                        <span class="cf-eq" data-tex="v = v_0 + at"></span>
+                        <span class="cf-eq" data-tex="v^2 = v_0^2 + 2a(x - x_0)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The velocity row belonging to the key equation, and the relation between speed and distance obtained by eliminating <span data-tex="t"></span> — useful when the time is neither given nor asked for. Free fall is the case <span data-tex="a = -g"></span>, <span data-tex="g = 9{.}81\ \mathrm{m\,s^{-2}}"></span>, with the positive direction upwards; a throw downwards then has a negative <span data-tex="v_0"></span>.</span>
+                        <span lang="cs">Rychlostní rovnice ke klíčovému vztahu a vztah mezi rychlostí a dráhou, který vznikne vyloučením <span data-tex="t"></span> — hodí se, když čas není zadaný ani hledaný. Volný pád je případ <span data-tex="a = -g"></span>, <span data-tex="g = 9{,}81\ \mathrm{m\,s^{-2}}"></span>, s kladným směrem nahoru; hod dolů má pak záporné <span data-tex="v_0"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Projectile motion</span><span lang="cs">Šikmý vrh</span></span>
+                        <span class="cf-eq" data-tex="x = v_0\cos\alpha\;t"></span>
+                        <span class="cf-eq" data-tex="y = h + v_0\sin\alpha\;t - \dfrac{1}{2}gt^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The superposition of a uniform motion along <span data-tex="x"></span> and a free fall along <span data-tex="y"></span>. At the highest point <span data-tex="v_y = 0"></span> while <span data-tex="v_x"></span> carries on unchanged. For a horizontal launch (<span data-tex="\alpha = 0"></span>) the time of flight is set by the height alone, <span data-tex="t = \sqrt{2h/g}"></span>, whatever the launch speed.</span>
+                        <span lang="cs">Složení rovnoměrného pohybu ve směru <span data-tex="x"></span> a volného pádu ve směru <span data-tex="y"></span>. V nejvyšším bodě je <span data-tex="v_y = 0"></span>, zatímco <span data-tex="v_x"></span> se nemění. U vodorovného vrhu (<span data-tex="\alpha = 0"></span>) určuje dobu letu jen výška, <span data-tex="t = \sqrt{2h/g}"></span>, bez ohledu na počáteční rychlost.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Uniform circular motion</span><span lang="cs">Rovnoměrný pohyb po kružnici</span></span>
+                        <span class="cf-eq" data-tex="a_c = \dfrac{v^2}{r}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A constant speed is not a constant velocity: the direction keeps turning, so there is an acceleration, and it points to the centre (centripetal acceleration). The moment the body is released, it leaves along the tangent with the speed it had on the circle.</span>
+                        <span lang="cs">Stálá velikost rychlosti neznamená stálou rychlost: směr se neustále mění, takže zrychlení existuje a míří do středu (dostředivé zrychlení). V okamžiku uvolnění těleso odletí po tečně rychlostí, kterou mělo na kružnici.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Formula or graph?</strong> A given <span data-tex="x(t)"></span> is differentiated; a given
+                    graph is read through slopes of chords and tangents. Where both routes are asked for, they must give
+                    the same number.</span>
+                    <span lang="cs"><strong>Vzorec, nebo graf?</strong> Zadané <span data-tex="x(t)"></span> se derivuje; ze zadaného grafu
+                    se odečítají směrnice sečen a tečen. Žádá-li úloha obě cesty, musí vést k témuž číslu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Average or instantaneous?</strong> &ldquo;Over the first three seconds&rdquo; is
+                    <span data-tex="\Delta x/\Delta t"></span>; &ldquo;at three seconds&rdquo; is the derivative evaluated at
+                    that instant. They are different numbers.</span>
+                    <span lang="cs"><strong>Průměrná, nebo okamžitá?</strong> &bdquo;Za první tři sekundy&ldquo; znamená
+                    <span data-tex="\Delta x/\Delta t"></span>; &bdquo;v čase tři sekundy&ldquo; znamená derivaci v tomto
+                    okamžiku. Jsou to různá čísla.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Fix the positive direction once.</strong> Mark it on the sketch and keep it; with up positive,
+                    <span data-tex="g"></span> enters with a minus sign. Two bodies in one problem get one common axis and
+                    their own start times.</span>
+                    <span lang="cs"><strong>Zvolte jednou kladný směr.</strong> Vyznačte ho v náčrtku a už ho neměňte; je-li kladný směr
+                    nahoru, vstupuje <span data-tex="g"></span> se záporným znaménkem. Dvě tělesa v jedné úloze dostanou
+                    společnou osu a každé svůj čas startu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Split the motion by axis.</strong> Write one row for <span data-tex="x"></span> and one for
+                    <span data-tex="y"></span>. Find the time on the axis with the most information and substitute it
+                    into the other.</span>
+                    <span lang="cs"><strong>Rozdělte pohyb po osách.</strong> Napište jeden řádek pro <span data-tex="x"></span> a jeden pro
+                    <span data-tex="y"></span>. Čas určete na ose, o které je známo nejvíc, a dosaďte ho do druhé.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>&ldquo;Highest point&rdquo; means one component is zero.</strong> At the top of the path
+                    <span data-tex="v_y = 0"></span>, which gives the time; the other component is evaluated at that
+                    time.</span>
+                    <span lang="cs"><strong>&bdquo;Nejvyšší bod&ldquo; znamená nulovou složku.</strong> Ve vrcholu dráhy je
+                    <span data-tex="v_y = 0"></span>, z toho plyne čas; druhá složka se vyčíslí v tomto čase.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>A circle followed by a throw.</strong> Solve the flight backwards: the height gives the
+                    time, the distance gives the launch speed — which is the speed on the circle. Then
+                    <span data-tex="a_c = v^2/r"></span>.</span>
+                    <span lang="cs"><strong>Kružnice, po ní vrh.</strong> Let vyřešte pozpátku: z výšky plyne doba letu, ze vzdálenosti
+                    počáteční rychlost — a ta je rychlostí na kružnici. Pak <span data-tex="a_c = v^2/r"></span>.</span></span>
+                </div>
+
+            </div>
+        </div>
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════════
          § 7  SIMULATION LAB — cannon shooting
          ═══════════════════════════════════════════════════════════════ -->
-    <!-- ════ § 3  LAB 1 — CANNON SANDBOX ════ -->
-    <section id="lab" class="lab" style="margin-top:72px;">
+    <!-- ════ § 3  LAB 1 — ONE MOTION, TWO COORDINATES (movie sandbox) ════ -->
+    <section id="lab" class="lab movie" style="margin-top:72px; margin-bottom:0;">
+        <div class="canvas-panel">
+            <div class="canvas-head">
+                <span><span class="accent-pip"></span><span lang="en">One motion, two coordinates</span><span lang="cs">Jeden pohyb, dvě souřadnice</span></span>
+                <span style="display:flex;gap:16px;align-items:baseline;">
+                    <span id="pm-clock" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
+                    <button id="pm-reset" class="panel-reset"><span lang="en">restart</span><span lang="cs">od začátku</span></button>
+                </span>
+            </div>
+            <div class="canvas-wrap armed" id="pm-wrap">
+                <canvas id="pm-canvas"></canvas>
+                <div class="gate" id="pm-gate">
+                    <div class="gate-btn"></div>
+                    <div class="gate-title"><span lang="en">One motion, two coordinates</span><span lang="cs">Jeden pohyb, dvě souřadnice</span></div>
+                    <div class="gate-sub"><span lang="en">position · velocity · acceleration · x and y apart · a throw</span><span lang="cs">poloha · rychlost · zrychlení · x a y zvlášť · vrh</span></div>
+                </div>
+                <div class="canvas-formula-badge" id="pm-eq"></div>
+            </div>
+        </div>
+        <div class="movie-bar">
+            <button id="pm-prev" class="bar-btn">←</button>
+            <div class="ms-rail" id="pm-list"></div>
+            <div class="ms-reads">
+                <div class="ms-read"><span class="ms-read-k" id="pm-k-a">—</span><span class="ms-read-v" id="pm-r-a">—</span></div>
+                <div class="ms-read"><span class="ms-read-k" id="pm-k-b">—</span><span class="ms-read-v" id="pm-r-b">—</span></div>
+                <div class="ms-read"><span class="ms-read-k" id="pm-k-c">—</span><span class="ms-read-v" id="pm-r-c">—</span></div>
+            </div>
+            <button id="pm-next" class="bar-btn next"><span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→</button>
+        </div>
+    </section>
+
+    <p class="movie-note"><span lang="en">Each step plays once and then holds its closing picture; a click on its name in the rail plays it again.</span><span lang="cs">Každý krok se přehraje jednou a pak zůstane stát na závěrečném obrázku; kliknutím na jeho název v liště se přehraje znovu.</span></p>
+
+    <section id="pmlog" style="margin-top:24px;">
+        <div class="fl-grid">
+            <div class="fl-col">
+                <div class="fl-head">
+                    <span class="accent-pip"></span>
+                    <span class="fl-kicker" id="pm-kicker">—</span>
+                    <span class="fl-title" id="pm-title">—</span>
+                </div>
+                <div class="fl-body">
+                    <p class="fl-text" id="pm-text"></p>
+                    <div class="fl-eq" id="pm-leq"></div>
+                    <div class="fl-rows" id="pm-rows"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ § 3  LAB 2 — CANNON SANDBOX ════ -->
+    <section id="lab2" class="lab" style="margin-top:72px;">
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Cannon sandbox</span><span lang="cs">Sandbox: dělo</span><span class="wip-tag">work in progress</span></span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Cannon sandbox</span><span lang="cs">Sandbox: dělo</span></span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
                 <div class="canvas-formula-badge top-right" data-tex="y = h + v_{0y}\,t - \dfrac{1}{2}g t^2"></div>
-                <div class="sim-hint"><span lang="en">set θ · v<sub>0</sub> · h, then press fire</span><span lang="cs">nastavte θ · v<sub>0</sub> · h a stiskněte pal</span></div>
             </div>
         </div>
 
@@ -643,7 +985,7 @@
          § 9  CHALLENGE — Hit the target
          ═══════════════════════════════════════════════════════════════ -->
     <!-- ════ § 4  LAB 2 — CHALLENGE: HIT THE TARGET ════ -->
-    <section id="lab2" style="margin-top:72px;">
+    <section id="lab3" style="margin-top:72px;">
         <div class="section-head">
             <h2><span lang="en">Challenge · Hit the target</span><span lang="cs">Výzva · Zasáhni cíl</span></h2>
         </div>
@@ -661,7 +1003,7 @@
 
             <div class="canvas-panel">
                 <div class="canvas-head">
-                    <span><span class="accent-pip"></span><span lang="en">Shooting range</span><span lang="cs">Střelnice</span><span class="wip-tag">work in progress</span></span>
+                    <span><span class="accent-pip"></span><span lang="en">Shooting range</span><span lang="cs">Střelnice</span></span>
                     <span id="ch-status" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">ready</span>
                 </div>
                 <div class="canvas-wrap">
@@ -760,7 +1102,12 @@
         <div class="section-head">
             <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
         </div>
-        <div class="wip">work in progress</div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch02-ex78.html"><span lang="en">Ch. 2 · <span class="ex-no">Ex. 78</span></span><span lang="cs">Kap. 2 · <span class="ex-no">Úl. 78</span></span></a>
+            <a class="ex-tab" href="../exercises/ch02-ex87.html"><span lang="en">Ch. 2 · <span class="ex-no">Ex. 87</span></span><span lang="cs">Kap. 2 · <span class="ex-no">Úl. 87</span></span></a>
+            <a class="ex-tab" href="../exercises/ch04-ex15.html"><span lang="en">Ch. 4 · <span class="ex-no">Ex. 15</span></span><span lang="cs">Kap. 4 · <span class="ex-no">Úl. 15</span></span></a>
+            <a class="ex-tab" href="../exercises/ch04-ex67.html"><span lang="en">Ch. 4 · <span class="ex-no">Ex. 67</span></span><span lang="cs">Kap. 4 · <span class="ex-no">Úl. 67</span></span></a>
+        </div>
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -795,589 +1142,334 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- ── Toggle wiring ────────────────────────────────────────────────── -->
 <script>
-(function () {
-    document.querySelectorAll('.toggle-row').forEach(row => {
-        row.querySelector('.toggle-box')?.addEventListener('click', function () {
-            this.classList.toggle('on');
-        });
-    });
+/* ══════════════════════════════════════════════════════════════════════
+   § I.02 — shared drawing helpers for the cannon and the shooting range
+   (the house style of the movies above: one metres→pixels scale, serif
+   symbols with a halo in the stage tone, x in blue and y in green as in
+   the film, filled arrowheads). Both sandboxes animate only while a shot
+   is in the air or the view is easing to a new fit.
+   ══════════════════════════════════════════════════════════════════════ */
+const PK = (function () {
+    'use strict';
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    function palette() {
+        const R = document.documentElement;
+        return {
+            stage: tok(R, '--paper-deep', '#efead6'), paper: tok(R, '--paper', '#FFFFEC'),
+            ink: tok(R, '--ink', '#363026'), soft: tok(R, '--ink-soft', '#4d4436'),
+            faint: tok(R, '--ink-faint', '#7A6A52'), acc: tok(document.body, '--accent', '#7a3c1a'),
+            block: '#e9e1c6', X: '#2a62a8', Y: '#2d7a45', grid: 'rgba(54,48,38,0.16)'
+        };
+    }
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const num = (v, d) => {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    function put(id, text) { const el = document.getElementById(id); if (el && el.textContent !== text) el.textContent = text; }
+    function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+        ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+    }
+    function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        if (under) arrow(ctx, x1, y1, x2, y2, under, (lw || 2) + 3.5);
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2; ctx.setLineDash([]); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+    function mono(ctx, text, x, y, col, sz, align) {
+        ctx.font = (sz || 11) + 'px "Geist",ui-sans-serif,sans-serif';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+    }
+    function serif(ctx, P, text, x, y, col, sz, align) {
+        ctx.font = 'italic ' + (sz || 16) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = P.stage; ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y); ctx.lineWidth = 1;
+    }
+    function sub(ctx, P, main, s, x, y, col, sz, align) {
+        sz = sz || 16;
+        const ss = Math.round(sz * 0.7);
+        ctx.font = 'italic ' + sz + 'px "Source Serif 4",Georgia,serif';
+        const w1 = ctx.measureText(main).width;
+        ctx.font = 'italic ' + ss + 'px "Source Serif 4",Georgia,serif';
+        const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        serif(ctx, P, main, x0, y, col, sz, 'left');
+        serif(ctx, P, s, x0 + w1 + 1, y + sz * 0.28, col, ss, 'left');
+        return x0 + tw;
+    }
+    function vsym(ctx, P, text, x, y, col, sz) {
+        sz = sz || 17;
+        ctx.font = 'italic ' + sz + 'px "Source Serif 4",Georgia,serif';
+        const w = ctx.measureText(text).width;
+        serif(ctx, P, text, x, y, col, sz, 'center');
+        const ay = y - sz * 0.62, x1 = x - w / 2, x2 = x + w / 2 + 3;
+        ctx.strokeStyle = P.stage; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2, ay); ctx.stroke();
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.8); ctx.lineTo(x2 - 4, ay + 2.8); ctx.closePath(); ctx.fill();
+    }
+    /* ground: a line with hatching beneath (the ticks sit on the side the
+       line is drawn clockwise from — left to right puts them below) */
+    function ground(ctx, P, x1, x2, y) {
+        line(ctx, x1, y, x2, y, P.soft, 1.4);
+        ctx.strokeStyle = P.faint; ctx.lineWidth = 1;
+        for (let x = x1 + 6; x <= x2; x += 11) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 9, y + 9); ctx.stroke(); }
+    }
+    function hatchRect(ctx, x, y, w, h, col) {
+        ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+        ctx.strokeStyle = col; ctx.lineWidth = 1;
+        for (let d = -h; d < w + h; d += 9) { ctx.beginPath(); ctx.moveTo(x + d, y + h); ctx.lineTo(x + d + h, y); ctx.stroke(); }
+        ctx.restore();
+    }
+    /* a dimension line: end ticks and a serif label to one side */
+    function dim(ctx, P, x1, y1, x2, y2, label, side, col) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+        col = col || P.soft;
+        line(ctx, x1, y1, x2, y2, col, 1);
+        line(ctx, x1 - nx * 5, y1 - ny * 5, x1 + nx * 5, y1 + ny * 5, col, 1);
+        line(ctx, x2 - nx * 5, y2 - ny * 5, x2 + nx * 5, y2 + ny * 5, col, 1);
+        if (label) {
+            if (typeof label === 'function') label((x1 + x2) / 2 + nx * 15 * side, (y1 + y2) / 2 + ny * 15 * side);
+            else serif(ctx, P, label, (x1 + x2) / 2 + nx * 15 * side, (y1 + y2) / 2 + ny * 15 * side, col, 16);
+        }
+    }
+    const niceStep = (span, px, want) => {
+        const raw = span * want / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 5, 10]) if (m * p >= raw) return m * p;
+        return 10 * p;
+    };
+    /* a field gun: carriage, spoked wheel, barrel at angle th, muzzle base at (x, y) */
+    function cannon(ctx, P, x, y, th, k) {
+        k = k || 1;
+        ctx.save(); ctx.translate(x, y);
+        ctx.save(); ctx.rotate(-th);
+        ctx.fillStyle = P.acc; ctx.strokeStyle = P.ink; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(-4 * k, -5.5 * k); ctx.lineTo(30 * k, -4.5 * k); ctx.lineTo(30 * k, 4.5 * k); ctx.lineTo(-4 * k, 5.5 * k); ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = P.ink; ctx.fillRect(27 * k, -5.5 * k, 3.5 * k, 11 * k);
+        ctx.restore();
+        ctx.fillStyle = P.block; ctx.strokeStyle = P.ink; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(-15 * k, 9 * k); ctx.lineTo(-6 * k, -2 * k); ctx.lineTo(6 * k, -2 * k); ctx.lineTo(10 * k, 9 * k); ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 2 * k, 7 * k, 0, Math.PI * 2); ctx.fillStyle = P.paper; ctx.fill(); ctx.stroke();
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+            const a = i * Math.PI / 3;
+            ctx.beginPath(); ctx.moveTo(-Math.cos(a) * 6 * k, 2 * k - Math.sin(a) * 6 * k); ctx.lineTo(Math.cos(a) * 6 * k, 2 * k + Math.sin(a) * 6 * k); ctx.stroke();
+        }
+        ctx.restore();
+    }
+    function ball(ctx, P, x, y, r) {
+        ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, 0.5, x, y, r);
+        g.addColorStop(0, 'rgba(255,255,255,0.45)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    /* a canvas sized from its wrap; draw() is called on demand */
+    function mount(canvas, draw, extra) {
+        const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+        const o = { ctx, W: 0, H: 0, redraw: null, extra: extra || [] };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 200), H = Math.max(r.height, 160);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            for (const cv of [canvas].concat(o.extra)) {
+                cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+                cv.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+        }
+        o.size = size;
+        o.redraw = () => {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); draw(o); });
+        };
+        size();
+        new ResizeObserver(() => o.redraw()).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
+    }
+    return { palette, isCS, T, num, put, line, arrow, mono, serif, sub, vsym, ground, hatchRect, dim,
+             niceStep, cannon, ball, mount };
 }());
 </script>
 
-<!-- ════════════════════════════════════════════════════════════════════
-     SIMULATION — Cannon / projectile motion
-     ──────────────────────────────────────────────────────────────────── -->
 <script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 2 — THE CANNON
+   Closed-form kinematics from the sliders (h + v0y t − ½gt², g = 9.81 as
+   in the readout), drawn to ONE metres→pixels scale so the parabola has
+   its true shape. The view fits the predicted flight and eases to a new
+   fit when a slider changes; nothing animates while nothing moves.
+   ══════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-
     const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    /* ── Colours read once at startup ─────────────────────────────── */
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:     s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:     s.getPropertyValue('--accent').trim()    || '#7a3c1a',
-            soft:    s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint:   s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper:   s.getPropertyValue('--paper').trim()     || '#FFFDF6',
-            paperD:  s.getPropertyValue('--paper-deep').trim()|| '#efead6',
-        };
-    }
-    let col = readCol();
-
-    /* ── Physics constants ────────────────────────────────────────── */
-    const G        = 9.81;                  // m/s²
-    const WORLD    = { xmax: 100, ymax: 50 }; // metres visible
-    const CANNON_X = 4;                     // m from left edge
-    const TIME_SCALE = 1.0;                 // 1 = real time
-
-    /* ── Simulation state ─────────────────────────────────────────── */
-    const DEFAULTS = { angle: 45, v0: 22, h: 0 };
-    const state = {
-        ...DEFAULTS,
-        isFiring: false,
-        landed: false,
-        t: 0,                  // seconds since fire
-        pos: { x: CANNON_X, y: 0 },
-        vel: { x: 0, y: 0 },
-        trail: [],             // [{x, y}, ...] in world coords
-        apex: null,            // { x, y, t }
-        landPoint: null,       // { x, t }
-    };
-    const show = { ghost: true, components: true, apex: true, grid: true };
-
-    /* ── Slider wiring ────────────────────────────────────────────── */
-    function bindSlider(inputId, valId, fmt, key) {
-        const inp = document.getElementById(inputId);
-        const lbl = document.getElementById(valId);
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(+inp.value);
-            /* Adjusting the cannon while a shot is mid-flight cancels it */
-            if (state.isFiring) { state.isFiring = false; state.landed = false; state.trail = []; state.apex = null; state.landPoint = null; }
-        });
-    }
-    bindSlider('p-ang', 'p-ang-val', v => v.toFixed(0) + '°',           'angle');
-    bindSlider('p-v0',  'p-v0-val',  v => v.toFixed(1) + ' m/s',        'v0');
-    bindSlider('p-h',   'p-h-val',   v => v.toFixed(1) + ' m',          'h');
-
-    /* ── Buttons ──────────────────────────────────────────────────── */
-    document.getElementById('btn-fire')?.addEventListener('click', () => {
-        const th = state.angle * Math.PI / 180;
-        state.isFiring  = true;
-        state.landed    = false;
-        state.t         = 0;
-        state.pos       = { x: CANNON_X, y: state.h };
-        state.vel       = { x: state.v0 * Math.cos(th), y: state.v0 * Math.sin(th) };
-        state.trail     = [{ x: CANNON_X, y: state.h }];
-        state.apex      = null;
-        state.landPoint = null;
-        lastFrame       = null;
-    });
-    document.getElementById('btn-clear')?.addEventListener('click', () => {
-        state.isFiring  = false;
-        state.landed    = false;
-        state.trail     = [];
-        state.apex      = null;
-        state.landPoint = null;
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        Object.assign(state, DEFAULTS, {
-            isFiring: false, landed: false, trail: [], apex: null,
-            landPoint: null, pos: { x: CANNON_X, y: 0 }, vel: { x: 0, y: 0 }, t: 0,
-        });
-        const ang = document.getElementById('p-ang');
-        const av  = document.getElementById('p-ang-val');
-        const v0  = document.getElementById('p-v0');
-        const v0v = document.getElementById('p-v0-val');
-        const hI  = document.getElementById('p-h');
-        const hV  = document.getElementById('p-h-val');
-        if (ang) ang.value = DEFAULTS.angle;
-        if (av)  av.textContent  = DEFAULTS.angle + '°';
-        if (v0)  v0.value = DEFAULTS.v0;
-        if (v0v) v0v.textContent = DEFAULTS.v0.toFixed(1) + ' m/s';
-        if (hI)  hI.value = DEFAULTS.h;
-        if (hV)  hV.textContent  = DEFAULTS.h.toFixed(1) + ' m';
-    });
-
-    /* ── Toggle wiring ─────────────────────────────────────────────── */
-    function wireToggle(id, key) {
-        document.getElementById(id)?.addEventListener('click', function () {
-            show[key] = !show[key];
-        });
-    }
-    wireToggle('tgl-ghost',      'ghost');
-    wireToggle('tgl-components', 'components');
-    wireToggle('tgl-apex',       'apex');
-    wireToggle('tgl-grid',       'grid');
-
-    /* ── World ↔ screen mapping ────────────────────────────────────── */
-    const PAD = { l: 50, r: 36, t: 36, b: 56 };
-    function w2s(wx, wy) {
-        const sx = PAD.l + (wx / WORLD.xmax) * (W - PAD.l - PAD.r);
-        const sy = H - PAD.b - (wy / WORLD.ymax) * (H - PAD.t - PAD.b);
-        return { x: sx, y: sy };
-    }
-
-    /* ── Drawing helpers ───────────────────────────────────────────── */
-    function arrow(x1, y1, x2, y2, colour, lw) {
-        lw = lw || 2;
-        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
-        if (len < 2) return;
-        const ux = dx / len, uy = dy / len;
-        const hl = Math.min(11, len * 0.32), hw = hl * 0.45;
-        ctx.strokeStyle = colour; ctx.fillStyle = colour;
-        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2 - ux * hl * 0.55, y2 - uy * hl * 0.55);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
-        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    /* Axes, ground hatching, ticks, labels */
-    function drawAxes() {
-        const O = w2s(0, 0);
-        const xEnd = w2s(WORLD.xmax, 0);
-        const yEnd = w2s(0, WORLD.ymax);
-
-        // x-axis
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.4;
-        ctx.lineCap = 'butt';
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(O.x, O.y);
-        ctx.lineTo(xEnd.x + 12, O.y);
-        ctx.stroke();
-        // y-axis
-        ctx.beginPath();
-        ctx.moveTo(O.x, O.y);
-        ctx.lineTo(O.x, yEnd.y - 12);
-        ctx.stroke();
-
-        // Arrowheads
-        ctx.fillStyle = col.ink;
-        ctx.beginPath();
-        ctx.moveTo(xEnd.x + 18, O.y);
-        ctx.lineTo(xEnd.x + 10, O.y - 4);
-        ctx.lineTo(xEnd.x + 10, O.y + 4);
-        ctx.closePath(); ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(O.x, yEnd.y - 18);
-        ctx.lineTo(O.x - 4, yEnd.y - 10);
-        ctx.lineTo(O.x + 4, yEnd.y - 10);
-        ctx.closePath(); ctx.fill();
-
-        // Ground hatching below x-axis
-        ctx.strokeStyle = col.ink;
-        ctx.globalAlpha = 0.45;
-        ctx.lineWidth = 0.9;
-        const step = 10;
-        for (let x = O.x + 4; x <= xEnd.x + 10; x += step) {
-            ctx.beginPath();
-            ctx.moveTo(x, O.y);
-            ctx.lineTo(x - 8, O.y + 8);
-            ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-
-        // Axis labels
-        ctx.font = 'italic 16px "Source Serif 4", Georgia, serif';
-        ctx.fillStyle = col.ink;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('x', xEnd.x + 24, O.y);
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('y', O.x, yEnd.y - 22);
-
-        // Tick marks + labels
-        if (show.grid) {
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.fillStyle = col.faint;
-            ctx.strokeStyle = col.faint;
-            ctx.lineWidth = 0.9;
-            ctx.setLineDash([2, 3]);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            /* a label on every gridline when they are far enough apart to hold
-               one, otherwise on every second (a phone fits ten in 280px) */
-            const every = w2s(10, 0).x - w2s(0, 0).x < 42 ? 20 : 10;
-            for (let xm = 10; xm <= WORLD.xmax; xm += 10) {
-                const p = w2s(xm, 0);
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x, w2s(xm, WORLD.ymax).y);
-                ctx.stroke();
-                if (xm % every === 0) ctx.fillText(xm + ' m', p.x, p.y + 8);
-            }
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-            for (let ym = 10; ym <= WORLD.ymax; ym += 10) {
-                const p = w2s(0, ym);
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(w2s(WORLD.xmax, ym).x, p.y);
-                ctx.stroke();
-                ctx.fillText(ym, p.x - 8, p.y);
-            }
-            ctx.setLineDash([]);
-        }
-    }
-
-    /* Pedestal — drawn BEFORE the cannon so the cannon sits on top */
-    function drawPedestal() {
-        if (state.h <= 0.05) return;
-        const dx = 2.4;                                    // half-width in metres
-        const tl = w2s(CANNON_X - dx, state.h);            // top-left in screen px
-        const br = w2s(CANNON_X + dx, 0);                  // bottom-right
-        const x = tl.x, y = tl.y, w = br.x - tl.x, h = br.y - tl.y;
-
-        // Fill + outline
-        ctx.fillStyle = col.paperD;
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.4;
-        ctx.fillRect(x, y, w, h);
-        ctx.strokeRect(x, y, w, h);
-
-        // Diagonal hatching inside (clipped)
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(x, y, w, h);
-        ctx.clip();
-        ctx.strokeStyle = col.ink;
-        ctx.globalAlpha = 0.32;
-        ctx.lineWidth = 0.9;
-        const step = 7;
-        for (let xi = x - h; xi < x + w; xi += step) {
-            ctx.beginPath();
-            ctx.moveTo(xi, y + h);
-            ctx.lineTo(xi + h, y);
-            ctx.stroke();
-        }
-        ctx.restore();
-
-        // Height bracket on the right side, clear of the y-axis numbers
-        ctx.save();
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1;
-        const bx = x + w + 6;       // bracket vertical line position
-        ctx.beginPath();
-        ctx.moveTo(bx - 4, y);     ctx.lineTo(bx, y);     // top tick
-        ctx.moveTo(bx - 4, y + h); ctx.lineTo(bx, y + h); // ground tick
-        ctx.moveTo(bx,     y);     ctx.lineTo(bx, y + h); // bracket
-        ctx.stroke();
-        ctx.font = 'italic 12px "Source Serif 4", Georgia, serif';
-        ctx.fillStyle = col.ink;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('h = ' + state.h.toFixed(1) + ' m', bx + 4, y + h / 2);
-        ctx.restore();
-    }
-
-    /* Cannon: a small carriage + rotating barrel, sitting at world (CANNON_X, h) */
-    function drawCannon() {
-        const O = w2s(CANNON_X, state.h);
-        const th = state.angle * Math.PI / 180;
-        const barrelLen = 30;
-
-        // Wheel + carriage
-        ctx.save();
-        ctx.translate(O.x, O.y);
-
-        // Carriage body
-        ctx.fillStyle = col.ink;
-        ctx.beginPath();
-        ctx.moveTo(-14, 0);
-        ctx.lineTo(14, 0);
-        ctx.lineTo(11, -10);
-        ctx.lineTo(-11, -10);
-        ctx.closePath();
-        ctx.fill();
-
-        // Wheel
-        ctx.fillStyle = col.paperD;
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.arc(0, -3, 7, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        // wheel spokes
-        ctx.beginPath();
-        ctx.moveTo(-5, -3); ctx.lineTo(5, -3);
-        ctx.moveTo(0, -8);  ctx.lineTo(0,  2);
-        ctx.stroke();
-
-        // Barrel — rotated rectangle
-        ctx.save();
-        ctx.translate(0, -10);
-        ctx.rotate(-th);              // negative because screen y is flipped
-        ctx.fillStyle = col.acc;
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.rect(0, -5, barrelLen, 10);
-        ctx.fill();
-        ctx.stroke();
-        // muzzle ring
-        ctx.fillStyle = col.ink;
-        ctx.fillRect(barrelLen - 3, -6, 3, 12);
-        ctx.restore();
-
-        ctx.restore();
-    }
-
-    /* Predicted parabola — derived analytically from current sliders */
-    function drawGhostTrajectory() {
-        if (!show.ghost) return;
-        const th  = state.angle * Math.PI / 180;
-        const v0x = state.v0 * Math.cos(th);
-        const v0y = state.v0 * Math.sin(th);
-        // Flight time accounting for launch height: solve h + v0y t − ½gt² = 0
-        const disc = v0y * v0y + 2 * G * state.h;
-        if (disc <= 0) return;
-        const T = (v0y + Math.sqrt(disc)) / G;
-        if (T <= 0.01) return;
-        const N = 80;
-        ctx.strokeStyle = col.acc;
-        ctx.globalAlpha = 0.45;
-        ctx.lineWidth = 1.2;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        for (let i = 0; i <= N; i++) {
-            const t = (i / N) * T;
-            const x = CANNON_X + v0x * t;
-            const y = state.h + v0y * t - 0.5 * G * t * t;
-            const p = w2s(x, Math.max(0, y));
-            if (i === 0) ctx.moveTo(p.x, p.y);
-            else         ctx.lineTo(p.x, p.y);
-        }
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.globalAlpha = 1;
-    }
-
-    /* Drawn after the projectile has actually flown — the real trail */
-    function drawRealTrail() {
-        if (state.trail.length < 2) return;
-        ctx.strokeStyle = col.acc;
-        ctx.lineWidth = 2.2;
-        ctx.lineCap = 'round';
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        for (let i = 0; i < state.trail.length; i++) {
-            const p = w2s(state.trail[i].x, state.trail[i].y);
-            if (i === 0) ctx.moveTo(p.x, p.y);
-            else         ctx.lineTo(p.x, p.y);
-        }
-        ctx.stroke();
-    }
-
-    function drawApex() {
-        if (!show.apex || !state.apex) return;
-        const a = w2s(state.apex.x, state.apex.y);
-        const ground = w2s(state.apex.x, 0);
-        // dashed drop to ground
-        ctx.strokeStyle = col.soft;
-        ctx.globalAlpha = 0.55;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 4]);
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(ground.x, ground.y);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.globalAlpha = 1;
-        // apex dot
-        ctx.fillStyle = col.ink;
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        // h_max label
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.fillStyle = col.ink;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('h_max = ' + state.apex.y.toFixed(1) + ' m', a.x + 8, (a.y + ground.y) / 2);
-    }
-
-    function drawProjectile() {
-        if (!state.isFiring && !state.landed) return;
-        const p = w2s(state.pos.x, state.pos.y);
-
-        // ball
-        ctx.fillStyle = col.ink;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
-        ctx.fill();
-        // soft highlight
-        const g = ctx.createRadialGradient(p.x - 1.5, p.y - 1.5, 0.5, p.x, p.y, 5.5);
-        g.addColorStop(0, 'rgba(255,255,255,0.45)');
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Velocity vector + components
-        if (show.components && state.isFiring) {
-            const PX = 1.3;        // px per (m/s)
-            const vScreen = w2s(state.pos.x + state.vel.x / 8, state.pos.y + state.vel.y / 8);
-            const dx = (vScreen.x - p.x), dy = (vScreen.y - p.y);
-            // x component
-            arrow(p.x, p.y, p.x + dx, p.y, col.soft, 1.6);
-            // y component
-            arrow(p.x, p.y, p.x, p.y + dy, col.soft, 1.6);
-            // resultant
-            arrow(p.x, p.y, p.x + dx, p.y + dy, col.acc, 2);
-        }
-    }
-
-    function drawLanding() {
-        if (!state.landPoint) return;
-        const p = w2s(state.landPoint.x, 0);
-        // little impact splash
-        ctx.strokeStyle = col.acc;
-        ctx.lineWidth = 1.2;
-        ctx.setLineDash([]);
-        for (let i = -2; i <= 2; i++) {
-            ctx.beginPath();
-            ctx.moveTo(p.x + i * 3, p.y);
-            ctx.lineTo(p.x + i * 4, p.y - 6 - Math.abs(i));
-            ctx.stroke();
-        }
-        // range label
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.fillStyle = col.ink;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText('R = ' + (state.landPoint.x - CANNON_X).toFixed(1) + ' m', p.x, p.y + 22);
-    }
-
-    /* ── Readouts ─────────────────────────────────────────────────── */
+    if (!canvas) return;
     const $ = id => document.getElementById(id);
-    function updateReadout() {
-        const th  = state.angle * Math.PI / 180;
-        const v0x = state.v0 * Math.cos(th);
-        const v0y = state.v0 * Math.sin(th);
-        // Flight time with launch height: solve h + v0y T − ½gT² = 0
-        const disc = v0y * v0y + 2 * G * state.h;
-        const T   = (v0y + Math.sqrt(Math.max(0, disc))) / G;
-        const R   = v0x * T;
-        const hM  = state.h + (v0y * v0y) / (2 * G);
-        if ($('r-v0x'))    $('r-v0x').textContent    = v0x.toFixed(2) + ' m/s';
-        if ($('r-v0y'))    $('r-v0y').textContent    = v0y.toFixed(2) + ' m/s';
-        if ($('r-range'))  $('r-range').textContent  = R.toFixed(2)   + ' m';
-        if ($('r-hmax'))   $('r-hmax').textContent   = hM.toFixed(2)  + ' m';
-        if ($('r-tflight'))$('r-tflight').textContent= T.toFixed(2)   + ' s';
+    const P = PK.palette(), G = 9.81;
+    const DEFAULTS = { angle: 45, v0: 22, h: 0 };
+    const st = Object.assign({}, DEFAULTS);
+    const show = { ghost: true, components: true, apex: true, grid: true };
+    let shot = null;                  /* { th, v0, h, t, done } */
+    let sCur = null, sTarget = 1, raf = 0, last = 0;
+    const V = PK.mount(canvas, draw);
+
+    const flight = (a, v0, h) => {
+        const th = a * Math.PI / 180, vx = v0 * Math.cos(th), vy = v0 * Math.sin(th);
+        const T = (vy + Math.sqrt(Math.max(0, vy * vy + 2 * G * h))) / G;
+        return { th, vx, vy, h, T, R: vx * T, hmax: h + Math.max(0, vy) * Math.max(0, vy) / (2 * G), tA: Math.max(0, vy) / G };
+    };
+    /* the plot box, and the scale that fits a flight into it */
+    function box() { return { l: 58, r: 26, t: 26, b: 70, w: V.W - 84, h: V.H - 96 }; }
+    function fitScale(F) {
+        const b = box();
+        const xs = Math.max(F.R, 8) * 1.1 + 4, ys = Math.max(F.hmax, 4) * 1.18;
+        return Math.min(b.w / xs, b.h / ys);
     }
+    const X = x => box().l + 4 * sCur + x * sCur;
+    const Y = y => V.H - box().b - y * sCur;
 
-    /* ── Animation loop ───────────────────────────────────────────── */
-    let lastFrame = null, frames = 0, lastFps = 0;
-    const fpsEl = $('sim-fps');
-
-    function frame(ts) {
-        if (lastFrame === null) lastFrame = ts;
-        const dt = Math.min(0.05, (ts - lastFrame) / 1000) * TIME_SCALE;
-        lastFrame = ts;
-
-        if (state.isFiring) {
-            const th  = state.angle * Math.PI / 180;
-            const v0x = state.v0 * Math.cos(th);
-            const v0y = state.v0 * Math.sin(th);
-
-            // Track apex BEFORE we step into negative y
-            const prevY = state.pos.y;
-
-            state.t += dt;
-            state.pos.x = CANNON_X + v0x * state.t;
-            state.pos.y = state.h + v0y * state.t - 0.5 * G * state.t * state.t;
-            state.vel.x = v0x;
-            state.vel.y = v0y - G * state.t;
-
-            // Record apex (when vy crosses zero — only meaningful if v0y > 0)
-            if (!state.apex && state.vel.y <= 0 && v0y > 0.01 && state.t > 0.02) {
-                const tApex = v0y / G;
-                state.apex = {
-                    x: CANNON_X + v0x * tApex,
-                    y: state.h + (v0y * v0y) / (2 * G),
-                    t: tApex,
-                };
+    function draw(o) {
+        const ctx = o.ctx, b = box();
+        const F = flight(st.angle, st.v0, st.h);
+        if (sCur === null) sCur = fitScale(F);
+        const x0 = X(0), yg = Y(0);
+        const xMaxW = (b.l + b.w - x0) / sCur, yMaxW = (yg - b.t) / sCur;
+        /* the distance grid */
+        if (show.grid) {
+            const sx = PK.niceStep(xMaxW, b.w, 80), sy = PK.niceStep(yMaxW, b.h, 60), step = Math.max(sx, sy);
+            for (let x = step; x <= xMaxW; x += step) {
+                PK.line(ctx, X(x), yg, X(x), b.t, P.grid, 1, [3, 4]);
+                PK.mono(ctx, PK.num(x, 0) + ' m', X(x), yg + 22, P.faint, 10.5, 'center');
             }
-
-            // Append to trail
-            state.trail.push({ x: state.pos.x, y: Math.max(0, state.pos.y) });
-
-            // Landing detection — analytical time from h + v0y T − ½gT² = 0
-            if (prevY >= 0 && state.pos.y <= 0 && state.t > 0.02) {
-                const disc  = v0y * v0y + 2 * G * state.h;
-                const tLand = (v0y + Math.sqrt(Math.max(0, disc))) / G;
-                const xLand = CANNON_X + v0x * tLand;
-                state.pos     = { x: xLand, y: 0 };
-                state.vel     = { x: v0x, y: v0y - G * tLand };
-                state.isFiring = false;
-                state.landed   = true;
-                state.landPoint = { x: xLand, t: tLand };
-                // Replace last trail point with exact landing
-                state.trail[state.trail.length - 1] = { x: xLand, y: 0 };
-            }
-
-            // Off-canvas safety
-            if (state.pos.x > WORLD.xmax + 5) {
-                state.isFiring = false;
+            for (let y = step; y <= yMaxW; y += step) {
+                PK.line(ctx, b.l, Y(y), b.l + b.w, Y(y), P.grid, 1, [3, 4]);
+                PK.mono(ctx, PK.num(y, 0) + ' m', b.l - 8, Y(y), P.faint, 10.5, 'right');
             }
         }
-
-        /* ── Draw ─────────────────────────────────────────────────── */
-        ctx.clearRect(0, 0, W, H);
-        drawAxes();
-        drawGhostTrajectory();
-        drawRealTrail();
-        drawApex();
-        drawLanding();
-        drawPedestal();
-        drawCannon();
-        drawProjectile();
-
-        updateReadout();
-
-        frames++;
-        if (ts - lastFps >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps';
-            frames = 0;
-            lastFps = ts;
+        /* axes and the ground */
+        PK.ground(ctx, P, b.l - 8, b.l + b.w + 10, yg);
+        PK.arrow(ctx, b.l - 2, yg, b.l - 2, b.t - 6, P.soft, 1.2);
+        PK.serif(ctx, P, 'y', b.l + 10, b.t - 4, P.soft, 16, 'left');
+        PK.serif(ctx, P, 'x', b.l + b.w + 14, yg - 12, P.soft, 16, 'left');
+        /* the pedestal for a launch from height h */
+        if (st.h > 0.05) {
+            const w = Math.max(18, 3.2 * sCur), top = Y(st.h);
+            ctx.fillStyle = P.block; ctx.fillRect(x0 - w / 2, top, w, yg - top);
+            PK.hatchRect(ctx, x0 - w / 2, top, w, yg - top, 'rgba(54,48,38,0.28)');
+            ctx.strokeStyle = P.ink; ctx.lineWidth = 1.4; ctx.strokeRect(x0 - w / 2, top, w, yg - top);
+            if (yg - top > 22) PK.dim(ctx, P, x0 - w / 2 - 12, yg, x0 - w / 2 - 12, top, 'h', 1);
         }
-        requestAnimationFrame(frame);
+        /* the predicted flight, dashed */
+        const curve = (t1, col, lw, dash) => {
+            ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []); ctx.lineJoin = 'round';
+            ctx.beginPath();
+            const n = 90;
+            for (let i = 0; i <= n; i++) {
+                const t = t1 * i / n, x = F.vx * t, y = st.h + F.vy * t - G * t * t / 2;
+                i ? ctx.lineTo(X(x), Y(Math.max(0, y))) : ctx.moveTo(X(x), Y(y));
+            }
+            ctx.stroke(); ctx.setLineDash([]);
+        };
+        if (show.ghost) { ctx.globalAlpha = 0.55; curve(F.T, P.acc, 1.3, [5, 5]); ctx.globalAlpha = 1; }
+        if (shot) curve(Math.min(shot.t, F.T), P.acc, 2.4);
+        /* the apex and the landing, once the shot has passed them */
+        if (shot && show.apex && F.vy > 0.01 && shot.t >= F.tA) {
+            const ax = X(F.vx * F.tA), ay = Y(F.hmax);
+            PK.line(ctx, ax, ay, ax, yg, P.faint, 1, [3, 4]);
+            ctx.fillStyle = P.ink; ctx.beginPath(); ctx.arc(ax, ay, 3.5, 0, Math.PI * 2); ctx.fill();
+            PK.sub(ctx, P, 'h', 'max', ax + 10, (ay + yg) / 2, P.soft, 16, 'left');
+        }
+        if (shot && shot.done) {
+            const lx = X(F.R);
+            ctx.strokeStyle = P.acc; ctx.lineWidth = 1.2;
+            for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(lx + i * 3, yg); ctx.lineTo(lx + i * 4.5, yg - 6 - Math.abs(i)); ctx.stroke(); }
+            PK.dim(ctx, P, x0, yg + 36, lx, yg + 36, 'R', 1, P.acc);
+        }
+        PK.cannon(ctx, P, x0, Y(st.h) - 9, F.th, Math.min(1.25, Math.max(0.8, sCur / 8)));
+        /* the ball and its velocity: v and its two components, one scale in m/s */
+        if (shot) {
+            const t = Math.min(shot.t, F.T), x = F.vx * t, y = Math.max(0, st.h + F.vy * t - G * t * t / 2);
+            const px = X(x), py = Y(y), vy = F.vy - G * t;
+            if (show.components && !shot.done) {
+                const KV = 2.4;                         /* pixels per m/s */
+                PK.arrow(ctx, px, py, px + F.vx * KV, py, P.X, 2, P.stage);
+                PK.arrow(ctx, px, py, px, py - vy * KV, P.Y, 2, P.stage);
+                PK.arrow(ctx, px, py, px + F.vx * KV, py - vy * KV, P.ink, 2.2, P.stage);
+                PK.sub(ctx, P, 'v', 'x', px + F.vx * KV + 6, py + 12, P.X, 15, 'left');
+                PK.sub(ctx, P, 'v', 'y', px - 8, py - vy * KV / 2, P.Y, 15, 'right');
+            }
+            PK.ball(ctx, P, px, py, 6);
+        }
     }
-    requestAnimationFrame(frame);
 
+    function readouts() {
+        const F = flight(st.angle, st.v0, st.h), n = PK.num;
+        PK.put('r-v0x', n(F.vx, 2) + ' m/s'); PK.put('r-v0y', n(F.vy, 2) + ' m/s');
+        PK.put('r-range', n(F.R, 2) + ' m'); PK.put('r-hmax', n(F.hmax, 2) + ' m'); PK.put('r-tflight', n(F.T, 2) + ' s');
+    }
+    /* the loop runs while a ball flies or the view eases, and then stops */
+    function tick(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        let busy = false;
+        if (sCur !== null && Math.abs(sCur - sTarget) > sTarget * 0.002) {
+            sCur += (sTarget - sCur) * (1 - Math.exp(-dt / 0.16)); busy = true;
+        } else sCur = sTarget;
+        if (shot && !shot.done) {
+            shot.t += dt;
+            if (shot.t >= flight(st.angle, st.v0, st.h).T) shot.done = true; else busy = true;
+        }
+        V.redraw();
+        if (busy) raf = requestAnimationFrame(tick); else { raf = 0; last = 0; }
+    }
+    function kick() { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } }
+    function refit() { sTarget = fitScale(flight(st.angle, st.v0, st.h)); if (sCur === null) sCur = sTarget; kick(); }
+
+    const SL = [['p-ang', 'p-ang-val', 'angle', v => PK.num(v, 0) + '°'],
+                ['p-v0', 'p-v0-val', 'v0', v => PK.num(v, 1) + ' m/s'],
+                ['p-h', 'p-h-val', 'h', v => PK.num(v, 1) + ' m']];
+    const labels = () => SL.forEach(([id, vid, k, f]) => PK.put(vid, f(st[k])));
+    SL.forEach(([id, vid, k]) => {
+        const inp = $(id); if (!inp) return;
+        inp.addEventListener('input', () => {
+            st[k] = +inp.value;
+            shot = null;                           /* a new setting cancels the shot */
+            labels(); readouts(); refit(); V.redraw();
+        });
+    });
+    $('btn-fire')?.addEventListener('click', () => { shot = { t: 0, done: false }; kick(); });
+    $('btn-clear')?.addEventListener('click', () => { shot = null; V.redraw(); });
+    $('btn-reset')?.addEventListener('click', () => {
+        Object.assign(st, DEFAULTS); shot = null;
+        SL.forEach(([id, , k]) => { const inp = $(id); if (inp) inp.value = st[k]; });
+        labels(); readouts(); refit(); V.redraw();
+    });
+    /* a row switches its option and its box together, whichever is clicked */
+    const TG = [['tgl-ghost', 'ghost'], ['tgl-components', 'components'], ['tgl-apex', 'apex'], ['tgl-grid', 'grid']];
+    TG.forEach(([id, k]) => {
+        const row = $(id); if (!row) return;
+        const bx = row.querySelector('.toggle-box');
+        row.addEventListener('click', () => { show[k] = !show[k]; if (bx) bx.classList.toggle('on', show[k]); V.redraw(); });
+    });
+    document.addEventListener('langchange', () => { labels(); readouts(); });
+    new ResizeObserver(() => { sCur = null; refit(); }).observe(canvas.parentElement);
+    labels(); readouts(); refit(); V.redraw();
 }());
 </script>
 
@@ -1385,492 +1477,1053 @@ document.addEventListener('DOMContentLoaded', () => {
      CHALLENGE — Cannon vs cliff target
      ════════════════════════════════════════════════════════════════════ -->
 <script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 3 — THE SHOOTING RANGE
+   v0 = 20 m/s, the cliff face d = 30 m away, its edge H = 6 m up; a hit
+   is within ±1.5 m of the edge (so about 35–43° and 61–64° score — the
+   two roots of the quadratic in tan θ are 38.9° and 62.4°). Drawn to one
+   scale fitted to the whole range; the loop runs only while a ball flies
+   or the confetti falls.
+   ══════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-
-    const canvas    = document.getElementById('challenge-canvas');
-    const confCv    = document.getElementById('confetti-canvas');
-    // Canvas labels and status strings follow the page language; the sim runs a
-    // permanent RAF loop, so a toggle takes effect on the next frame.
-    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
-    const T = (en, cs) => (isCS() ? cs : en);
+    const canvas = document.getElementById('challenge-canvas');
+    const confCv = document.getElementById('confetti-canvas');
     if (!canvas || !confCv) return;
-    const ctx       = canvas.getContext('2d');
-    const confCtx   = confCv.getContext('2d');
-    const wrap      = canvas.parentElement;
-    const dpr       = window.devicePixelRatio || 1;
+    const T = PK.T;
+    const P = PK.palette(), G = 9.81;
+    const CLIFF_X = 30, CLIFF_H = 6, HIT_TOL = 1.5, V0 = 20;
+    const VIEW = { x0: -4, x1: 44, y1: 22 };
+    const sim = { angle: 45, firing: false, t: 0, pos: { x: 0, y: 0 }, result: null, checkedCliff: false };
+    const confCtx = confCv.getContext('2d');
+    let sparks = [], raf = 0, last = 0;
+    const V = PK.mount(canvas, draw, [confCv]);
 
-    let W = 0, SH = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W  = Math.max(r.width,  240);
-        SH = Math.max(r.height, 240);
-        for (const cv of [canvas, confCv]) {
-            cv.width  = Math.round(W  * dpr);
-            cv.height = Math.round(SH * dpr);
+    function view() {
+        const l = 50, r = 16, t = 24, b = 62;
+        const s = Math.min((V.W - l - r) / (VIEW.x1 - VIEW.x0), (V.H - t - b) / VIEW.y1);
+        const w = s * (VIEW.x1 - VIEW.x0), h = s * VIEW.y1;
+        const ox = l + (V.W - l - r - w) / 2, gy = t + (V.H - t - b - h) / 2 + h;
+        return { s, X: x => ox + (x - VIEW.x0) * s, Y: y => gy - y * s, ox, gy, w, h, t };
+    }
+
+    function draw(o) {
+        const ctx = o.ctx, v = view(), xR = v.X(VIEW.x1), gy = v.gy;
+        /* height lines every 5 m */
+        for (let y = 5; y < VIEW.y1; y += 5) {
+            PK.line(ctx, v.X(VIEW.x0), v.Y(y), xR, v.Y(y), P.grid, 1, [3, 4]);
+            PK.mono(ctx, y + ' m', v.X(VIEW.x0) - 8, v.Y(y), P.faint, 10.5, 'right');
         }
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        confCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    /* ── Colours ────────────────────────────────────────────────── */
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:    s.getPropertyValue('--ink').trim()        || '#363026',
-            acc:    s.getPropertyValue('--accent').trim()     || '#7a3c1a',
-            soft:   s.getPropertyValue('--ink-soft').trim()   || '#4d4436',
-            faint:  s.getPropertyValue('--ink-faint').trim()  || '#7A6A52',
-            paper:  s.getPropertyValue('--paper').trim()      || '#FFFDF6',
-            paperD: s.getPropertyValue('--paper-deep').trim() || '#efead6',
-        };
-    }
-    const col = readCol();
-
-    /* ── World constants ────────────────────────────────────────── */
-    const G        = 9.81;
-    const WORLD    = { xmax: 52, ymax: 26 };
-    const CANNON_X = 4;
-    const CLIFF_X  = 34;   // left face of cliff (30 m from cannon)
-    const CLIFF_H  = 6;    // m
-    const TARGET_X = CLIFF_X;
-    const TARGET_Y = CLIFF_H;
-    const HIT_TOL  = 1.5;  // ±m tolerance on y at cliff face (accepts ~35–43° and ~61–64°)
-    const V0       = 20;   // m/s — fixed
-    const PAD      = { l: 44, r: 16, t: 22, b: 46 };
-
-    /* ── Coordinate transform ───────────────────────────────────── */
-    function w2s(wx, wy) {
-        return {
-            x: PAD.l + (wx / WORLD.xmax) * (W  - PAD.l - PAD.r),
-            y: SH    - PAD.b - (wy / WORLD.ymax) * (SH - PAD.t - PAD.b),
-        };
-    }
-
-    /* ── Simulation state ───────────────────────────────────────── */
-    const sim = {
-        angle: null, firing: false, t: 0,
-        pos: { x: CANNON_X, y: 0 },
-        trail: [], result: null, checkedCliff: false,
-    };
-
-    /* ── Confetti ───────────────────────────────────────────────── */
-    let sparks = [];
-    const SPARK_COLS = ['#b94d28','#2d6b3a','#1e5080','#7a3c1a','#5a3578','#d4a418','#2d6e6a'];
-    function spawnConfetti() {
-        const tp = w2s(TARGET_X, TARGET_Y);
-        sparks = Array.from({ length: 90 }, () => ({
-            x: tp.x + (Math.random() - 0.5) * 40,
-            y: tp.y - 10,
-            vx: (Math.random() - 0.5) * 220,
-            vy: -(Math.random() * 260 + 80),
-            rot: Math.random() * Math.PI * 2,
-            rotV: (Math.random() - 0.5) * 9,
-            w: 5 + Math.random() * 8, h: 3 + Math.random() * 4,
-            color: SPARK_COLS[Math.floor(Math.random() * SPARK_COLS.length)],
-            life: 1,
-        }));
-    }
-
-    /* ── Arrow helper ───────────────────────────────────────────── */
-    function arrowLine(x1, y1, x2, y2, clr, lw) {
-        const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx, dy);
-        if (len < 3) return;
-        const ux = dx/len, uy = dy/len, hl = Math.min(9, len*0.3), hw = hl*0.45;
-        ctx.strokeStyle = ctx.fillStyle = clr;
-        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2-ux*hl*0.5, y2-uy*hl*0.5); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2-ux*hl-uy*hw, y2-uy*hl+ux*hw);
-        ctx.lineTo(x2-ux*hl+uy*hw, y2-uy*hl-ux*hw);
-        ctx.closePath(); ctx.fill();
-    }
-
-    /* ── Draw ground + grid ─────────────────────────────────────── */
-    function drawGround() {
-        const O    = w2s(0, 0);
-        const xEnd = w2s(WORLD.xmax, 0);
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(PAD.l, O.y); ctx.lineTo(xEnd.x, O.y); ctx.stroke();
-        ctx.strokeStyle = col.ink; ctx.globalAlpha = 0.3; ctx.lineWidth = 0.8;
-        for (let x = PAD.l + 4; x <= xEnd.x; x += 10) {
-            ctx.beginPath(); ctx.moveTo(x, O.y); ctx.lineTo(x-7, O.y+7); ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-        ctx.font = '10px "Geist",ui-sans-serif,sans-serif';
-        ctx.fillStyle = col.faint; ctx.strokeStyle = col.faint;
-        ctx.lineWidth = 0.7; ctx.setLineDash([2, 3]);
-        for (let ym = 5; ym <= WORLD.ymax - 2; ym += 5) {
-            const p = w2s(0, ym);
-            ctx.beginPath(); ctx.moveTo(PAD.l, p.y); ctx.lineTo(xEnd.x, p.y); ctx.stroke();
-            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-            ctx.fillText(ym+'m', PAD.l-4, p.y);
-        }
-        ctx.setLineDash([]);
-    }
-
-    /* ── Draw cliff ─────────────────────────────────────────────── */
-    function drawCliff() {
-        const O   = w2s(0, 0);
-        const tl  = w2s(CLIFF_X, CLIFF_H);
-        const tr  = w2s(WORLD.xmax, CLIFF_H);
-        const br  = w2s(WORLD.xmax, 0);
-        ctx.fillStyle = col.paperD; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.4;
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(tl.x, O.y); ctx.lineTo(tl.x, tl.y);
-        ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, O.y);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-        // Hatching
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(tl.x, O.y); ctx.lineTo(tl.x, tl.y);
-        ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, O.y);
-        ctx.closePath(); ctx.clip();
-        ctx.strokeStyle = col.ink; ctx.globalAlpha = 0.18; ctx.lineWidth = 0.9;
-        const ch = O.y - tl.y;
-        for (let x = tl.x - ch; x < tr.x; x += 8) {
-            ctx.beginPath(); ctx.moveTo(x, O.y); ctx.lineTo(x+ch, tl.y); ctx.stroke();
-        }
-        ctx.restore();
-        // Height brace
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1; ctx.setLineDash([]);
-        const bx = tl.x - 6;
-        ctx.beginPath();
-        ctx.moveTo(bx+4, tl.y); ctx.lineTo(bx, tl.y);
-        ctx.moveTo(bx+4, O.y);  ctx.lineTo(bx, O.y);
-        ctx.moveTo(bx, tl.y);   ctx.lineTo(bx, O.y);
-        ctx.stroke();
-        ctx.font = 'bold 14px "Geist",ui-sans-serif,sans-serif';
-        ctx.fillStyle = col.ink; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-        ctx.fillText('H = 6 m', bx-3, (tl.y+O.y)/2);
-    }
-
-    /* ── Target flag ────────────────────────────────────────────── */
-    function drawTarget(hit) {
-        const tp = w2s(TARGET_X, TARGET_Y);
+        PK.ground(ctx, P, v.X(VIEW.x0), v.X(CLIFF_X), gy);
+        /* the cliff, hatched, and its edge — the target */
+        const cx = v.X(CLIFF_X), cy = v.Y(CLIFF_H);
+        ctx.fillStyle = P.block; ctx.fillRect(cx, cy, xR - cx, gy - cy);
+        PK.hatchRect(ctx, cx, cy, xR - cx, gy - cy, 'rgba(54,48,38,0.25)');
+        ctx.strokeStyle = P.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cx, gy); ctx.lineTo(cx, cy); ctx.lineTo(xR, cy); ctx.stroke();
+        PK.dim(ctx, P, cx - 14, gy, cx - 14, cy, 'H', 1);
+        PK.dim(ctx, P, v.X(0), gy + 30, cx, gy + 30, 'd', 1);
+        const hit = sim.result === 'hit';
+        /* the flag on the edge */
+        ctx.strokeStyle = P.ink; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy - 30); ctx.stroke();
+        ctx.fillStyle = P.acc; ctx.beginPath(); ctx.moveTo(cx, cy - 30); ctx.lineTo(cx + 18, cy - 24); ctx.lineTo(cx, cy - 18); ctx.closePath(); ctx.fill();
+        PK.mono(ctx, T('target', 'cíl'), cx + 22, cy - 26, P.soft, 11, 'left');
         if (hit) {
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 2.5; ctx.setLineDash([]);
-            const r = 11;
-            ctx.beginPath();
-            ctx.moveTo(tp.x-r, tp.y-r); ctx.lineTo(tp.x+r, tp.y+r);
-            ctx.moveTo(tp.x+r, tp.y-r); ctx.lineTo(tp.x-r, tp.y+r);
+            ctx.strokeStyle = P.acc; ctx.lineWidth = 2.4; const r = 10;
+            ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+        }
+        /* the flight so far */
+        const th = sim.angle * Math.PI / 180, vx = V0 * Math.cos(th), vy = V0 * Math.sin(th);
+        if (sim.firing || sim.result) {
+            const tEnd = sim.t;
+            ctx.strokeStyle = P.acc; ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.beginPath();
+            const n = 80;
+            for (let i = 0; i <= n; i++) {
+                const t = tEnd * i / n, x = vx * t, y = vy * t - G * t * t / 2;
+                const floor = x > CLIFF_X ? CLIFF_H : 0;
+                i ? ctx.lineTo(v.X(x), v.Y(Math.max(floor, y))) : ctx.moveTo(v.X(x), v.Y(y));
+            }
             ctx.stroke();
         }
-        // Pole
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(tp.x, tp.y); ctx.lineTo(tp.x, tp.y-24); ctx.stroke();
-        // Flag
-        ctx.fillStyle = hit ? col.acc : col.acc;
-        ctx.globalAlpha = hit ? 1 : 0.85;
-        ctx.beginPath();
-        ctx.moveTo(tp.x, tp.y-24);
-        ctx.lineTo(tp.x+15, tp.y-18);
-        ctx.lineTo(tp.x, tp.y-12);
-        ctx.closePath(); ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.font = 'bold 13px "Geist",ui-sans-serif,sans-serif';
-        ctx.fillStyle = col.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText(T('TARGET', 'CÍL'), tp.x+8, tp.y-27);
-    }
-
-    /* ── Cannon ─────────────────────────────────────────────────── */
-    function drawCannon() {
-        const O  = w2s(CANNON_X, 0);
-        const th = ((sim.angle ?? 45) * Math.PI / 180);
-        ctx.save(); ctx.translate(O.x, O.y);
-        ctx.fillStyle = col.ink;
-        ctx.beginPath(); ctx.moveTo(-13,0); ctx.lineTo(13,0); ctx.lineTo(10,-10); ctx.lineTo(-10,-10); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = col.paperD; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.arc(0,-3,6,0,Math.PI*2); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-4,-3); ctx.lineTo(4,-3); ctx.moveTo(0,-7); ctx.lineTo(0,1); ctx.stroke();
-        ctx.save(); ctx.translate(0,-10); ctx.rotate(-th);
-        ctx.fillStyle = col.acc; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.rect(0,-4,28,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = col.ink; ctx.fillRect(25,-5,3,10);
-        ctx.restore(); ctx.restore();
-    }
-
-    /* ── Ghost (predicted) trajectory ──────────────────────────── */
-    function drawGhost() {
-        if (sim.angle === null || sim.firing || sim.result) return;
-        const th  = sim.angle * Math.PI / 180;
-        const v0x = V0 * Math.cos(th), v0y = V0 * Math.sin(th);
-        const T   = (v0y + Math.sqrt(Math.max(0, v0y*v0y))) / G * 2; // rough
-        const tMax = (v0y + Math.sqrt(Math.max(0, v0y*v0y + 2*G*0))) / G;
-        const N = 64;
-        ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.28;
-        ctx.lineWidth = 1.1; ctx.setLineDash([4,4]);
-        ctx.beginPath();
-        let started = false;
-        for (let i = 0; i <= N; i++) {
-            const t  = (i / N) * tMax;
-            const wx = CANNON_X + v0x * t;
-            const wy = v0y * t - 0.5 * G * t * t;
-            if (wx > CLIFF_X && wy < CLIFF_H) break; // hits cliff wall
-            if (wy < 0) break;
-            const p = w2s(wx, wy);
-            if (!started) { ctx.moveTo(p.x, p.y); started = true; }
-            else ctx.lineTo(p.x, p.y);
+        PK.cannon(ctx, P, v.X(0), gy - 9, th, Math.min(1.2, Math.max(0.8, v.s / 14)));
+        if (sim.result && sim.result !== 'hit') {
+            const p = { x: v.X(sim.pos.x), y: v.Y(sim.pos.y) };
+            ctx.strokeStyle = P.faint; ctx.lineWidth = 1.1;
+            for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(p.x + i * 3, p.y); ctx.lineTo(p.x + i * 4, p.y - 5 - Math.abs(i)); ctx.stroke(); }
         }
-        ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
-    }
-
-    /* ── Velocity arrow on live ball ────────────────────────────── */
-    function drawBall() {
-        if (!sim.firing && sim.result !== 'hit') return;
-        const p = w2s(sim.pos.x, sim.pos.y);
-        const th  = sim.angle * Math.PI / 180;
-        const v0x = V0 * Math.cos(th), v0y = V0 * Math.sin(th);
-        const vx  = v0x, vy = v0y - G * sim.t;
-        if (sim.firing) {
-            const sc = 0.5;
-            const ep = w2s(sim.pos.x + vx*sc, sim.pos.y + vy*sc);
-            arrowLine(p.x, p.y, ep.x, ep.y, col.acc, 1.8);
-        }
-        ctx.fillStyle = col.ink;
-        ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI*2); ctx.fill();
-        const g = ctx.createRadialGradient(p.x-1.5,p.y-1.5,0.5,p.x,p.y,5.5);
-        g.addColorStop(0,'rgba(255,255,255,0.4)'); g.addColorStop(1,'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(p.x, p.y, 5.5, 0, Math.PI*2); ctx.fill();
-    }
-
-    /* ── Impact splash ──────────────────────────────────────────── */
-    function drawImpact() {
-        if (!sim.result || sim.result === 'hit') return;
-        const p = w2s(sim.pos.x, sim.pos.y);
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1.1; ctx.setLineDash([]);
-        for (let i = -2; i <= 2; i++) {
-            ctx.beginPath(); ctx.moveTo(p.x+i*3, p.y); ctx.lineTo(p.x+i*4, p.y-5-Math.abs(i)); ctx.stroke();
+        if (sim.firing || hit) {
+            const p = { x: v.X(sim.pos.x), y: v.Y(sim.pos.y) };
+            if (sim.firing) {
+                const K = 2.2, vyn = vy - G * sim.t;
+                PK.arrow(ctx, p.x, p.y, p.x + vx * K, p.y - vyn * K, P.ink, 2, P.stage);
+            }
+            PK.ball(ctx, P, p.x, p.y, 6);
         }
     }
 
-    /* ── Trail ──────────────────────────────────────────────────── */
-    function drawTrail() {
-        if (sim.trail.length < 2) return;
-        ctx.strokeStyle = col.acc; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
-        ctx.beginPath();
-        for (let i = 0; i < sim.trail.length; i++) {
-            const p = w2s(sim.trail[i].x, sim.trail[i].y);
-            if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-        }
-        ctx.stroke();
+    /* confetti in the site's own inks */
+    const SPARK = [P.acc, P.X, P.Y, '#a8243b', '#6d4a9c', '#127070', '#c47a17'];
+    function spawnConfetti() {
+        const v = view(), tx = v.X(CLIFF_X), ty = v.Y(CLIFF_H);
+        sparks = Array.from({ length: 90 }, () => ({
+            x: tx + (Math.random() - 0.5) * 40, y: ty - 10,
+            vx: (Math.random() - 0.5) * 220, vy: -(Math.random() * 260 + 80),
+            rot: Math.random() * Math.PI * 2, rotV: (Math.random() - 0.5) * 9,
+            w: 5 + Math.random() * 8, h: 3 + Math.random() * 4,
+            color: SPARK[Math.floor(Math.random() * SPARK.length)], life: 1,
+        }));
     }
-
-    /* ── Full scene ─────────────────────────────────────────────── */
-    function drawScene() {
-        ctx.clearRect(0, 0, W, SH);
-        drawGround();
-        drawCliff();
-        drawTrail();
-        drawTarget(sim.result === 'hit');
-        drawImpact();
-        drawCannon();
-        drawBall();
-        // distance label under cannon
-        ctx.font = '10px "Geist",ui-sans-serif,sans-serif';
-        ctx.fillStyle = col.faint; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        const O = w2s(CANNON_X, 0);
-        ctx.fillText(T('cannon', 'dělo'), O.x, O.y+8);
-        // d arrow
-        const cannonS = w2s(CANNON_X, 0), cliffS = w2s(CLIFF_X, 0);
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 0.8; ctx.setLineDash([3,3]);
-        ctx.beginPath(); ctx.moveTo(cannonS.x, cannonS.y+28); ctx.lineTo(cliffS.x, cliffS.y+28); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.font = 'bold 14px "Geist",ui-sans-serif,sans-serif';
-        ctx.fillStyle = col.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('d = 30 m', (cannonS.x+cliffS.x)/2, cannonS.y+30);
-    }
-
-    /* ── Confetti frame ─────────────────────────────────────────── */
     function tickConfetti(dt) {
-        confCtx.clearRect(0, 0, W, SH);
+        confCtx.clearRect(0, 0, V.W, V.H);
         let any = false;
         for (const p of sparks) {
-            p.x += p.vx * dt; p.y += p.vy * dt;
-            p.vy += 380 * dt; p.rot += p.rotV * dt;
-            p.life -= dt * 0.65;
+            p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 380 * dt; p.rot += p.rotV * dt; p.life -= dt * 0.65;
             if (p.life <= 0) continue;
             any = true;
-            confCtx.save();
-            confCtx.globalAlpha = Math.max(0, p.life);
+            confCtx.save(); confCtx.globalAlpha = Math.max(0, p.life);
             confCtx.translate(p.x, p.y); confCtx.rotate(p.rot);
-            confCtx.fillStyle = p.color;
-            confCtx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+            confCtx.fillStyle = p.color; confCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
             confCtx.restore();
         }
-        if (!any) { sparks = []; confCtx.clearRect(0,0,W,SH); }
+        if (!any) sparks = [];
+        return any;
     }
 
-    /* ── Verdict display ────────────────────────────────────────── */
     function showVerdict(result) {
-        const v     = document.getElementById('ch-verdict');
-        const retry = document.getElementById('ch-retry-btn');
-        const fire  = document.getElementById('ch-fire-btn');
-        const stat  = document.getElementById('ch-status');
-        v.style.display = 'block';
+        const vd = document.getElementById('ch-verdict'), retry = document.getElementById('ch-retry-btn');
+        const fire = document.getElementById('ch-fire-btn'), stat = document.getElementById('ch-status');
+        vd.style.display = 'block';
         if (result === 'hit') {
-            v.className = 'ch-verdict hit';
-            v.innerHTML = T('✓ &nbsp;Hit! Well done — your angle was spot-on.',
-                            '✓ &nbsp;Zásah! Výborně — úhel seděl přesně.');
+            vd.className = 'ch-verdict hit';
+            vd.innerHTML = T('✓ &nbsp;Hit! Well done — your angle was spot-on.', '✓ &nbsp;Zásah! Výborně — úhel seděl přesně.');
             if (stat) stat.textContent = T('hit!', 'zásah!');
         } else {
-            v.className = 'ch-verdict miss';
-            v.innerHTML = T('✗ &nbsp;Missed. Check your working and try a different angle.',
-                            '✗ &nbsp;Mimo. Zkontrolujte výpočet a zkuste jiný úhel.');
+            vd.className = 'ch-verdict miss';
+            vd.innerHTML = T('✗ &nbsp;Missed. Check your working and try a different angle.', '✗ &nbsp;Mimo. Zkontrolujte výpočet a zkuste jiný úhel.');
             if (stat) stat.textContent = T('missed', 'mimo');
         }
         if (retry) retry.style.display = 'inline-block';
         if (fire) fire.disabled = true;
     }
 
-    /* ── Animation loop ─────────────────────────────────────────── */
-    let lastTs = null;
-    function frame(ts) {
-        if (lastTs === null) lastTs = ts;
-        const dt = Math.min(0.05, (ts - lastTs) / 1000);
-        lastTs = ts;
-
-        if (sim.firing) {
-            const th  = sim.angle * Math.PI / 180;
-            const v0x = V0 * Math.cos(th), v0y = V0 * Math.sin(th);
-            sim.t += dt;
-            sim.pos.x = CANNON_X + v0x * sim.t;
-            sim.pos.y = v0y * sim.t - 0.5 * G * sim.t * sim.t;
-
-            // When ball first crosses the cliff face — evaluate exact y analytically
-            if (!sim.checkedCliff && sim.pos.x >= CLIFF_X) {
-                sim.checkedCliff = true;
-                const tCliff   = (CLIFF_X - CANNON_X) / v0x;
-                const yAtCliff = v0y * tCliff - 0.5 * G * tCliff * tCliff;
-
-                if (yAtCliff < CLIFF_H) {
-                    // Struck the cliff wall — stop here
-                    sim.firing = false;
-                    sim.pos    = { x: CLIFF_X, y: Math.max(0, yAtCliff) };
-                    sim.result = 'miss';
-                    showVerdict('miss');
-                } else if (Math.abs(yAtCliff - TARGET_Y) <= HIT_TOL) {
-                    // Hit the target
-                    sim.firing = false;
-                    sim.pos    = { x: TARGET_X, y: TARGET_Y };
-                    sim.result = 'hit';
-                    spawnConfetti();
-                    showVerdict('hit');
-                }
-                // else: ball cleared the cliff too high — keep flying, land on top
-            }
-
-            // Clip trail y to local ground (cliff top when past cliff, 0 before)
-            const groundLevel = sim.pos.x > CLIFF_X ? CLIFF_H : 0;
-            sim.trail.push({ x: sim.pos.x, y: Math.max(groundLevel, sim.pos.y) });
-
-            // Ball lands on cliff top surface (only after it has actually cleared the cliff)
-            if (sim.checkedCliff && sim.pos.x > CLIFF_X && sim.pos.y < CLIFF_H && !sim.result) {
-                sim.firing = false;
-                sim.pos    = { x: sim.pos.x, y: CLIFF_H };
+    /* the flight: closed form, with the cliff face checked exactly */
+    function step(dt) {
+        const th = sim.angle * Math.PI / 180, vx = V0 * Math.cos(th), vy = V0 * Math.sin(th);
+        sim.t += dt;
+        sim.pos.x = vx * sim.t;
+        sim.pos.y = vy * sim.t - 0.5 * G * sim.t * sim.t;
+        if (!sim.checkedCliff && sim.pos.x >= CLIFF_X) {
+            sim.checkedCliff = true;
+            const tC = CLIFF_X / vx, yC = vy * tC - 0.5 * G * tC * tC;
+            /* the tolerance first: a ball just under the edge is a hit too.
+               Checked the other way round, the exact roots (38.9°, 62.4° as
+               typed) struck the wall 2 cm low and scored as misses. */
+            if (Math.abs(yC - CLIFF_H) <= HIT_TOL) {
+                sim.firing = false; sim.t = tC; sim.pos = { x: CLIFF_X, y: CLIFF_H };
+                sim.result = 'hit'; spawnConfetti(); showVerdict('hit');
+            } else if (yC < CLIFF_H) {
+                sim.firing = false; sim.t = tC; sim.pos = { x: CLIFF_X, y: Math.max(0, yC) };
                 sim.result = 'miss'; showVerdict('miss');
-            }
-
-            // Ball hits ground before cliff (strict < 0 so y=0 spawn doesn't trigger)
-            if (sim.pos.x <= CLIFF_X && sim.pos.y < 0 && !sim.result) {
-                sim.firing = false; sim.pos.y = 0;
-                sim.result = 'miss'; showVerdict('miss');
-            }
-
-            // Off-world
-            if (sim.pos.x > WORLD.xmax + 5 && !sim.result) {
-                sim.firing = false; sim.result = 'miss'; showVerdict('miss');
             }
         }
-
-        drawScene();
-        if (sparks.length) tickConfetti(dt);
-
-        requestAnimationFrame(frame);
+        if (sim.firing && sim.checkedCliff && sim.pos.x > CLIFF_X && sim.pos.y < CLIFF_H) {
+            sim.firing = false; sim.pos.y = CLIFF_H; sim.result = 'miss'; showVerdict('miss');
+        }
+        if (sim.firing && sim.pos.x <= CLIFF_X && sim.pos.y < 0) {
+            sim.firing = false;
+            sim.t = 2 * vy / G; sim.pos = { x: vx * sim.t, y: 0 };
+            sim.result = 'miss'; showVerdict('miss');
+        }
+        if (sim.firing && sim.pos.x > VIEW.x1 + 5) { sim.firing = false; sim.result = 'miss'; showVerdict('miss'); }
     }
-    requestAnimationFrame(frame);
+    function tick(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        if (sim.firing) step(dt);
+        const conf = sparks.length ? tickConfetti(dt) : false;
+        V.redraw();
+        if (sim.firing || conf) raf = requestAnimationFrame(tick); else { raf = 0; last = 0; }
+    }
+    function kick() { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } }
 
-    /* ── Input wiring ───────────────────────────────────────────── */
     const angleInp = document.getElementById('ch-angle-input');
     if (angleInp) {
         /* Arrows only. A free-text field can hold anything a visitor types, so
            the angle is stepped instead — the value can never leave [1, 89] or
            the 0.1 grid, and every reader of it downstream gets a real number. */
         const A_STEP = 0.1, A_LO = 1, A_HI = 89;
-        const snap = v => Math.round(Math.min(A_HI, Math.max(A_LO, v)) / A_STEP) * A_STEP;
+        const snap = x => Math.round(Math.min(A_HI, Math.max(A_LO, x)) / A_STEP) * A_STEP;
         angleInp.addEventListener('keydown', e => {
             if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'Tab') e.preventDefault();
         });
         angleInp.addEventListener('paste', e => e.preventDefault());
-        angleInp.addEventListener('drop',  e => e.preventDefault());
+        angleInp.addEventListener('drop', e => e.preventDefault());
         angleInp.addEventListener('input', () => {
-            const v = parseFloat(angleInp.value);
-            const a = snap(isNaN(v) ? 45 : v);
+            const x = parseFloat(angleInp.value);
+            const a = snap(isNaN(x) ? 45 : x);
             angleInp.value = a.toFixed(1);
             sim.angle = a;
+            if (!sim.firing && !sim.result) V.redraw();
         });
         sim.angle = snap(parseFloat(angleInp.value));
     }
-
     document.getElementById('ch-fire-btn')?.addEventListener('click', () => {
-        const v = parseFloat(angleInp?.value);
-        if (isNaN(v) || v <= 0 || v >= 90) {
-            if (angleInp) { angleInp.style.outline = '2px solid #b94d28'; setTimeout(() => angleInp.style.outline = '', 900); }
+        const x = parseFloat(angleInp?.value);
+        if (isNaN(x) || x <= 0 || x >= 90) {
+            if (angleInp) { angleInp.style.outline = '2px solid #a8243b'; setTimeout(() => angleInp.style.outline = '', 900); }
             return;
         }
-        sim.angle        = v;
-        sim.firing       = true;
-        sim.result       = null;
-        sim.checkedCliff = false;
-        sim.t            = 0;
-        sim.pos          = { x: CANNON_X, y: 0 };
-        sim.trail        = [{ x: CANNON_X, y: 0 }];
-        sparks           = [];
-        lastTs     = null;
-        const verdict = document.getElementById('ch-verdict');
-        if (verdict) verdict.style.display = 'none';
-        const retry = document.getElementById('ch-retry-btn');
-        if (retry) retry.style.display = 'none';
-        const fire = document.getElementById('ch-fire-btn');
-        if (fire) fire.disabled = false;
-        const stat = document.getElementById('ch-status');
-        if (stat) stat.textContent = T('firing…', 'střelba…');
-        confCtx.clearRect(0, 0, W, SH);
+        Object.assign(sim, { angle: x, firing: true, result: null, checkedCliff: false, t: 0, pos: { x: 0, y: 0 } });
+        sparks = []; confCtx.clearRect(0, 0, V.W, V.H);
+        const vd = document.getElementById('ch-verdict'); if (vd) vd.style.display = 'none';
+        const retry = document.getElementById('ch-retry-btn'); if (retry) retry.style.display = 'none';
+        const fire = document.getElementById('ch-fire-btn'); if (fire) fire.disabled = false;
+        const stat = document.getElementById('ch-status'); if (stat) stat.textContent = T('firing…', 'střelba…');
+        kick();
     });
-
     document.getElementById('ch-retry-btn')?.addEventListener('click', () => {
-        sim.firing = false; sim.result = null; sim.checkedCliff = false;
-        sim.trail  = []; sim.pos = { x: CANNON_X, y: 0 };
-        sparks = []; confCtx.clearRect(0, 0, W, SH);
-        const verdict = document.getElementById('ch-verdict');
-        if (verdict) verdict.style.display = 'none';
-        const retry = document.getElementById('ch-retry-btn');
-        if (retry) retry.style.display = 'none';
-        const fire = document.getElementById('ch-fire-btn');
-        if (fire) fire.disabled = false;
-        const stat = document.getElementById('ch-status');
-        if (stat) stat.textContent = T('ready', 'připraveno');
-        lastTs = null;
+        Object.assign(sim, { firing: false, result: null, checkedCliff: false, t: 0, pos: { x: 0, y: 0 } });
+        sparks = []; confCtx.clearRect(0, 0, V.W, V.H);
+        const vd = document.getElementById('ch-verdict'); if (vd) vd.style.display = 'none';
+        const retry = document.getElementById('ch-retry-btn'); if (retry) retry.style.display = 'none';
+        const fire = document.getElementById('ch-fire-btn'); if (fire) fire.disabled = false;
+        const stat = document.getElementById('ch-status'); if (stat) stat.textContent = T('ready', 'připraveno');
+        V.redraw();
     });
-
-    // The status chip and the verdict are plain strings set by JS, so they do not
-    // follow the CS/EN switch on their own — re-stamp them when the language changes.
+    /* the status chip and the verdict are plain strings set here — re-stamp
+       them when the language changes */
     document.addEventListener('langchange', () => {
         const stat = document.getElementById('ch-status');
         if (stat && !sim.firing) {
-            stat.textContent = sim.result === 'hit'  ? T('hit!', 'zásah!')
-                             : sim.result === 'miss' ? T('missed', 'mimo')
-                             : T('ready', 'připraveno');
+            stat.textContent = sim.result === 'hit' ? T('hit!', 'zásah!') : sim.result === 'miss' ? T('missed', 'mimo') : T('ready', 'připraveno');
         }
-        const v = document.getElementById('ch-verdict');
-        if (v && v.style.display !== 'none' && sim.result) showVerdict(sim.result);
+        const vd = document.getElementById('ch-verdict');
+        if (vd && vd.style.display !== 'none' && sim.result) showVerdict(sim.result);
     });
+    V.redraw();
+}());
+</script>
 
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 1 — ONE MOTION, TWO COORDINATES   (the movie sandbox)
+
+   Seven steps from the position vector to the superposition principle.
+   Every number is an exercise's own:
+     steps 1, 4, 5 — Ex. 4-15: a = (4, −2) m/s², v0 = (8, 12) m/s, so
+                     x = 8t + 2t², y = 12t − t²; y is largest at t = 6 s,
+                     where v = (32, 0) m/s — the exercise's answer;
+     steps 2, 3    — Ex. 2-78: x = 50t + 10t² → v̄(0–3 s) = 80 m/s,
+                     v(3 s) = 110 m/s, a = 20 m/s², Δx(0–3 s) = 240 m;
+     step 7        — Ex. 4-67: h = 2.0 m, r = 1.5 m, d = 10 m →
+                     t = √(2h/g) = 0.639 s, s = √(d² − r²) = 9.887 m,
+                     v = 15.47 m/s, a_c = v²/r = 159.6 ≈ 1.6·10² m/s².
+   g = 9.8 m/s², because the chapter 2 and 4 answer keys use it.
+
+   Each step plays once and holds its last frame, which is the step's
+   summary picture; the loop stops then, so a held step costs nothing.
+   Everything is evaluated in closed form from the step's own clock.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const canvas = document.getElementById('pm-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
+    const $ = id => document.getElementById(id);
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    /* a real minus sign, and the Czech decimal comma */
+    const num = (v, d) => {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    const G = 9.8;
+    const clamp01 = q => Math.max(0, Math.min(1, q));
+    const ease = q => { q = clamp01(q); return q * q * (3 - 2 * q); };
+    const seg = (u, a, b) => clamp01((u - a) / (b - a));
+
+    /* ── the physics, in closed form ─────────────────────────────────── */
+    const E415 = { x: t => 8 * t + 2 * t * t, y: t => 12 * t - t * t,
+                   vx: t => 8 + 4 * t, vy: t => 12 - 2 * t };
+    const E278 = { x: t => 50 * t + 10 * t * t, v: t => 50 + 20 * t };
+    const THROW = { v0: 20, al: 60 * Math.PI / 180 };
+    THROW.vx = THROW.v0 * Math.cos(THROW.al);
+    THROW.vy = THROW.v0 * Math.sin(THROW.al);
+    THROW.T = 2 * THROW.vy / G;
+    const SNAP = { h: 2.0, r: 1.5, d: 10 };
+    SNAP.t = Math.sqrt(2 * SNAP.h / G);
+    SNAP.s = Math.sqrt(SNAP.d * SNAP.d - SNAP.r * SNAP.r);
+    SNAP.v = SNAP.s / SNAP.t;
+    SNAP.ac = SNAP.v * SNAP.v / SNAP.r;
+
+    /* ── palette: the stage is the sandbox's paper, a Vol I --paper-deep ── */
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    let PAL = null;
+    function palette() {
+        const RT = document.documentElement;
+        PAL = {
+            stage: tok(RT, '--paper-deep', '#efead6'), paper: tok(RT, '--paper', '#FFFFEC'),
+            ink: tok(RT, '--ink', '#363026'), soft: tok(RT, '--ink-soft', '#4d4436'),
+            faint: tok(RT, '--ink-faint', '#7A6A52'), acc: tok(document.body, '--accent', '#7a3c1a'),
+            /* one colour per axis, the same in every step */
+            X: '#2a62a8', Y: '#2d7a45'
+        };
+    }
+
+    /* ── canvas ──────────────────────────────────────────────────────── */
+    let W = 0, H = 0;
+    function size() {
+        const r = wrap.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = Math.max(r.width, 240), h = Math.max(r.height, 180);
+        if (w === W && h === H) return;
+        W = w; H = h;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    const badge = $('pm-eq');
+    const badgeLow = () => !!badge && badge.parentElement === wrap;
+    /* the scene's band: under the caption strip, above the equation badge
+       (on a phone mobile.js lifts the badge out, and the band grows) */
+    function band() {
+        const top = 64, bot = H - (badgeLow() ? 104 : 20);
+        return { x: 20, y: top, w: W - 40, h: Math.max(160, bot - top) };
+    }
+
+    /* ── drawing primitives ─────────────────────────────────────────── */
+    function line(x1, y1, x2, y2, col, lw, dash) {
+        ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    function arrow(x1, y1, x2, y2, col, lw) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+        ctx.setLineDash([]); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+        ctx.closePath(); ctx.fill();
+    }
+    function dot(x, y, r, fill, stroke) {
+        ctx.fillStyle = fill;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+    }
+    function square(x, y, a, fill) {
+        ctx.fillStyle = fill; ctx.fillRect(x - a / 2, y - a / 2, a, a);
+        ctx.strokeStyle = PAL.ink; ctx.lineWidth = 1; ctx.strokeRect(x - a / 2, y - a / 2, a, a);
+    }
+    function mono(text, x, y, col, sz, align) {
+        ctx.font = (sz || 11) + 'px "Geist",ui-sans-serif,sans-serif';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+    }
+    /* serif italic with a paper halo in the stage's own tone */
+    function serif(text, x, y, col, sz, align) {
+        ctx.font = 'italic ' + (sz || 16) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = PAL.stage;
+        ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+    /* a symbol with a vector arrow over it — a combining arrow is not
+       reliable on canvas, so the arrow is stroked */
+    function vsym(text, x, y, col, sz, sub) {
+        sz = sz || 17;
+        ctx.font = 'italic ' + sz + 'px "Source Serif 4",Georgia,serif';
+        const w = ctx.measureText(text).width;
+        serif(text, x, y, col, sz, 'center');
+        if (sub) serif(sub, x + w / 2 + 4, y + sz * 0.3, col, sz * 0.66, 'left');
+        const ay = y - sz * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+        ctx.strokeStyle = PAL.stage; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2, ay); ctx.stroke();
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+        ctx.closePath(); ctx.fill();
+    }
+    /* a symbol with a subscript: v_x, v_0 … */
+    function sub(main, s, x, y, col, sz, align) {
+        sz = sz || 16;
+        ctx.font = 'italic ' + sz + 'px "Source Serif 4",Georgia,serif';
+        const w1 = ctx.measureText(main).width;
+        ctx.font = 'italic ' + Math.round(sz * 0.7) + 'px "Source Serif 4",Georgia,serif';
+        const w2 = ctx.measureText(s).width;
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        serif(main, x0, y, col, sz, 'left');
+        serif(s, x0 + w1 + 1, y + sz * 0.28, col, Math.round(sz * 0.7), 'left');
+        return x0 + tw;
+    }
+    /* 'v' with a bar over it, the average; a combining macron is not
+       reliable on canvas either */
+    function vbar(x, y, col, sz) {
+        sz = sz || 16;
+        serif('v', x, y, col, sz, 'left');
+        line(x + 1, y - sz * 0.5, x + 1 + sz * 0.52, y - sz * 0.5, col, 1.3);
+    }
+    /* an axis title in the label face; 'v_x (m/s)' carries a subscript */
+    function axisTitle(text, x, y, align) {
+        const m = /^(\w)_(\w)(.*)$/.exec(text);
+        if (!m) { mono(text, x, y, PAL.soft, 11, align); return; }
+        ctx.font = '11px "Geist",ui-sans-serif,sans-serif';
+        const w1 = ctx.measureText(m[1]).width, w3 = ctx.measureText(m[3]).width;
+        ctx.font = '8px "Geist",ui-sans-serif,sans-serif';
+        const w2 = ctx.measureText(m[2]).width;
+        const tw = w1 + w2 + w3, x0 = align === 'right' ? x - tw : x;
+        mono(m[1], x0, y, PAL.soft, 11, 'left');
+        mono(m[2], x0 + w1, y + 4, PAL.soft, 8, 'left');
+        mono(m[3], x0 + w1 + w2, y, PAL.soft, 11, 'left');
+    }
+    function hatch(x1, y1, x2, y2, depth) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
+            ctx.beginPath(); ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth); ctx.stroke();
+        }
+    }
+    /* a dimension line with end ticks and a label, offset to one side */
+    function dim(x1, y1, x2, y2, off, label, col) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L, ny = dx / L;
+        const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+        ctx.strokeStyle = col || PAL.soft; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+        ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+        ctx.stroke();
+        const k = off >= 0 ? 14 : -14;
+        serif(label, (ax + bx) / 2 + nx * k, (ay + by) / 2 + ny * k, col || PAL.soft, 16, 'center');
+    }
+
+    /* ── frames: a plane drawn to one scale, or a graph with two ────── */
+    const niceStep = (range, px, want) => {
+        const raw = range * want / px, p = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 5, 10]) if (m * p >= raw) return m * p;
+        return 10 * p;
+    };
+    function plane(box, xr, yr) {
+        const s = Math.min(box.w / (xr[1] - xr[0]), box.h / (yr[1] - yr[0]));
+        const w = s * (xr[1] - xr[0]), h = s * (yr[1] - yr[0]);
+        const ox = box.x + (box.w - w) / 2, oy = box.y + (box.h - h) / 2;
+        return { s, xr, yr, box: { x: ox, y: oy, w, h },
+                 X: x => ox + (x - xr[0]) * s, Y: y => oy + h - (y - yr[0]) * s };
+    }
+    function graphMap(box, tr, vr) {
+        const sx = box.w / (tr[1] - tr[0]), sy = box.h / (vr[1] - vr[0]);
+        return { box, tr, vr, X: t => box.x + (t - tr[0]) * sx, Y: v => box.y + box.h - (v - vr[0]) * sy };
+    }
+    /* axes through the origin with ticks every `step` (world units) */
+    function axes(M, stepX, stepY, labX, labY, opts) {
+        opts = opts || {};
+        const x0 = M.X(Math.max(M.xr ? M.xr[0] : M.tr[0], 0)), y0 = M.Y(Math.max(M.yr ? M.yr[0] : M.vr[0], 0));
+        const xr = M.xr || M.tr, yr = M.yr || M.vr;
+        const xa = M.X(xr[0]), xb = M.X(xr[1]), ya = M.Y(yr[0]), yb = M.Y(yr[1]);
+        arrow(xa, y0, xb, y0, PAL.soft, 1.2);
+        arrow(x0, ya, x0, yb, PAL.soft, 1.2);
+        ctx.strokeStyle = PAL.soft; ctx.lineWidth = 1;
+        for (let v = Math.ceil(xr[0] / stepX) * stepX; v <= xr[1] - stepX * 0.35; v += stepX) {
+            if (Math.abs(v) < 1e-9) continue;
+            const x = M.X(v);
+            ctx.beginPath(); ctx.moveTo(x, y0 - 4); ctx.lineTo(x, y0 + 4); ctx.stroke();
+            mono(fmtTick(v), x, y0 + 15, PAL.faint, 10.5, 'center');
+        }
+        for (let v = Math.ceil(yr[0] / stepY) * stepY; v <= yr[1] - stepY * 0.35; v += stepY) {
+            if (Math.abs(v) < 1e-9) continue;
+            const y = M.Y(v);
+            ctx.beginPath(); ctx.moveTo(x0 - 4, y); ctx.lineTo(x0 + 4, y); ctx.stroke();
+            mono(fmtTick(v), x0 - 8, y, PAL.faint, 10.5, 'right');
+        }
+        if (!opts.noZero) mono('0', x0 - 8, y0 + 13, PAL.faint, 10.5, 'right');
+        axisTitle(labX, xb - 2, y0 - 13, 'right');
+        axisTitle(labY, x0 + 10, yb + 4, 'left');
+    }
+    const fmtTick = v => (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : num(v, 1));
+    /* a curve given parametrically, from t0 to t1 */
+    function curve(M, fx, fy, t0, t1, col, lw, dash) {
+        if (t1 <= t0) return;
+        ctx.strokeStyle = col; ctx.lineWidth = lw || 2; ctx.setLineDash(dash || []);
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        ctx.beginPath();
+        const n = 90;
+        for (let i = 0; i <= n; i++) {
+            const t = t0 + (t1 - t0) * i / n, x = M.X(fx(t)), y = M.Y(fy(t));
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+    }
+    const wide = () => W >= 760;
+
+    /* ═══ the scenes — each draws its step at the step's own clock u ∈ [0, 1]
+       and returns the three rail readouts ════════════════════════════ */
+
+    /* 1 — the position vector and its two shadows (Ex. 4-15's path) */
+    function sPosition(u) {
+        const b = band(), tp = 6 * u;
+        const M = plane(b, [-12, 134], [-9, 45]);
+        axes(M, 20, 10, 'x (m)', 'y (m)');
+        curve(M, E415.x, E415.y, 0, 6, PAL.faint, 1.2, [4, 5]);
+        curve(M, E415.x, E415.y, 0, tp, PAL.acc, 2.4);
+        const px = M.X(E415.x(tp)), py = M.Y(E415.y(tp)), ox = M.X(0), oy = M.Y(0);
+        line(px, py, px, oy, PAL.X, 1.1, [3, 4]);
+        line(px, py, ox, py, PAL.Y, 1.1, [3, 4]);
+        arrow(ox, oy, px, py, PAL.ink, 2.2);
+        const L = Math.hypot(px - ox, py - oy) || 1;
+        if (L > 40) vsym('r', ox + (px - ox) * 0.55 - (py - oy) / L * 18, oy + (py - oy) * 0.55 + (px - ox) / L * 18, PAL.ink, 18);
+        square(px, oy, 11, PAL.X);
+        square(ox, py, 11, PAL.Y);
+        serif('x(t)', px, oy + 34, PAL.X, 16);
+        serif('y(t)', ox - 44, py, PAL.Y, 16, 'right');
+        dot(px, py, 7, PAL.acc, PAL.ink);
+        return [['t', num(tp, 1) + ' s'], ['x', num(E415.x(tp), 1) + ' m'], ['y', num(E415.y(tp), 1) + ' m']];
+    }
+
+    /* the frame of a t-graph: centred in the band, with room on the left
+       for the axis numbers (and, in step 2, for the particle's own track) */
+    function tBox(b, lead) {
+        const gw = Math.min(b.w - lead - 30, 860), gh = b.h - 30;
+        const x = b.x + (b.w - gw - lead) / 2 + lead;
+        return { x, y: b.y + 8, w: gw, h: gh };
+    }
+
+    /* 2 — velocity is the slope of x(t)  (Ex. 2-78) */
+    function sSlopeX(u) {
+        const b = band(), box = tBox(b, wide() ? 150 : 96);
+        const M = graphMap(box, [0, 6.4], [0, 720]);
+        axes(M, 1, 100, 't (s)', 'x (m)');
+        const tc = 3 * ease(seg(u, 0, 0.3));
+        curve(M, t => t, E278.x, 0, 6, PAL.faint, 1.1, [4, 5]);
+        curve(M, t => t, E278.x, 0, tc, PAL.acc, 2.4);
+        /* the particle itself, on its own line beside the graph */
+        const tx = box.x - (wide() ? 96 : 60);
+        line(tx, M.Y(0), tx, M.Y(700), PAL.soft, 1.2);
+        mono('x', tx, M.Y(700) - 10, PAL.soft, 11, 'center');
+        const gx = M.X(tc), gy = M.Y(E278.x(tc));
+        line(tx, gy, gx, gy, PAL.faint, 1, [2, 4]);
+        dot(tx, gy, 7, PAL.acc, PAL.ink);
+
+        const clip = () => { ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip(); };
+        const X3 = 240, t2 = 3;
+        let slope = null, dt = null;
+        const pA = ease(seg(u, 0.32, 0.44)), pB = ease(seg(u, 0.5, 0.86)), pC = ease(seg(u, 0.88, 1));
+        /* the average over 0–3 s: drawn first, then kept as a faint reference */
+        if (pA > 0) {
+            ctx.save(); ctx.globalAlpha = pA * (pB > 0 ? 0.45 : 1);
+            line(M.X(0), M.Y(0), M.X(t2), M.Y(X3), PAL.ink, pB > 0 ? 1.2 : 2, pB > 0 ? [5, 4] : []);
+            serif('Δx / Δt', M.X(1.5) - 8, M.Y(120) - 16, PAL.ink, 16, 'right');
+            ctx.restore();
+            if (pB === 0) {
+                slope = X3 / t2; dt = t2;
+                ctx.save(); ctx.globalAlpha = pA;
+                line(M.X(0), M.Y(0), M.X(t2), M.Y(0), PAL.X, 1.6);
+                line(M.X(t2), M.Y(0), M.X(t2), M.Y(X3), PAL.Y, 1.6);
+                serif('Δt', M.X(1.5), M.Y(0) - 14, PAL.X, 16);
+                serif('Δx', M.X(t2) + 8, M.Y(120), PAL.Y, 16, 'left');
+                ctx.restore();
+            }
+        }
+        /* then the chord's left end slides up to 3 s and the chord turns
+           into the tangent; its slope climbs from 80 to 110 m/s */
+        if (pB > 0 && pC < 1) {
+            const t1 = 2.97 * pB, x1 = E278.x(t1);
+            slope = (X3 - x1) / (t2 - t1); dt = t2 - t1;
+            ctx.save(); clip(); ctx.globalAlpha = 1 - pC;
+            line(M.X(0), M.Y(X3 - slope * t2), M.X(6.4), M.Y(X3 + slope * 3.4), PAL.ink, 1, [5, 5]);
+            line(M.X(t1), M.Y(x1), M.X(t2), M.Y(X3), PAL.ink, 2.2);
+            ctx.restore();
+            const la = clamp01((dt - 0.3) / 0.5) * (1 - pC);
+            if (la > 0) {
+                ctx.save(); ctx.globalAlpha = la;
+                line(M.X(t1), M.Y(x1), M.X(t2), M.Y(x1), PAL.X, 1.6);
+                line(M.X(t2), M.Y(x1), M.X(t2), M.Y(X3), PAL.Y, 1.6);
+                serif('Δt', (M.X(t1) + M.X(t2)) / 2, M.Y(x1) + 16, PAL.X, 16);
+                serif('Δx', M.X(t2) + 8, (M.Y(x1) + M.Y(X3)) / 2, PAL.Y, 16, 'left');
+                ctx.restore();
+            }
+            ctx.save(); ctx.globalAlpha = 1 - pC;
+            dot(M.X(t1), M.Y(x1), 4.5, PAL.ink);
+            ctx.restore();
+        }
+        if (pC > 0) {
+            const m = E278.v(3);
+            slope = pC >= 1 ? m : slope; dt = pC >= 1 ? 0 : dt;
+            ctx.save(); clip(); ctx.globalAlpha = pC;
+            line(M.X(0.4), M.Y(X3 + m * (0.4 - 3)), M.X(6.3), M.Y(X3 + m * (6.3 - 3)), PAL.ink, 2.4);
+            ctx.restore();
+            ctx.save(); ctx.globalAlpha = pC;
+            serif('v = dx/dt', M.X(5.0) + 10, M.Y(X3 + m * 2.0) + 22, PAL.ink, 17, 'left');
+            ctx.restore();
+        }
+        if (pA > 0) dot(M.X(t2), M.Y(X3), 5.5, PAL.acc, PAL.ink);
+        return [
+            ['t', num(tc, 2) + ' s'],
+            ['Δt', dt === null ? '—' : num(dt, 2) + ' s'],
+            ['Δx/Δt', slope === null ? '—' : num(slope, 1) + ' m/s'],
+        ];
+    }
+
+    /* 3 — acceleration is the slope of v(t); the area under it is Δx */
+    function sSlopeV(u) {
+        const b = band(), box = tBox(b, 70);
+        const M = graphMap(box, [0, 6.4], [0, 190]);
+        axes(M, 1, 20, 't (s)', 'v_x (m/s)');
+        const tc = 6 * ease(seg(u, 0, 0.3));
+        curve(M, t => t, E278.v, 0, tc, PAL.acc, 2.4);
+        let area = null;
+        const pS = ease(seg(u, 0.32, 0.45)), pA = seg(u, 0.52, 0.86), pM = ease(seg(u, 0.88, 1));
+        if (pA > 0) {
+            const ta = 3 * ease(pA);
+            area = E278.x(ta);
+            ctx.fillStyle = PAL.acc; ctx.globalAlpha = 0.16;
+            ctx.beginPath(); ctx.moveTo(M.X(0), M.Y(0)); ctx.lineTo(M.X(0), M.Y(50));
+            ctx.lineTo(M.X(ta), M.Y(E278.v(ta))); ctx.lineTo(M.X(ta), M.Y(0)); ctx.closePath(); ctx.fill();
+            ctx.globalAlpha = 1;
+            line(M.X(ta), M.Y(0), M.X(ta), M.Y(E278.v(ta)), PAL.acc, 1.4);
+            if (ta > 1.2) serif('Δx', M.X(ta / 2), M.Y(40), PAL.acc, 18);
+        }
+        if (pS > 0) {
+            ctx.save(); ctx.globalAlpha = pS;
+            const t1 = 4.2, t2 = 5.2;
+            line(M.X(t1), M.Y(E278.v(t1)), M.X(t2), M.Y(E278.v(t1)), PAL.X, 1.6);
+            line(M.X(t2), M.Y(E278.v(t1)), M.X(t2), M.Y(E278.v(t2)), PAL.Y, 1.6);
+            serif('Δt', (M.X(t1) + M.X(t2)) / 2, M.Y(E278.v(t1)) + 16, PAL.X, 16);
+            serif('Δv', M.X(t2) + 8, (M.Y(E278.v(t1)) + M.Y(E278.v(t2))) / 2, PAL.Y, 16, 'left');
+            serif('a = Δv / Δt', M.X(t1) - 14, M.Y(E278.v(t2)) - 6, PAL.ink, 16, 'right');
+            ctx.restore();
+        }
+        if (pM > 0) {
+            /* the same area as a rectangle: the average velocity times 3 s */
+            ctx.save(); ctx.globalAlpha = pM;
+            line(M.X(0), M.Y(80), M.X(3), M.Y(80), PAL.ink, 1.3, [6, 4]);
+            line(M.X(3), M.Y(80), M.X(3), M.Y(0), PAL.ink, 1, [6, 4]);
+            vbar(M.X(0) + 14, M.Y(80) - 13, PAL.ink, 16);
+            ctx.restore();
+        }
+        const tv = u < 0.3 ? tc : 6;
+        return [
+            ['v<sub>x</sub>', num(E278.v(tv), 0) + ' m/s'],
+            ['a<sub>x</sub>', pS > 0 ? num(20, 0) + ' m/s²' : '—'],
+            ['Δx', area === null ? '—' : num(area, 0) + ' m'],
+        ];
+    }
+
+    /* 4 — each coordinate runs its own motion (Ex. 4-15, flashes 1 s apart) */
+    function sSplit(u) {
+        const b = band(), tp = 7 * u, TT = 7;
+        let pb, g1, g2;
+        if (wide()) {
+            const pw = b.w * 0.58;
+            pb = { x: b.x, y: b.y, w: pw, h: b.h };
+            const gx = b.x + pw + 70, gw = b.w - pw - 80, gh = (b.h - 56) / 2;
+            g1 = { x: gx, y: b.y + 6, w: gw, h: gh };
+            g2 = { x: gx, y: b.y + gh + 50, w: gw, h: gh };
+        } else {
+            const ph = b.h * 0.38;
+            pb = { x: b.x, y: b.y, w: b.w, h: ph };
+            const gx = b.x + 44, gw = b.w - 52, gh = (b.h - ph - 90) / 2;
+            g1 = { x: gx, y: b.y + ph + 26, w: gw, h: gh };
+            g2 = { x: gx, y: b.y + ph + gh + 70, w: gw, h: gh };
+        }
+        const M = plane(pb, [-14, 168], [-10, 46]);
+        axes(M, M.s > 3.4 ? 20 : 40, 10, 'x (m)', 'y (m)');
+        curve(M, E415.x, E415.y, 0, TT, PAL.faint, 1.1, [4, 5]);
+        curve(M, E415.x, E415.y, 0, tp, PAL.acc, 2.2);
+        const ox = M.X(0), oy = M.Y(0);
+        const G1 = graphMap(g1, [0, 7.4], [0, 175]);
+        const G2 = graphMap(g2, [0, 7.4], [0, 42]);
+        axes(G1, 1, 50, 't (s)', 'x (m)');
+        axes(G2, 1, 10, 't (s)', 'y (m)');
+        curve(G1, t => t, E415.x, 0, tp, PAL.X, 2.2);
+        curve(G2, t => t, E415.y, 0, tp, PAL.Y, 2.2);
+        /* the flashes, one second apart */
+        for (let k = 0; k <= Math.floor(tp + 1e-9); k++) {
+            const x = E415.x(k), y = E415.y(k);
+            dot(M.X(x), M.Y(y), 3.6, PAL.acc);
+            square(M.X(x), oy, 7, PAL.X);
+            square(ox, M.Y(y), 7, PAL.Y);
+            dot(G1.X(k), G1.Y(x), 3.4, PAL.X);
+            dot(G2.X(k), G2.Y(y), 3.4, PAL.Y);
+        }
+        const px = M.X(E415.x(tp)), py = M.Y(E415.y(tp));
+        line(px, py, px, oy, PAL.X, 1, [3, 4]);
+        line(px, py, ox, py, PAL.Y, 1, [3, 4]);
+        square(px, oy, 11, PAL.X);
+        square(ox, py, 11, PAL.Y);
+        dot(px, py, 6.5, PAL.acc, PAL.ink);
+        /* the turn of the y motion, where vy = 0 */
+        if (tp >= 6) {
+            line(G2.X(6), G2.Y(0), G2.X(6), G2.Y(36), PAL.Y, 1, [3, 4]);
+            const e = sub('v', 'y', G2.X(6) - 30, G2.Y(36) - 14, PAL.Y, 15, 'left');
+            serif(' = 0', e + 2, G2.Y(36) - 14, PAL.Y, 15, 'left');
+        }
+        let e = sub('a', 'x', G1.X(0.3), G1.Y(150), PAL.X, 15, 'left');
+        serif(' = +4 m/s²', e + 2, G1.Y(150), PAL.X, 15, 'left');
+        e = sub('a', 'y', G2.X(3.4), G2.Y(9), PAL.Y, 15, 'left');
+        serif(' = −2 m/s²', e + 2, G2.Y(9), PAL.Y, 15, 'left');
+        return [['t', num(tp, 1) + ' s'], ['x', num(E415.x(tp), 1) + ' m'], ['y', num(E415.y(tp), 1) + ' m']];
+    }
+
+    /* 5 — velocity in the plane: tangent, and made of two derivatives */
+    function sVelocity(u) {
+        const b = band(), tp = 6 * u;
+        const M = plane(b, [-12, 166], [-9, 50]);
+        axes(M, 20, 10, 'x (m)', 'y (m)');
+        const KV = 1.1;                         /* metres of arrow per m/s */
+        curve(M, E415.x, E415.y, 0, 6, PAL.faint, 1.1, [4, 5]);
+        curve(M, E415.x, E415.y, 0, tp, PAL.acc, 2.2);
+        /* the velocity left behind at every whole second */
+        for (let k = 0; k <= Math.floor(tp + 1e-9); k++) {
+            const x = E415.x(k), y = E415.y(k);
+            ctx.globalAlpha = 0.38;
+            arrow(M.X(x), M.Y(y), M.X(x + KV * E415.vx(k)), M.Y(y + KV * E415.vy(k)), PAL.ink, 1.4);
+            ctx.globalAlpha = 1;
+            dot(M.X(x), M.Y(y), 3.2, PAL.acc);
+        }
+        const x = E415.x(tp), y = E415.y(tp), vx = E415.vx(tp), vy = E415.vy(tp);
+        const px = M.X(x), py = M.Y(y);
+        const qx = M.X(x + KV * vx), qy = M.Y(y + KV * vy);
+        line(qx, py, qx, qy, PAL.faint, 1, [3, 3]);
+        line(px, qy, qx, qy, PAL.faint, 1, [3, 3]);
+        arrow(px, py, qx, py, PAL.X, 2.2);
+        arrow(px, py, px, qy, PAL.Y, 2.2);
+        arrow(px, py, qx, qy, PAL.ink, 2.6);
+        dot(px, py, 6.5, PAL.acc, PAL.ink);
+        sub('v', 'x', (px + qx) / 2, py + 17, PAL.X, 16);
+        if (Math.abs(qy - py) > 22) sub('v', 'y', px - 10, (py + qy) / 2, PAL.Y, 16, 'right');
+        const L = Math.hypot(qx - px, qy - py) || 1;
+        vsym('v', qx + (qx - px) / L * 16, qy + (qy - py) / L * 16 - 4, PAL.ink, 18);
+        if (tp > 5.97) {
+            const e = sub('v', 'y', px + 12, py - 26, PAL.Y, 16, 'left');
+            serif(' = 0', e + 2, py - 26, PAL.Y, 16, 'left');
+        }
+        /* the arrows' scale */
+        const bl = KV * 10 * M.s, bx = M.X(22) + bl, by = M.Y(46);
+        line(bx - bl, by, bx, by, PAL.soft, 1.4);
+        line(bx - bl, by - 4, bx - bl, by + 4, PAL.soft, 1.2);
+        line(bx, by - 4, bx, by + 4, PAL.soft, 1.2);
+        mono('10 m/s', bx + 8, by, PAL.soft, 10.5, 'left');
+        return [['t', num(tp, 1) + ' s'], ['v<sub>x</sub>', num(vx, 1) + ' m/s'], ['v<sub>y</sub>', num(vy, 1) + ' m/s']];
+    }
+
+    /* 6 — a throw is two motions at once, and each has a companion that
+       does only its half: a slider on the ground and a vertical throw */
+    function sThrow(u) {
+        const b = band(), tp = THROW.T * u, TX = -4.5;
+        const M = plane(b, [-8.5, 39], [-2.2, 17.4]);
+        const gy = M.Y(0);
+        hatch(M.X(-8.5), gy, M.X(39), gy, 9);
+        const fx = t => THROW.vx * t, fy = t => THROW.vy * t - G * t * t / 2;
+        curve(M, fx, fy, 0, THROW.T, PAL.faint, 1.1, [4, 5]);
+        curve(M, t => TX, fy, 0, Math.min(tp, THROW.vy / G), PAL.Y, 1, [2, 4]);
+        /* the launch: v0 and alpha */
+        const l0 = 0.34 * THROW.v0 * M.s;
+        const ax = M.X(0), ay = gy;
+        ctx.strokeStyle = PAL.soft; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(ax, ay, 30, -THROW.al, 0); ctx.stroke();
+        serif('α', ax + 38, ay - 13, PAL.soft, 15, 'left');
+        arrow(ax, ay, ax + l0 * Math.cos(THROW.al), ay - l0 * Math.sin(THROW.al), PAL.ink, 2);
+        sub('v', '0', ax + l0 * Math.cos(THROW.al) + 10, ay - l0 * Math.sin(THROW.al), PAL.ink, 17, 'left');
+        /* flashes every 0.5 s: the ball with both companions */
+        const DT = 0.5;
+        for (let k = 0; k * DT <= tp + 1e-9; k++) {
+            const t = k * DT, X = M.X(fx(t)), Y = M.Y(fy(t));
+            ctx.globalAlpha = 0.6;
+            line(M.X(TX), Y, X, Y, PAL.Y, 1, [2, 4]);
+            line(X, Y, X, gy - 5, PAL.X, 1, [2, 4]);
+            ctx.globalAlpha = 1;
+            dot(X, Y, 4, PAL.acc);
+            dot(M.X(TX), Y, 3.6, PAL.Y);
+            square(X, gy - 4, 7, PAL.X);
+        }
+        const X = M.X(fx(tp)), Y = M.Y(fy(tp));
+        square(X, gy - 7, 13, PAL.X);
+        dot(M.X(TX), Y, 7, PAL.Y, PAL.ink);
+        dot(X, Y, 7.5, PAL.acc, PAL.ink);
+        serif('y(t)', M.X(TX) - 14, Y, PAL.Y, 16, 'right');
+        serif('x(t)', X, gy + 24, PAL.X, 16);
+        return [['t', num(tp, 2) + ' s'], ['x', num(fx(tp), 1) + ' m'], ['y', num(Math.max(0, fy(tp)), 1) + ' m']];
+    }
+
+    /* 7 — Ex. 4-67: the string snaps. Top view above, side view below,
+       one horizontal scale along the flight */
+    function sSnap(u) {
+        const b = band();
+        const xr = [-2.4, 11.4], yT = [-1.8, 2.1], yS = [-0.4, 2.5];
+        const head = 22, gap = 30;
+        const s = Math.min(b.w / (xr[1] - xr[0]), (b.h - 2 * head - gap) / ((yT[1] - yT[0]) + (yS[1] - yS[0])));
+        const w = s * (xr[1] - xr[0]);
+        const x0 = b.x + (b.w - w) / 2;
+        const hT = s * (yT[1] - yT[0]), hS = s * (yS[1] - yS[0]);
+        const tot = 2 * head + gap + hT + hS, y0 = b.y + (b.h - tot) / 2;
+        const X = x => x0 + (x - xr[0]) * s;
+        const YT = y => y0 + head + hT - (y - yT[0]) * s;
+        const yS0 = y0 + head + hT + gap + head;
+        const YS = y => yS0 + hS - (y - yS[0]) * s;
+        mono(T('FROM ABOVE', 'SHORA'), x0, y0 + 6, PAL.soft, 10.5);
+        mono(T('FROM THE SIDE', 'Z BOKU'), x0, yS0 - head + 6, PAL.soft, 10.5);
+
+        const pC = seg(u, 0, 0.4), pF = seg(u, 0.45, 0.93), pD = ease(seg(u, 0.93, 1));
+        const tf = SNAP.t * pF;                 /* physical time since the snap */
+        const flying = u >= 0.45;
+        /* top view: the circle, the boy at its centre */
+        ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.arc(X(0), YT(0), SNAP.r * s, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+        dot(X(0), YT(0), 5, PAL.ink);
+        /* the stone goes round clockwise and reaches the top of the circle,
+           moving in +x, at the snap */
+        const phi = Math.PI / 2 + (1 - pC) * Math.PI * 3;
+        let sx, sy;
+        if (!flying) {
+            sx = SNAP.r * Math.cos(phi); sy = SNAP.r * Math.sin(phi);
+            line(X(0), YT(0), X(sx), YT(sy), PAL.soft, 1.3);
+            const tx = Math.sin(phi), ty = -Math.cos(phi);   /* clockwise tangent */
+            arrow(X(sx), YT(sy), X(sx + tx * 1.6), YT(sy + ty * 1.6), PAL.ink, 2);
+            arrow(X(sx), YT(sy), X(sx * 0.35), YT(sy * 0.35), PAL.acc, 2);
+            sub('a', 'c', X(sx * 0.62) + 10, YT(sy * 0.62) - 10, PAL.acc, 15, 'left');
+        } else {
+            sx = SNAP.v * tf; sy = SNAP.r;
+            line(X(0), YT(SNAP.r), X(SNAP.s), YT(SNAP.r), PAL.faint, 1, [4, 4]);
+            curve({ X, Y: YT }, t => SNAP.v * t, () => SNAP.r, 0, tf, PAL.acc, 2.2);
+            if (pF < 1) arrow(X(sx), YT(sy), X(sx + 1.6), YT(sy), PAL.ink, 2);
+        }
+        dot(X(sx), YT(sy), 6, PAL.acc, PAL.ink);
+        if (pF >= 1) {
+            const lx = X(SNAP.s), ly = YT(SNAP.r);
+            line(lx - 6, ly - 6, lx + 6, ly + 6, PAL.ink, 1.6); line(lx - 6, ly + 6, lx + 6, ly - 6, PAL.ink, 1.6);
+        }
+        if (pD > 0) {
+            ctx.save(); ctx.globalAlpha = pD;
+            line(X(0), YT(0), X(SNAP.s), YT(SNAP.r), PAL.soft, 1.2, [6, 4]);
+            serif('d', X(SNAP.s * 0.55), YT(SNAP.r * 0.55) + 16, PAL.soft, 17);
+            line(X(0), YT(0), X(0), YT(SNAP.r), PAL.soft, 1.2);
+            serif('r', X(0) - 12, YT(SNAP.r / 2), PAL.soft, 17, 'right');
+            serif('s', X(SNAP.s / 2), YT(SNAP.r) - 14, PAL.acc, 17);
+            ctx.restore();
+        }
+        /* side view: the fall, with a stone that is merely dropped beside it */
+        const gy = YS(0);
+        hatch(X(xr[0]), gy, X(xr[1]), gy, 9);
+        line(X(-1.2), YS(0), X(-1.2), YS(SNAP.h), PAL.soft, 1);
+        line(X(-1.2) - 4, YS(SNAP.h), X(-1.2) + 4, YS(SNAP.h), PAL.soft, 1);
+        serif('h', X(-1.2) - 10, YS(SNAP.h / 2), PAL.soft, 17, 'right');
+        const fy = t => SNAP.h - G * t * t / 2;
+        if (!flying) {
+            line(X(-SNAP.r), YS(SNAP.h), X(SNAP.r), YS(SNAP.h), PAL.faint, 1, [4, 4]);
+            dot(X(sx), YS(SNAP.h), 6, PAL.acc, PAL.ink);
+        } else {
+            curve({ X, Y: YS }, t => SNAP.v * t, fy, 0, tf, PAL.acc, 2.2);
+            for (let k = 0; k * 0.1 <= tf + 1e-9; k++) {
+                const t = k * 0.1, Y = YS(fy(t));
+                line(X(0), Y, X(SNAP.v * t), Y, PAL.Y, 1, [2, 4]);
+                dot(X(SNAP.v * t), Y, 3.4, PAL.acc);
+                dot(X(0), Y, 3.2, PAL.Y);
+            }
+            dot(X(0), YS(fy(tf)), 6, PAL.Y, PAL.ink);
+            dot(X(SNAP.v * tf), YS(fy(tf)), 6, PAL.acc, PAL.ink);
+        }
+        if (u < 0.93) mono(T('SLOW MOTION', 'ZPOMALENO'), X(xr[1]), y0 + 6, PAL.faint, 10.5, 'right');
+        return [
+            ['t', flying ? num(tf, 3) + ' s' : '—'],
+            ['v', num(SNAP.v, 1) + ' m/s'],
+            [flying ? 'a' : 'a<sub>c</sub>', flying ? 'g = ' + num(G, 1) + ' m/s²' : num(SNAP.ac, 0) + ' m/s²'],
+        ];
+    }
+
+    /* ── the script ─────────────────────────────────────────────────── */
+    const STEPS = [
+        { key: 'pos', dur: 6, scene: sPosition,
+          t: ['One vector, two numbers', 'Jeden vektor, dvě čísla'],
+          eq: '\\vec r(t) = x(t)\\,\\vec i + y(t)\\,\\vec j',
+          body: ['The position of a particle in a plane is a single vector <em>r</em>(t), drawn from the origin to the particle. The same information is carried by two ordinary numbers, its coordinates <em>x</em>(t) and <em>y</em>(t) — the feet of the perpendiculars dropped onto the two axes. As the particle moves, each of these two &ldquo;shadows&rdquo; slides along its own axis. The path here is the one from Ex. 4-15.',
+                 'Poloha hmotného bodu v rovině je jediný vektor <em>r</em>(t) vedený z počátku k bodu. Tutéž informaci nesou dvě obyčejná čísla, souřadnice <em>x</em>(t) a <em>y</em>(t) — paty kolmic spuštěných na obě osy. Jak se bod pohybuje, každý z těchto dvou &bdquo;stínů&ldquo; se posouvá po své vlastní ose. Dráha je převzata z úlohy 4-15.'],
+          rows: () => [[['x(t)', 'x(t)'], '8t + 2t²  m'], [['y(t)', 'y(t)'], '12t − t²  m'],
+                       [['r at t = 6 s', 'r v čase t = 6 s'], '(120; 36) m']] },
+        { key: 'vx', dur: 9, scene: sSlopeX,
+          t: ['Velocity is a slope', 'Rychlost je směrnice'],
+          eq: '\\bar v_x = \\dfrac{\\Delta x}{\\Delta t} \\;\\longrightarrow\\; v_x = \\dfrac{\\mathrm{d}x}{\\mathrm{d}t}',
+          body: ['Along one axis, velocity is the rate at which the coordinate changes. Over a finite interval it is the slope of the chord of the graph <em>x</em>(t) — the average velocity. As the interval shrinks, the chord turns into the tangent, and its slope is the instantaneous velocity, the derivative d<em>x</em>/d<em>t</em>. In Ex. 2-78, <em>x</em> = 50<em>t</em> + 10<em>t</em>²: over the first three seconds the average is 80 m/s, while at <em>t</em> = 3 s the particle already moves at 110 m/s.',
+                 'Podél jedné osy je rychlost tempo, jímž se mění souřadnice. Na konečném intervalu je to směrnice sečny grafu <em>x</em>(t) — průměrná rychlost. Se zkracujícím se intervalem přechází sečna v tečnu a její směrnice je okamžitá rychlost, derivace d<em>x</em>/d<em>t</em>. V úloze 2-78 je <em>x</em> = 50<em>t</em> + 10<em>t</em>²: za první tři sekundy vychází průměr 80 m/s, v čase <em>t</em> = 3 s se však bod pohybuje už rychlostí 110 m/s.'],
+          rows: () => [[['x(3 s)', 'x(3 s)'], '240 m'], [['average velocity, 0–3 s', 'průměrná rychlost, 0–3 s'], '80 m/s'],
+                       [['velocity at 3 s', 'rychlost v čase 3 s'], '110 m/s']] },
+        { key: 'ax', dur: 8, scene: sSlopeV,
+          t: ['Acceleration, and the way back', 'Zrychlení a cesta zpět'],
+          eq: 'a_x = \\dfrac{\\mathrm{d}v_x}{\\mathrm{d}t}\\,,\\qquad \\Delta x = \\int v_x\\,\\mathrm{d}t',
+          body: ['The same step once more: the velocity has its own graph, and its slope is the acceleration. For Ex. 2-78 the graph <em>v<sub>x</sub></em> = 50 + 20<em>t</em> is a straight line, so the acceleration is constant, 20 m/s². The way back is integration — the area under <em>v<sub>x</sub></em>(t) between two instants is the displacement: 240 m over the first three seconds, exactly the rectangle of the average velocity, 80 m/s × 3 s.',
+                 'Tentýž krok ještě jednou: i rychlost má svůj graf a jeho směrnice je zrychlení. V úloze 2-78 je graf <em>v<sub>x</sub></em> = 50 + 20<em>t</em> přímka, zrychlení je tedy konstantní, 20 m/s². Cesta zpět je integrace — plocha pod <em>v<sub>x</sub></em>(t) mezi dvěma okamžiky je posunutí: za první tři sekundy 240 m, přesně obdélník průměrné rychlosti, 80 m/s × 3 s.'],
+          rows: () => [[['v<sub>x</sub>(t)', 'v<sub>x</sub>(t)'], '50 + 20t  m/s'], [['a<sub>x</sub>', 'a<sub>x</sub>'], '20 m/s²'],
+                       [['area, 0–3 s', 'plocha, 0–3 s'], '240 m']] },
+        { key: 'split', dur: 7, scene: sSplit,
+          t: ['Each coordinate on its own', 'Každá souřadnice zvlášť'],
+          eq: 'x = v_{0x}t + \\dfrac{1}{2}a_x t^2\\,,\\qquad y = v_{0y}t + \\dfrac{1}{2}a_y t^2',
+          eqN: '\\begin{gathered} x = v_{0x}t + \\dfrac{1}{2}a_x t^2 \\\\ y = v_{0y}t + \\dfrac{1}{2}a_y t^2 \\end{gathered}',
+          body: ['In a plane the vector equation falls apart into two ordinary ones, one per axis, and each axis runs its own straight-line motion with its own initial velocity and its own acceleration. In Ex. 4-15 the acceleration is (4.0; −2.0) m/s²: along <em>x</em> the shadow speeds up, so the flashes one second apart spread out; along <em>y</em> it slows down, stops at <em>t</em> = 6 s and comes back. The two motions share nothing but the clock — this is the <em>principle of superposition</em> (independence) of motions.',
+                 'V rovině se vektorová rovnice rozpadá na dvě obyčejné, jednu pro každou osu, a každá osa vykonává vlastní přímočarý pohyb s vlastní počáteční rychlostí a vlastním zrychlením. V úloze 4-15 je zrychlení (4,0; −2,0) m/s²: ve směru <em>x</em> se stín zrychluje, záblesky po jedné sekundě se proto od sebe vzdalují; ve směru <em>y</em> se zpomaluje, v čase <em>t</em> = 6 s se zastaví a vrací se. Oba pohyby mají společné jen hodiny — to je <em>princip superpozice</em> (nezávislosti) pohybů.'],
+          rows: () => [[['along x: v<sub>0x</sub>, a<sub>x</sub>', 've směru x: v<sub>0x</sub>, a<sub>x</sub>'], T('8.0 m/s, +4.0 m/s²', '8,0 m/s; +4,0 m/s²')],
+                       [['along y: v<sub>0y</sub>, a<sub>y</sub>', 've směru y: v<sub>0y</sub>, a<sub>y</sub>'], T('12.0 m/s, −2.0 m/s²', '12,0 m/s; −2,0 m/s²')],
+                       [['y is largest at', 'y je největší v čase'], T('6.0 s (36 m)', '6,0 s (36 m)')]] },
+        { key: 'vel', dur: 6.5, scene: sVelocity,
+          t: ['Velocity in the plane', 'Rychlost v rovině'],
+          eq: '\\vec v = \\dfrac{\\mathrm{d}\\vec r}{\\mathrm{d}t} = v_x\\,\\vec i + v_y\\,\\vec j',
+          body: ['The velocity is the derivative of the position vector, and it is always tangent to the path. Its components are the derivatives of the two coordinates: <em>v<sub>x</sub></em> = 8 + 4<em>t</em> grows while <em>v<sub>y</sub></em> = 12 − 2<em>t</em> shrinks. At the highest point of the path the vertical component vanishes — that is what &ldquo;highest&rdquo; means — and the velocity is purely horizontal. At <em>t</em> = 6 s it is (32 m/s) <em>i</em>, the answer to Ex. 4-15.',
+                 'Rychlost je derivací polohového vektoru a vždy leží v tečně k trajektorii. Její složky jsou derivacemi obou souřadnic: <em>v<sub>x</sub></em> = 8 + 4<em>t</em> roste, zatímco <em>v<sub>y</sub></em> = 12 − 2<em>t</em> klesá. V nejvyšším bodě dráhy svislá složka vymizí — právě to znamená &bdquo;nejvýš&ldquo; — a rychlost je čistě vodorovná. V čase <em>t</em> = 6 s je rovna (32 m/s) <em>i</em>, což je výsledek úlohy 4-15.'],
+          rows: () => [[['v<sub>x</sub>(t)', 'v<sub>x</sub>(t)'], '8 + 4t  m/s'], [['v<sub>y</sub>(t)', 'v<sub>y</sub>(t)'], '12 − 2t  m/s'],
+                       [['v at t = 6 s', 'v v čase t = 6 s'], T('32 m/s along +x', '32 m/s ve směru +x')]] },
+        { key: 'throw', dur: 6, scene: sThrow,
+          t: ['A throw is two motions at once', 'Vrh jsou dva pohyby zároveň'],
+          eq: 'x = v_0\\cos\\alpha\\;t\\,,\\qquad y = v_0\\sin\\alpha\\;t - \\dfrac{1}{2}g t^2',
+          eqN: '\\begin{gathered} x = v_0\\cos\\alpha\\;t \\\\ y = v_0\\sin\\alpha\\;t - \\dfrac{1}{2}g t^2 \\end{gathered}',
+          body: ['Near the ground the acceleration is <em>g</em>, straight down, so the horizontal component of velocity never changes and the vertical one changes exactly as in a vertical throw. The two companions show it literally: a body sliding along the ground at <em>v</em><sub>0</sub>cos α stays under the ball at every flash, and a body thrown straight up at <em>v</em><sub>0</sub>sin α stays level with it. The oblique throw is these two motions performed at once.',
+                 'U povrchu Země je zrychlení <em>g</em> svisle dolů, takže vodorovná složka rychlosti se nemění a svislá se mění přesně jako při svislém vrhu. Oba průvodci to ukazují doslova: těleso klouzající po zemi rychlostí <em>v</em><sub>0</sub>cos α je při každém záblesku přesně pod míčem a těleso vržené svisle vzhůru rychlostí <em>v</em><sub>0</sub>sin α je s ním vždy ve stejné výšce. Šikmý vrh je tyto dva pohyby vykonávané současně.'],
+          rows: () => [[['v<sub>0</sub>, α', 'v<sub>0</sub>, α'], T('20 m/s, 60°', '20 m/s; 60°')], [['time of flight 2v<sub>0</sub> sin α / g', 'doba letu 2v<sub>0</sub> sin α / g'], num(THROW.T, 2) + ' s'],
+                       [['range', 'dolet'], num(THROW.vx * THROW.T, 1) + ' m']] },
+        { key: 'snap', dur: 9, scene: sSnap,
+          t: ['The string snaps', 'Provázek praskne'],
+          eq: 'v = \\dfrac{\\sqrt{d^2 - r^2}}{\\sqrt{2h/g}}\\,,\\qquad a_c = \\dfrac{v^2}{r}',
+          body: ['Ex. 4-67 rests on the same independence. Once the string breaks, nothing acts horizontally and the stone leaves along the tangent of its circle at its speed <em>v</em>; vertically it simply falls the 2.0 m, in <em>t</em> = √(2<em>h</em>/<em>g</em>) = 0.64 s — the same time as a stone that is merely dropped. In that time it covers the horizontal distance <em>s</em> = √(<em>d</em>² − <em>r</em>²) = 9.9 m, so <em>v</em> = 15.5 m/s, and the centripetal acceleration it had on the string was <em>v</em>²/<em>r</em> ≈ 1.6·10² m/s².',
+                 'Úloha 4-67 stojí na téže nezávislosti. Jakmile provázek praskne, vodorovně už na kámen nic nepůsobí a ten odletí po tečně ke své kružnici rychlostí <em>v</em>; svisle prostě padá z výšky 2,0 m, a to po dobu <em>t</em> = √(2<em>h</em>/<em>g</em>) = 0,64 s — stejně dlouho jako kámen, který byl jen upuštěn. Za tu dobu urazí vodorovně <em>s</em> = √(<em>d</em>² − <em>r</em>²) = 9,9 m, takže <em>v</em> = 15,5 m/s a dostředivé zrychlení na provázku bylo <em>v</em>²/<em>r</em> ≈ 1,6·10² m/s².'],
+          rows: () => [[['fall time √(2h/g)', 'doba pádu √(2h/g)'], num(SNAP.t, 3) + ' s'],
+                       [['horizontal distance √(d² − r²)', 'vodorovná vzdálenost √(d² − r²)'], num(SNAP.s, 2) + ' m'],
+                       [['speed v', 'rychlost v'], num(SNAP.v, 1) + ' m/s'],
+                       [['centripetal acceleration v²/r', 'dostředivé zrychlení v²/r'], num(SNAP.ac, 0) + ' m/s²']] },
+    ];
+
+    /* ── machinery: rail, panels, clock, gate ───────────────────────── */
+    let step = 0, u = 0, started = false, raf = 0, last = 0, reads = null;
+
+    function draw() {
+        size();
+        ctx.clearRect(0, 0, W, H);
+        const st = STEPS[step];
+        reads = st.scene(u);
+        mono(T('STEP', 'KROK') + ' ' + (step + 1) + ' / ' + STEPS.length, 16, 18, PAL.soft, 10.5);
+        ctx.font = 'italic 17px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = PAL.ink;
+        ctx.fillText(T(st.t[0], st.t[1]), 16, 39);
+        readouts();
+    }
+    function readouts() {
+        if (!reads) return;
+        const put = (id, s) => { const el = $(id); if (el && el.textContent !== s) el.textContent = s; };
+        ['a', 'b', 'c'].forEach((k, i) => {
+            const r = reads[i] || ['', ''];
+            const kk = $('pm-k-' + k);
+            if (kk && kk.innerHTML !== r[0]) kk.innerHTML = r[0];
+            put('pm-r-' + k, r[1]);
+        });
+        put('pm-clock', T('step ', 'krok ') + (step + 1) + '/' + STEPS.length);
+    }
+    let queued = false;
+    function redraw() {
+        if (queued || raf) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; draw(); });
+    }
+    function loop(ts) {
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        u = Math.min(1, u + dt / STEPS[step].dur);
+        draw();
+        if (started && u < 1) raf = requestAnimationFrame(loop);
+        else { raf = 0; last = 0; }
+    }
+    function play() { if (!raf) { last = 0; raf = requestAnimationFrame(loop); } }
+
+    function buildList() {
+        const list = $('pm-list');
+        if (!list) return;
+        list.innerHTML = '';
+        STEPS.forEach((st, i) => {
+            const row = document.createElement('div');
+            row.className = 'ms-chip' + (i === step ? ' on' : '');
+            row.innerHTML = '<span class="ms-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+                            '<span class="ms-name">' + T(st.t[0], st.t[1]) + '</span>';
+            row.addEventListener('click', () => goto(i));
+            list.appendChild(row);
+        });
+    }
+    function markList() {
+        const rows = document.querySelectorAll('#pm-list .ms-chip');
+        rows.forEach((r, i) => r.classList.toggle('on', i === step));
+        const on = rows[step];
+        if (on && on.scrollIntoView && started) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    function katexInto(el, tex) {
+        if (!el) return;
+        if (!window.katex) { el.textContent = tex; return; }
+        katex.render(tex, el, { throwOnError: false, displayMode: false });
+    }
+    let wasNarrow = null;
+    const narrowEq = () => (wasNarrow = wrap.getBoundingClientRect().width < 560);
+    function panels() {
+        const st = STEPS[step];
+        const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+        set('pm-kicker', T('Step', 'Krok') + ' ' + String(step + 1).padStart(2, '0') + ' / ' + STEPS.length);
+        set('pm-title', T(st.t[0], st.t[1]));
+        set('pm-text', T(st.body[0], st.body[1]));
+        const eq = narrowEq() && st.eqN ? st.eqN : st.eq;
+        katexInto($('pm-leq'), eq);
+        katexInto(badge, eq);
+        set('pm-rows', st.rows().map(r =>
+            '<div class="fl-k">' + T(r[0][0], r[0][1]) + '</div><div class="fl-v">' + r[1] + '</div>').join(''));
+        const prev = $('pm-prev'), next = $('pm-next');
+        if (prev) prev.disabled = step === 0;
+        if (next) next.innerHTML = step === STEPS.length - 1
+            ? '<span lang="en">Start again</span><span lang="cs">Znovu od začátku</span>'
+            : '<span lang="en">Next step</span><span lang="cs">Další krok</span>&nbsp;→';
+    }
+    /* a step change is a cut: the new scene fades up from the paper */
+    function fadeIn() { canvas.classList.remove('cut'); void canvas.offsetWidth; canvas.classList.add('cut'); }
+    function goto(i, still) {
+        step = Math.max(0, Math.min(STEPS.length - 1, i));
+        u = 0;
+        markList(); panels();
+        if (!still) fadeIn();
+        if (started) play(); else redraw();
+    }
+    $('pm-next')?.addEventListener('click', () => goto(step === STEPS.length - 1 ? 0 : step + 1));
+    $('pm-prev')?.addEventListener('click', () => goto(step - 1));
+    $('pm-reset')?.addEventListener('click', () => goto(0));
+
+    const gate = $('pm-gate');
+    function open() {
+        if (started) return;
+        started = true;
+        gate?.classList.add('away');
+        wrap.classList.remove('armed');
+        document.getElementById('lab')?.classList.add('wide');
+        setTimeout(() => gate && gate.remove(), 1000);
+        goto(0, true);
+    }
+    gate?.addEventListener('click', open);
+    gate?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    if (gate) { gate.tabIndex = 0; gate.setAttribute('role', 'button'); }
+
+    palette();
+    /* behind the gate the first step's closing picture is shown, blurred */
+    u = 1;
+    new ResizeObserver(() => {
+        const was = wasNarrow;
+        if (narrowEq() !== was) panels();
+        if (!raf) redraw();
+    }).observe(wrap);
+    document.addEventListener('langchange', () => { buildList(); markList(); panels(); if (!raf) redraw(); });
+    buildList(); panels(); redraw();
+    if (window.katex) panels(); else document.addEventListener('DOMContentLoaded', panels);
 }());
 </script>
 

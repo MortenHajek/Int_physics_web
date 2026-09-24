@@ -13,6 +13,92 @@
 (function () {
     'use strict';
 
+    /* ── the house style for card drawings (the same few helpers in every
+          card): serif-italic symbols with a halo in the viewport's own tone,
+          drawn subscripts and vector arrows, filled arrowheads, and a loop
+          that sleeps while the card is scrolled out of view ── */
+    const CK = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        let halo = '#efead6';
+        function stageOf(canvas) {
+            const bg = getComputedStyle(canvas.parentElement).backgroundColor;
+            halo = bg && bg !== 'rgba(0, 0, 0, 0)' ? bg : halo;
+            return halo;
+        }
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.save();
+            ctx.font = 'italic ' + (size || 15) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 3.5; ctx.strokeStyle = halo;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y);
+            ctx.restore();
+        }
+        /* a symbol with a drawn subscript; halos first so none bites a glyph */
+        function symSub(ctx, m, s, x, y, col, size, align) {
+            size = size || 15;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.save();
+            ctx.font = fm; const w1 = ctx.measureText(m).width;
+            ctx.font = fs; const tw = w1 + 1 + ctx.measureText(s).width;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 3.5; ctx.strokeStyle = halo;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.restore();
+        }
+        /* a letter with a vector arrow drawn over it */
+        function vec(ctx, t, x, y, col, size) {
+            size = size || 15;
+            sym(ctx, t, x, y, col, size);
+            ctx.save();
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width, ay = y - size * 0.64, x1 = x - w / 2, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.1;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.4); ctx.lineTo(x2 - 4, ay + 2.4); ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.save();
+            ctx.font = (size || 10.5) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+            ctx.restore();
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            const ux = dx / L, uy = dy / L, hl = Math.min(10, L * 0.36), hw = hl * 0.5;
+            ctx.save();
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+        /* run frame(ts) every animation frame, but only while the canvas is on
+           screen; redraw once after a resize (it clears the canvas) */
+        function loop(canvas, frame) {
+            let raf = 0, visible = true;
+            const tick = ts => { raf = 0; frame(ts); if (visible) raf = requestAnimationFrame(tick); };
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible && !raf) raf = requestAnimationFrame(tick);
+            }).observe(canvas);
+            raf = requestAnimationFrame(tick);
+            return () => { if (!raf) requestAnimationFrame(ts => frame(ts)); };
+        }
+        return { INK, stageOf, sym, symSub, vec, small, arrow, loop };
+    }());
+
     const G          = 9.81;
     const A_M        = 1.60;    // half-width of the wire, m
     const H_M        = 1.20;    // rim height above the low point, m
@@ -133,14 +219,7 @@
             const vMax = Math.sqrt(2 * G * H_M);
             const vPx  = (v / vMax) * 30;
             if (vPx > 3) {
-                ctx.save();
-                ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.5;
-                ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.setLineDash([]);
-                ctx.beginPath();
-                ctx.moveTo(bx, by - BALL_R - 7);
-                ctx.lineTo(bx + dir * vPx, by - BALL_R - 7);
-                ctx.stroke();
-                ctx.restore();
+                CK.arrow(ctx, bx, by - BALL_R - 8, bx + dir * vPx, by - BALL_R - 8, CK.INK.green, 1.8);
             }
 
             /* ── Bead ────────────────────────────────────────────────────── */
@@ -158,9 +237,9 @@
             const keH = ke * barH;
             ctx.save();
             ctx.setLineDash([]);
-            ctx.fillStyle = col.acc;
+            ctx.fillStyle = CK.INK.amber; ctx.globalAlpha = 0.75;
             ctx.fillRect(barX, barBot - keH, BAR_W, keH);
-            ctx.globalAlpha = 0.26;
+            ctx.fillStyle = CK.INK.blue; ctx.globalAlpha = 0.55;
             ctx.fillRect(barX, barTop, BAR_W, barH - keH);
             ctx.globalAlpha = 1;
             ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
@@ -173,21 +252,15 @@
             ctx.restore();
 
             /* ── Bar annotations ─────────────────────────────────────────── */
-            ctx.save();
-            ctx.font = '9px "Geist",ui-sans-serif,sans-serif';
-            ctx.fillStyle = col.faint;
-            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-            ctx.fillText('E', barX + BAR_W + 5, barTop + 5);
-            ctx.fillStyle = col.ink;
-            if (barH - keH > 15) ctx.fillText('Ep', barX + BAR_W + 5, barTop + (barH - keH) / 2);
-            if (keH > 15)        ctx.fillText('Ek', barX + BAR_W + 5, barBot - keH / 2);
-            ctx.restore();
+            CK.sym(ctx, 'E', barX + BAR_W / 2, barTop - 12, col.ink, 14);
+            if (barH - keH > 16) CK.symSub(ctx, 'E', 'p', barX + BAR_W + 5, barTop + (barH - keH) / 2, CK.INK.blue, 14, 'left');
+            if (keH > 16)        CK.symSub(ctx, 'E', 'k', barX + BAR_W + 5, barBot - keH / 2, CK.INK.amber, 14, 'left');
 
-            requestAnimationFrame(frame);
         }
 
         window.addEventListener('resize', () => { col = colours(); });
-        requestAnimationFrame(frame);
+        CK.stageOf(canvas);
+        CK.loop(canvas, frame);
     }
 
     function init() {

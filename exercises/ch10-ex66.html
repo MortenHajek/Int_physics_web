@@ -92,7 +92,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Energy sandbox</span><span lang="cs">Sandbox: energie</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -146,25 +145,24 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">Effective inertia (as mass)</span><span lang="cs">Efektivní setrvačnost (jako hmotnost)</span></div>
                     <div class="readout-row">
-                        <span class="readout-label"><span lang="en" data-tex="I/r^2\ \text{(pulley)}"></span><span lang="cs" data-tex="I/r^2\ \text{(kladka)}"></span></span>
+                        <span class="readout-label"><span data-tex="I/r^2"></span> <span lang="en">pulley</span><span lang="cs">kladka</span></span>
                         <span class="readout-val" id="r-ip">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label"><span lang="en" data-tex="\tfrac23 M\ \text{(shell)}"></span><span lang="cs" data-tex="\tfrac23 M\ \text{(slupka)}"></span></span>
+                        <span class="readout-label"><span data-tex="\tfrac23 M"></span> <span lang="en">shell</span><span lang="cs">slupka</span></span>
                         <span class="readout-val" id="r-sh">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label"><span lang="en" data-tex="m_{\text{eff}}\ \text{total}"></span><span lang="cs" data-tex="m_{\text{eff}}\ \text{celkem}"></span></span>
+                        <span class="readout-label"><span data-tex="m_{\mathrm{ef}}"></span> <span lang="en">total</span><span lang="cs">celkem</span></span>
                         <span class="readout-val" id="r-eff">—</span>
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Result</span><span lang="cs">Výsledek</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="v = \sqrt{2mgh/m_{\text{eff}}}"></span>
+                        <span class="readout-label" data-tex="v = \sqrt{2mgh/m_{\mathrm{ef}}}"></span>
                         <span class="readout-val" id="r-v">—</span>
                     </div>
                 </div>
@@ -243,6 +241,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/rotation.html"><span lang="en">← Topic: Rotation</span><span lang="cs">← Téma: Rotace</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -264,196 +263,355 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Ex. 10-66 — a spherical shell (M = 4.5 kg, R = 8.5 cm) on a vertical axis,
+   a cord from its equator over a pulley (I = 3.0·10⁻³ kg·m², r = 5.0 cm) to a
+   hanging m = 0.60 kg. Energy: mgh = ½v²(m + I/r² + ⅔M), so after h = 82 cm
+   v = √(2mgh/m_ef) = 1.42 m/s with m_ef = 0.60 + 1.20 + 3.00 = 4.80 kg.
+   The fall is a = mg/m_ef, played at half speed, then held. Shell and pulley
+   turn by their true angles s/R and s/r (radii in their true ratio); the
+   bar on the right books the potential energy lost against the three
+   kinetic energies it became, at every instant. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#8a2840',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
-    const g = 9.8, R = 0.085, r = 0.05;
-    /* m kg, mm kg (shell), i ×1e-3, h cm */
+    const g = 9.8, R = 0.085, r = 0.05, SLOW = 0.5, HOLD = 1.6;
+    /* m kg, mm kg (shell), i ×1e-3 kg·m², h cm */
     const DEFAULTS = { m: 0.6, mm: 4.5, i: 3.0, h: 82 };
     let state = { ...DEFAULTS };
     const show = { labels: true };
-    let sphAng = 0, pulAng = 0, lastTs = 0;
-
-    const fmtM = v => v.toFixed(2) + ' kg';
-    const fmtI = v => v.toFixed(1);
-    const fmtH = v => v.toFixed(0) + ' cm';
-    const SLIDERS = [['p-m', 'm', fmtM], ['p-mm', 'mm', fmtM],
-                     ['p-i', 'i', fmtI], ['p-h', 'h', fmtH]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    let clock = 0;
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const SLIDERS = [
+        ['p-m',  'm',  v => KIT.dec(v.toFixed(2)) + ' kg'],
+        ['p-mm', 'mm', v => KIT.dec(v.toFixed(1)) + ' kg'],
+        ['p-i',  'i',  v => KIT.dec(v.toFixed(1))],
+        ['p-h',  'h',  v => v.toFixed(0) + ' cm'],
+    ];
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => { state[key] = +inp.value; lbl.textContent = fmt(state[key]); clock = 0; });
     });
-    document.getElementById('tgl-labels')?.addEventListener('click', function () {
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); clock = 0; });
+    document.getElementById('tgl-labels').addEventListener('click', function () {
         show.labels = !show.labels;
-        this.querySelector('.toggle-box')?.classList.toggle('on');
+        this.querySelector('.toggle-box').classList.toggle('on', show.labels);
     });
+    document.addEventListener('langchange', syncLabels);
+    syncLabels();
 
     function physics() {
-        const Ip = state.i * 1e-3;
-        const termP = Ip / (r * r);
-        const termS = (2 / 3) * state.mm;
-        const eff = state.m + termP + termS;
-        const v = Math.sqrt(2 * state.m * g * (state.h / 100) / eff);
-        return { termP, termS, eff, v };
+        const termP = state.i * 1e-3 / (r * r), termS = (2 / 3) * state.mm;
+        const eff = state.m + termP + termS, hM = state.h / 100;
+        const a = state.m * g / eff;
+        return { termP, termS, eff, hM, a, tEnd: Math.sqrt(2 * hM / a), v: Math.sqrt(2 * state.m * g * hM / eff) };
     }
 
-    function draw(ts) {
-        const dt = Math.min((ts - lastTs) / 1000, 0.03) || 0.016;
-        lastTs = ts;
-        ctx.clearRect(0, 0, W, H);
-        const ph = physics();
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const f = physics();
+        clock += v.dt;
+        const cyc = f.tEnd / SLOW + HOLD;
+        if (clock > cyc) clock -= cyc;
+        const t = Math.min(clock * SLOW, f.tEnd);
+        const s = 0.5 * f.a * t * t, vn = f.a * t;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 84, bot = H - (low ? 108 : 30);
 
-        /* looping fall (slow motion ×0.5) */
-        const hM = state.h / 100;
-        const a = state.m * g / ph.eff;              /* constant acceleration */
-        const tEnd = Math.sqrt(2 * hM / a);
-        const cyc = (ts / 1000 * 0.5) % (tEnd + 0.8);
-        const tv = Math.min(cyc, tEnd);
-        const s = 0.5 * a * tv * tv;                  /* metres fallen */
-        const vNow = a * tv;
-
-        /* spin the parts consistently (visually scaled) */
-        sphAng += vNow / R * dt * 0.5;
-        pulAng += vNow / r * dt * 0.5;
-
-        /* layout: table with sphere on a stand, pulley at right edge, weight below */
-        const tableY = H * 0.55;
-        const sphX = W * 0.30, sphR = 52;
-        const sphY = tableY - sphR - 26;
-        const pulX = W * 0.72, pulR = 20;
-        const pulY = sphY;                 /* pulley at equator height — cord runs level */
-
-        /* table */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.moveTo(W * 0.10, tableY); ctx.lineTo(pulX + 14, tableY); ctx.stroke();
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        for (let x = W * 0.10 + 6; x < pulX + 10; x += 13) {
-            ctx.beginPath(); ctx.moveTo(x, tableY); ctx.lineTo(x - 8, tableY + 9); ctx.stroke();
+        /* ── the apparatus: shell and pulley radii in their true ratio ── */
+        const barsW = narrow ? 112 : Math.min(220, W * 0.28);
+        const sceneW = W - barsW - 20;
+        const Rp = Math.min(narrow ? 46 : 72, sceneW * 0.17), rp = Rp * r / R;
+        const cx = 22 + Rp + (narrow ? 4 : 30), cy = top + Rp + 30;
+        const px = Math.min(sceneW - rp - 34, cx + Rp + (narrow ? 70 : 150)), py = cy + rp;
+        /* the vertical axis with its bearings */
+        KIT.line(ctx, cx, cy - Rp - 26, cx, cy + Rp + 40, C.soft, 2.2);
+        ctx.fillStyle = C.ink;
+        ctx.fillRect(cx - 9, cy - Rp - 30, 18, 5); ctx.fillRect(cx - 9, cy + Rp + 38, 18, 5);
+        /* the shell: shaded sphere, equator, a meridian turning by s/R */
+        const phi = s / R;
+        const grad = ctx.createRadialGradient(cx - Rp * 0.35, cy - Rp * 0.4, Rp * 0.1, cx, cy, Rp);
+        grad.addColorStop(0, '#fbf6e6'); grad.addColorStop(1, '#d9ccab');
+        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx, cy, Rp, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.strokeStyle = C.soft; ctx.lineWidth = 1; ctx.beginPath();
+        ctx.ellipse(cx, cy, Rp, Rp * 0.26, 0, 0, Math.PI); ctx.stroke();
+        ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.ellipse(cx, cy, Rp, Rp * 0.26, 0, Math.PI, 2 * Math.PI); ctx.stroke(); ctx.setLineDash([]);
+        for (let k = 0; k < 3; k++) {   /* three meridians, the near halves solid */
+            const a = phi + k * Math.PI / 3, w = Rp * Math.sin(a), front = Math.cos(a) > 0;
+            ctx.strokeStyle = k === 0 ? C.acc : C.faint; ctx.lineWidth = k === 0 ? 1.8 : 1;
+            ctx.setLineDash(front ? [] : [3, 3]);
+            ctx.beginPath(); ctx.ellipse(cx, cy, Math.abs(w), Rp, 0, w > 0 ? -Math.PI / 2 : Math.PI / 2, w > 0 ? Math.PI / 2 : 1.5 * Math.PI); ctx.stroke();
         }
-
-        /* stand + spherical shell */
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(sphX, tableY); ctx.lineTo(sphX, sphY + sphR - 4); ctx.stroke();
-        const grad = ctx.createRadialGradient(sphX - sphR * 0.3, sphY - sphR * 0.3,
-                                              sphR * 0.15, sphX, sphY, sphR);
-        grad.addColorStop(0, col.paper);
-        grad.addColorStop(1, 'rgba(138,40,64,0.25)');
-        ctx.beginPath(); ctx.arc(sphX, sphY, sphR, 0, Math.PI * 2);
-        ctx.fillStyle = grad; ctx.fill();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.stroke();
-        /* equator + a rotating meridian marker */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.ellipse(sphX, sphY, sphR, sphR * 0.24, 0, 0, Math.PI * 2); ctx.stroke();
-        const mx = Math.cos(sphAng);
-        ctx.strokeStyle = col.acc; ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        ctx.ellipse(sphX, sphY, Math.abs(mx) * sphR, sphR, 0, 0, Math.PI * 2);
-        ctx.stroke();
-        /* equator dot riding the rotation */
-        ctx.beginPath();
-        ctx.arc(sphX + Math.sin(sphAng) * sphR, sphY, 3.4, 0, Math.PI * 2);
-        ctx.fillStyle = col.acc; ctx.fill();
-
-        /* cord: sphere equator → over the pulley → weight */
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(sphX + sphR, sphY - pulR);
-        ctx.lineTo(pulX, pulY - pulR);
-        ctx.stroke();
-        /* pulley bracket */
-        ctx.beginPath(); ctx.moveTo(pulX, tableY); ctx.lineTo(pulX, pulY); ctx.stroke();
-        /* cord wraps the pulley's right quarter */
-        ctx.beginPath(); ctx.arc(pulX, pulY, pulR, -Math.PI / 2, 0); ctx.stroke();
-
-        /* pulley disc with rotating spokes */
-        ctx.beginPath(); ctx.arc(pulX, pulY, pulR, 0, Math.PI * 2);
-        ctx.fillStyle = col.paper; ctx.fill();
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8; ctx.stroke();
+        ctx.setLineDash([]);
+        /* the cord: off the equator's near edge, level, over the pulley, down */
+        const wy0 = py + 46, scaleH = (bot - 40 - wy0) / 1.5;
+        const by = wy0 + s * scaleH;
+        KIT.line(ctx, cx + Rp, cy, px, cy, C.ink, 1.4);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(px, py, rp, -Math.PI / 2, 0); ctx.stroke();
+        KIT.line(ctx, px + rp, py, px + rp, by, C.ink, 1.4);
+        /* the pulley on its bracket, spokes turning by s/r */
+        /* the table the shell's axis and the pulley's clamp stand on */
+        const yT = cy + Rp + 43, xE = px - 6;
+        KIT.line(ctx, 10, yT, xE, yT, C.ink, 1.6);
+        KIT.line(ctx, xE, yT, xE, yT + 26, C.ink, 1.6);
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.45; ctx.lineWidth = 0.9;
+        for (let x = 16; x < xE; x += 10) { ctx.beginPath(); ctx.moveTo(x, yT); ctx.lineTo(x - 7, yT + 7); ctx.stroke(); }
+        ctx.globalAlpha = 1;
+        KIT.line(ctx, px, py, xE - 18, yT, C.soft, 2.4);
+        ctx.fillStyle = '#f4eedb'; ctx.beginPath(); ctx.arc(px, py, rp, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.stroke();
         for (let k = 0; k < 4; k++) {
-            const aa = pulAng + k * Math.PI / 2;
-            ctx.strokeStyle = k === 0 ? col.acc : col.faint;
-            ctx.lineWidth = k === 0 ? 1.8 : 1;
-            ctx.beginPath(); ctx.moveTo(pulX, pulY);
-            ctx.lineTo(pulX + Math.cos(aa) * (pulR - 4), pulY + Math.sin(aa) * (pulR - 4));
-            ctx.stroke();
+            const a = s / r + k * Math.PI / 2;
+            KIT.line(ctx, px, py, px + Math.cos(a) * (rp - 3), py + Math.sin(a) * (rp - 3), k ? C.faint : I.violet, k ? 1 : 1.8);
         }
-
-        /* falling weight */
-        const dropPx = (H * 0.30) / hM;
-        const wy = pulY + 34 + s * dropPx;
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(pulX + pulR, pulY); ctx.lineTo(pulX + pulR, wy); ctx.stroke();
-        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
-        ctx.fillRect(pulX + pulR - 17, wy, 34, 30);
-        ctx.strokeRect(pulX + pulR - 17, wy, 34, 30);
-        ctx.fillStyle = col.ink;
-        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('m', pulX + pulR, wy + 15);
-
+        KIT.dot(ctx, px, py, 2.4, C.ink);
+        /* the block: its start dashed, the drop h dimensioned */
+        const bw = 36, bh = 28, bx = px + rp - bw / 2;
+        ctx.strokeStyle = C.faint; ctx.setLineDash([4, 3]); ctx.lineWidth = 1; ctx.strokeRect(bx, wy0, bw, bh); ctx.setLineDash([]);
+        ctx.fillStyle = I.block; ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.strokeRect(bx, by, bw, bh);
+        KIT.sym(ctx, 'm', px + rp, by + bh / 2, C.ink, 16);
+        const hx = bx + bw + 16;
+        KIT.dim(ctx, hx, wy0, hx, wy0 + f.hM * scaleH, 0, '');
+        KIT.sym(ctx, 'h', hx + 12, wy0 + f.hM * scaleH / 2, C.soft, 16, 'left');
+        if (vn > 0.02) {
+            const L = Math.min(70, vn * 40);
+            KIT.arrow(ctx, bx - 12, by + bh / 2, bx - 12, by + bh / 2 + L, I.green, 2, true);
+            KIT.sym(ctx, 'v', bx - 22, by + bh / 2 + L / 2, I.green, 16, 'right');
+        }
         if (show.labels) {
-            ctx.fillStyle = col.soft;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText('M, R', sphX, sphY + sphR + 6);
-            ctx.fillText('I, r', pulX, pulY - pulR - 12);
+            KIT.sym(ctx, 'M', cx + Rp * 0.72 + 6, cy - Rp * 0.72 - 6, C.ink, 16, 'left');
+            KIT.sym(ctx, 'R', cx + Rp / 2, cy - 12, C.soft, 16);
+            KIT.line(ctx, cx, cy, cx + Rp, cy, C.soft, 1, [2, 3]);
+            KIT.sym(ctx, 'I, r', px, py - rp - 16, C.soft, 16);
         }
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        ctx.fillText('v = ' + vNow.toFixed(2) + ' m/s after ' + s.toFixed(2) + ' m', 26, 22);
 
-        const $ = id => document.getElementById(id);
-        if ($('r-ip'))  $('r-ip').textContent  = ph.termP.toFixed(2) + ' kg';
-        if ($('r-sh'))  $('r-sh').textContent  = ph.termS.toFixed(2) + ' kg';
-        if ($('r-eff')) $('r-eff').textContent = ph.eff.toFixed(2) + ' kg';
-        if ($('r-v'))   $('r-v').textContent   = ph.v.toFixed(2) + ' m/s';
+        /* ── the budget: potential energy lost = the three kinetic energies ── */
+        const lost = state.m * g * s, full = state.m * g * f.hM;
+        const kB = 0.5 * state.m * vn * vn, kP = 0.5 * f.termP * vn * vn, kS = 0.5 * f.termS * vn * vn;
+        const cw = narrow ? 26 : 40, gap = narrow ? 16 : 30;
+        const x1 = W - barsW + (narrow ? 4 : 18), x2 = x1 + cw + gap;
+        const yB = bot - 30, k = (yB - top - 60) / Math.max(full, 1e-9);
+        ctx.fillStyle = I.blue; ctx.globalAlpha = 0.7; ctx.fillRect(x1, yB - lost * k, cw, lost * k); ctx.globalAlpha = 1;
+        ctx.strokeStyle = C.faint; ctx.setLineDash([3, 3]); ctx.lineWidth = 1; ctx.strokeRect(x1, yB - full * k, cw, full * k); ctx.setLineDash([]);
+        let y = yB;
+        [[kB, I.amber, KIT.T('block', 'závaží')], [kP, I.violet, KIT.T('pulley', 'kladka')], [kS, C.acc, KIT.T('shell', 'slupka')]].forEach(([e, col, name]) => {
+            const hh = e * k;
+            ctx.fillStyle = col; ctx.globalAlpha = 0.7; ctx.fillRect(x2, y - hh, cw, hh); ctx.globalAlpha = 1;
+            if (hh > 14 && !narrow) KIT.small(ctx, name, x2 + cw + 6, y - hh / 2, col, 10.5);
+            y -= hh;
+        });
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2;
+        ctx.strokeRect(x1, yB - lost * k, cw, lost * k); ctx.strokeRect(x2, y, cw, yB - y);
+        KIT.line(ctx, x1 - 8, yB, x2 + cw + 8, yB, C.ink, 1.2);
+        KIT.sym(ctx, 'mgs', x1 + cw / 2, yB + 16, I.blue, 15);
+        KIT.symSub(ctx, 'E', 'k', x2 + cw / 2, yB + 16, C.ink, 15);
+        KIT.small(ctx, KIT.T('energy (same scale)', 'energie (stejné měřítko)'), x1 - 6, top + 34, C.soft, 10.5);
+
+        KIT.caption(ctx, KIT.T('ENERGY, NO FORCES NEEDED', 'ENERGIE MÍSTO SIL'),
+                    KIT.T('what the block loses, three bodies gain', 'co ztratí závaží, získají tři tělesa'));
+        KIT.small(ctx, 't = ' + KIT.dec(t.toFixed(2)) + ' s · ' + KIT.T('slowed 2×', 'zpomaleno 2×'), W - 16, 18, C.faint, 10.5, 'right');
+
+        KIT.put('r-ip',  KIT.dec(f.termP.toFixed(2)) + ' kg');
+        KIT.put('r-sh',  KIT.dec(f.termS.toFixed(2)) + ' kg');
+        KIT.put('r-eff', KIT.dec(f.eff.toFixed(2)) + ' kg');
+        KIT.put('r-v',   KIT.dec(f.v.toFixed(2)) + ' m/s');
     }
-
-    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
 }());
 </script>
 

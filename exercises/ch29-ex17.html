@@ -85,7 +85,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Biot–Savart geometry</span><span lang="cs">Geometrie Biotova–Savartova zákona</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -123,7 +122,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
@@ -131,7 +129,7 @@
                         <span class="readout-val" id="r-sin">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="B\ \text{(finite)}"></span>
+                        <span class="readout-label"><span data-tex="B"></span> <span lang="en">(finite wire)</span><span lang="cs">(konečný vodič)</span></span>
                         <span class="readout-val" id="r-b">—</span>
                     </div>
                     <div class="readout-row">
@@ -232,45 +230,171 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 29-17 — the field of a finite wire at a point P₁ opposite its centre.
+   Physics unchanged: sin θ = 0.566 and B = 50.3 nT at the defaults (printed
+   5.03·10⁻⁸ T ≈ 50 nT), against 88.9 nT for an infinite wire. Nothing moves,
+   so the canvas is drawn only when something changes. */
 (function () {
     'use strict';
-
     const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
 
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    /* ── the house style (shared by the Physics 2 exercise pages) ───────── */
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+    const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                  teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    function palette() {
+        const R = document.documentElement;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#5a6878',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink: tok(R, '--ink', '#363026'), soft: tok(R, '--ink-soft', '#4d4436'),
+            faint: tok(R, '--ink-faint', '#7A6A52'), paper: tok(R, '--paper', '#FFFDF6'),
+            deep: tok(R, '--paper-deep', '#efead6'), stage: tok(R, '--paper-cool', '#eef0e8'),
+            acc: tok(document.body, '--accent', '#3D2E8A'),
         };
     }
-    const col = readCol();
+    let col = palette();
+    /* a number with a real minus sign and, in Czech, a decimal comma */
+    function num(v, d) {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    }
+    function line(x1, y1, x2, y2, c, lw, dash) {
+        ctx.strokeStyle = c; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    /* shaft + filled head, head min(11, 0.36 L); `under` lays a stage-coloured
+       band beneath it where it crosses busy drawing */
+    function arrow(x1, y1, x2, y2, c, lw, under) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        const pass = (cc, w) => {
+            ctx.strokeStyle = cc; ctx.fillStyle = cc; ctx.lineWidth = w;
+            ctx.setLineDash([]); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+            if (cc === col.stage) ctx.stroke();
+        };
+        if (under) pass(col.stage, (lw || 2) + 4);
+        pass(c, lw || 2);
+    }
+    function dot(x, y, r, fill, stroke, lw) {
+        ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
+    }
+    /* a symbol: serif italic with a halo in the stage's tone */
+    function sym(t, x, y, c, size, align, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+        ctx.strokeText(t, x, y);
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+        ctx.lineWidth = 1;
+    }
+    function symW(t, size, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        return ctx.measureText(t).width;
+    }
+    /* a symbol with a drawn subscript; returns the x where it ends */
+    function sub(main, s, x, y, c, size, align, subUpright) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        const w1 = symW(main, size), w2 = symW(s, ss, subUpright);
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        sym(main, x0, y, c, size, 'left');
+        sym(s, x0 + w1 + 1, y + size * 0.3, c, ss, 'left', subUpright);
+        return x0 + tw;
+    }
+    /* a symbol with a stroked vector arrow over it (and an optional subscript) */
+    function vsym(main, x, y, c, size, s, align) {
+        size = size || 17;
+        const w = symW(main, size), ws = s ? symW(s, Math.round(size * 0.7)) + 1 : 0, tw = w + ws;
+        const x0 = align === 'left' ? x : align === 'right' ? x - tw : x - tw / 2;
+        if (s) sub(main, s, x0, y, c, size, 'left'); else sym(main, x0, y, c, size, 'left');
+        const ay = y - size * 0.62, a1 = x0 + 1, a2 = x0 + w + 1;
+        ctx.strokeStyle = col.stage; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2, ay); ctx.stroke();
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a2 + 1, ay); ctx.lineTo(a2 - 4, ay - 2.6); ctx.lineTo(a2 - 4, ay + 2.6);
+        ctx.closePath(); ctx.fill();
+        return x0 + tw;
+    }
+    /* small print: captions, ticks, notes */
+    function small(t, x, y, c, size, align, bold) {
+        ctx.font = (bold ? '600 ' : '') + (size || 11) + 'px ' + SANS;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+    }
+    /* the caption stack, top left: a kicker in capitals and a serif line */
+    function caption(kicker, title, note, x, y) {
+        x = x === undefined ? 16 : x; y = y === undefined ? 18 : y;
+        if (kicker) small(kicker, x, y, col.soft, 10.5);
+        if (title) {
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+            ctx.strokeText(title, x, y + 21); ctx.fillStyle = col.ink; ctx.fillText(title, x, y + 21);
+            ctx.lineWidth = 1;
+        }
+        if (note) small(note, x, y + 40, col.faint, 10.5);
+    }
+    /* a dimension line with end ticks and a serif label, offset to one side */
+    function dim(x1, y1, x2, y2, off, label, c, lsub) {
+        c = c || col.soft;
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L, ny = dx / L;
+        const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+        ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+        ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+        ctx.stroke();
+        if (label) {
+            const k = off >= 0 ? 14 : -14, lx = (ax + bx) / 2 + nx * k, ly = (ay + by) / 2 + ny * k;
+            if (lsub) sub(label, lsub, lx, ly, c, 16); else sym(label, lx, ly, c, 16);
+        }
+    }
+    /* ground or wall, hatched on the side the line is drawn clockwise from */
+    function hatch(x1, y1, x2, y2, depth, c) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = c || col.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
+            ctx.beginPath(); ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth); ctx.stroke();
+        }
+    }
+    /* axes of a plot frame: ticks at round numbers */
+    function niceStep(range, px, want) {
+        const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+        return 10 * p;
+    }
+    function tickTxt(v, step) {
+        const d = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9));
+        return num(v, d);
+    }
 
     const I_A = 58.2e-3;
     const DEFAULTS = { r: 13.1, l: 18.0 };   /* cm */
     let state = { ...DEFAULTS };
 
     const SLIDERS = [
-        ['p-r', 'r', v => v.toFixed(1) + ' cm'],
-        ['p-l', 'l', v => v.toFixed(1) + ' cm'],
+        ['p-r', 'r', v => num(v, 1) + ' cm'],
+        ['p-l', 'l', v => num(v, 1) + ' cm'],
     ];
     SLIDERS.forEach(([id, key, fmt]) => {
         const inp = document.getElementById(id);
@@ -278,14 +402,16 @@ document.addEventListener('DOMContentLoaded', () => {
         inp.addEventListener('input', () => {
             state[key] = +inp.value;
             lbl.textContent = fmt(state[key]);
+            redraw();
         });
     });
+    const syncVals = () => SLIDERS.forEach(([id, key, fmt]) => { document.getElementById(id + '-val').textContent = fmt(state[key]); });
+    document.addEventListener('langchange', syncVals);
+    syncVals();
     document.getElementById('btn-reset').addEventListener('click', () => {
         state = { ...DEFAULTS };
-        SLIDERS.forEach(([id, key, fmt]) => {
-            document.getElementById(id).value = state[key];
-            document.getElementById(id + '-val').textContent = fmt(state[key]);
-        });
+        SLIDERS.forEach(([id, key]) => { document.getElementById(id).value = state[key]; });
+        syncVals(); redraw();
     });
 
     function physics() {
@@ -295,104 +421,129 @@ document.addEventListener('DOMContentLoaded', () => {
         const bInf = 2e-7 * I_A / R;
         return { sinT, b, bInf };
     }
+    function step() {}
+    function moving() { return false; }
 
     function draw() {
-        ctx.clearRect(0, 0, W, H);
         const f = physics();
+        const badgeLow = !!wrap.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
 
-        const scale = Math.min(W * 0.8 / 44, H * 0.72 / 34);   /* px per cm */
-        const wy = H * 0.66;   /* leaves the bottom strip to the equation badge */
-        const cx = W * 0.5;
-        const x0 = cx - state.l / 2 * scale, x1 = cx + state.l / 2 * scale;
+        /* B beside the infinite wire's B, top right */
+        const bw = narrow ? 20 : 28, gap = narrow ? 14 : 20;
+        const bh = narrow ? 64 : Math.min(230, (H - 104) * 0.4), by = narrow ? 18 : 30;
+        const bx = W - (narrow ? 18 : 34) - 2 * bw - gap;
+        const hFin = bh * Math.min(1, f.b / f.bInf);
+        ctx.fillStyle = col.acc; ctx.globalAlpha = 0.14; ctx.fillRect(bx + bw + gap, by, bw, bh); ctx.globalAlpha = 1;
+        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2; ctx.setLineDash([4, 3]);
+        ctx.strokeRect(bx + bw + gap + 0.5, by + 0.5, bw - 1, bh - 1); ctx.setLineDash([]);
+        ctx.fillStyle = col.acc; ctx.fillRect(bx, by + bh - hFin, bw, hFin);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2; ctx.strokeRect(bx + 0.5, by + bh - hFin + 0.5, bw - 1, hFin - 1);
+        line(bx - 6, by + bh, bx + 2 * bw + gap + 6, by + bh, col.soft, 1.2);
+        sym('B', bx + bw / 2, by + bh + 15, col.ink, 16);
+        sub('B', '∞', bx + bw + gap + bw / 2, by + bh + 15, col.soft, 16, 'center', true);
+
+        /* the scene, in cm */
+        const top = narrow ? by + bh + 40 : 96, bot = H - (badgeLow ? 104 : 24);
+        const right = narrow ? W - 20 : bx - 24;
+        /* one scale while L ≤ 26 cm and R ≤ 18 cm, so both sliders visibly
+           move the picture; beyond that it zooms out, and the scale bar says so */
+        const fit = (l, r) => Math.min((right - 30) / (l + 4), (bot - top - 58) / (r + 2));
+        const scale = Math.min(fit(26, 18), fit(state.l, state.r));   /* px per cm */
+        const cx = narrow ? W / 2 : (20 + right) / 2;
+        const wy = bot - 44;
+        const hl = state.l / 2 * scale, x0 = cx - hl, x1 = cx + hl;
         const py = wy - state.r * scale;
 
-        /* infinite-wire ghost */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 6]);
-        ctx.beginPath(); ctx.moveTo(20, wy); ctx.lineTo(W - 20, wy); ctx.stroke();
-        ctx.setLineDash([]);
+        /* the infinite wire it is a piece of */
+        line(16, wy, W - 16, wy, col.faint, 1, [3, 6]);
+        {   /* named where the segment leaves room for it */
+            const t = T('the infinite wire', 'nekonečný vodič');
+            ctx.font = '10.5px ' + SANS; const tw = ctx.measureText(t).width;
+            if (W - 18 - tw > x1 + 14) small(t, W - 18, wy - 11, col.faint, 10.5, 'right');
+            else if (18 + tw < x0 - 10) small(t, 18, wy - 11, col.faint, 10.5, 'left');
+        }
+        /* the segment and its current */
+        line(x0, wy, x1, wy, col.ink, 4);
+        const ia = x0 + Math.min(14, hl * 0.12), ib = ia + Math.min(44, hl * 0.4);
+        arrow(ia, wy - 13, ib, wy - 13, INK.crimson, 1.8);
+        sym('I', ib + 8, wy - 13, INK.crimson, 16, 'left');
+        dim(x0, wy + 18, x1, wy + 18, 0, 'L');
+        const sb = 5 * scale, sbx = right - sb;
+        line(sbx, wy + 30, sbx + sb, wy + 30, col.soft, 1.6);
+        line(sbx, wy + 26, sbx, wy + 34, col.soft, 1); line(sbx + sb, wy + 26, sbx + sb, wy + 34, col.soft, 1);
+        small(num(5, 0) + ' cm', sbx + sb / 2, wy + 20, col.soft, 10.5, 'center');
 
-        /* segment */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(x0, wy); ctx.lineTo(x1, wy); ctx.stroke();
-        /* current arrow */
-        ctx.strokeStyle = col.acc; ctx.fillStyle = col.acc; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(cx - 24, wy - 12); ctx.lineTo(cx + 14, wy - 12); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(cx + 22, wy - 12);
-        ctx.lineTo(cx + 10, wy - 17); ctx.lineTo(cx + 10, wy - 7);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = col.soft;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('I', cx + 30, wy - 8);
-
-        /* L dimension */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(x0, wy + 16); ctx.lineTo(x1, wy + 16); ctx.stroke();
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('L = ' + state.l.toFixed(1) + ' cm', cx, wy + 20);
-
-        /* angle rays to P1 */
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
-        ctx.beginPath(); ctx.moveTo(x0, wy); ctx.lineTo(cx, py); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x1, wy); ctx.lineTo(cx, py); ctx.stroke();
-        ctx.setLineDash([]);
-        /* R line */
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(cx, wy); ctx.lineTo(cx, py); ctx.stroke();
-        ctx.fillStyle = col.soft;
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('R = ' + state.r.toFixed(1) + ' cm', cx + 8, (wy + py) / 2);
-
-        /* P1 with B out-of-page marker */
-        ctx.fillStyle = col.ink;
-        ctx.beginPath(); ctx.arc(cx, py, 4, 0, Math.PI * 2); ctx.fill();
+        /* the view from P₁: each half of the wire subtends θ */
+        line(x0, wy, cx, py, col.faint, 1, [5, 4]);
+        line(x1, wy, cx, py, col.faint, 1, [5, 4]);
+        line(cx, wy, cx, py, col.soft, 1.3);
+        sym('R', cx - 10, (wy + py) / 2, col.soft, 17, 'right');
+        const th = Math.atan2(hl, wy - py), ar = Math.min(34, (wy - py) * 0.3);
+        if (ar > 10) {
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(cx, py, ar, Math.PI / 2, Math.PI / 2 + th); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx, py, ar, Math.PI / 2 - th, Math.PI / 2); ctx.stroke();
+            if (th > 0.22) {
+                sym('θ', cx + (ar + 11) * Math.sin(th / 2), py + (ar + 11) * Math.cos(th / 2), col.ink, 15);
+                sym('θ', cx - (ar + 11) * Math.sin(th / 2), py + (ar + 11) * Math.cos(th / 2), col.ink, 15);
+            }
+        }
+        /* one element dℓ and its r to P₁ — the Biot–Savart picture — where there is room */
+        if (wy - py > 120 && hl > 70) {
+            const ex = cx + hl * 0.62;
+            line(ex - 9, wy, ex + 9, wy, col.acc, 7);
+            sym('dℓ', ex + 2, wy - 16, col.acc, 16);
+            arrow(ex - 4, wy - 6, cx + 6, py + 8, col.soft, 1.2);
+            const mx = (ex + cx) / 2, my = (wy + py) / 2;
+            vsym('r', mx + 10, my + 8, col.soft, 16, null, 'left');
+        }
+        /* P₁ and the field there, out of the page */
         ctx.strokeStyle = col.acc; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.arc(cx, py, 11, 0, Math.PI * 2); ctx.stroke();
-        ctx.fillStyle = col.acc;
-        ctx.beginPath(); ctx.arc(cx, py, 2.2, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = col.soft;
-        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-        ctx.fillText('P₁', cx - 16, py - 4);
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('B out of page', cx + 18, py - 4);
+        ctx.fillStyle = col.stage; ctx.beginPath(); ctx.arc(cx, py, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        dot(cx, py, 2.6, col.acc);
+        sub('P', '1', cx - 16, py - 6, col.ink, 17, 'right', true);
+        const be = vsym('B', cx + 16, py - 6, col.acc, 17, null, 'left');
+        small(T('out of the page', 'z nákresny'), be + 6, py - 5, col.soft, 11, 'left');
 
-        /* B comparison bars */
-        /* on a phone-width canvas the bars would stand in the triangle: they
-           shrink into the top-right corner instead */
-        const narrow = W < 520;
-        const bx = W - 100, bw = 26, bh = narrow ? 84 : H * 0.4, by = narrow ? 18 : H * 0.16;
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        ctx.strokeRect(bx, by, bw, bh);
-        ctx.strokeRect(bx + 40, by, bw, bh);
-        const hFin = bh * Math.min(1, f.b / f.bInf);
-        ctx.fillStyle = col.acc;
-        ctx.fillRect(bx, by + bh - hFin, bw, hFin);
-        ctx.fillStyle = col.faint;
-        ctx.fillRect(bx + 40, by, bw, bh);
-        ctx.fillStyle = col.soft;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('finite', bx + bw / 2, by + bh + 6);
-        ctx.fillText('∞ wire', bx + 40 + bw / 2, by + bh + 6);
+        caption(T('FIELD OF A FINITE WIRE', 'POLE KONEČNÉHO VODIČE'),
+                T('a piece of the infinite wire', 'kus nekonečného vodiče'),
+                narrow ? null : T('the bars compare its field with an infinite wire’s', 'sloupce srovnávají jeho pole s polem nekonečného vodiče'));
 
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        $('r-sin').textContent   = f.sinT.toFixed(3);
-        $('r-b').textContent     = (f.b * 1e9).toFixed(1) + ' nT';
-        $('r-binf').textContent  = (f.bInf * 1e9).toFixed(1) + ' nT';
-        $('r-ratio').textContent = (f.b / f.bInf * 100).toFixed(1) + ' %';
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        put('r-sin', num(f.sinT, 3));
+        put('r-b', num(f.b * 1e9, 1) + ' nT');
+        put('r-binf', num(f.bInf * 1e9, 1) + ' nT');
+        put('r-ratio', num(f.b / f.bInf * 100, 1) + ' %');
     }
 
-    function frame() {
-        draw();
-        requestAnimationFrame(frame);
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+        W = Math.max(r.width, 200); H = Math.max(r.height, 200);
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    requestAnimationFrame(frame);
+    resize();
+    let raf = 0, visible = true, lastTs = 0;
+    function paint(ts) { col = palette(); ctx.clearRect(0, 0, W, H); draw(ts || performance.now()); }
+    function loop(ts) {
+        raf = 0;
+        const dt = lastTs ? Math.min((ts - lastTs) / 1000, 1 / 20) : 0;
+        lastTs = ts;
+        step(dt);
+        paint(ts);
+        if (visible && moving()) raf = requestAnimationFrame(loop); else lastTs = 0;
+    }
+    function redraw() { if (!raf) raf = requestAnimationFrame(loop); }
+    new ResizeObserver(() => { resize(); paint(); }).observe(wrap);
+    if (window.IntersectionObserver) new IntersectionObserver(es => {
+        visible = es.some(e => e.isIntersecting);
+        if (visible) redraw();
+    }).observe(wrap);
+    document.addEventListener('langchange', redraw);
+
+    redraw();
 }());
 </script>
 

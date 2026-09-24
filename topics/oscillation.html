@@ -394,56 +394,64 @@
         margin-right: calc(-50vw + 50% + 12px);
     }
     #lab.movie .canvas-panel { min-height: 0; }
+    /* The stage is the same graph paper as every other sandbox: the canvas
+       stays transparent over the .canvas-wrap grid. */
     #lab.movie .canvas-wrap {
         flex: 0 0 auto;             /* or `height` is ignored and it collapses */
         min-height: 0;
         height: clamp(400px, 62vh, 700px);
-        background: #10131c;
     }
     .gate {
         position: absolute; inset: 0; z-index: 4;
         display: flex; flex-direction: column; align-items: center;
         justify-content: center; gap: 20px; cursor: pointer;
-        background: rgba(16, 19, 28, 0.55);
-        backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+        background: rgba(255, 255, 236, 0.62);
+        backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
         transition: opacity 900ms ease, backdrop-filter 900ms ease,
                     -webkit-backdrop-filter 900ms ease, background 900ms ease;
     }
     .gate.away {
-        opacity: 0; pointer-events: none; background: rgba(16, 19, 28, 0);
+        opacity: 0; pointer-events: none; background: rgba(255, 255, 236, 0);
         backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
     }
     .gate-btn {
         width: 84px; height: 84px; border-radius: 50%;
-        border: 1.5px solid #d6dfe8; background: rgba(214, 223, 232, 0.10);
+        border: 1.5px solid var(--ink); background: var(--paper);
         display: flex; align-items: center; justify-content: center;
-        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background 220ms ease;
+        transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
     }
-    .gate:hover .gate-btn { transform: scale(1.07); background: rgba(214, 223, 232, 0.20); }
+    .gate:hover .gate-btn,
+    .gate:focus-visible .gate-btn {
+        transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink);
+        background: var(--paper-deep);
+    }
+    .gate:focus-visible { outline: none; }
     .gate-btn::after {
         content: ''; width: 0; height: 0; margin-left: 6px;
-        border-left: 24px solid #eef3f8;
+        border-left: 24px solid var(--accent);
         border-top: 15px solid transparent; border-bottom: 15px solid transparent;
     }
     .gate-title {
         font-family: var(--f-serif); font-size: clamp(20px, 2.4vw, 30px);
-        color: #eef3f8; text-align: center; padding: 0 24px;
+        color: var(--ink); text-align: center; padding: 0 24px;
     }
     .gate-sub {
         font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.2em;
-        text-transform: uppercase; color: #9aa8b8; text-align: center;
+        text-transform: uppercase; color: var(--ink-faint); text-align: center;
     }
-    .canvas-wrap.armed canvas { filter: blur(10px); }
+    .canvas-wrap.armed canvas { filter: blur(8px); }
     #lab.movie .canvas-wrap canvas { transition: filter 900ms ease; }
+    /* a step change is a cut, not a flight: the new scene fades up from the paper */
+    #lab.movie .canvas-wrap canvas.cut { animation: mv-cut 460ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes mv-cut { from { opacity: 0; } to { opacity: 1; } }
     @media (prefers-reduced-motion: reduce) {
         .gate, .gate-btn, #lab.movie, #lab.movie .canvas-wrap canvas { transition: none; }
+        #lab.movie .canvas-wrap canvas.cut { animation: none; }
     }
     #lab.movie .canvas-formula-badge {
         top: auto; bottom: 16px; left: 16px; right: auto;
-        background: rgba(16, 19, 28, 0.86); border-color: #4a5666;
-        color: #eef3f8; font-size: 20px; padding: 9px 16px;
+        font-size: 20px; padding: 9px 16px;
     }
-    #lab.movie .sim-hint { color: #8b9aab; }
     .movie-bar {
         display: flex; align-items: stretch;
         border: 1.5px solid var(--ink); border-top: none; background: var(--paper);
@@ -488,6 +496,8 @@
         font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em;
         text-transform: uppercase; color: var(--ink-faint);
     }
+    .ms-read-k.sym { text-transform: none; font-family: var(--f-serif); font-style: italic;
+                     font-size: 13px; letter-spacing: 0; color: var(--ink-soft); }
     .ms-read-v {
         font-family: var(--f-mono); font-size: 13.5px; color: var(--accent);
         letter-spacing: 0.02em; white-space: nowrap;
@@ -609,7 +619,134 @@
         <div class="section-head">
             <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
         </div>
-        <div class="wip">work in progress</div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">When a body displaced from a stable equilibrium is pulled back by a force proportional to its displacement — a <em>restoring force</em> <span data-tex="F = -kx"></span> — it performs <em>simple harmonic motion</em>: its displacement is a sine function of time. The same holds for rotation, where a <em>restoring torque</em> <span data-tex="M = -\varkappa\theta"></span> turns the body back. Every harmonic oscillator is therefore described by one equation, and its angular frequency is always the square root of the restoring constant divided by the inertia. The amplitude does not appear in the period: a larger swing changes the speed and the force, not the time one cycle takes.</span>
+                <span lang="cs">Působí-li na těleso vychýlené ze stabilní rovnovážné polohy síla úměrná výchylce a mířící zpět — <em>vratná síla</em> <span data-tex="F = -kx"></span> — koná těleso <em>harmonický kmitavý pohyb</em>: výchylka je sinusovou funkcí času. Totéž platí pro otáčení, kde těleso vrací zpět <em>vratný moment</em> <span data-tex="M = -\varkappa\theta"></span>. Každý harmonický oscilátor proto popisuje jediná rovnice a jeho úhlová frekvence je vždy odmocninou z podílu vratné konstanty a setrvačnosti. Amplituda v periodě nevystupuje: větší výchylka změní rychlost i sílu, ne dobu jednoho kmitu.</span>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where every calculation starts</span><span lang="cs">Odkud každý výpočet začíná</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="ma = -kx \;\Rightarrow\; \omega = \sqrt{\dfrac{k}{m}}"></span>
+                        <span class="ck-eq" data-tex="I\varepsilon = -\varkappa\theta \;\Rightarrow\; \omega = \sqrt{\dfrac{\varkappa}{I}}"></span>
+                    </div>
+                    <p class="ck-note">
+                        <span lang="en">Newton's second law with the restoring force, for sliding on the left and for turning on the right. Dividing by the inertia gives <span data-tex="\ddot x + \omega^2 x = 0"></span>, whose solution is always <span data-tex="x(t) = A\cos(\omega t + \varphi)"></span> — so the whole calculation comes down to identifying the restoring constant (<span data-tex="k"></span> in N/m, or the torsion constant <span data-tex="\varkappa"></span> in N·m/rad) and the inertia (<span data-tex="m"></span>, or <span data-tex="I"></span> about the axis of rotation). A simple pendulum at small angles is the same law with the restoring constant <span data-tex="mg/\ell"></span>, hence <span data-tex="\omega = \sqrt{g/\ell}"></span>.</span>
+                        <span lang="cs">Druhý Newtonův zákon s vratnou silou — vlevo pro posuvný pohyb, vpravo pro otáčení. Po vydělení setrvačností vyjde <span data-tex="\ddot x + \omega^2 x = 0"></span>, jejímž řešením je vždy <span data-tex="x(t) = A\cos(\omega t + \varphi)"></span> — celý výpočet se tak redukuje na určení vratné konstanty (<span data-tex="k"></span> v N/m, případně torzní konstanty <span data-tex="\varkappa"></span> v N·m/rad) a setrvačnosti (<span data-tex="m"></span>, případně <span data-tex="I"></span> vzhledem k ose otáčení). Matematické kyvadlo při malých výchylkách se řídí týmž zákonem s vratnou konstantou <span data-tex="mg/\ell"></span>, odtud <span data-tex="\omega = \sqrt{g/\ell}"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Harmonic motion</span><span lang="cs">Harmonický pohyb</span></span>
+                        <span class="cf-eq" data-tex="x(t) = A\cos(\omega t + \varphi)\,,\qquad T = \dfrac{2\pi}{\omega}"></span>
+                        <span class="cf-eq" data-tex="v_{max} = \omega A\,,\qquad a_{max} = \omega^2 A"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The angular frequency is set by the system alone; the amplitude <span data-tex="A"></span> and the phase <span data-tex="\varphi"></span> by how it was started. The speed is greatest at the equilibrium position, where the force is zero; the acceleration is greatest at the turning points, where the speed is zero. In a rotational oscillator the angular speed <span data-tex="\dot\theta"></span> of the body changes during the swing, with the maximum <span data-tex="\omega\theta_0"></span> — it is a different quantity from the constant angular frequency <span data-tex="\omega"></span>.</span>
+                        <span lang="cs">Úhlovou frekvenci určuje jen soustava sama, amplitudu <span data-tex="A"></span> a fázi <span data-tex="\varphi"></span> způsob, jakým byl pohyb vyvolán. Rychlost je největší v rovnovážné poloze, kde je síla nulová; zrychlení je největší v bodech obratu, kde je nulová rychlost. U rotačního oscilátoru se úhlová rychlost tělesa <span data-tex="\dot\theta"></span> během kmitu mění, s maximem <span data-tex="\omega\theta_0"></span> — je to jiná veličina než stálá úhlová frekvence <span data-tex="\omega"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Energy of an oscillator</span><span lang="cs">Energie oscilátoru</span></span>
+                        <span class="cf-eq" data-tex="E = \dfrac{1}{2}kA^2 = \dfrac{1}{2}mv_{max}^2"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The total energy is fixed by the amplitude and passes between the kinetic and the potential form twice in every period. Equating the two ends gives the amplitude from the speed at the equilibrium position, or the other way round; for rotation <span data-tex="\varkappa\theta_0^2 = I\dot\theta_{max}^2"></span>.</span>
+                        <span lang="cs">Celková energie je dána amplitudou a během každé periody se dvakrát přelije mezi kinetickou a potenciální formou. Porovnáním obou krajních stavů plyne amplituda z rychlosti v rovnovážné poloze, nebo naopak; při otáčení <span data-tex="\varkappa\theta_0^2 = I\dot\theta_{max}^2"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A spring off the axis</span><span lang="cs">Pružina mimo osu</span></span>
+                        <span class="cf-eq" data-tex="\varkappa_{ef} = k\,d^2"></span>
+                        <span class="cf-eq" data-tex="\omega = \sqrt{\dfrac{k\,d^2}{I}}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">An ordinary spring attached at a distance <span data-tex="d"></span> from the axis acts as a torsion spring. A small turn <span data-tex="\theta"></span> moves its end by <span data-tex="d\theta"></span>, so it pulls back with the force <span data-tex="kd\theta"></span> on the lever arm <span data-tex="d"></span> — a restoring torque <span data-tex="kd^2\theta"></span>. The inertia is taken about the same axis (a rod about its centre <span data-tex="mL^2/12"></span>); when both carry the same square of a length, the length cancels from the result.</span>
+                        <span lang="cs">Obyčejná pružina uchycená ve vzdálenosti <span data-tex="d"></span> od osy působí jako torzní pružina. Malé pootočení <span data-tex="\theta"></span> posune její konec o <span data-tex="d\theta"></span>, takže táhne zpět silou <span data-tex="kd\theta"></span> na rameni <span data-tex="d"></span> — vratným momentem <span data-tex="kd^2\theta"></span>. Moment setrvačnosti se bere k téže ose (tyč vzhledem ke středu <span data-tex="mL^2/12"></span>); nesou-li oba stejnou druhou mocninu délky, délka se z výsledku vykrátí.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Friction as the limit</span><span lang="cs">Tření jako mez</span></span>
+                        <span class="cf-eq" data-tex="m\,\omega^2 A \le \mu_s m g"></span>
+                        <span class="cf-eq" data-tex="A_{max} = \dfrac{\mu_s g}{\omega^2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">When one body rides on another, static friction is the only horizontal force accelerating the upper one. The demand is largest at the turning points, where <span data-tex="a_{max} = \omega^2 A"></span>, so that is where slipping begins. The mass of the upper body cancels — but not the <span data-tex="m"></span> inside <span data-tex="\omega"></span>, which carries the mass of both bodies.</span>
+                        <span lang="cs">Veze-li jedno těleso druhé, je statické tření jedinou vodorovnou silou, která horní těleso urychluje. Nároky jsou největší v bodech obratu, kde <span data-tex="a_{max} = \omega^2 A"></span>, a tam také začíná prokluzování. Hmotnost horního tělesa se vykrátí — ne však <span data-tex="m"></span> uvnitř <span data-tex="\omega"></span>, kde vystupuje hmotnost obou těles.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Identify the restoring constant and the inertia.</strong> Everything else follows from
+                    <span data-tex="\omega = \sqrt{k/m}"></span> or <span data-tex="\omega = \sqrt{\varkappa/I}"></span>. From graphs:
+                    the torsion constant is the slope of the torque–angle line, <span data-tex="\varkappa = M/\theta"></span>, and
+                    the angular frequency comes from the period, <span data-tex="\omega = 2\pi/T"></span>.</span>
+                    <span lang="cs"><strong>Určete vratnou konstantu a setrvačnost.</strong> Vše ostatní plyne z
+                    <span data-tex="\omega = \sqrt{k/m}"></span> nebo <span data-tex="\omega = \sqrt{\varkappa/I}"></span>. Z grafů:
+                    torzní konstanta je směrnice přímky moment–úhel, <span data-tex="\varkappa = M/\theta"></span>, a úhlová
+                    frekvence plyne z periody, <span data-tex="\omega = 2\pi/T"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>A body that turns: build the torsion constant.</strong> A spring at the distance
+                    <span data-tex="d"></span> from the axis gives <span data-tex="\varkappa_{ef} = kd^2"></span>; divide by the
+                    moment of inertia about the same axis. Check whether a length cancels.</span>
+                    <span lang="cs"><strong>Těleso, které se otáčí: sestavte torzní konstantu.</strong> Pružina ve vzdálenosti
+                    <span data-tex="d"></span> od osy dá <span data-tex="\varkappa_{ef} = kd^2"></span>; vydělte momentem
+                    setrvačnosti k téže ose. Ověřte, zda se nějaká délka nevykrátí.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Collision first, oscillation second.</strong> A projectile embedding itself in the body is
+                    a perfectly inelastic collision: use conservation of momentum, <span data-tex="mv = (M+m)V"></span>, never
+                    conservation of energy across the impact.</span>
+                    <span lang="cs"><strong>Nejdřív srážka, pak kmitání.</strong> Střela, která uvízne v tělese, je dokonale nepružná
+                    srážka: použijte zákon zachování hybnosti, <span data-tex="mv = (M+m)V"></span>, nikdy ne zachování energie
+                    přes náraz.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>Then energy for the amplitude.</strong> If the impact happens at the equilibrium position,
+                    <span data-tex="\dfrac{1}{2}(M+m)V^2 = \dfrac{1}{2}kA^2"></span>, with the combined mass, and equivalently
+                    <span data-tex="A = V/\omega"></span>.</span>
+                    <span lang="cs"><strong>Pak energie pro amplitudu.</strong> Nastane-li náraz v rovnovážné poloze, platí
+                    <span data-tex="\dfrac{1}{2}(M+m)V^2 = \dfrac{1}{2}kA^2"></span> se spojenou hmotností, ekvivalentně
+                    <span data-tex="A = V/\omega"></span>.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>&ldquo;Does not slip&rdquo; is a condition on the acceleration.</strong> Require
+                    <span data-tex="\omega^2 A \le \mu_s g"></span> with <span data-tex="\omega"></span> of the whole system, and
+                    solve for the largest amplitude.</span>
+                    <span lang="cs"><strong>&bdquo;Neprokluzuje&ldquo; je podmínka na zrychlení.</strong> Požadujte
+                    <span data-tex="\omega^2 A \le \mu_s g"></span> s <span data-tex="\omega"></span> celé soustavy a vyřešte
+                    největší amplitudu.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">06</span>
+                    <span><span lang="en"><strong>Keep the two angular quantities apart.</strong> The angular frequency
+                    <span data-tex="\omega"></span> is constant; the angular speed of the body peaks at
+                    <span data-tex="|\dot\theta|_{max} = \omega\theta_0"></span> as it passes through equilibrium.</span>
+                    <span lang="cs"><strong>Nezaměňte dvě úhlové veličiny.</strong> Úhlová frekvence <span data-tex="\omega"></span>
+                    je stálá; úhlová rychlost tělesa dosahuje maxima <span data-tex="|\dot\theta|_{max} = \omega\theta_0"></span>
+                    při průchodu rovnovážnou polohou.</span></span>
+                </div>
+
+            </div>
+        </div>
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -619,7 +756,7 @@
     <section id="lab" class="lab movie" style="margin-top:72px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">One law, five oscillators</span><span lang="cs">Jeden zákon, pět oscilátorů</span><span class="wip-tag">work in progress</span></span>
+                <span><span class="accent-pip"></span><span lang="en">One law, five oscillators</span><span lang="cs">Jeden zákon, pět oscilátorů</span></span>
                 <span style="display:flex;gap:16px;align-items:baseline;">
                     <span id="mv-clock" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
                     <button id="mv-reset" class="panel-reset">restart</button>
@@ -649,7 +786,7 @@
                     <span class="ms-read-v" id="mv-r-i">—</span>
                 </div>
                 <div class="ms-read">
-                    <span class="ms-read-k">ω</span>
+                    <span class="ms-read-k sym">ω</span>
                     <span class="ms-read-v" id="mv-r-w">—</span>
                 </div>
             </div>
@@ -691,13 +828,12 @@
     <section id="lab2" class="lab" style="margin-top:56px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">The passenger — how hard can it shake before the top slides?</span><span lang="cs">Pasažér — jak silně smí kmitat, aby horní neklouzal?</span><span class="wip-tag">work in progress</span></span>
+                <span><span class="accent-pip"></span><span lang="en">The passenger — how hard can it shake before the top slides?</span><span lang="cs">Pasažér — jak silně smí kmitat, aby horní neklouzal?</span></span>
                 <span id="p1-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="p1-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="\omega^2 A \le \mu_s g"></div>
-                <div class="sim-hint"><span lang="en">the demand peaks at the turning points</span><span lang="cs">nárok vrcholí v bodech obratu</span></div>
             </div>
         </div>
 
@@ -785,13 +921,12 @@
     <section id="lab3" class="lab" style="margin-top:56px; margin-bottom:0;">
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">The ballistic oscillator — a collision, then an oscillation</span><span lang="cs">Balistický oscilátor — nejdřív srážka, pak kmitání</span><span class="wip-tag">work in progress</span></span>
+                <span><span class="accent-pip"></span><span lang="en">The ballistic oscillator — a collision, then an oscillation</span><span lang="cs">Balistický oscilátor — nejdřív srážka, pak kmitání</span></span>
                 <span id="b1-state" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">—</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="b1-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="mv = (M+m)V"></div>
-                <div class="sim-hint"><span lang="en">momentum through the impact · energy after it</span><span lang="cs">nárazem hybnost · po něm energie</span></div>
             </div>
         </div>
 
@@ -915,7 +1050,12 @@
         <div class="section-head">
             <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
         </div>
-        <div class="wip">work in progress</div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch15-ex24.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 24</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 24</span></span></a>
+            <a class="ex-tab" href="../exercises/ch15-ex35.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 35</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 35</span></span></a>
+            <a class="ex-tab" href="../exercises/ch15-ex51.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 51</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 51</span></span></a>
+            <a class="ex-tab" href="../exercises/ch15-ex101.html"><span lang="en">Ch. 15 · <span class="ex-no">Ex. 101</span></span><span lang="cs">Kap. 15 · <span class="ex-no">Úl. 101</span></span></a>
+        </div>
     </section>
 
     <!-- ── Prev / Next ───────────────────────────────────────────────── -->
@@ -1072,8 +1212,49 @@ const PP8 = (function () {
         if (window.katex) fn();
         else document.addEventListener('DOMContentLoaded', fn);
     }
+    /* the house style for the two ordinary sandboxes: symbols in serif italic
+       with a halo in the stage's tone, a subscript drawn rather than typed,
+       and one muted colour per quantity */
+    const INK = { block: '#e9e1c6', f: '#a8243b', p: '#2a62a8', E: '#c47a17' };
+    function sym(ctx, c, text, x, y, col, size, align) {
+        halo(ctx, c.deep, text, x, y, col, size || 16, true, align || 'center');
+    }
+    function symSub(ctx, c, main, sb, x, y, col, size, align) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        ctx.font = 'italic ' + size + 'px "Source Serif 4",Georgia,serif';
+        const w1 = ctx.measureText(main).width;
+        ctx.font = 'italic ' + ss + 'px "Source Serif 4",Georgia,serif';
+        const w2 = ctx.measureText(sb).width;
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        halo(ctx, c.deep, main, x0, y, col, size, true, 'left');
+        halo(ctx, c.deep, sb, x0 + w1 + 1, y + size * 0.28, col, ss, true, 'left');
+        return x0 + tw;
+    }
+    function block(ctx, c, x, y, w, h, fill, stroke, lw) {
+        ctx.fillStyle = fill || INK.block; ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = stroke || c.ink; ctx.lineWidth = lw || 1.5; ctx.setLineDash([]);
+        ctx.strokeRect(x, y, w, h);
+    }
+    function hatchRect(ctx, x, y, w, h, col) {
+        ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2;
+        for (let d = -h; d < w + h; d += 6) { ctx.beginPath(); ctx.moveTo(x + d, y + h); ctx.lineTo(x + d + h, y); ctx.stroke(); }
+        ctx.restore();
+    }
+    function dimH(ctx, c, x1, x2, y, label, col) {
+        col = col || c.soft;
+        ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y);
+        ctx.moveTo(x1, y - 5); ctx.lineTo(x1, y + 5); ctx.moveTo(x2, y - 5); ctx.lineTo(x2, y + 5);
+        ctx.stroke();
+        if (label) sym(ctx, c, label, (x1 + x2) / 2, y + 15, col, 16);
+    }
+    const badgeLow = canvas => !!canvas.parentElement.querySelector('.canvas-formula-badge');
     return { isCS, T, num, big, colours, mount, mono, halo, arrow, coil, hatch,
-             katexInto, whenReady, G: 9.8 };
+             katexInto, whenReady, G: 9.8,
+             INK, sym, symSub, block, hatchRect, dimH, badgeLow };
 }());
 </script>
 
@@ -1147,7 +1328,8 @@ const PP8 = (function () {
         const tick = ts => {
             const dt = lastTs ? Math.min((ts - lastTs) / 1000, 1 / 20) : 0;
             lastTs = ts;
-            let acc = dt * 0.6;                       /* slowed, to be watchable */
+            /* slowed to be watchable: at most one period per ~2.2 s on screen */
+            let acc = dt * Math.min(0.6, 2 * Math.PI / omega() / 2.2);
             while (acc > 0) { const h = Math.min(acc, 1 / 1200); step(h); t += h; acc -= h; }
             paint();
             if (running) raf = requestAnimationFrame(tick); else { raf = 0; lastTs = 0; }
@@ -1156,75 +1338,108 @@ const PP8 = (function () {
         raf = requestAnimationFrame(tick);
     }
 
+    /* The scene takes the canvas: the floor sits in the lower part of the band
+       left free by the caption and the equation badge, the gauge of the
+       friction takes a column on the right (on a phone, the space above the
+       blocks). The displacement is drawn to a scale fitted so that both A
+       and A_max fit; the blocks are drawn at a size of their own. */
     function draw(vv) {
-        const c = PP8.colours(), ctx = vv.ctx, W = vv.W, H = vv.H;
-        const sc = Math.min((W - 150) / (2 * Math.max(P.A, 0.05) + 0.5), 480);
-        const y0 = H * 0.62;
-        const cx = W * 0.52;
+        const c = PP8.colours(), ctx = vv.ctx, W = vv.W, H = vv.H, I = PP8.INK;
+        const top = 66, bot = H - (PP8.badgeLow(vv.canvas) && W >= 640 ? 104 : 30);
+        const narrow = W < 600;
+        const gw = narrow ? 0 : Math.min(180, W * 0.22);
+        const sx0 = 26, sx1 = W - gw - (narrow ? 26 : 40), sw = sx1 - sx0;
+        const gy = top + (bot - top) * (narrow ? 0.8 : 0.66);
+        const bw = Math.max(84, Math.min(156, sw * 0.18)), bh = bw * 0.4;
+        const pw = bw * 0.58, ph = bh * 0.74;
+        const wallX = sx0 + 6;
+        const Am = Amax(), show = Math.max(P.A, Am, 0.05);
+        const xc = sx0 + sw * 0.6;
+        const sc = Math.max(40, Math.min((sx1 - bw / 2 - 10 - xc) / show,
+                                         (xc - bw / 2 - wallX - 70) / show, 1400));
 
-        PP8.hatch(ctx, 20, y0, W - 20, y0, c.faint, 9);
-        const wallX = 42;
-        PP8.hatch(ctx, wallX, y0, wallX, y0 - 96, c.faint, -9);
+        PP8.hatch(ctx, sx0 - 8, gy, sx1 + 8, gy, c.faint, 9);
+        PP8.hatch(ctx, wallX, gy, wallX, gy - bh * 2.8, c.faint, -9);
 
-        const bw = 96, bh = 34, pw = 58, ph = 24;
-        const bx = cx + x * sc;
-        PP8.coil(ctx, wallX, y0 - bh / 2 - 6, bx - bw / 2, y0 - bh / 2 - 6, 9, 8, c.soft);
-
-        ctx.fillStyle = c.edge; ctx.strokeStyle = c.ink; ctx.lineWidth = 1.5; ctx.setLineDash([]);
-        ctx.fillRect(bx - bw / 2, y0 - bh, bw, bh);
-        ctx.strokeRect(bx - bw / 2, y0 - bh, bw, bh);
-        PP8.halo(ctx, c.paper, 'M', bx, y0 - bh / 2, c.ink, 14, true);
-
-        const px = cx + xp * sc;
-        ctx.fillStyle = stuck ? c.paper : c.deep;
-        ctx.fillRect(px - pw / 2, y0 - bh - ph, pw, ph);
-        ctx.strokeStyle = stuck ? c.ink : c.acc; ctx.lineWidth = stuck ? 1.5 : 2.2;
-        ctx.strokeRect(px - pw / 2, y0 - bh - ph, pw, ph);
-        PP8.halo(ctx, c.paper, 'm', px, y0 - bh - ph / 2, c.ink, 13, true);
-
-        /* the equilibrium line and the two turning points */
+        /* where the passenger can and cannot be held: ±A_max on the floor */
+        /* the blocks are drawn at a size of their own, not to the scale of the
+           displacement, so the passenger's slip is shown in that scale but kept
+           on the block's top — the readout carries the true slip */
+        const bx = xc + x * sc, lip = (bw - pw) / 2;
+        const px = bx + Math.max(-lip, Math.min(lip, (xp - x) * sc));
+        const upY = gy - bh - ph - 30;
+        ctx.strokeStyle = I.f; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]);
+        [-1, 1].forEach(sg => {
+            const mx = xc + sg * Am * sc;
+            ctx.beginPath(); ctx.moveTo(mx, upY); ctx.lineTo(mx, gy); ctx.stroke();
+        });
+        ctx.setLineDash([]);
+        PP8.symSub(ctx, c, 'A', 'max', xc + Am * sc + 6, upY + 2, I.f, 15, 'left');
+        /* the equilibrium, and the amplitude as a dimension under the floor */
         ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-        ctx.beginPath(); ctx.moveTo(cx, y0 - 118); ctx.lineTo(cx, y0 + 6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(xc, upY - 8); ctx.lineTo(xc, gy + 6); ctx.stroke();
         ctx.setLineDash([]);
+        PP8.dimH(ctx, c, xc, xc + P.A * sc, gy + 22, 'A');
 
-        /* the two bars: what friction must supply, and what it can */
-        const need = P.m * Math.abs(P.k * x / (P.M + P.m));
-        const have = P.mu * P.m * G;
-        /* on a phone-width canvas the bodies swing under the bars: the bars
-           are shortened to end, labels and all, above the passenger's roof */
-        const barX = W - 108, barY = 34, barW = 26;
-        const barH = W < 520 ? Math.min(H * 0.46, y0 - bh - ph - barY - 44) : H * 0.46;
-        const top = Math.max(need, have) * 1.15 || 1;
-        const bar = (ox, val, col, lab) => {
-            const h = barH * val / top;
-            ctx.fillStyle = col;
-            ctx.fillRect(ox, barY + barH - h, barW, h);
-            ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2;
-            ctx.strokeRect(ox, barY + barH - h, barW, h);
-            PP8.mono(ctx, PP8.num(val, 1), ox + barW / 2, barY + barH + 13, c.soft, 9, 'center');
-            PP8.mono(ctx, lab, ox + barW / 2, barY + barH + 26, c.faint, 9, 'center');
-        };
-        bar(barX, need, need > have + 1e-9 ? c.acc : c.edge, PP8.T('needs', 'nutno'));
-        bar(barX + barW + 16, have, c.deep, PP8.T('has', 'k dispozici'));
-        ctx.strokeStyle = c.acc; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
-        const hy = barY + barH - barH * have / top;
-        ctx.beginPath(); ctx.moveTo(barX - 10, hy); ctx.lineTo(barX + 2 * barW + 26, hy); ctx.stroke();
-        ctx.setLineDash([]);
-        PP8.mono(ctx, PP8.T('FRICTION, N', 'TŘENÍ, N'), barX, barY - 12, c.soft, 9);
+        PP8.coil(ctx, wallX, gy - bh / 2, bx - bw / 2, gy - bh / 2, 11, bh * 0.26, c.soft);
+        PP8.block(ctx, c, bx - bw / 2, gy - bh, bw, bh);
+        PP8.sym(ctx, c, 'M', bx, gy - bh / 2, c.ink, 17);
+        PP8.block(ctx, c, px - pw / 2, gy - bh - ph, pw, ph, stuck ? c.paper : c.deep,
+                  stuck ? c.ink : I.f, stuck ? 1.5 : 2.2);
+        PP8.sym(ctx, c, 'm', px, gy - bh - ph / 2, c.ink, 16);
+
+        /* the friction on the passenger — the only horizontal force on it:
+           m·a while it holds, μ_s·m·g against the slip once it slides */
+        const G = PP8.G, have = P.mu * P.m * G;
+        const aB = -P.k * x / (P.M + P.m);
+        let f = stuck ? P.m * aB : -have * Math.sign(vp - v);
+        const need = stuck ? Math.abs(P.m * aB) : have;
+        const kF = Math.min(bw * 0.9, 110) / (have || 1);
+        const fy = gy - bh - ph - 12;
+        if (Math.abs(f * kF) > 3) {
+            PP8.arrow(ctx, px, fy, px + f * kF, fy, c.deep, 5.5);
+            PP8.arrow(ctx, px, fy, px + f * kF, fy, I.f, 2.4);
+            PP8.symSub(ctx, c, 'f', stuck ? 's' : 'd', px + f * kF + (f > 0 ? 8 : -8), fy - 12, I.f, 16, f > 0 ? 'left' : 'right');
+        }
+
+        /* the gauge: what friction has to supply against what it can */
+        const peak = P.m * omega() * omega() * P.A;
+        const topN = Math.max(have, peak) * 1.12 || 1;
+        let gx, gT, gB, gwid;
+        if (narrow) { gwid = 26; gx = W - 58; gT = top + 30; gB = Math.min(upY - 24, top + 170); }
+        else { gwid = 30; gx = sx1 + 40 + (gw - 40) / 2 - gwid / 2; gT = top + 44; gB = gy; }
+        const kG = (gB - gT) / topN;
+        const capY = gB - have * kG, needY = gB - Math.min(need, topN) * kG;
+        PP8.mono(ctx, PP8.T('FRICTION ON m (N)', 'TŘENÍ NA m (N)'), gx + gwid / 2, gT - 26, c.soft, 10.5, 'center');
+        ctx.fillStyle = c.paper; ctx.fillRect(gx, capY, gwid, gB - capY);
+        const over = need > have + 1e-9;
+        ctx.fillStyle = I.f; ctx.globalAlpha = 0.85;
+        ctx.fillRect(gx + 5, Math.max(needY, capY), gwid - 10, gB - Math.max(needY, capY));
+        ctx.globalAlpha = 1;
+        if (over) PP8.hatchRect(ctx, gx + 5, needY, gwid - 10, capY - needY, I.f);
+        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.3; ctx.setLineDash([]);
+        ctx.strokeRect(gx, capY, gwid, gB - capY);
+        ctx.beginPath(); ctx.moveTo(gx - 10, gB); ctx.lineTo(gx + gwid + 10, gB); ctx.stroke();
+        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        const wmg = ctx.measureText('mg').width;
+        PP8.sym(ctx, c, 'mg', gx - 8, capY, c.ink, 15, 'right');
+        PP8.symSub(ctx, c, 'μ', 's', gx - 9 - wmg, capY, c.ink, 15, 'right');
+        PP8.sym(ctx, c, 'm|a|', gx + gwid + 8, needY, I.f, 15, 'left');
+        PP8.mono(ctx, PP8.T('available', 'k dispozici'), gx - 8, capY + 17, c.faint, 10.5, 'right');
+        PP8.mono(ctx, PP8.T('needed', 'nutno'), gx + gwid + 8, needY + 17, c.faint, 10.5, 'left');
 
         /* caption */
-        PP8.mono(ctx, PP8.T('THE PASSENGER', 'PASAŽÉR'), 16, 18, c.soft, 10);
-        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        PP8.mono(ctx, PP8.T('THE PASSENGER', 'PASAŽÉR'), 16, 18, c.soft, 10.5);
+        ctx.font = 'italic 17px "Source Serif 4",Georgia,serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = c.ink;
-        ctx.fillText(stuck ? PP8.T('riding along', 'veze se')
-                           : PP8.T('sliding', 'klouže'), 16, 39);
-        PP8.mono(ctx, 't = ' + PP8.num(t, 2) + ' s', 16, 58, c.faint, 10);
+        ctx.fillStyle = stuck ? c.ink : I.f;
+        ctx.fillText(stuck ? PP8.T('riding along', 'veze se') : PP8.T('sliding', 'klouže'), 16, 39);
+        PP8.mono(ctx, 't = ' + PP8.num(t, 2) + ' s', 16, 58, c.faint, 10.5);
     }
 
     function readouts() {
         const w = omega(), am = Amax();
-        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        const put = (id, s) => { const el = $(id); if (el && el.textContent !== s) el.textContent = s; };
         put('p1-r-w', PP8.num(w, 3) + ' rad/s');
         put('p1-r-a', PP8.num(w * w * P.A, 2) + ' m/s²');
         put('p1-r-lim', PP8.num(P.mu * G, 2) + ' m/s²');
@@ -1359,7 +1574,7 @@ const PP8 = (function () {
         { sys: -1, t: ['All five, side by side', 'Všech pět vedle sebe'],
           when: ['Plotted against t / T', 'Vyneseno proti t / T'],
           body: ['Their periods differ by a factor of twenty-four, so laying them on a common clock would show nothing but a blur. Give each its own clock — plot against <em>t/T</em> instead of <em>t</em> — and they are not five curves. They are one curve, drawn five times.',
-                 'Jejich periody se liší čtyřiadvacetkrát, takže na společných hodinách by z toho byla jen šmouha. Dejte každému vlastní hodiny — vyneste proti <em>t/T</em> místo <em>t</em> — a nejsou to pětkřivky. Je to jedna křivka nakreslená pětkrát.'],
+                 'Jejich periody se liší čtyřiadvacetkrát, takže na společných hodinách by z toho byla jen šmouha. Dejte každému vlastní hodiny — vyneste proti <em>t/T</em> místo <em>t</em> — a nejsou to pět křivek. Je to jedna křivka nakreslená pětkrát.'],
           eq: 'x(t) = A\\cos(\\omega t + \\varphi)',
           real: ['That is the whole chapter. Anything pushed back in proportion to its displacement does <em>this</em>, and the only question a problem can really ask is which two numbers go into <strong>ω = √(restoring / inertia)</strong>.',
                  'To je celá kapitola. Cokoli, co je tlačeno zpět úměrně výchylce, dělá <em>tohle</em>, a jediné, nač se úloha může doopravdy ptát, je která dvě čísla patří do <strong>ω = √(vratná / setrvačnost)</strong>.'],
@@ -1367,94 +1582,247 @@ const PP8 = (function () {
                     'Pět soustav, pět dvojic čísel, jedna rovnice — a pět period od <b>0,065 s</b> do <b>1,55 s</b>, které všechny plynou z téhož dělení.'] },
     ];
 
-    const SKY = { bg: '#10131c', ink: '#eef3f8', soft: '#b9c6d4', faint: '#8b9aab', acc: '#7fd4c8' };
+    /* the stage is the site's paper (a Vol I sandbox sits on --paper-deep);
+       the accent is the oscillating thing and its curve */
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    const RT = document.documentElement;
+    const PAL = {
+        stage: tok(RT, '--paper-deep', '#efead6'), paper: tok(RT, '--paper', '#FFFFEC'),
+        ink: tok(RT, '--ink', '#363026'), soft: tok(RT, '--ink-soft', '#4d4436'),
+        faint: tok(RT, '--ink-faint', '#7A6A52'), acc: tok(document.body, '--accent', '#2d6e6a'),
+        block: '#e9e1c6', side: '#d6ccb0', grey: 'rgba(54,48,38,0.30)',
+        /* the restoring force (or torque) — one colour in all five systems,
+           the force-and-motion movie's crimson, clear of the teal accent */
+        back: '#a8243b'
+    };
+
+    /* the restoring force: drawn over whatever it crosses, with a paper
+       underlay so it stays legible over a coil or a rod */
+    function pushBack(ctx, x1, y1, x2, y2, bare) {
+        if (Math.hypot(x2 - x1, y2 - y1) < 3) return;
+        if (!bare) PP8.arrow(ctx, x1, y1, x2, y2, PAL.stage, 6);
+        PP8.arrow(ctx, x1, y1, x2, y2, PAL.back, 2.6);
+    }
+    /* a swinging body's weight and the part of it that pulls it back: phi is
+       the angle of pivot→body from the downward vertical (+ towards +x), the
+       tangent in the direction of growing phi is (cos phi, −sin phi), and the
+       weight's share along it is −mg sin phi — the restoring force */
+    function weightSplit(ctx, x, y, phi, GL, gLab, fLab, gSide) {
+        const s = Math.sin(phi), c = Math.cos(phi);
+        const tx = -GL * s * c, ty = GL * s * s;
+        ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(x + tx, y + ty); ctx.lineTo(x, y + GL); ctx.stroke();
+        ctx.setLineDash([]);
+        PP8.arrow(ctx, x, y, x, y + GL, PAL.soft, 1.8);
+        const gs = gSide || 1;
+        PP8.halo(ctx, PAL.stage, gLab, x + gs * 10, y + GL - 2, PAL.soft, 16, true, gs > 0 ? 'left' : 'right');
+        pushBack(ctx, x, y, x + tx, y + ty, true);
+        const frac = Math.abs(s) / Math.sin(0.42), sg = tx < 0 ? -1 : 1;
+        pushLabel(ctx, x + tx + sg * 8, y + ty + 22, fLab, frac, sg < 0 ? 'right' : 'left');
+    }
+    /* its label — the law, never a value — faded out as the arrow shrinks
+       through equilibrium (frac is the arrow's share of its full length) */
+    function pushLabel(ctx, x, y, text, frac, align) {
+        const a = Math.max(0, Math.min(1, (Math.abs(frac) - 0.2) / 0.25));
+        if (a <= 0) return;
+        ctx.save(); ctx.globalAlpha = a;
+        PP8.halo(ctx, PAL.stage, text, x, y, PAL.back, 16, true, align || 'center');
+        ctx.restore();
+    }
+    /* units for the two numbers: a push per metre or a torque per radian,
+       and a mass or a rotational inertia */
+    const UNIT = {
+        spring: ['N/m', 'kg'], pend: ['N·m/rad', 'kg·m²'], rod: ['N·m/rad', 'kg·m²'],
+        torsion: ['N·m/rad', 'kg·m²'], rodspring: ['N·m/rad', 'kg·m²']
+    };
+    /* a number to three significant figures, in powers of ten when small */
+    function sig(x) {
+        if (x === 0) return '0';
+        const e = Math.floor(Math.log10(Math.abs(x)));
+        if (e >= -2) return N(x, Math.max(0, 2 - e));
+        const m = x / Math.pow(10, e);
+        return N(m, 2) + '·10' + String(e).replace('-', '⁻').replace(/\d/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+    }
+    const withUnit = (i, which) => {
+        const q = pair(i), u = UNIT[SYS[i].k];
+        return which === 'K' ? sig(q.K) + ' ' + u[0] : sig(q.I) + ' ' + u[1];
+    };
 
     let step = 0, u = 0, playing = false, raf = 0, last = 0, started = false, phase = 0;
     const DUR = 6.0;
+    const wrap = V.canvas.parentElement, badge = $('mv-eq');
+    const badgeLow = () => !!badge && badge.parentElement === wrap;
 
+    /* a dimension line along a direction, offset to one side, with its label */
+    function dimLine(ctx, x1, y1, x2, y2, off, label) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L * off, ny = dx / L * off;
+        ctx.strokeStyle = PAL.soft; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x1 + nx, y1 + ny); ctx.lineTo(x2 + nx, y2 + ny);
+        const tx = -dy / L * 5, ty = dx / L * 5;
+        ctx.moveTo(x1 + nx - tx, y1 + ny - ty); ctx.lineTo(x1 + nx + tx, y1 + ny + ty);
+        ctx.moveTo(x2 + nx - tx, y2 + ny - ty); ctx.lineTo(x2 + nx + tx, y2 + ny + ty);
+        ctx.stroke();
+        const k = 1 + 13 / Math.abs(off);
+        PP8.halo(ctx, PAL.stage, label, (x1 + x2) / 2 + nx * k, (y1 + y2) / 2 + ny * k, PAL.soft, 16, true);
+    }
+
+    /* Steps 1–5: one system, drawn as large as the band allows. The band runs
+       from under the caption to above the equation badge, and the two-numbers
+       box keeps the top-right corner. */
     function drawSystem(ctx, W, H, i, ph) {
-        const cx = W * 0.5, cy = H * 0.52, S = SYS[i];
+        const top = W < 560 ? 176 : 70, bot = H - (badgeLow() ? 104 : 34);
+        const k = Math.max(0.62, Math.min(1.75, (bot - top) / 310, (W - 40) / 520));
+        const cx = W * 0.5, cy = (top + bot) / 2 + 6 * k, S = SYS[i];
         const A = Math.sin(ph);
         ctx.lineCap = 'round';
         if (S.k === 'spring') {
-            const sp = Math.min(1, (W / 2 - 16) / 210);   /* a phone's stage is narrower than the floor */
-            const y = cy, x = cx + A * 70 * sp;
-            PP8.hatch(ctx, cx - 210 * sp, y + 44, cx + 210 * sp, y + 44, SKY.faint, 9);
-            PP8.hatch(ctx, cx - 190 * sp, y + 44, cx - 190 * sp, y - 40, SKY.faint, -9);
-            PP8.coil(ctx, cx - 190 * sp, y, x - 32, y, 10, 9, SKY.soft);
-            ctx.fillStyle = '#25303f'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6;
-            ctx.fillRect(x - 32, y - 26, 64, 52); ctx.strokeRect(x - 32, y - 26, 64, 52);
-            PP8.halo(ctx, SKY.bg, 'm', x, y, SKY.ink, 15, true);
-        } else if (S.k === 'pend') {
-            const th = A * 0.42, L = 150, px = cx + Math.sin(th) * L, py = cy - 70 + Math.cos(th) * L;
-            PP8.hatch(ctx, cx - 60, cy - 70, cx + 60, cy - 70, SKY.faint, -9);
-            ctx.strokeStyle = SKY.soft; ctx.lineWidth = 1.6;
-            ctx.beginPath(); ctx.moveTo(cx, cy - 70); ctx.lineTo(px, py); ctx.stroke();
-            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-            ctx.beginPath(); ctx.moveTo(cx, cy - 70); ctx.lineTo(cx, cy - 70 + L); ctx.stroke();
+            const y = cy + 10 * k, x = cx + A * 70 * k, bw = 64 * k, bh = 52 * k;
+            /* the block rests on the floor; the floor is frictionless */
+            PP8.hatch(ctx, cx - 210 * k, y + bh / 2, cx + 210 * k, y + bh / 2, PAL.faint, 9);
+            PP8.hatch(ctx, cx - 190 * k, y + bh / 2, cx - 190 * k, y - 50 * k, PAL.faint, -9);
+            PP8.coil(ctx, cx - 190 * k, y, x - bw / 2, y, 10, 9 * k, PAL.soft);
+            ctx.fillStyle = PAL.block; ctx.strokeStyle = PAL.ink; ctx.lineWidth = 1.6;
+            ctx.fillRect(x - bw / 2, y - bh / 2, bw, bh); ctx.strokeRect(x - bw / 2, y - bh / 2, bw, bh);
+            PP8.halo(ctx, PAL.block, 'm', x, y, PAL.ink, 17, true);
+            PP8.halo(ctx, PAL.stage, 'k', cx - 190 * k + (x - bw / 2 - cx + 190 * k) / 2, y - 22 * k, PAL.soft, 16, true);
+            ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(cx, y - bh / 2 - 22 * k); ctx.lineTo(cx, y + bh / 2); ctx.stroke();
             ctx.setLineDash([]);
-            ctx.fillStyle = SKY.acc;
-            ctx.beginPath(); ctx.arc(px, py, 15, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.4; ctx.stroke();
-            PP8.halo(ctx, SKY.bg, 'ℓ', (cx + px) / 2 + 12, (cy - 70 + py) / 2, SKY.soft, 14, true);
+            /* the spring's pull, F = −kx: towards equilibrium, in proportion
+               to the displacement. Drawn in a lane just above the block rather
+               than through its centre, where it would lie on the coil. */
+            const fx = x - A * 92 * k, fy = y - bh / 2 - 13 * k;
+            pushBack(ctx, x, fy, fx, fy);
+            pushLabel(ctx, fx, fy - 17, 'F = −kx', A);
+        } else if (S.k === 'pend') {
+            const th = A * 0.42, L = 170 * k, oy = cy - 115 * k;
+            const px = cx + Math.sin(th) * L, py = oy + Math.cos(th) * L;
+            PP8.hatch(ctx, cx - 60 * k, oy, cx + 60 * k, oy, PAL.faint, -9);
+            ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(cx, oy); ctx.lineTo(cx, oy + L + 20 * k); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.strokeStyle = PAL.soft; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.moveTo(cx, oy); ctx.lineTo(px, py); ctx.stroke();
+            ctx.fillStyle = PAL.acc;
+            ctx.beginPath(); ctx.arc(px, py, 15 * k, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = PAL.ink; ctx.lineWidth = 1.4; ctx.stroke();
+            PP8.halo(ctx, PAL.stage, 'ℓ', (cx + px) / 2 + 14, (oy + py) / 2, PAL.soft, 17, true);
+            PP8.halo(ctx, PAL.stage, 'm', px - 24 * k, py - 14 * k, PAL.ink, 16, true);
+            weightSplit(ctx, px, py, th, 80 * k, 'mg', 'F = −mg sin θ');
         } else if (S.k === 'rod') {
-            const th = A * 0.36, L = 160;
-            PP8.hatch(ctx, cx - 60, cy - 80, cx + 60, cy - 80, SKY.faint, -9);
-            ctx.save(); ctx.translate(cx, cy - 80); ctx.rotate(th);
-            ctx.fillStyle = '#25303f'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6;
-            ctx.fillRect(-8, 0, 16, L); ctx.strokeRect(-8, 0, 16, L);
+            const th = A * 0.42, L = 180 * k, oy = cy - 108 * k, rw = 16 * k;
+            PP8.hatch(ctx, cx - 60 * k, oy, cx + 60 * k, oy, PAL.faint, -9);
+            ctx.save(); ctx.translate(cx, oy); ctx.rotate(th);
+            ctx.fillStyle = PAL.block; ctx.strokeStyle = PAL.ink; ctx.lineWidth = 1.6;
+            ctx.fillRect(-rw / 2, 0, rw, L); ctx.strokeRect(-rw / 2, 0, rw, L);
             ctx.restore();
-            ctx.fillStyle = SKY.acc;
-            const dx = -Math.sin(th) * L / 2, dy = Math.cos(th) * L / 2;
-            ctx.beginPath(); ctx.arc(cx + dx, cy - 80 + dy, 4.5, 0, Math.PI * 2); ctx.fill();
-            PP8.halo(ctx, SKY.bg, 'd', cx + dx + 16, cy - 80 + dy, SKY.soft, 13, true);
+            ctx.fillStyle = PAL.ink;
+            ctx.beginPath(); ctx.arc(cx, oy, 3.5, 0, Math.PI * 2); ctx.fill();
+            /* ctx.rotate(th) carries a local (0, L/2) to (−sin θ, cos θ)·L/2 */
+            const gx = cx - Math.sin(th) * L / 2, gy = oy + Math.cos(th) * L / 2;
+            ctx.fillStyle = PAL.acc;
+            ctx.beginPath(); ctx.arc(gx, gy, 5 * k, 0, Math.PI * 2); ctx.fill();
+            dimLine(ctx, cx, oy, gx, gy, -(rw / 2 + 16 * k), 'd');
+            /* above the centre of mass: the restoring arrow sweeps both sides of it */
+            PP8.mono(ctx, PP8.T('centre of mass', 'těžiště'), gx - rw / 2 - 12, gy - 20 * k, PAL.faint, 11, 'right');
+            /* the rod hangs from its pivot: the centre of mass sits at −θ */
+            weightSplit(ctx, gx, gy, -th, 62 * k, 'mg', 'F = −mg sin θ', th >= 0 ? 1 : -1);
         } else if (S.k === 'torsion') {
-            const th = A * 0.8, R = 74, KY = 0.34;
-            const dy = cy - 10, ceil = cy - 120;
-            PP8.hatch(ctx, cx - 60, ceil, cx + 60, ceil, SKY.faint, -9);
+            const th = A * 0.8, R = 84 * k, KY = 0.34;
+            const dy = cy + 20 * k, ceil = cy - 120 * k;
+            PP8.hatch(ctx, cx - 60 * k, ceil, cx + 60 * k, ceil, PAL.faint, -9);
             /* the disc first: bottom face, rim band, top face */
-            ctx.fillStyle = '#2c3444';
-            ctx.beginPath(); ctx.ellipse(cx, dy + 12, R, R * KY, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.fillRect(cx - R, dy, R * 2, 12);
-            ctx.fillStyle = '#25303f';
+            ctx.fillStyle = PAL.side;
+            ctx.beginPath(); ctx.ellipse(cx, dy + 12 * k, R, R * KY, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillRect(cx - R, dy, R * 2, 12 * k);
+            ctx.strokeStyle = PAL.ink; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.ellipse(cx, dy + 12 * k, R, R * KY, 0, 0, Math.PI); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx - R, dy); ctx.lineTo(cx - R, dy + 12 * k);
+            ctx.moveTo(cx + R, dy); ctx.lineTo(cx + R, dy + 12 * k); ctx.stroke();
+            ctx.fillStyle = PAL.block;
             ctx.beginPath(); ctx.ellipse(cx, dy, R, R * KY, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.stroke();
             /* THEN the wire, which hangs above the top face — drawn under it,
                it appeared to stop at the disc's back edge. Its winding tapers
                to nothing at both ends so it meets the clamp and the centre on
                the axis instead of wandering off it. */
-            ctx.strokeStyle = SKY.soft; ctx.lineWidth = 1.4; ctx.setLineDash([]);
+            ctx.strokeStyle = PAL.soft; ctx.lineWidth = 1.4; ctx.setLineDash([]);
             for (let strand = 0; strand < 2; strand++) {
                 ctx.beginPath();
                 for (let q = 0; q <= 1.0001; q += 0.02) {
                     const yy = ceil + q * (dy - ceil);
-                    const amp = 6 * Math.sin(Math.PI * Math.min(q, 1));
+                    const amp = 6 * k * Math.sin(Math.PI * Math.min(q, 1));
                     const xx = cx + amp * Math.sin(q * Math.PI * 6 + th + strand * Math.PI);
                     q === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
                 }
                 ctx.stroke();
             }
             /* the collar where it is clamped to the disc */
-            ctx.fillStyle = '#25303f';
-            ctx.beginPath(); ctx.ellipse(cx, dy, 7, 7 * KY + 1.5, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.2; ctx.stroke();
+            ctx.fillStyle = PAL.block;
+            ctx.beginPath(); ctx.ellipse(cx, dy, 7 * k, 7 * k * KY + 1.5, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = PAL.ink; ctx.lineWidth = 1.2; ctx.stroke();
             /* the twist marker starts outside the collar, not under it */
-            ctx.strokeStyle = SKY.acc; ctx.lineWidth = 2.6;
+            ctx.strokeStyle = PAL.acc; ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(cx + Math.cos(th) * 10, dy + Math.sin(th) * 10 * KY);
+            ctx.moveTo(cx + Math.cos(th) * 10 * k, dy + Math.sin(th) * 10 * k * KY);
             ctx.lineTo(cx + Math.cos(th) * R, dy + Math.sin(th) * R * KY); ctx.stroke();
+            PP8.halo(ctx, PAL.stage, 'ϰ', cx + 18 * k, (ceil + dy) / 2, PAL.soft, 17, true);
+            PP8.halo(ctx, PAL.stage, 'I', cx + R + 16, dy + 6 * k, PAL.ink, 17, true);
+            /* the wire's restoring torque, M = −ϰθ. A torque has no point of
+               application, so it is drawn as a turning arrow in front of the
+               disc, in the plane of its lower face, sweeping back towards
+               θ = 0 through an angle in proportion to θ */
+            const r = R * 1.2, yb = dy + 12 * k, half = th * 0.45;
+            const P = a => [cx + Math.cos(a) * r, yb + Math.sin(a) * r * KY];
+            const a0 = Math.PI / 2 + half, a1 = Math.PI / 2 - half;
+            const span = Math.abs(a1 - a0), dir = Math.sign(a1 - a0);
+            if (span * r > 10) {
+                const aH = a1 - dir * Math.min(span * 0.6, 30 / r);
+                const h0 = P(aH), h1 = P(a1);
+                const arc = (col, lw) => {
+                    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.setLineDash([]);
+                    ctx.beginPath();
+                    for (let q = 0; q <= 24; q++) {
+                        const pt = P(a0 + (aH - a0) * q / 24);
+                        q ? ctx.lineTo(pt[0], pt[1]) : ctx.moveTo(pt[0], pt[1]);
+                    }
+                    ctx.stroke();
+                };
+                arc(PAL.stage, 6);
+                PP8.arrow(ctx, h0[0], h0[1], h1[0], h1[1], PAL.stage, 6);
+                arc(PAL.back, 2.6);
+                PP8.arrow(ctx, h0[0], h0[1], h1[0], h1[1], PAL.back, 2.6);
+            }
+            pushLabel(ctx, cx, yb + r * KY + 20, 'M = −ϰθ', th / 0.8);
         } else {
-            const th = A * 0.5, L = 200;
-            ctx.save(); ctx.translate(cx, cy); ctx.rotate(th);
-            ctx.fillStyle = '#25303f'; ctx.strokeStyle = SKY.ink; ctx.lineWidth = 1.6;
-            ctx.fillRect(-L / 2, -7, L, 14); ctx.strokeRect(-L / 2, -7, L, 14);
+            /* Ex. 15-51, seen from above: in equilibrium the rod is PARALLEL to
+               the wall and the spring meets it at right angles. (It used to run
+               along the rod, which gives no restoring torque at all to first
+               order.) Turning the rod by θ moves its end by about dθ across
+               the spring, so the spring pulls back with F = −kdθ on a lever
+               arm d — a restoring torque kd²θ. */
+            const th = A * 0.5, L = 220 * k, rw = 14 * k, cy2 = cy + 30 * k;
+            const ax = cx + L / 2, wy = cy2 - 118 * k, L0 = cy2 - wy;
+            ctx.save(); ctx.translate(cx, cy2); ctx.rotate(th);
+            ctx.fillStyle = PAL.block; ctx.strokeStyle = PAL.ink; ctx.lineWidth = 1.6;
+            ctx.fillRect(-L / 2, -rw / 2, L, rw); ctx.strokeRect(-L / 2, -rw / 2, L, rw);
             ctx.restore();
-            ctx.fillStyle = SKY.acc;
-            ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
-            const ex = cx + Math.cos(th) * L / 2, ey = cy + Math.sin(th) * L / 2;
-            PP8.hatch(ctx, cx + L / 2 + 70, cy - 60, cx + L / 2 + 70, cy + 60, SKY.faint, -9);
-            PP8.coil(ctx, ex, ey, cx + L / 2 + 70, cy, 8, 8, SKY.soft);
-            PP8.halo(ctx, SKY.bg, 'd', (cx + ex) / 2, (cy + ey) / 2 - 16, SKY.soft, 13, true);
+            ctx.fillStyle = PAL.acc;
+            ctx.beginPath(); ctx.arc(cx, cy2, 5 * k, 0, Math.PI * 2); ctx.fill();
+            const ex = cx + Math.cos(th) * L / 2, ey = cy2 + Math.sin(th) * L / 2;
+            PP8.hatch(ctx, ax - 70 * k, wy, ax + 70 * k, wy, PAL.faint, -9);
+            PP8.coil(ctx, ex, ey, ax, wy, 8, 8 * k, PAL.soft);
+            dimLine(ctx, cx, cy2, ex, ey, rw / 2 + 16 * k, 'd = L/2');
+            PP8.halo(ctx, PAL.stage, 'k', ax + 22 * k, (ey + wy) / 2, PAL.soft, 16, true);
+            PP8.mono(ctx, PP8.T('pivot', 'osa'), cx, cy2 - rw / 2 - 20 * k, PAL.faint, 11, 'center');
+            /* the spring's pull on the rod's end, along the spring, in
+               proportion to its stretch */
+            const sx = ax - ex, sy = wy - ey, sl = Math.hypot(sx, sy), st = sl - L0;
+            const fl = st * 1.35;
+            pushBack(ctx, ex, ey, ex + sx / sl * fl, ey + sy / sl * fl);
+            pushLabel(ctx, ex + 16, ey + sy / sl * fl * 0.5, 'F = −kdθ', th / 0.5, 'left');
         }
     }
 
@@ -1463,7 +1831,7 @@ const PP8 = (function () {
        clock, where they are visibly nothing alike, and then each on its own
        t/T, where they are one curve. A small glyph identifies each column. */
     function glyph(ctx, x, y, w, i) {
-        const c = SKY.soft;
+        const c = PAL.soft;
         ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 1.3; ctx.setLineDash([]);
         const cx = x + w / 2;
         if (i === 0) {
@@ -1498,10 +1866,10 @@ const PP8 = (function () {
 
         PP8.mono(ctx, PP8.T('ON ONE CLOCK — ' + PP8.num(COMMON, 1) + ' s OF REAL TIME, ALL FIVE',
                             'NA JEDNĚCH HODINÁCH — ' + PP8.num(COMMON, 1) + ' s SKUTEČNÉHO ČASU'),
-                 gap, rowA - 16, SKY.soft, 10);
+                 gap, rowA - 16, PAL.soft, 10.5);
         PP8.mono(ctx, PP8.T('ON ITS OWN CLOCK — ONE PERIOD EACH, PLOTTED AGAINST t / T',
                             'NA VLASTNÍCH HODINÁCH — JEDNA PERIODA, PROTI t / T'),
-                 gap, rowB - 16, SKY.soft, 10);
+                 gap, rowB - 16, PAL.soft, 10.5);
 
         for (let i = 0; i < 5; i++) {
             const x = gap + i * (bw + gap);
@@ -1509,10 +1877,10 @@ const PP8 = (function () {
 
             /* the same 1.6 s for everybody: nothing alike */
             let mid = rowA + bh / 2;
-            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+            ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
             ctx.beginPath(); ctx.moveTo(x, mid); ctx.lineTo(x + bw, mid); ctx.stroke();
             ctx.setLineDash([]);
-            ctx.strokeStyle = SKY.acc; ctx.lineWidth = 1.6;
+            ctx.strokeStyle = PAL.acc; ctx.lineWidth = 1.6;
             ctx.beginPath();
             const w = wOf(i);
             for (let q = 0; q <= bw; q++) {
@@ -1522,15 +1890,15 @@ const PP8 = (function () {
             }
             ctx.stroke();
             const cycles = COMMON / TOf(i);
-            PP8.mono(ctx, PP8.num(cycles, cycles < 10 ? 1 : 0) + ' ×',
-                     x + bw - 2, rowA + bh + 12, SKY.faint, 9, 'right');
+            PP8.mono(ctx, PP8.num(cycles, 1) + PP8.T(' periods', ' periody'),
+                     x + bw - 2, rowA + bh + 12, PAL.faint, 10.5, 'right');
 
             /* its own clock: one curve, five times */
             mid = rowB + bh / 2;
-            ctx.strokeStyle = SKY.faint; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+            ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
             ctx.beginPath(); ctx.moveTo(x, mid); ctx.lineTo(x + bw, mid); ctx.stroke();
             ctx.setLineDash([]);
-            ctx.strokeStyle = SKY.acc; ctx.lineWidth = 2;
+            ctx.strokeStyle = PAL.acc; ctx.lineWidth = 2;
             ctx.beginPath();
             for (let q = 0; q <= bw; q++) {
                 const y = mid - Math.cos(q / bw * 2 * Math.PI + phase) * (bh / 2 - 5);
@@ -1538,43 +1906,46 @@ const PP8 = (function () {
             }
             ctx.stroke();
 
-            PP8.mono(ctx, PP8.T(NAME_EN[i], NAME_CS[i]), x + bw / 2, rowB + bh + 16, SKY.ink, 10, 'center');
+            PP8.mono(ctx, PP8.T(NAME_EN[i], NAME_CS[i]), x + bw / 2, rowB + bh + 16, PAL.ink, 11, 'center');
             PP8.mono(ctx, 'T = ' + PP8.num(TOf(i), TOf(i) < 0.2 ? 4 : 3) + ' s',
-                     x + bw / 2, rowB + bh + 31, SKY.faint, 9, 'center');
-            PP8.mono(ctx, 'ω = ' + PP8.num(wOf(i), 1), x + bw / 2, rowB + bh + 45, SKY.faint, 9, 'center');
+                     x + bw / 2, rowB + bh + 32, PAL.faint, 10.5, 'center');
+            PP8.mono(ctx, 'ω = ' + PP8.num(wOf(i), 1) + (bw > 110 ? ' rad/s' : ''), x + bw / 2, rowB + bh + 47, PAL.faint, 10.5, 'center');
         }
     }
 
     function draw(v) {
         const ctx = v.ctx, W = v.W, H = v.H, st = STEPS[step];
-        ctx.fillStyle = SKY.bg; ctx.fillRect(0, 0, W, H);
         if (st.sys < 0) drawAll(ctx, W, H);
         else drawSystem(ctx, W, H, st.sys, phase);
 
-        PP8.mono(ctx, PP8.T('STEP', 'KROK') + ' ' + (step + 1) + ' / ' + STEPS.length, 16, 18, SKY.soft, 10);
-        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        PP8.mono(ctx, PP8.T('STEP', 'KROK') + ' ' + (step + 1) + ' / ' + STEPS.length, 16, 18, PAL.soft, 10.5);
+        ctx.font = 'italic 17px "Source Serif 4",Georgia,serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = SKY.ink;
+        ctx.fillStyle = PAL.ink;
         ctx.fillText(PP8.T(st.t[0], st.t[1]), 16, 39);
 
         if (st.sys >= 0) {
             const q = pair(st.sys), w = wOf(st.sys);
             /* never narrower than its numbers: on a phone 28 % of the stage is
                too thin for a label and a value side by side */
-            const bw = Math.min(300, Math.max(W * 0.28, 196)), x = W - bw - 16, y = 16, bh = 104;
-            const tight = bw < 250;
-            ctx.fillStyle = 'rgba(20,25,36,0.90)';
-            ctx.strokeStyle = '#4a5666'; ctx.lineWidth = 1.2; ctx.setLineDash([]);
-            ctx.fillRect(x, y, bw, bh); ctx.strokeRect(x, y, bw, bh);
-            PP8.mono(ctx, PP8.T('THE TWO NUMBERS', 'TA DVĚ ČÍSLA'), x + 12, y + 15, SKY.soft, 9.5);
-            PP8.mono(ctx, PP8.T('restoring', 'vratná') + '   ' + q.kl, x + 12, y + 38, SKY.faint, 10);
-            PP8.mono(ctx, PP8.num(q.K, q.K < 1 ? 4 : 2), x + bw - 12, y + 38, SKY.acc, 12, 'right');
-            PP8.mono(ctx, PP8.T('inertia', 'setrvačnost') + '   ' + q.il, x + 12, y + 60, SKY.faint, 10);
-            PP8.mono(ctx, PP8.num(q.I, q.I < 0.01 ? 6 : 4), x + bw - 12, y + 60, SKY.acc, 12, 'right');
-            ctx.strokeStyle = '#4a5666'; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(x + 12, y + 74); ctx.lineTo(x + bw - 12, y + 74); ctx.stroke();
-            PP8.mono(ctx, tight ? 'ω' : 'ω = √(' + PP8.T('restoring/inertia', 'vratná/setrvačnost') + ')', x + 12, y + 90, SKY.faint, 9.5);
-            PP8.mono(ctx, PP8.num(w, 2) + ' rad/s', x + bw - 12, y + 90, SKY.ink, 12, 'right');
+            const narrow = W < 560;
+            const bw = narrow ? W - 24 : Math.min(320, Math.max(W * 0.28, 210));
+            const x = narrow ? 12 : W - bw - 16, y = narrow ? 58 : 16, bh = 108;
+            const tight = bw < 260;
+            ctx.fillStyle = PAL.paper;
+            ctx.strokeStyle = PAL.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.fillRect(x, y, bw, bh); ctx.strokeRect(x + 0.5, y + 0.5, bw - 1, bh - 1);
+            PP8.mono(ctx, PP8.T('THE TWO NUMBERS', 'TA DVĚ ČÍSLA'), x + 12, y + 15, PAL.soft, 10);
+            /* the crimson mark ties this number to the arrow in the scene */
+            PP8.arrow(ctx, x + 12, y + 39, x + 28, y + 39, PAL.back, 2.2);
+            PP8.mono(ctx, PP8.T('restoring', 'vratná') + '   ' + q.kl, x + 34, y + 39, PAL.faint, 11);
+            PP8.mono(ctx, withUnit(st.sys, 'K'), x + bw - 12, y + 39, PAL.acc, 12, 'right');
+            PP8.mono(ctx, PP8.T('inertia', 'setrvačnost') + '   ' + q.il, x + 12, y + 61, PAL.faint, 11);
+            PP8.mono(ctx, withUnit(st.sys, 'I'), x + bw - 12, y + 61, PAL.acc, 12, 'right');
+            ctx.strokeStyle = PAL.grey; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(x + 12, y + 76); ctx.lineTo(x + bw - 12, y + 76); ctx.stroke();
+            PP8.mono(ctx, tight ? 'ω' : 'ω = √(' + PP8.T('restoring/inertia', 'vratná/setrvačnost') + ')', x + 12, y + 93, PAL.faint, 10.5);
+            PP8.mono(ctx, PP8.num(w, 2) + ' rad/s', x + bw - 12, y + 93, PAL.ink, 12.5, 'right');
         }
     }
 
@@ -1605,8 +1976,8 @@ const PP8 = (function () {
              PP8.num(TOf(j), TOf(j) < 0.2 ? 4 : 3) + ' s']]);
         const q = pair(st.sys), w = wOf(st.sys);
         return [
-            [['restoring constant  ' + q.kl, 'vratná konstanta  ' + q.kl], PP8.num(q.K, q.K < 1 ? 4 : 2)],
-            [['inertia  ' + q.il, 'setrvačnost  ' + q.il], PP8.num(q.I, q.I < 0.01 ? 6 : 4)],
+            [['restoring constant  ' + q.kl, 'vratná konstanta  ' + q.kl], withUnit(st.sys, 'K')],
+            [['inertia  ' + q.il, 'setrvačnost  ' + q.il], withUnit(st.sys, 'I')],
             [['ω', 'ω'], PP8.num(w, 3) + ' rad/s'],
             [['period T', 'perioda T'], PP8.num(TOf(st.sys), TOf(st.sys) < 0.2 ? 4 : 3) + ' s'],
         ];
@@ -1641,12 +2012,11 @@ const PP8 = (function () {
     }
     function readouts() {
         const st = STEPS[step];
-        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        const put = (id, s) => { const el = $(id); if (el && el.textContent !== s) el.textContent = s; };
         if (st.sys < 0) { put('mv-r-k', '—'); put('mv-r-i', '—'); put('mv-r-w', '—'); }
         else {
-            const q = pair(st.sys);
-            put('mv-r-k', PP8.num(q.K, q.K < 1 ? 4 : 2));
-            put('mv-r-i', PP8.num(q.I, q.I < 0.01 ? 6 : 4));
+            put('mv-r-k', withUnit(st.sys, 'K'));
+            put('mv-r-i', withUnit(st.sys, 'I'));
             put('mv-r-w', PP8.num(wOf(st.sys), 2) + ' rad/s');
         }
         const cl = $('mv-clock');
@@ -1663,17 +2033,20 @@ const PP8 = (function () {
         if (started) raf = requestAnimationFrame(loop); else { raf = 0; last = 0; }
     }
     function kick() { if (!raf && started) { last = 0; raf = requestAnimationFrame(loop); } }
-    function goto(i) {
+    /* a step change is a cut: the new scene fades up from the paper */
+    function fadeIn() { const c = V.canvas; c.classList.remove('cut'); void c.offsetWidth; c.classList.add('cut'); }
+    function goto(i, still) {
         step = Math.max(0, Math.min(STEPS.length - 1, i));
         u = 0; playing = true;
         markList(); panels(); paint(); kick();
+        if (!still) fadeIn();
     }
 
     $('mv-next')?.addEventListener('click', () => goto(step === STEPS.length - 1 ? 0 : step + 1));
     $('mv-prev')?.addEventListener('click', () => goto(step - 1));
     $('mv-reset')?.addEventListener('click', () => goto(0));
 
-    const gate = $('mv-gate'), wrap = V.canvas.parentElement;
+    const gate = $('mv-gate');
     function open() {
         if (started) return;
         started = true;
@@ -1683,7 +2056,7 @@ const PP8 = (function () {
         const stage = document.getElementById('lab');
         if (stage) stage.classList.add('wide');
         setTimeout(() => gate && gate.remove(), 1000);
-        goto(0);
+        goto(0, true);
     }
     gate?.addEventListener('click', open);
     gate?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
@@ -1726,7 +2099,9 @@ const PP8 = (function () {
                  Ei, Ef, loss: Ei - Ef,
                  Aw: P.v * Math.sqrt(m / k) };
     }
-    const T_IMPACT = 0.55;                         /* seconds of approach, drawn */
+    const TAPP = 0.9;                              /* the approach, in screen seconds */
+    const SLOWB = 0.08;                            /* the oscillation, times real time */
+    const tAfter = () => Math.max(0, t - TAPP) * SLOWB;   /* physical time since impact */
 
     function rewind() { t = 0; running = false; stop(); setRunLabel(); paint(); }
     function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
@@ -1735,70 +2110,133 @@ const PP8 = (function () {
         const tick = ts => {
             const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
             last = ts;
-            t += dt * 0.35;
+            t += dt;
             paint();
             if (running) raf = requestAnimationFrame(tick); else { raf = 0; last = 0; }
         };
         last = 0; raf = requestAnimationFrame(tick);
     }
 
+    /* The bullet comes in from the right and stops in the block's free face,
+       so the block sets off to the left, compressing the spring, from the
+       equilibrium with speed V: x(t) = −A sin ωt. (The old drawing fired it
+       along the spring into the fixed side, and started the block at +A —
+       a jump, since it leaves the equilibrium moving.) Displacements are
+       drawn to a scale fitted to the larger of A and, when the wrong method
+       is on, its A′; the block has a size of its own. */
     function draw(vv) {
-        const c = PP8.colours(), ctx = vv.ctx, W = vv.W, H = vv.H, S = sol();
-        const y0 = H * 0.66, cx = W * 0.58;
-        const shown = Math.max(S.A, wrong ? S.Aw : 0, 0.02);
-        const sc = Math.min((W * 0.34) / shown, 2400);
+        const c = PP8.colours(), ctx = vv.ctx, W = vv.W, H = vv.H, S = sol(), I = PP8.INK;
+        const top = 66, bot = H - (PP8.badgeLow(vv.canvas) && W >= 640 ? 104 : 30);
+        const narrow = W < 600;
+        const sx0 = 26, sx1 = W - 26, sw = sx1 - sx0;
+        const gy = top + (bot - top) * (narrow ? 0.82 : 0.72);
+        const bw = Math.max(90, Math.min(160, sw * 0.17)), bh = bw * 0.5;
+        const wallX = sx0 + 6;
+        const xc = sx0 + sw * (narrow ? 0.5 : 0.46);
+        const shown = Math.max(S.A, wrong ? S.Aw : 0, 0.004);
+        const sc = Math.max(20, Math.min((xc - bw / 2 - wallX - 70) / shown, (sx1 - xc - bw / 2 - 60) / shown, 4000));
 
-        PP8.hatch(ctx, 20, y0, W - 20, y0, c.faint, 9);
-        PP8.hatch(ctx, 46, y0, 46, y0 - 104, c.faint, -9);
+        PP8.hatch(ctx, sx0 - 8, gy, sx1 + 8, gy, c.faint, 9);
+        PP8.hatch(ctx, wallX, gy, wallX, gy - bh * 2.4, c.faint, -9);
 
-        const after = t > T_IMPACT;
-        const x = after ? S.A * Math.cos(S.w * (t - T_IMPACT)) : 0;
-        const bw = 92, bh = 46;
-        const bx = cx + x * sc;
-        PP8.coil(ctx, 46, y0 - bh / 2, bx - bw / 2, y0 - bh / 2, 10, 9, c.soft);
+        const after = t >= TAPP, tp = tAfter();
+        const x = after ? -S.A * Math.sin(S.w * tp) : 0;
+        const bx = xc + x * sc;
 
-        /* the amplitude the wrong method claims */
-        if (wrong) {
-            const wx = cx + S.Aw * sc;
-            ctx.strokeStyle = c.acc; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
-            ctx.beginPath(); ctx.moveTo(wx, y0 - 118); ctx.lineTo(wx, y0); ctx.stroke();
-            ctx.setLineDash([]);
-            PP8.halo(ctx, c.paper, PP8.T('energy method: ', 'metoda energie: ') +
-                     PP8.num(S.Aw * 100, 1) + ' cm', wx, y0 - 128, c.acc, 12, true);
-        }
-        /* the amplitude momentum gives */
-        const ax = cx + S.A * sc;
-        ctx.strokeStyle = c.ink; ctx.lineWidth = 1.2; ctx.setLineDash([3, 3]);
-        ctx.beginPath(); ctx.moveTo(ax, y0 - 84); ctx.lineTo(ax, y0); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(cx, y0 - 96); ctx.lineTo(cx, y0); ctx.stroke();
+        /* the equilibrium, the amplitude, and what the wrong method claims */
+        const upY = gy - bh - 58;
+        ctx.strokeStyle = c.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(xc, upY); ctx.lineTo(xc, gy + 6); ctx.stroke();
+        [-1, 1].forEach(sg => {
+            const ax = xc + sg * S.A * sc;
+            ctx.strokeStyle = c.ink; ctx.lineWidth = 1.1;
+            ctx.beginPath(); ctx.moveTo(ax, gy - 8); ctx.lineTo(ax, gy + 8); ctx.stroke();
+        });
         ctx.setLineDash([]);
-        PP8.halo(ctx, c.paper, 'A = ' + PP8.num(S.A * 100, 2) + ' cm', ax, y0 - 94, c.ink, 12, true);
-
-        ctx.fillStyle = c.edge; ctx.strokeStyle = c.ink; ctx.lineWidth = 1.6; ctx.setLineDash([]);
-        ctx.fillRect(bx - bw / 2, y0 - bh, bw, bh);
-        ctx.strokeRect(bx - bw / 2, y0 - bh, bw, bh);
-        PP8.halo(ctx, c.edge, 'M', bx, y0 - bh / 2, c.ink, 15, true);
-
-        /* the projectile */
-        if (!after) {
-            const q = t / T_IMPACT;
-            const px = bx - bw / 2 - (1 - q) * (W < 520 ? Math.min(W * 0.42, cx - bw / 2 - 70) : W * 0.42);   /* on a phone, starts clear of the wall */
-            ctx.fillStyle = c.acc;
-            ctx.beginPath(); ctx.ellipse(px, y0 - bh / 2, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
-            PP8.arrow(ctx, px - 46, y0 - bh / 2 - 24, px - 8, y0 - bh / 2 - 24, c.acc, 1.8);
-            PP8.halo(ctx, c.paper, PP8.num(P.v, 0) + ' m/s', px - 27, y0 - bh / 2 - 36, c.acc, 12, true);
-        } else {
-            ctx.fillStyle = c.acc;
-            ctx.beginPath(); ctx.ellipse(bx - 14, y0 - bh / 2, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+        if (S.A * sc > 14) PP8.dimH(ctx, c, xc - S.A * sc, xc, gy + 24, 'A');
+        else PP8.sym(ctx, c, 'A', xc - 6, gy + 24, c.soft, 16, 'right');
+        if (wrong) {
+            ctx.strokeStyle = I.f; ctx.lineWidth = 1.4; ctx.setLineDash([5, 4]);
+            [-1, 1].forEach(sg => {
+                const wx = xc + sg * S.Aw * sc;
+                ctx.beginPath(); ctx.moveTo(wx, upY); ctx.lineTo(wx, gy); ctx.stroke();
+            });
+            ctx.setLineDash([]);
+            PP8.sym(ctx, c, 'A′', xc - S.Aw * sc - 8, upY + 4, I.f, 17, 'right');
+            PP8.mono(ctx, PP8.T('energy method', 'metoda energie'), xc - S.Aw * sc - 8, upY + 22, I.f, 10.5, 'right');
         }
 
-        PP8.mono(ctx, PP8.T('BALLISTIC OSCILLATOR', 'BALISTICKÝ OSCILÁTOR'), 16, 18, c.soft, 10);
-        ctx.font = 'italic 15px "Source Serif 4",Georgia,serif';
+        PP8.coil(ctx, wallX, gy - bh / 2, bx - bw / 2, gy - bh / 2, 11, bh * 0.22, c.soft);
+        PP8.block(ctx, c, bx - bw / 2, gy - bh, bw, bh);
+        PP8.sym(ctx, c, 'M', bx - bw * 0.08, gy - bh / 2, c.ink, 17);
+
+        /* the bullet: flying in, then embedded in the free face */
+        const blen = Math.max(14, bw * 0.13), bth = Math.max(5, bw * 0.045);
+        const bulletAt = (bxx) => {
+            ctx.fillStyle = '#b08d57'; ctx.strokeStyle = c.ink; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(bxx, gy - bh / 2);
+            ctx.lineTo(bxx + bth * 1.2, gy - bh / 2 - bth);
+            ctx.lineTo(bxx + blen, gy - bh / 2 - bth);
+            ctx.lineTo(bxx + blen, gy - bh / 2 + bth);
+            ctx.lineTo(bxx + bth * 1.2, gy - bh / 2 + bth);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+        };
+        const kV = Math.min(70, bw * 0.55);          /* the block's speed: V at impact → kV px */
+        if (!after) {
+            const q = t / TAPP;
+            const face = bx + bw / 2;
+            const bxx = face + (1 - q) * (sx1 - face - blen - 8) - blen * 0.35 * q;
+            bulletAt(bxx);
+            PP8.arrow(ctx, bxx + blen + 50, gy - bh / 2 - 22, bxx + blen + 6, gy - bh / 2 - 22, c.deep, 5.5);
+            PP8.arrow(ctx, bxx + blen + 50, gy - bh / 2 - 22, bxx + blen + 6, gy - bh / 2 - 22, I.f, 2.2);
+            PP8.sym(ctx, c, 'v', bxx + blen + 28, gy - bh / 2 - 38, I.f, 17);
+        } else {
+            bulletAt(bx + bw / 2 - blen * 0.35);
+            const vB = -S.A * S.w * Math.cos(S.w * tp);          /* the block's velocity */
+            const L = vB / S.V0 * kV;
+            if (Math.abs(L) > 4) {
+                const ay = gy - bh - 14;
+                PP8.arrow(ctx, bx, ay, bx + L, ay, c.deep, 5.5);
+                PP8.arrow(ctx, bx, ay, bx + L, ay, c.acc, 2.4);
+                PP8.sym(ctx, c, 'V', bx + L + (L > 0 ? 9 : -9), ay - 1, c.acc, 16, L > 0 ? 'left' : 'right');
+            }
+        }
+
+        /* before and after, side by side: momentum carries through the
+           impact, kinetic energy does not (each pair to its own scale) */
+        if (!narrow) {
+            const pairs = [['p', S.p1, S.p2, I.p], ['E', S.Ei, S.Ef, I.E]];
+            const bwid = 18, gap = 6, pairW = bwid * 2 + gap, pgap = 34;
+            const x0 = sx1 - 2 * pairW - pgap - 6, yB = top + 118, hMax = 80;
+            PP8.mono(ctx, PP8.T('BEFORE · AFTER THE IMPACT', 'PŘED · PO NÁRAZU'), x0 + pairW + pgap / 2, top + 8, c.soft, 10.5, 'center');
+            pairs.forEach(([nm, b1, b2, col], i) => {
+                const px = x0 + i * (pairW + pgap), k = hMax / Math.max(b1, b2);
+                ctx.fillStyle = col;
+                ctx.fillRect(px, yB - b1 * k, bwid, b1 * k);
+                ctx.globalAlpha = after ? 1 : 0.18;
+                ctx.fillRect(px + bwid + gap, yB - Math.max(1, b2 * k), bwid, Math.max(1, b2 * k));
+                ctx.globalAlpha = 1;
+                ctx.strokeStyle = c.ink; ctx.lineWidth = 1;
+                ctx.strokeRect(px, yB - b1 * k, bwid, b1 * k);
+                /* the after bar's outline at the before height: what was there */
+                ctx.strokeStyle = c.faint; ctx.setLineDash([3, 3]);
+                ctx.strokeRect(px + bwid + gap, yB - b1 * k, bwid, b1 * k);
+                ctx.setLineDash([]);
+                ctx.beginPath(); ctx.moveTo(px - 6, yB); ctx.lineTo(px + pairW + 6, yB); ctx.stroke();
+                if (nm === 'E') PP8.symSub(ctx, c, 'E', 'k', px + pairW / 2, yB + 16, c.ink, 16, 'center');
+                else PP8.sym(ctx, c, 'p', px + pairW / 2, yB + 16, c.ink, 16);
+            });
+        }
+
+        /* caption */
+        PP8.mono(ctx, PP8.T('BALLISTIC OSCILLATOR', 'BALISTICKÝ OSCILÁTOR'), 16, 18, c.soft, 10.5);
+        ctx.font = 'italic 17px "Source Serif 4",Georgia,serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
         ctx.fillStyle = c.ink;
         ctx.fillText(after ? PP8.T('oscillating', 'kmitá') : PP8.T('incoming', 'přilétá'), 16, 39);
-        PP8.mono(ctx, PP8.T('scale: ', 'měřítko: ') + PP8.num(100 / sc * 100, 1) +
-                 ' cm ' + PP8.T('per 100 px', 'na 100 px'), 16, H - 20, c.faint, 9);
+        PP8.mono(ctx, PP8.T('displacements enlarged · time slowed ', 'výchylky zvětšeny · čas zpomalen ') +
+                 PP8.num(1 / SLOWB, 0) + '×', 16, 58, c.faint, 10.5);
     }
 
     function ledger() {
@@ -1821,13 +2259,13 @@ const PP8 = (function () {
     }
     function readouts() {
         const S = sol();
-        const put = (id, s) => { const el = $(id); if (el) el.textContent = s; };
+        const put = (id, s) => { const el = $(id); if (el && el.textContent !== s) el.textContent = s; };
         put('b1-r-V', PP8.num(S.V0, 3) + ' m/s');
         put('b1-r-w', PP8.num(S.w, 2) + ' rad/s');
         put('b1-r-A', PP8.num(S.A * 100, 2) + ' cm');
         put('b1-r-T', PP8.num(S.T, 4) + ' s');
-        const st = $('b1-state');
-        if (st) st.textContent = 't = ' + PP8.num(t, 2) + ' s';
+        const st = $('b1-state'), ts = 't = ' + PP8.num(tAfter(), 3) + ' s';
+        if (st && st.textContent !== ts) st.textContent = ts;
         const note = $('b1-note');
         if (note) note.textContent = wrong
             ? PP8.T('Conserving energy through the impact predicts ' + PP8.num(S.Aw * 100, 1) +
@@ -1861,7 +2299,7 @@ const PP8 = (function () {
             : '▶ <span lang="en">Fire</span><span lang="cs">Vystřelit</span>';
     }
     $('b1-run')?.addEventListener('click', () => {
-        if (!running && t > 12) t = 0;
+        if (!running && t > TAPP + 40) t = 0;
         running = !running; setRunLabel();
         if (running) start(); else stop();
     });

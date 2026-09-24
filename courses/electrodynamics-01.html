@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>01 Scalar potential and Poisson’s equation · Electrodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="electrodynamics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Electrodynamics</span><span lang="cs">Elektrodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="electrodynamics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 01 · Electrostatics I</span><span lang="cs">Kapitola 01 · Elektrostatika I</span> · Griffiths 2.1–2.3, 3.1</div>
+            <h1><span lang="en">Scalar potential and Poisson’s equation</span><span lang="cs">Skalární potenciál a Poissonova rovnice</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\nabla^2V = -\dfrac{\rho}{\varepsilon_0}"></div>
+            <div class="eq-caption"><span lang="en">Poisson’s equation — electrostatics in a single equation</span><span lang="cs">Poissonova rovnice — elektrostatika v jediné rovnici</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">In electrostatics nothing changes in time, so Faraday’s law reduces to <span data-tex="\nabla\times\vec E = 0"></span>. A curl-free field is the gradient of a scalar, and Gauss’s law becomes one equation for that scalar — <em>Poisson’s equation</em>. Solving an electrostatic problem thus means solving a single second-order partial differential equation, with the charge density given inside the region and the potential or its normal derivative given on the boundary.</span><span lang="cs">V elektrostatice se nic nemění v čase, takže Faradayův zákon přechází v <span data-tex="\nabla\times\vec E = 0"></span>. Pole bez rotace je gradientem skaláru a Gaussův zákon se stává jedinou rovnicí pro tento skalár — <em>Poissonovou rovnicí</em>. Řešit elektrostatickou úlohu tedy znamená řešit jednu parciální diferenciální rovnici druhého řádu, v níž je uvnitř oblasti zadána hustota náboje a na hranici potenciál nebo jeho normálová derivace.</span></p>
+                <p><span lang="en">The tool for this is the <em>Green’s function</em>, the potential of a unit point source. Once it is known, the potential of any distribution follows by superposition, and <em>Green’s theorem</em> supplies what the boundary contributes. In all of space, with the potential vanishing at infinity, the boundary term disappears and what remains is Coulomb’s law.</span><span lang="cs">Nástrojem je <em>Greenova funkce</em>, potenciál jednotkového bodového zdroje. Je-li známa, plyne potenciál libovolného rozložení náboje ze superpozice a <em>Greenova věta</em> doplní, čím přispívá hranice. V celém prostoru, kde potenciál v nekonečnu vymizí, okrajový člen odpadne a zůstane Coulombův zákon.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\vec E = -\nabla V"></span>
+                        <span class="ck-eq" data-tex="\nabla^2V = -\dfrac{\rho}{\varepsilon_0}"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">The first relation is the content of <span data-tex="\nabla\times\vec E = 0"></span>, since the curl of a gradient vanishes identically; substituting it into Gauss’s law <span data-tex="\nabla\cdot\vec E = \rho/\varepsilon_0"></span> gives the second. Where there is no charge the right-hand side is zero and the equation becomes <em>Laplace’s equation</em>, <span data-tex="\nabla^2V = 0"></span>. The potential is defined up to a constant; for a localised distribution the constant is fixed by <span data-tex="V(\infty) = 0"></span>.</span><span lang="cs">První vztah vyjadřuje <span data-tex="\nabla\times\vec E = 0"></span>, neboť rotace gradientu je identicky nulová; dosazením do Gaussova zákona <span data-tex="\nabla\cdot\vec E = \rho/\varepsilon_0"></span> vznikne druhý. Kde není náboj, je pravá strana nulová a rovnice přechází v <em>Laplaceovu rovnici</em>, <span data-tex="\nabla^2V = 0"></span>. Potenciál je určen až na konstantu; u lokalizovaného rozložení se volí <span data-tex="V(\infty) = 0"></span>.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Coulomb’s law and superposition</span><span lang="cs">Coulombův zákon a superpozice</span></span>
+                        <span class="cf-eq" data-tex="\vec E(\vec r) = \dfrac{1}{4\pi\varepsilon_0}\int\dfrac{\rho(\vec r\,{}&#x27;)}{R^2}\,\hat R\,\mathrm{d}\tau&#x27;"></span>
+                        <span class="cf-eq" data-tex="\vec R = \vec r - \vec r\,{}&#x27;"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Primed coordinates label the source, unprimed the point where the field is wanted, and <span data-tex="\vec R"></span> runs from source to field point (Griffiths writes it as a script r). Every element <span data-tex="\rho\,\mathrm{d}\tau&#x27;"></span> contributes a Coulomb field and the contributions add. The inverse square has been tested to extraordinary precision — Cavendish’s concentric spheres, where no charge appears on the inner one, are a test of exactly this. <span class="cf-ref">(Griffiths 2.1)</span></span>
+                        <span lang="cs">Čárkované souřadnice označují zdroj, nečárkované bod, v němž se pole hledá, a <span data-tex="\vec R"></span> míří od zdroje k tomuto bodu (Griffiths jej píše psaným r). Každý element <span data-tex="\rho\,\mathrm{d}\tau&#x27;"></span> přispívá coulombovským polem a příspěvky se sčítají. Závislost na převrácené hodnotě čtverce vzdálenosti je ověřena s mimořádnou přesností — Cavendishův pokus se dvěma soustřednými koulemi, kdy se na vnitřní kouli neobjeví žádný náboj, je zkouškou právě této závislosti. <span class="cf-ref">(Griffiths 2.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Potential of a distribution</span><span lang="cs">Potenciál rozložení náboje</span></span>
+                        <span class="cf-eq" data-tex="V(\vec r) = \dfrac{1}{4\pi\varepsilon_0}\int\dfrac{\rho(\vec r\,{}&#x27;)}{R}\,\mathrm{d}\tau&#x27;"></span>
+                        <span class="cf-eq" data-tex="V(\vec b) - V(\vec a) = -\int_{\vec a}^{\vec b}\vec E\cdot\mathrm{d}\vec l"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A scalar integral replaces the vector one. The gradient in <span data-tex="\vec E = -\nabla V"></span> acts on the unprimed coordinates only, and <span data-tex="\nabla(1/R) = -\hat R/R^2"></span> returns Coulomb’s law. The line integral is independent of the path precisely because <span data-tex="\nabla\times\vec E = 0"></span>. <span class="cf-ref">(Griffiths 2.3)</span></span>
+                        <span lang="cs">Vektorový integrál nahradí skalární. Gradient ve vztahu <span data-tex="\vec E = -\nabla V"></span> působí jen na nečárkované souřadnice a <span data-tex="\nabla(1/R) = -\hat R/R^2"></span> vrací Coulombův zákon. Křivkový integrál nezávisí na cestě právě proto, že <span data-tex="\nabla\times\vec E = 0"></span>. <span class="cf-ref">(Griffiths 2.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Green’s theorem</span><span lang="cs">Greenova věta</span></span>
+                        <span class="cf-eq" data-tex="\int_\Omega\big(u\nabla^2v - v\nabla^2u\big)\,\mathrm{d}\tau = \oint_{\partial\Omega}\big(u\nabla v - v\nabla u\big)\cdot\mathrm{d}\vec a"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">It follows from the divergence theorem applied to <span data-tex="u\nabla v - v\nabla u"></span>, for any two functions with continuous second derivatives in the region and on its boundary. Choosing <span data-tex="u = V"></span> and <span data-tex="v = 1/R"></span> relates the potential inside the region to the charge inside and to the values on the boundary. <span class="cf-ref">(Griffiths Problem 1.61)</span></span>
+                        <span lang="cs">Plyne z Gaussovy–Ostrogradského věty použité na <span data-tex="u\nabla v - v\nabla u"></span>, pro libovolné dvě funkce se spojitými druhými derivacemi v oblasti i na její hranici. Volba <span data-tex="u = V"></span> a <span data-tex="v = 1/R"></span> svazuje potenciál uvnitř oblasti s nábojem uvnitř a s hodnotami na hranici. <span class="cf-ref">(Griffiths Problem 1.61)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Green’s function of Poisson’s equation</span><span lang="cs">Greenova funkce Poissonovy rovnice</span></span>
+                        <span class="cf-eq" data-tex="\nabla^2G(\vec r,\vec r\,{}&#x27;) = -\delta^3(\vec r - \vec r\,{}&#x27;)"></span>
+                        <span class="cf-eq" data-tex="G = \dfrac{1}{4\pi R}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The response to a unit point source. Its form follows from <span data-tex="\nabla^2(1/R) = -4\pi\delta^3(\vec R)"></span>, or directly by Fourier transform: in <span data-tex="\vec k"></span>-space the Laplacian becomes <span data-tex="-k^2"></span>, so <span data-tex="G = (2\pi)^{-3}\int \mathrm{e}^{\mathrm{i}\vec k\cdot\vec R}/k^2\,\mathrm{d}^3k"></span>, and the integral evaluates to <span data-tex="1/4\pi R"></span>. With it, <span data-tex="V = \varepsilon_0^{-1}\int G\rho\,\mathrm{d}\tau&#x27;"></span> — superposition in its most compact form.</span>
+                        <span lang="cs">Odezva na jednotkový bodový zdroj. Její tvar plyne z <span data-tex="\nabla^2(1/R) = -4\pi\delta^3(\vec R)"></span>, nebo přímo z Fourierovy transformace: v <span data-tex="\vec k"></span>-prostoru přejde laplacián v <span data-tex="-k^2"></span>, takže <span data-tex="G = (2\pi)^{-3}\int \mathrm{e}^{\mathrm{i}\vec k\cdot\vec R}/k^2\,\mathrm{d}^3k"></span>, a integrál vychází <span data-tex="1/4\pi R"></span>. S ní platí <span data-tex="V = \varepsilon_0^{-1}\int G\rho\,\mathrm{d}\tau&#x27;"></span> — superpozice v nejúspornějším tvaru.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">General solution with a boundary</span><span lang="cs">Obecné řešení s hranicí</span></span>
+                        <span class="cf-eq" data-tex="V(\vec r) = \dfrac{1}{4\pi\varepsilon_0}\int_\Omega\dfrac{\rho\,\mathrm{d}\tau&#x27;}{R}"></span>
+                        <span class="cf-eq" data-tex="\qquad+\;\dfrac{1}{4\pi}\oint_{\partial\Omega}\Big(\dfrac{1}{R}\dfrac{\partial V}{\partial n&#x27;} - V\dfrac{\partial}{\partial n&#x27;}\dfrac{1}{R}\Big)\mathrm{d}a&#x27;"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Green’s theorem with <span data-tex="u = V"></span>, <span data-tex="v = 1/R"></span>. The surface integral is the contribution of everything outside <span data-tex="\Omega"></span>, encoded in the boundary values. Both <span data-tex="V"></span> and <span data-tex="\partial V/\partial n"></span> appear, but they cannot both be prescribed: giving <span data-tex="V"></span> on the boundary (Dirichlet) or <span data-tex="\partial V/\partial n"></span> (Neumann) already fixes the solution. When <span data-tex="\Omega"></span> grows to all space the surface term vanishes and Coulomb’s law remains. <span class="cf-ref">(Griffiths 3.1.5)</span></span>
+                        <span lang="cs">Greenova věta s <span data-tex="u = V"></span>, <span data-tex="v = 1/R"></span>. Plošný integrál představuje příspěvek všeho, co leží vně <span data-tex="\Omega"></span>, zakódovaný do hodnot na hranici. Vystupuje v něm <span data-tex="V"></span> i <span data-tex="\partial V/\partial n"></span>, obojí však zadat nelze: zadání <span data-tex="V"></span> na hranici (Dirichletova podmínka) nebo <span data-tex="\partial V/\partial n"></span> (Neumannova) už řešení určuje. Roste-li <span data-tex="\Omega"></span> na celý prostor, plošný člen vymizí a zůstane Coulombův zákon. <span class="cf-ref">(Griffiths 3.1.5)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Laplace’s equation and uniqueness</span><span lang="cs">Laplaceova rovnice a jednoznačnost</span></span>
+                        <span class="cf-eq" data-tex="V(\vec r_0) = \dfrac{1}{4\pi a^2}\oint_{|\vec r - \vec r_0| = a}V\,\mathrm{d}a"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">In a charge-free region the potential at any point is the average over every sphere centred on it. It follows that <span data-tex="V"></span> has no local maxima or minima there — a charge cannot be held in stable equilibrium by electrostatic forces alone (Earnshaw) — and that a solution of Laplace’s equation with given boundary values is unique. <span class="cf-ref">(Griffiths 3.1.4–3.1.5)</span></span>
+                        <span lang="cs">V oblasti bez náboje je potenciál v libovolném bodě průměrem přes každou kulovou plochu se středem v tomto bodě. Odtud plyne, že <span data-tex="V"></span> tam nemá lokální maxima ani minima — samotnými elektrostatickými silami nelze náboj udržet ve stabilní rovnováze (Earnshaw) — a že řešení Laplaceovy rovnice se zadanými hodnotami na hranici je jednoznačné. <span class="cf-ref">(Griffiths 3.1.4–3.1.5)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="electrodynamics-00.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">00 · <span lang="en">Maxwell’s equations and the tools</span><span lang="cs">Maxwellovy rovnice a nástroje</span></div>
+        </a>
+        <a href="electrodynamics-02.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">02 · <span lang="en">Multipoles</span><span lang="cs">Multipóly</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="electrodynamics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

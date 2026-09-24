@@ -233,96 +233,95 @@
 
     /* ── Core concept ─────────────────────────────────────────────────── */
     .core-concept {
-        border: 1.5px solid var(--ink);
-        background: var(--paper);
-        padding: 40px 44px 44px;
-        margin-top: 26px;
         position: relative;
+        border: 1.5px solid var(--ink);
+        background: var(--paper-vol);
+        padding: 30px 36px 28px 34px;
+        margin-top: 28px;
     }
     .core-concept::before {
         content: "";
         position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 5px;
+        left: 0; top: 0; bottom: 0;
+        width: 5px;
         background: var(--accent);
     }
     .core-concept-text {
         font-family: var(--f-serif);
-        font-size: 21px;
-        line-height: 1.62;
+        font-style: italic;
+        font-size: 20px;
+        line-height: 1.55;
         color: var(--ink);
-        max-width: 74ch;
-        margin-bottom: 34px;
+        max-width: 76ch;
     }
     .core-concept-text em { font-style: normal; font-weight: 600; }
     .core-formulas {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        border-top: 1px solid var(--ink-faint);
-        margin-bottom: 34px;
+        display: grid;
+        gap: 32px;
+        margin-top: 26px;
+        padding-top: 24px;
+        border-top: 1px dashed var(--ink-faint);
     }
     .core-formula {
-        padding: 16px 0 15px;
-        border-bottom: 1px dashed var(--ink-faint);
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 8px 44px;
+        align-items: center;
     }
     .cf-head {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-        gap: 10px 22px;
+        display: grid;
+        gap: 8px;
+        align-content: start;
     }
     .cf-desc {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.16em;
-        color: var(--ink-faint);
-        min-width: 152px;
+        color: var(--accent);
     }
     .cf-eq {
-        font-size: 17px;
-        color: var(--ink);
+        font-family: var(--f-serif);
+        font-style: italic;
+        font-size: 18px;
         white-space: nowrap;
     }
     .cf-note {
-        font-size: 14px;
-        line-height: 1.55;
+        font-size: 14.5px;
         color: var(--ink-soft);
-        margin: 8px 0 0 0;
-        max-width: 80ch;
+        line-height: 1.6;
+        max-width: 60ch;
+        margin: 0;
     }
     .core-method-label {
         font-family: var(--f-mono);
         font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.18em;
         color: var(--ink-faint);
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--ink-faint);
-        margin-bottom: 4px;
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px dashed var(--ink-faint);
     }
     .core-method {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
+        margin-top: 14px;
+        display: grid;
+        gap: 9px;
     }
     .cm-step {
-        display: flex;
-        gap: 16px;
-        align-items: flex-start;
-        padding: 13px 0;
-        border-bottom: 1px dashed var(--ink-faint);
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 0 12px;
+        align-items: baseline;
         font-size: 15px;
-        line-height: 1.6;
         color: var(--ink-soft);
+        line-height: 1.55;
     }
     .cm-num {
         font-family: var(--f-mono);
         font-size: 11px;
         color: var(--accent);
-        min-width: 20px;
-        padding-top: 3px;
+        letter-spacing: 0.05em;
     }
     .cm-step strong { color: var(--ink); }
 
@@ -408,7 +407,107 @@
         <div class="section-head">
             <h2><span lang="en">Core concept</span><span lang="cs">Základní koncept</span></h2>
         </div>
-        <div class="wip">work in progress</div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <span lang="en">A <em>scalar</em> is fully given by one number — mass, time, temperature. A <em>vector</em> has a magnitude and a direction, and in practice it is handled through its <em>components</em> along the coordinate axes: once a vector is written as three numbers, every question about lengths and angles becomes a calculation. Vectors add component by component. They can be multiplied in two ways: the <em>scalar (dot) product</em> combines the parts of two vectors that lie along each other and gives a number, the <em>vector (cross) product</em> combines the parts that lie across each other and gives a vector perpendicular to both.</span>
+                <span lang="cs"><em>Skalár</em> je plně určen jedním číslem — hmotnost, čas, teplota. <em>Vektor</em> má velikost a směr a v praxi se s ním pracuje pomocí jeho <em>složek</em> do směrů souřadnicových os: jakmile je vektor zapsán jako trojice čísel, stane se z každé otázky na délky a úhly výpočet. Vektory se sčítají po složkách. Násobit je lze dvojím způsobem: <em>skalární součin</em> kombinuje ty části dvou vektorů, které leží podél sebe, a dává číslo; <em>vektorový součin</em> kombinuje části ležící napříč a dává vektor kolmý k oběma.</span>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where every calculation starts</span><span lang="cs">Odkud každý výpočet začíná</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\vec a = a_x\vec i + a_y\vec j + a_z\vec k"></span>
+                        <span class="ck-eq" data-tex="|\vec a| = \sqrt{a_x^2 + a_y^2 + a_z^2}"></span>
+                    </div>
+                    <p class="ck-note">
+                        <span lang="en">The decomposition into the unit vectors <span data-tex="\vec i, \vec j, \vec k"></span> — each of length one, mutually perpendicular — is what every operation below works with. A sum is formed component by component, <span data-tex="\vec a + \vec b = (a_x + b_x)\,\vec i + (a_y + b_y)\,\vec j + (a_z + b_z)\,\vec k"></span>, and the magnitude follows from Pythagoras' theorem in three dimensions. The component formulas of both products come from the same three unit vectors: <span data-tex="\vec i\cdot\vec i = 1"></span>, <span data-tex="\vec i\cdot\vec j = 0"></span>, <span data-tex="\vec i\times\vec j = \vec k"></span>.</span>
+                        <span lang="cs">Rozklad do jednotkových vektorů <span data-tex="\vec i, \vec j, \vec k"></span> — každý o velikosti jedna, navzájem kolmé — je to, s čím pracují všechny operace níže. Součet se tvoří po složkách, <span data-tex="\vec a + \vec b = (a_x + b_x)\,\vec i + (a_y + b_y)\,\vec j + (a_z + b_z)\,\vec k"></span>, a velikost plyne z Pythagorovy věty ve třech rozměrech. Ze stejných tří jednotkových vektorů vycházejí i složkové vzorce obou součinů: <span data-tex="\vec i\cdot\vec i = 1"></span>, <span data-tex="\vec i\cdot\vec j = 0"></span>, <span data-tex="\vec i\times\vec j = \vec k"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Dot product</span><span lang="cs">Skalární součin</span></span>
+                        <span class="cf-eq" data-tex="\vec a\cdot\vec b = a_x b_x + a_y b_y + a_z b_z"></span>
+                        <span class="cf-eq" data-tex="\vec a\cdot\vec b = |\vec a|\,|\vec b|\cos\varphi"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The result is a <em>number</em>: it measures how much of one vector lies along the other, so it is zero for perpendicular vectors — the quickest test of a right angle. Both forms give the same value, and equating them yields the angle between the vectors.</span>
+                        <span lang="cs">Výsledkem je <em>číslo</em>: udává, jak velká část jednoho vektoru leží podél druhého, takže pro kolmé vektory je nulový — to je nejrychlejší test pravého úhlu. Oba tvary dávají tutéž hodnotu a jejich porovnáním vychází úhel mezi vektory.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Cross product</span><span lang="cs">Vektorový součin</span></span>
+                        <span class="cf-eq" data-tex="\vec a\times\vec b = \begin{vmatrix}\vec i & \vec j & \vec k\\ a_x & a_y & a_z\\ b_x & b_y & b_z\end{vmatrix}"></span>
+                        <span class="cf-eq" data-tex="|\vec a\times\vec b| = |\vec a|\,|\vec b|\sin\varphi"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The result is a <em>vector</em> perpendicular to both factors, oriented by the right-hand rule. Its magnitude is the area of the parallelogram the two vectors span, so it is zero for parallel vectors. The order matters: <span data-tex="\vec b\times\vec a = -\,\vec a\times\vec b"></span>.</span>
+                        <span lang="cs">Výsledkem je <em>vektor</em> kolmý k oběma činitelům, orientovaný podle pravidla pravé ruky. Jeho velikost je obsah rovnoběžníku, který oba vektory vymezují, takže pro rovnoběžné vektory je nulový. Na pořadí záleží: <span data-tex="\vec b\times\vec a = -\,\vec a\times\vec b"></span>.</span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Combined products</span><span lang="cs">Složené součiny</span></span>
+                        <span class="cf-eq" data-tex="\vec a\cdot(\vec b\times\vec c)"></span>
+                        <span class="cf-eq" data-tex="\vec a\cdot(\vec b + \vec c) = \vec a\cdot\vec b + \vec a\cdot\vec c"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The mixed (scalar triple) product is a number — the volume of the parallelepiped built on the three vectors, zero when they lie in one plane. It is evaluated from the inside: the cross product first, then the dot product. Both products are distributive, so a bracketed sum can be added first and multiplied once, which is usually shorter.</span>
+                        <span lang="cs">Smíšený součin je číslo — objem rovnoběžnostěnu postaveného na třech vektorech, nulový, leží-li všechny v jedné rovině. Počítá se zevnitř: nejprve vektorový součin, potom skalární. Oba součiny jsou distributivní, takže součet v závorce lze nejprve sečíst a pak násobit jen jednou, což bývá kratší.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="core-method-label"><span lang="en">Computation procedure — solving the exercises</span><span lang="cs">Výpočetní postup — řešení úloh</span></div>
+            <div class="core-method">
+
+                <div class="cm-step">
+                    <span class="cm-num">01</span>
+                    <span><span lang="en"><strong>Write every vector in components.</strong> Put each one down as three numbers before any
+                    product; most mistakes in this topic are a component copied wrongly, not a rule misremembered.</span>
+                    <span lang="cs"><strong>Zapište každý vektor po složkách.</strong> Před jakýmkoli součinem si každý vektor
+                    napište jako tři čísla; většina chyb v tomto tématu je špatně opsaná složka, ne zapomenuté pravidlo.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">02</span>
+                    <span><span lang="en"><strong>Simplify the bracket first.</strong> In <span data-tex="\vec a\cdot(\vec b + \vec c)"></span>
+                    add <span data-tex="\vec b"></span> and <span data-tex="\vec c"></span> component by component, then take a
+                    single product.</span>
+                    <span lang="cs"><strong>Nejprve zjednodušte závorku.</strong> V <span data-tex="\vec a\cdot(\vec b + \vec c)"></span>
+                    sečtěte <span data-tex="\vec b"></span> a <span data-tex="\vec c"></span> po složkách a pak proveďte jediný
+                    součin.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">03</span>
+                    <span><span lang="en"><strong>Dot: multiply and add. Cross: the determinant.</strong> Write the 3×3 determinant with the
+                    unit vectors in the first row and expand it along that row — the fixed order keeps the signs right.</span>
+                    <span lang="cs"><strong>Skalární: vynásobte a sečtěte. Vektorový: determinant.</strong> Sestavte determinant 3×3
+                    s jednotkovými vektory v prvním řádku a rozviňte ho podle tohoto řádku — pevné pořadí udrží správná
+                    znaménka.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">04</span>
+                    <span><span lang="en"><strong>A triple product from the inside.</strong> <span data-tex="\vec a\cdot(\vec b\times\vec c)"></span>
+                    means the cross product first, the dot product second.</span>
+                    <span lang="cs"><strong>Smíšený součin zevnitř.</strong> <span data-tex="\vec a\cdot(\vec b\times\vec c)"></span>
+                    znamená nejprve vektorový součin, potom skalární.</span></span>
+                </div>
+
+                <div class="cm-step">
+                    <span class="cm-num">05</span>
+                    <span><span lang="en"><strong>Check the type and the direction of the result.</strong> A dot product is one number, a
+                    cross product three. A cross product must be perpendicular to both factors — its dot product with
+                    each of them has to come out zero.</span>
+                    <span lang="cs"><strong>Zkontrolujte typ a směr výsledku.</strong> Skalární součin je jedno číslo, vektorový tři.
+                    Vektorový součin musí být kolmý k oběma činitelům — jeho skalární součin s každým z nich musí vyjít
+                    nulový.</span></span>
+                </div>
+
+            </div>
+        </div>
     </section>
 
     <!-- ════ § 3  LAB 1 — VECTOR ADDITION ════ -->
@@ -416,13 +515,11 @@
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Addition sandbox</span><span lang="cs">Sandbox: sčítání vektorů</span><span class="wip-tag">work in progress</span></span>
-                <span id="add-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Addition sandbox</span><span lang="cs">Sandbox: sčítání vektorů</span></span>
             </div>
             <div class="canvas-wrap" id="add-wrap">
                 <canvas id="add-canvas" style="cursor:crosshair;"></canvas>
                 <div class="canvas-formula-badge" data-tex="\vec{c} = \vec{a} + \vec{b}"></div>
-                <div class="sim-hint"><span lang="en">drag the handles to move the vectors</span><span lang="cs">táhněte za úchyty a posouvejte vektory</span></div>
             </div>
         </div>
 
@@ -432,7 +529,7 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                    
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">vector a</span><span lang="cs">vektor a</span></div>
@@ -487,13 +584,11 @@
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Dot product sandbox</span><span lang="cs">Sandbox: skalární součin</span><span class="wip-tag">work in progress</span></span>
-                <span id="dot-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Dot product sandbox</span><span lang="cs">Sandbox: skalární součin</span></span>
             </div>
             <div class="canvas-wrap" id="dot-wrap">
                 <canvas id="dot-canvas" style="cursor:crosshair;"></canvas>
                 <div class="canvas-formula-badge" data-tex="\vec{a}\cdot\vec{b} = |\vec{a}||\vec{b}|\cos\varphi"></div>
-                <div class="sim-hint"><span lang="en">drag the handles to change the angle</span><span lang="cs">táhněte za úchyty a měňte úhel</span></div>
             </div>
         </div>
 
@@ -503,7 +598,7 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span class="head-tools"><span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span><button id="dot-reset" class="btn-mini" type="button"><span lang="en">reset vectors</span><span lang="cs">reset vektorů</span></button></span>
+                    <span class="head-tools"><button id="dot-reset" class="btn-mini" type="button"><span lang="en">reset vectors</span><span lang="cs">reset vektorů</span></button></span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">components</span><span lang="cs">složky</span></div>
@@ -534,13 +629,11 @@
 
         <div class="canvas-panel">
             <div class="canvas-head">
-                <span><span class="accent-pip"></span><span lang="en">Cross product sandbox · isometric 3D</span><span lang="cs">Sandbox: vektorový součin · izometrické 3D</span><span class="wip-tag">work in progress</span></span>
-                <span id="cross-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span><span class="accent-pip"></span><span lang="en">Cross product sandbox · isometric 3D</span><span lang="cs">Sandbox: vektorový součin · izometrické 3D</span></span>
             </div>
             <div class="canvas-wrap" id="cross-wrap">
                 <canvas id="cross-canvas"></canvas>
                 <div class="canvas-formula-badge" data-tex="|\vec{a}\times\vec{b}| = |\vec{a}||\vec{b}|\sin\varphi"></div>
-                <div class="sim-hint"><span lang="en">use the sliders to rotate b</span><span lang="cs">posuvníky otáčejte vektorem b</span></div>
             </div>
         </div>
 
@@ -584,7 +677,7 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
+                    
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">a = î (fixed)</span><span lang="cs">a = î (pevné)</span></div>
@@ -616,7 +709,9 @@
         <div class="section-head">
             <h2><span lang="en">Exercises</span><span lang="cs">Úlohy</span></h2>
         </div>
-        <div class="wip">work in progress</div>
+        <div class="ex-tabs">
+            <a class="ex-tab" href="../exercises/ch03-ex57.html"><span lang="en">Ch. 3 · <span class="ex-no">Ex. 57</span></span><span lang="cs">Kap. 3 · <span class="ex-no">Úl. 57</span></span></a>
+        </div>
     </section>
 
     <!-- ════ § 7  PREV / NEXT ════ -->
@@ -655,228 +750,260 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- SIMULATION 1 — VECTOR ADDITION  (no parallelogram)           -->
 <!-- ══════════════════════════════════════════════════════════════ -->
 <script>
-(function () {
+/* ══════════════════════════════════════════════════════════════════════
+   § I.01 — shared drawing helpers for the three vector sandboxes
+   (the house style of the 2026-09-23 movies: serif symbols with a halo
+   in the stage tone, stroked vector arrows over letters, filled heads).
+   Each sandbox redraws on events only — a drag, a slider, a resize.
+   ══════════════════════════════════════════════════════════════════════ */
+const PV = (function () {
     'use strict';
-
-    const HIT_R      = 24;
-    const LABEL_SIZE = 20;   // px — vector letter labels
-    const LABEL_LIFT = 26;   // px above letter for arrow accent
-
-    let O  = { x: 0, y: 0 };
-    let ha = { x: 0, y: 0 };
-    let hc = { x: 0, y: 0 };
-    let dragging = null;
-
-    let showComponents = true;
-    let showAngles     = true;
-
-    const canvas = document.getElementById('add-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = document.getElementById('add-wrap');
-    let W = 0, H = 0;
-
-    function initPositions() {
-        O  = { x: W * 0.18, y: H * 0.58 };
-        ha = { x: W * 0.18 + W * 0.30, y: H * 0.58 - H * 0.28 };
-        hc = { x: W * 0.18 + W * 0.54, y: H * 0.58 + H * 0.08 };
-    }
-
-    function resize() {
-        const rect = wrap.getBoundingClientRect();
-        W = Math.max(rect.width || 600, 10);
-        H = Math.max(rect.height || 400, 10);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        initPositions();
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    function palette() {
+        const R = document.documentElement;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   s.getPropertyValue('--c-vectors').trim() || '#1e5080',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#F8F3E5',
+            stage: tok(R, '--paper-deep', '#efead6'), paper: tok(R, '--paper', '#FFFFEC'),
+            ink: tok(R, '--ink', '#363026'), soft: tok(R, '--ink-soft', '#4d4436'),
+            faint: tok(R, '--ink-faint', '#7A6A52'), acc: tok(document.body, '--accent', '#1e5080'),
+            res: '#a8243b'                      /* the result: c, the projection, a × b */
         };
     }
-    let col = readCol();
-
-    function arrow(x1, y1, x2, y2, color, dashed, lw) {
-        lw = lw || 2.0;
-        const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx, dy);
-        if (len < 2) return;
-        const ux = dx/len, uy = dy/len;
-        const hl = Math.min(14, len*0.18), hw = hl*0.40;
-        ctx.strokeStyle = color; ctx.fillStyle = color;
-        ctx.lineWidth = lw; ctx.lineCap = 'round';
-        ctx.setLineDash(dashed ? [6,3] : []);
-        ctx.beginPath(); ctx.moveTo(x1,y1);
-        ctx.lineTo(x2-ux*hl*0.55, y2-uy*hl*0.55); ctx.stroke();
+    /* a canvas that sizes itself from its wrap and redraws on demand */
+    function mount(canvas, draw) {
+        const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+        const o = { ctx, W: 0, H: 0, redraw: null };
+        let queued = false;
+        function size() {
+            const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+            const W = Math.max(r.width, 200), H = Math.max(r.height, 160);
+            if (W === o.W && H === o.H) return;
+            o.W = W; o.H = H;
+            canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        o.redraw = () => {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(() => { queued = false; size(); ctx.clearRect(0, 0, o.W, o.H); draw(o); });
+        };
+        size();
+        new ResizeObserver(() => o.redraw()).observe(wrap);
+        document.addEventListener('langchange', () => o.redraw());
+        return o;
+    }
+    function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+        ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
         ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(x2,y2);
-        ctx.lineTo(x2-ux*hl-uy*hw, y2-uy*hl+ux*hw);
-        ctx.lineTo(x2-ux*hl+uy*hw, y2-uy*hl-ux*hw);
+    }
+    function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        if (under) arrow(ctx, x1, y1, x2, y2, under, (lw || 2) + 3.5);
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+        ctx.setLineDash([]); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
         ctx.closePath(); ctx.fill();
     }
-
-    function vecLabel(x, y, letter, color) {
-        ctx.fillStyle = color; ctx.strokeStyle = color;
-        ctx.lineWidth = 1.2; ctx.setLineDash([]); ctx.lineCap = 'round';
-        const ay = y - LABEL_LIFT;
-        ctx.beginPath(); ctx.moveTo(x-8,ay); ctx.lineTo(x+3,ay); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x+8,ay); ctx.lineTo(x+3,ay-4); ctx.lineTo(x+3,ay+4);
+    function serif(ctx, P, text, x, y, col, sz, align) {
+        ctx.font = 'italic ' + (sz || 16) + 'px "Source Serif 4",Georgia,serif';
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = P.stage;
+        ctx.strokeText(text, x, y);
+        ctx.fillStyle = col; ctx.fillText(text, x, y);
+        ctx.lineWidth = 1;
+    }
+    /* a symbol with a subscript; returns where it ends */
+    function sub(ctx, P, main, s, x, y, col, sz, align) {
+        sz = sz || 16;
+        const ss = Math.round(sz * 0.7);
+        ctx.font = 'italic ' + sz + 'px "Source Serif 4",Georgia,serif';
+        const w1 = ctx.measureText(main).width;
+        ctx.font = 'italic ' + ss + 'px "Source Serif 4",Georgia,serif';
+        const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        serif(ctx, P, main, x0, y, col, sz, 'left');
+        serif(ctx, P, s, x0 + w1 + 1, y + sz * 0.28, col, ss, 'left');
+        return x0 + tw;
+    }
+    /* a letter with a vector arrow stroked over it */
+    function vsym(ctx, P, text, x, y, col, sz) {
+        sz = sz || 19;
+        ctx.font = 'italic ' + sz + 'px "Source Serif 4",Georgia,serif';
+        const w = ctx.measureText(text).width;
+        serif(ctx, P, text, x, y, col, sz, 'center');
+        const ay = y - sz * 0.62, x1 = x - w / 2, x2 = x + w / 2 + 3;
+        ctx.strokeStyle = P.stage; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2, ay); ctx.stroke();
+        ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.8); ctx.lineTo(x2 - 4, ay + 2.8);
         ctx.closePath(); ctx.fill();
-        ctx.font = `italic ${LABEL_SIZE}px "Source Serif 4",Georgia,serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(letter, x, y);
     }
-
-    function perpPt(x1,y1,x2,y2,t,d,side) {
-        const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
-        if (len<1) return {x:x1,y:y1};
-        return { x:x1+dx*t+(dy/len)*side*d, y:y1+dy*t+(-dx/len)*side*d };
+    function dot(ctx, x, y, r, fill, stroke, lw) {
+        ctx.fillStyle = fill;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
     }
-
-    function handle(x, y, color) {
-        ctx.strokeStyle = color; ctx.fillStyle = col.paper;
-        ctx.lineWidth = 1.8; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    /* a drag handle: a paper ring in the vector's colour */
+    function handle(ctx, P, x, y, col, hot) {
+        if (hot) dot(ctx, x, y, 14, 'rgba(54,48,38,0.07)');
+        dot(ctx, x, y, 7.5, P.paper, col, 2);
     }
+    /* an angle arc from direction a0 to a1 (screen radians), short sweep */
+    function arc(ctx, x, y, r, a0, a1, col, dash) {
+        let d = a1 - a0;
+        while (d > Math.PI) d -= 2 * Math.PI;
+        while (d < -Math.PI) d += 2 * Math.PI;
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.setLineDash(dash || []);
+        ctx.beginPath(); ctx.arc(x, y, r, a0, a0 + d, d < 0); ctx.stroke();
+        ctx.setLineDash([]);
+        return a0 + d / 2;
+    }
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const num = (v, d) => {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    };
+    /* write only what changed — an unchanged write still costs a layout */
+    function put(id, text) { const el = document.getElementById(id); if (el && el.textContent !== text) el.textContent = text; }
+    return { palette, mount, line, arrow, serif, sub, vsym, dot, handle, arc, num, put, isCS };
+}());
+</script>
 
-    function draw() {
-        ctx.clearRect(0,0,W,H);
-        const ax=ha.x-O.x, ay=ha.y-O.y;
-        const bx=hc.x-ha.x, by=hc.y-ha.y;
-        const cx=hc.x-O.x, cy=hc.y-O.y;
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 1 — VECTOR ADDITION   c = a + b, tip to tail
+   The vectors live in units (y up); the view is fitted to the canvas, so
+   a resize rescales the picture instead of resetting it.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+    'use strict';
+    const canvas = document.getElementById('add-canvas');
+    if (!canvas) return;
+    const P = PV.palette();
+    const DEF = { a: { x: 4.75, y: 3.9 }, b: { x: 3.8, y: -5.05 } };
+    let A = Object.assign({}, DEF.a), B = Object.assign({}, DEF.b);
+    let showComponents = true, showAngles = true, dragging = null, hot = null;
+    const HIT = 22;
+    const V = PV.mount(canvas, draw);
+    const badge = canvas.parentElement.querySelector('.canvas-formula-badge');
+
+    /* the view: pixels per unit and the origin, from the canvas size */
+    function view() {
+        const low = badge && badge.parentElement === canvas.parentElement ? 90 : 20;
+        const s = Math.min((V.W - 80) / 10.5, (V.H - low - 60) / 8.2);
+        return { s, ox: V.W / 2 - 4.3 * s, oy: (V.H - low) / 2 + 1.35 * s + 10 };
+    }
+    const toPx = (v, q) => ({ x: v.ox + q.x * v.s, y: v.oy - q.y * v.s });
+    const toU = (v, p) => ({ x: (p.x - v.ox) / v.s, y: (v.oy - p.y) / v.s });
+
+    function draw(o) {
+        const ctx = o.ctx, v = view();
+        const O = toPx(v, { x: 0, y: 0 }), pa = toPx(v, A), pc = toPx(v, { x: A.x + B.x, y: A.y + B.y });
+        /* the centroid of the triangle: labels go on the side away from it */
+        const gx = (O.x + pa.x + pc.x) / 3, gy = (O.y + pa.y + pc.y) / 3;
+        const labelAt = (p1, p2, d) => {
+            const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+            const dx = p2.x - p1.x, dy = p2.y - p1.y, L = Math.hypot(dx, dy) || 1;
+            let nx = -dy / L, ny = dx / L;
+            if ((mx - gx) * nx + (my - gy) * ny < 0) { nx = -nx; ny = -ny; }
+            return { x: mx + nx * d, y: my + ny * d };
+        };
 
         if (showComponents) {
-            ctx.lineWidth=1; ctx.lineCap='butt';
-            ctx.strokeStyle=col.soft+'90'; ctx.setLineDash([4,3]);
-            ctx.beginPath(); ctx.moveTo(ha.x,ha.y); ctx.lineTo(ha.x,O.y); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(O.x,O.y); ctx.lineTo(ha.x,O.y); ctx.stroke();
-            ctx.setLineDash([]);
-            const s=7, sx=ha.x<O.x?s:-s;
-            ctx.strokeStyle=col.soft+'80'; ctx.lineWidth=0.9;
-            ctx.strokeRect(ha.x+sx-s, O.y-s, s, s);
-            ctx.fillStyle=col.soft;
-            ctx.font='11px "Geist",ui-sans-serif,sans-serif';
-            ctx.textAlign='center'; ctx.textBaseline='top';
-            ctx.fillText('aₓ', (O.x+ha.x)/2, O.y+5);
-            ctx.textAlign=ay<0?'left':'right'; ctx.textBaseline='middle';
-            ctx.fillText('aᵧ', ha.x+(ay<0?6:-6), (O.y+ha.y)/2);
+            PV.line(ctx, pa.x, pa.y, pa.x, O.y, P.faint, 1, [4, 4]);
+            PV.line(ctx, O.x, O.y, pa.x, O.y, P.faint, 1, [4, 4]);
+            const s = 7, sx = pa.x > O.x ? -s : 0, sy = pa.y < O.y ? -s : 0;
+            ctx.strokeStyle = P.faint; ctx.lineWidth = 1;
+            ctx.strokeRect(pa.x + sx, O.y + sy, s, s);
+            const cBelow = pc.y > O.y;
+            /* short component: slide its label out past the θ_a arc */
+            const fx = Math.abs(pa.x - O.x) < 170 ? 0.74 : 0.5;
+            PV.sub(ctx, P, 'a', 'x', O.x + (pa.x - O.x) * fx, O.y + (cBelow ? -14 : 16), P.soft, 15);
+            PV.sub(ctx, P, 'a', 'y', pa.x + (pa.x > O.x ? 8 : -8), (O.y + pa.y) / 2, P.soft, 15, pa.x > O.x ? 'left' : 'right');
         }
-
         if (showAngles) {
-            const angA=Math.atan2(ay,ax), angC=Math.atan2(cy,cx);
-            function arcAngle(end,r,color) {
-                if (Math.abs(end)<0.03) return;
-                ctx.strokeStyle=color; ctx.lineWidth=1; ctx.setLineDash([3,3]);
-                ctx.beginPath(); ctx.arc(O.x,O.y,r,0,end,end<0); ctx.stroke(); ctx.setLineDash([]);
-                const mid=end/2;
-                ctx.fillStyle=color; ctx.font='11px "Geist",ui-sans-serif,sans-serif';
-                ctx.textAlign='center'; ctx.textBaseline='middle';
-                ctx.fillText(Math.abs(Math.round(end*180/Math.PI))+'°',
-                    O.x+(r+16)*Math.cos(mid), O.y+(r+16)*Math.sin(mid));
+            const angA = Math.atan2(pa.y - O.y, pa.x - O.x), angC = Math.atan2(pc.y - O.y, pc.x - O.x);
+            PV.line(ctx, O.x, O.y, O.x + 92, O.y, P.faint, 1, [2, 4]);
+            if (Math.hypot(pa.x - O.x, pa.y - O.y) > 50) {
+                const m = PV.arc(ctx, O.x, O.y, 38, 0, angA, P.ink);
+                PV.sub(ctx, P, 'θ', 'a', O.x + 54 * Math.cos(m), O.y + 54 * Math.sin(m), P.ink, 15);
             }
-            arcAngle(angA, 40, col.ink);
-            if (Math.abs(angC-angA)>0.05) arcAngle(angC, 60, col.acc);
+            if (Math.hypot(pc.x - O.x, pc.y - O.y) > 80) {
+                let m = PV.arc(ctx, O.x, O.y, 70, 0, angC, P.res, [3, 3]);
+                if (Math.abs(angC) < 0.45) m = angC + Math.sign(angC || 1) * 0.2;
+                PV.sub(ctx, P, 'θ', 'c', O.x + 84 * Math.cos(m), O.y + 84 * Math.sin(m), P.res, 15);
+            }
         }
+        /* c = a + b: the result, in crimson, under the other two */
+        PV.arrow(ctx, O.x, O.y, pc.x, pc.y, P.res, 2.4, P.stage);
+        PV.arrow(ctx, O.x, O.y, pa.x, pa.y, P.ink, 2.4, P.stage);
+        PV.arrow(ctx, pa.x, pa.y, pc.x, pc.y, P.acc, 2.4, P.stage);
+        let q = labelAt(O, pc, 22); PV.vsym(ctx, P, 'c', q.x, q.y + 4, P.res);
+        q = labelAt(O, pa, 22);     PV.vsym(ctx, P, 'a', q.x, q.y + 4, P.ink);
+        q = labelAt(pa, pc, 22);    PV.vsym(ctx, P, 'b', q.x, q.y + 4, P.acc);
+        PV.dot(ctx, O.x, O.y, 3.5, P.ink);
+        PV.handle(ctx, P, pa.x, pa.y, P.ink, hot === 'a' || dragging === 'a');
+        PV.handle(ctx, P, pc.x, pc.y, P.acc, hot === 'c' || dragging === 'c');
 
-        // c — dashed, soft color
-        arrow(O.x,O.y,hc.x,hc.y,col.soft,true,1.8);
-        const cL=perpPt(O.x,O.y,hc.x,hc.y,0.50,22,+1);
-        vecLabel(cL.x,cL.y,'c',col.soft);
-
-        // a — ink
-        arrow(O.x,O.y,ha.x,ha.y,col.ink,false,2.4);
-        const aL=perpPt(O.x,O.y,ha.x,ha.y,0.50,22,+1);
-        vecLabel(aL.x,aL.y,'a',col.ink);
-
-        // b — accent
-        arrow(ha.x,ha.y,hc.x,hc.y,col.acc,false,2.4);
-        const bL=perpPt(ha.x,ha.y,hc.x,hc.y,0.50,22,-1);
-        vecLabel(bL.x,bL.y,'b',col.acc);
-
-        // Origin dot
-        ctx.fillStyle=col.ink; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.arc(O.x,O.y,4,0,Math.PI*2); ctx.fill();
-
-        handle(ha.x,ha.y,col.ink);
-        handle(hc.x,hc.y,col.acc);
-
-        // Readout
-        const SC=50;
-        document.getElementById('r-mag-a').textContent=(Math.hypot(ax,ay)/SC).toFixed(2)+' u';
-        document.getElementById('r-ang-a').textContent=(Math.atan2(-ay,ax)*180/Math.PI).toFixed(1)+'°';
-        document.getElementById('r-mag-b').textContent=(Math.hypot(bx,by)/SC).toFixed(2)+' u';
-        document.getElementById('r-ang-b').textContent=(Math.atan2(-by,bx)*180/Math.PI).toFixed(1)+'°';
-        document.getElementById('r-mag-c').textContent=(Math.hypot(cx,cy)/SC).toFixed(2)+' u';
-        document.getElementById('r-ang-c').textContent=(Math.atan2(-cy,cx)*180/Math.PI).toFixed(1)+'°';
+        const C = { x: A.x + B.x, y: A.y + B.y }, deg = q2 => Math.atan2(q2.y, q2.x) * 180 / Math.PI;
+        PV.put('r-mag-a', PV.num(Math.hypot(A.x, A.y), 2) + ' u');
+        PV.put('r-ang-a', PV.num(deg(A), 1) + '°');
+        PV.put('r-mag-b', PV.num(Math.hypot(B.x, B.y), 2) + ' u');
+        PV.put('r-ang-b', PV.num(deg(B), 1) + '°');
+        PV.put('r-mag-c', PV.num(Math.hypot(C.x, C.y), 2) + ' u');
+        PV.put('r-ang-c', PV.num(deg(C), 1) + '°');
     }
 
-    function canvasPt(e) {
-        const r=canvas.getBoundingClientRect();
-        const src=e.touches?e.touches[0]:e;
-        return {x:src.clientX-r.left, y:src.clientY-r.top};
+    function pick(p) {
+        const v = view(), pa = toPx(v, A), pc = toPx(v, { x: A.x + B.x, y: A.y + B.y });
+        const da = Math.hypot(p.x - pa.x, p.y - pa.y), dc = Math.hypot(p.x - pc.x, p.y - pc.y);
+        if (da < HIT && da <= dc) return 'a';
+        if (dc < HIT) return 'c';
+        return null;
     }
-
+    const at = e => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
     canvas.addEventListener('pointerdown', e => {
-        const p=canvasPt(e);
-        const da=Math.hypot(p.x-ha.x,p.y-ha.y), dc=Math.hypot(p.x-hc.x,p.y-hc.y);
-        if (da<HIT_R && da<=dc) dragging='a';
-        else if (dc<HIT_R) dragging='c';
-        if (dragging) { canvas.setPointerCapture(e.pointerId); e.preventDefault(); }
+        dragging = pick(at(e));
+        if (dragging) { canvas.setPointerCapture(e.pointerId); e.preventDefault(); canvas.style.cursor = 'grabbing'; V.redraw(); }
     });
     canvas.addEventListener('pointermove', e => {
-        const p=canvasPt(e);
+        const p = at(e);
         if (!dragging) {
-            const da=Math.hypot(p.x-ha.x,p.y-ha.y), dc=Math.hypot(p.x-hc.x,p.y-hc.y);
-            canvas.style.cursor=(da<HIT_R||dc<HIT_R)?'grab':'crosshair';
+            const h = pick(p);
+            if (h !== hot) { hot = h; canvas.style.cursor = h ? 'grab' : 'crosshair'; V.redraw(); }
             return;
         }
         e.preventDefault();
-        if (dragging==='a') {
-            const dx=p.x-ha.x, dy=p.y-ha.y;
-            ha={x:p.x,y:p.y}; hc={x:hc.x+dx,y:hc.y+dy};
-        } else { hc={x:p.x,y:p.y}; }
+        const u = toU(view(), p);
+        if (dragging === 'a') A = u;                                   /* b rides along */
+        else B = { x: u.x - A.x, y: u.y - A.y };
+        V.redraw();
     });
-    canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
-    canvas.addEventListener('pointercancel', ()=>{dragging=null;});
-    /* A finger that lands on a handle drags it; anywhere else the page scrolls.
-       pointerdown runs first and has already decided, and only cancelling the
-       touch itself stops the browser from turning the drag into a scroll. */
+    const drop = () => { if (dragging) { dragging = null; canvas.style.cursor = hot ? 'grab' : 'crosshair'; V.redraw(); } };
+    canvas.addEventListener('pointerup', drop);
+    canvas.addEventListener('pointercancel', drop);
+    canvas.addEventListener('pointerleave', () => { if (!dragging && hot) { hot = null; V.redraw(); } });
+    /* a finger on a handle drags it; anywhere else the page scrolls */
     canvas.addEventListener('touchstart', e => { if (dragging) e.preventDefault(); }, { passive: false });
 
-    const btnReset = document.getElementById('add-reset');
-    if (btnReset) btnReset.addEventListener('click', () => {
-        dragging = null;
-        initPositions();          /* the same defaults resize() lays down */
-        canvas.style.cursor = 'crosshair';
+    document.getElementById('add-reset')?.addEventListener('click', () => {
+        dragging = null; A = Object.assign({}, DEF.a); B = Object.assign({}, DEF.b); V.redraw();
     });
-
-    function wireToggle(id,get,set) {
-        const row=document.getElementById(id); if(!row) return;
-        const box=row.querySelector('.toggle-box');
-        row.addEventListener('click',()=>{set(!get()); box.classList.toggle('on');});
+    function wireToggle(id, get, set) {
+        const row = document.getElementById(id); if (!row) return;
+        const box = row.querySelector('.toggle-box');
+        row.addEventListener('click', () => { set(!get()); box.classList.toggle('on', get()); V.redraw(); });
     }
-    wireToggle('tgl-components',()=>showComponents,v=>{showComponents=v;});
-    wireToggle('tgl-angles',    ()=>showAngles,    v=>{showAngles=v;});
-
-    let lastT=0, frames=0;
-    const fpsEl=document.getElementById('add-fps');
-    function frame(ts) {
-        draw(); frames++;
-        if (ts-lastT>=1000) { if(fpsEl) fpsEl.textContent=frames+' fps · live'; frames=0; lastT=ts; }
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+    wireToggle('tgl-components', () => showComponents, x => { showComponents = x; });
+    wireToggle('tgl-angles', () => showAngles, x => { showAngles = x; });
+    V.redraw();
 }());
 </script>
 
@@ -884,195 +1011,125 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- SIMULATION 2 — DOT PRODUCT                                   -->
 <!-- ══════════════════════════════════════════════════════════════ -->
 <script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 2 — THE DOT PRODUCT   a·b = |a| (|b| cos φ)
+   The part of b that lies along a is drawn on a's own line, so the
+   product is visibly a length times a length, and changes sign when the
+   foot of b falls behind the origin (φ > 90°). y is up, as in physics —
+   the old readout counted it downwards, the screen's way.
+   ══════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-
-    const HIT_R      = 24;
-    const LABEL_SIZE = 20;
-    const LABEL_LIFT = 26;
-
-    let O  = { x: 0, y: 0 };
-    let ha = { x: 0, y: 0 };
-    let hb = { x: 0, y: 0 };
-    let dragging = null;
-
     const canvas = document.getElementById('dot-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = document.getElementById('dot-wrap');
-    let W = 0, H = 0;
+    if (!canvas) return;
+    const P = PV.palette();
+    const DEF = { a: { x: 5.06, y: 3.08 }, b: { x: 2.84, y: -3.92 } };
+    let A = Object.assign({}, DEF.a), B = Object.assign({}, DEF.b);
+    let dragging = null, hot = null;
+    const HIT = 22;
+    const V = PV.mount(canvas, draw);
+    const badge = canvas.parentElement.querySelector('.canvas-formula-badge');
 
-    function initPositions() {
-        O  = { x: W*0.38, y: H*0.55 };
-        ha = { x: O.x + W*0.32, y: O.y - H*0.22 };
-        hb = { x: O.x + W*0.18, y: O.y + H*0.28 };
+    function view() {
+        const low = badge && badge.parentElement === canvas.parentElement ? 90 : 20;
+        const s = Math.min((V.W - 80) / 10.5, (V.H - low - 50) / 8.6);
+        return { s, ox: V.W / 2 - 1.9 * s, oy: (V.H - low) / 2 - 0.2 * s + 14 };
     }
+    const toPx = (v, q) => ({ x: v.ox + q.x * v.s, y: v.oy - q.y * v.s });
+    const toU = (v, p) => ({ x: (p.x - v.ox) / v.s, y: (v.oy - p.y) / v.s });
 
-    function resize() {
-        const rect = wrap.getBoundingClientRect();
-        W = Math.max(rect.width||600, 10);
-        H = Math.max(rect.height||400, 10);
-        canvas.width  = Math.round(W*dpr);
-        canvas.height = Math.round(H*dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-        initPositions();
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
+    function draw(o) {
+        const ctx = o.ctx, v = view();
+        const O = toPx(v, { x: 0, y: 0 }), pa = toPx(v, A), pb = toPx(v, B);
+        const la = Math.hypot(A.x, A.y), lb = Math.hypot(B.x, B.y);
+        const dotp = A.x * B.x + A.y * B.y;
+        const phi = la > 1e-6 && lb > 1e-6 ? Math.acos(Math.max(-1, Math.min(1, dotp / (la * lb)))) : 0;
 
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   s.getPropertyValue('--c-vectors').trim() || '#1e5080',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#F8F3E5',
+        if (la > 0.05) {
+            const u = { x: A.x / la, y: A.y / la }, proj = dotp / la;          /* |b| cos φ */
+            const foot = toPx(v, { x: u.x * proj, y: u.y * proj });
+            /* a's line, carried on through the origin when the foot is behind it */
+            const far = toPx(v, { x: -u.x * Math.max(0, -proj + 0.8), y: -u.y * Math.max(0, -proj + 0.8) });
+            if (proj < 0) PV.line(ctx, O.x, O.y, far.x, far.y, P.faint, 1, [2, 4]);
+            PV.line(ctx, pb.x, pb.y, foot.x, foot.y, P.faint, 1, [4, 4]);
+            /* the right angle at the foot */
+            const n = 7, ex = { x: (pb.x - foot.x), y: (pb.y - foot.y) }, le = Math.hypot(ex.x, ex.y);
+            if (le > 14) {
+                const dxu = (toPx(v, u).x - O.x) / v.s, dyu = (toPx(v, u).y - O.y) / v.s;
+                const sgn = proj >= 0 ? -1 : 1;
+                const p1 = { x: foot.x + dxu * n * sgn, y: foot.y + dyu * n * sgn };
+                const p2 = { x: p1.x + ex.x / le * n, y: p1.y + ex.y / le * n };
+                const p3 = { x: foot.x + ex.x / le * n, y: foot.y + ex.y / le * n };
+                ctx.strokeStyle = P.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+                ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.stroke();
+            }
+            /* the projection itself: a broad pale crimson band on a's line */
+            if (Math.abs(proj) * v.s > 3) {
+                const roomy = Math.abs(proj) * v.s > 44;
+                ctx.save(); ctx.globalAlpha = 0.55;
+                PV.line(ctx, O.x, O.y, foot.x, foot.y, P.res, 6);
+                ctx.restore();
+                const mx = (O.x + foot.x) / 2, my = (O.y + foot.y) / 2;
+                const nx = -(foot.y - O.y), ny = foot.x - O.x, ln = Math.hypot(nx, ny) || 1;
+                const side = ((pb.x - mx) * nx + (pb.y - my) * ny) > 0 ? -1 : 1;
+                if (roomy) PV.serif(ctx, P, '|b| cos φ', mx + nx / ln * 22 * side, my + ny / ln * 22 * side, P.res, 15);
+            }
+        }
+        if (la * v.s > 20 && lb * v.s > 20 && phi > 0.03) {
+            const m = PV.arc(ctx, O.x, O.y, 40, Math.atan2(pa.y - O.y, pa.x - O.x), Math.atan2(pb.y - O.y, pb.x - O.x), P.soft);
+            PV.serif(ctx, P, 'φ', O.x + 56 * Math.cos(m), O.y + 56 * Math.sin(m), P.soft, 16);
+        }
+        PV.arrow(ctx, O.x, O.y, pa.x, pa.y, P.ink, 2.4, P.stage);
+        PV.arrow(ctx, O.x, O.y, pb.x, pb.y, P.acc, 2.4, P.stage);
+        const lab = (p, col, t) => {
+            const dx = p.x - O.x, dy = p.y - O.y, L = Math.hypot(dx, dy) || 1;
+            PV.vsym(ctx, P, t, p.x + dx / L * 26, p.y + dy / L * 26 + 4, col);
         };
-    }
-    let col = readCol();
+        lab(pa, P.ink, 'a'); lab(pb, P.acc, 'b');
+        PV.dot(ctx, O.x, O.y, 3.5, P.ink);
+        PV.handle(ctx, P, pa.x, pa.y, P.ink, hot === 'a' || dragging === 'a');
+        PV.handle(ctx, P, pb.x, pb.y, P.acc, hot === 'b' || dragging === 'b');
 
-    function arrow(x1,y1,x2,y2,color,lw) {
-        lw=lw||2.2;
-        const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
-        if (len<2) return;
-        const ux=dx/len,uy=dy/len,hl=Math.min(14,len*0.18),hw=hl*0.40;
-        ctx.strokeStyle=color; ctx.fillStyle=color;
-        ctx.lineWidth=lw; ctx.lineCap='round'; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2-ux*hl*0.55,y2-uy*hl*0.55); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x2,y2);
-        ctx.lineTo(x2-ux*hl-uy*hw,y2-uy*hl+ux*hw);
-        ctx.lineTo(x2-ux*hl+uy*hw,y2-uy*hl-ux*hw);
-        ctx.closePath(); ctx.fill();
+        const sep = PV.isCS() ? '; ' : ', ';
+        PV.put('dot-r-a', PV.num(A.x, 2) + sep + PV.num(A.y, 2));
+        PV.put('dot-r-b', PV.num(B.x, 2) + sep + PV.num(B.y, 2));
+        PV.put('dot-r-theta', PV.num(phi * 180 / Math.PI, 1) + '°');
+        PV.put('dot-r-dot', PV.num(dotp, 3) + ' u²');
     }
 
-    function vecLabel(x,y,letter,color) {
-        ctx.fillStyle=color; ctx.strokeStyle=color;
-        ctx.lineWidth=1.2; ctx.setLineDash([]); ctx.lineCap='round';
-        const ay=y-LABEL_LIFT;
-        ctx.beginPath(); ctx.moveTo(x-8,ay); ctx.lineTo(x+3,ay); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x+8,ay); ctx.lineTo(x+3,ay-4); ctx.lineTo(x+3,ay+4); ctx.closePath(); ctx.fill();
-        ctx.font=`italic ${LABEL_SIZE}px "Source Serif 4",Georgia,serif`;
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText(letter,x,y);
+    function pick(p) {
+        const v = view(), pa = toPx(v, A), pb = toPx(v, B);
+        const da = Math.hypot(p.x - pa.x, p.y - pa.y), db = Math.hypot(p.x - pb.x, p.y - pb.y);
+        if (da < HIT && da <= db) return 'a';
+        if (db < HIT) return 'b';
+        return null;
     }
-
-    function perpPt(x1,y1,x2,y2,t,d,side) {
-        const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
-        if (len<1) return {x:x1,y:y1};
-        return {x:x1+dx*t+(dy/len)*side*d, y:y1+dy*t+(-dx/len)*side*d};
-    }
-
-    function handle(x,y,color) {
-        ctx.strokeStyle=color; ctx.fillStyle=col.paper;
-        ctx.lineWidth=1.8; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    }
-
-    function draw() {
-        ctx.clearRect(0,0,W,H);
-        const ax=ha.x-O.x, ay=ha.y-O.y;
-        const bx=hb.x-O.x, by=hb.y-O.y;
-        const lenA=Math.hypot(ax,ay), lenB=Math.hypot(bx,by);
-
-        let theta=0;
-        if (lenA>1 && lenB>1) {
-            const cosT=(ax*bx+ay*by)/(lenA*lenB);
-            theta=Math.acos(Math.max(-1,Math.min(1,cosT)));
-        }
-        const dot=(ax*bx+ay*by);
-
-        // Projection line (component of b along a)
-        if (lenA>2) {
-            const ux=ax/lenA, uy=ay/lenA;
-            const proj=(ax*bx+ay*by)/lenA;
-            const px=O.x+ux*proj, py=O.y+uy*proj;
-            ctx.strokeStyle=col.acc+'55'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
-            ctx.beginPath(); ctx.moveTo(hb.x,hb.y); ctx.lineTo(px,py); ctx.stroke();
-            ctx.setLineDash([]);
-        }
-
-        // Angle arc
-        if (lenA>10 && lenB>10 && theta>0.03) {
-            const angA=Math.atan2(ay,ax), angB=Math.atan2(by,bx);
-            const R=44;
-            ctx.strokeStyle=col.acc+'90'; ctx.lineWidth=1.2; ctx.setLineDash([3,3]);
-            ctx.beginPath(); ctx.arc(O.x,O.y,R,angA,angB,angB<angA); ctx.stroke();
-            ctx.setLineDash([]);
-            const midAng=(angA+angB)/2;
-            ctx.fillStyle=col.acc;
-            ctx.font='13px "Geist",ui-sans-serif,sans-serif';
-            ctx.textAlign='center'; ctx.textBaseline='middle';
-            ctx.fillText(Math.round(theta*180/Math.PI)+'°',
-                O.x+(R+20)*Math.cos(midAng), O.y+(R+20)*Math.sin(midAng));
-        }
-
-        arrow(O.x,O.y,ha.x,ha.y,col.ink,2.4);
-        const aL=perpPt(O.x,O.y,ha.x,ha.y,0.52,22,+1);
-        vecLabel(aL.x,aL.y,'a',col.ink);
-
-        arrow(O.x,O.y,hb.x,hb.y,col.acc,2.4);
-        const bL=perpPt(O.x,O.y,hb.x,hb.y,0.52,22,-1);
-        vecLabel(bL.x,bL.y,'b',col.acc);
-
-        ctx.fillStyle=col.ink; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.arc(O.x,O.y,4,0,Math.PI*2); ctx.fill();
-
-        handle(ha.x,ha.y,col.ink);
-        handle(hb.x,hb.y,col.acc);
-
-        const SC=50;
-        document.getElementById('dot-r-a').textContent=(ax/SC).toFixed(2)+', '+(ay/SC).toFixed(2);
-        document.getElementById('dot-r-b').textContent=(bx/SC).toFixed(2)+', '+(by/SC).toFixed(2);
-        document.getElementById('dot-r-theta').textContent=(theta*180/Math.PI).toFixed(1)+'°';
-        document.getElementById('dot-r-dot').textContent=(dot/(SC*SC)).toFixed(3)+' u²';
-    }
-
-    function canvasPt(e) {
-        const r=canvas.getBoundingClientRect();
-        const src=e.touches?e.touches[0]:e;
-        return {x:src.clientX-r.left, y:src.clientY-r.top};
-    }
-
+    const at = e => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
     canvas.addEventListener('pointerdown', e => {
-        const p=canvasPt(e);
-        const da=Math.hypot(p.x-ha.x,p.y-ha.y), db=Math.hypot(p.x-hb.x,p.y-hb.y);
-        if (da<HIT_R && da<=db) dragging='a';
-        else if (db<HIT_R) dragging='b';
-        if (dragging) { canvas.setPointerCapture(e.pointerId); e.preventDefault(); }
+        dragging = pick(at(e));
+        if (dragging) { canvas.setPointerCapture(e.pointerId); e.preventDefault(); canvas.style.cursor = 'grabbing'; V.redraw(); }
     });
     canvas.addEventListener('pointermove', e => {
-        const p=canvasPt(e);
+        const p = at(e);
         if (!dragging) {
-            const da=Math.hypot(p.x-ha.x,p.y-ha.y), db=Math.hypot(p.x-hb.x,p.y-hb.y);
-            canvas.style.cursor=(da<HIT_R||db<HIT_R)?'grab':'crosshair';
+            const h = pick(p);
+            if (h !== hot) { hot = h; canvas.style.cursor = h ? 'grab' : 'crosshair'; V.redraw(); }
             return;
         }
         e.preventDefault();
-        if (dragging==='a') ha={x:p.x,y:p.y};
-        else hb={x:p.x,y:p.y};
+        const u = toU(view(), p);
+        if (dragging === 'a') A = u; else B = u;
+        V.redraw();
     });
-    canvas.addEventListener('pointerup',     ()=>{dragging=null; canvas.style.cursor='crosshair';});
-    canvas.addEventListener('pointercancel', ()=>{dragging=null;});
-    /* a finger on a handle drags it, anywhere else scrolls — see #lab */
+    const drop = () => { if (dragging) { dragging = null; canvas.style.cursor = hot ? 'grab' : 'crosshair'; V.redraw(); } };
+    canvas.addEventListener('pointerup', drop);
+    canvas.addEventListener('pointercancel', drop);
+    canvas.addEventListener('pointerleave', () => { if (!dragging && hot) { hot = null; V.redraw(); } });
     canvas.addEventListener('touchstart', e => { if (dragging) e.preventDefault(); }, { passive: false });
-
-    const btnReset = document.getElementById('dot-reset');
-    if (btnReset) btnReset.addEventListener('click', () => {
-        dragging = null;
-        initPositions();          /* the same defaults resize() lays down */
-        canvas.style.cursor = 'crosshair';
+    document.getElementById('dot-reset')?.addEventListener('click', () => {
+        dragging = null; A = Object.assign({}, DEF.a); B = Object.assign({}, DEF.b); V.redraw();
     });
-
-    let lastT=0, frames=0;
-    const fpsEl=document.getElementById('dot-fps');
-    function frame(ts) {
-        draw(); frames++;
-        if (ts-lastT>=1000) { if(fpsEl) fpsEl.textContent=frames+' fps · live'; frames=0; lastT=ts; }
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+    V.redraw();
 }());
 </script>
 
@@ -1081,211 +1138,111 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- c vector magnitude scales with b scale                        -->
 <!-- ══════════════════════════════════════════════════════════════ -->
 <script>
+/* ══════════════════════════════════════════════════════════════════════
+   LAB 3 — THE CROSS PRODUCT, isometric 3D
+   a = î fixed, b from the sliders, c = a × b drawn to the same scale.
+   The parallelogram a and b span is shaded (its area is |c|), a turning
+   arrow in its plane shows the sense a → b that the right hand follows,
+   and dashed drops to the floor make the heights readable.
+   ══════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-
-    const DEG   = Math.PI / 180;
-    const COS30 = Math.cos(30 * DEG);
-    const SIN30 = 0.5;
-
-    const LABEL_SIZE = 18;
-    const LABEL_LIFT = 24;
-
-    // Isometric projection
-    function iso(v, scale, cx, cy) {
-        return {
-            x: cx + (v.x - v.z) * COS30 * scale,
-            y: cy - v.y * scale + (v.x + v.z) * SIN30 * scale
-        };
-    }
-
-    // State
-    let phi_b   = 0;
-    let theta_b = 80 * DEG;
-    let bScale  = 1.0;
-
-    const a3 = { x:1, y:0, z:0 };
-
-    function getB() {
-        return {
-            x: Math.cos(phi_b) * Math.cos(theta_b) * bScale,
-            y: Math.sin(theta_b) * bScale,
-            z: Math.sin(phi_b) * Math.cos(theta_b) * bScale
-        };
-    }
-
-    function cross3(a, b) {
-        return {
-            x: a.y*b.z - a.z*b.y,
-            y: a.z*b.x - a.x*b.z,
-            z: a.x*b.y - a.y*b.x
-        };
-    }
-
     const canvas = document.getElementById('cross-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = document.getElementById('cross-wrap');
-    let W = 0, H = 0;
+    if (!canvas) return;
+    const P = PV.palette();
+    const DEG = Math.PI / 180, C30 = Math.cos(30 * DEG), S30 = 0.5;
+    let phiB = 0, thB = 80 * DEG, lenB = 1.0;
+    const A3 = { x: 1, y: 0, z: 0 };
+    const getB = () => ({ x: Math.cos(phiB) * Math.cos(thB) * lenB, y: Math.sin(thB) * lenB, z: Math.sin(phiB) * Math.cos(thB) * lenB });
+    const cross = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
+    const V = PV.mount(canvas, draw);
+    const badge = canvas.parentElement.querySelector('.canvas-formula-badge');
 
-    function resize() {
-        const rect = wrap.getBoundingClientRect();
-        W = Math.max(rect.width||600, 10);
-        H = Math.max(rect.height||400, 10);
-        canvas.width  = Math.round(W*dpr);
-        canvas.height = Math.round(H*dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
+    /* the whole reachable scene is |b|, |c| ≤ 2: fit that, not the defaults */
+    function view() {
+        const low = badge && badge.parentElement === canvas.parentElement ? 80 : 10;
+        const s = Math.min((V.W / 2 - 40) / 2.05, (V.H - low - 50) / 4.3);
+        return { s, cx: V.W * 0.5, cy: (V.H - low) / 2 + 0.05 * s };
     }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
+    const iso = (v, q) => ({ x: v.cx + (q.x - q.z) * C30 * v.s, y: v.cy - q.y * v.s + (q.x + q.z) * S30 * v.s });
 
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:    s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:    s.getPropertyValue('--c-vectors').trim() || '#1e5080',
-            orange: '#c06820',
-            soft:   s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint:  s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper:  s.getPropertyValue('--paper').trim()     || '#F8F3E5',
+    function draw(o) {
+        const ctx = o.ctx, v = view(), O3 = { x: 0, y: 0, z: 0 }, pO = iso(v, O3);
+        const b = getB(), c = cross(A3, b), cm = Math.hypot(c.x, c.y, c.z);
+        /* the floor y = 0: a faint grid */
+        ctx.strokeStyle = 'rgba(54,48,38,0.16)'; ctx.lineWidth = 1; ctx.setLineDash([]);
+        for (let i = -1.5; i <= 1.5; i += 0.5) {
+            let p1 = iso(v, { x: -1.5, y: 0, z: i }), p2 = iso(v, { x: 1.5, y: 0, z: i });
+            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+            p1 = iso(v, { x: i, y: 0, z: -1.5 }); p2 = iso(v, { x: i, y: 0, z: 1.5 });
+            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+        }
+        /* axes */
+        const AX = [[{ x: 1.9, y: 0, z: 0 }, 'x'], [{ x: 0, y: 2.05, z: 0 }, 'y'], [{ x: 0, y: 0, z: 1.9 }, 'z']];
+        for (const [e, t] of AX) {
+            const p = iso(v, e);
+            PV.arrow(ctx, pO.x, pO.y, p.x, p.y, P.faint, 1.1);
+            const dx = p.x - pO.x, dy = p.y - pO.y, L = Math.hypot(dx, dy) || 1;
+            PV.serif(ctx, P, t, p.x + dx / L * 14, p.y + dy / L * 14, P.soft, 16);
+        }
+        /* dashed drops from the tips of b and c to the floor, and along it */
+        const drop = (q, col) => {
+            if (Math.abs(q.y) < 0.02) return;
+            const t = iso(v, q), f = iso(v, { x: q.x, y: 0, z: q.z });
+            PV.line(ctx, t.x, t.y, f.x, f.y, col, 1, [3, 4]);
+            PV.line(ctx, pO.x, pO.y, f.x, f.y, col, 1, [3, 4]);
         };
-    }
-    let col = readCol();
-
-    function getScale() { return Math.min(W, H) * 0.26; }
-    function getOrigin() { return { cx: W * 0.42, cy: H * 0.52 }; }
-
-    function arrow3D(from, to, color, lw) {
-        const scale = getScale();
-        const { cx, cy } = getOrigin();
-        const p1 = iso(from, scale, cx, cy);
-        const p2 = iso(to,   scale, cx, cy);
-        const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy);
-        if (len<2) return;
-        const ux=dx/len, uy=dy/len;
-        const hl=Math.min(14,len*0.20), hw=hl*0.42;
-        ctx.strokeStyle=color; ctx.fillStyle=color;
-        ctx.lineWidth=lw||2.2; ctx.lineCap='round'; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x-ux*hl*0.55,p2.y-uy*hl*0.55); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(p2.x,p2.y);
-        ctx.lineTo(p2.x-ux*hl-uy*hw, p2.y-uy*hl+ux*hw);
-        ctx.lineTo(p2.x-ux*hl+uy*hw, p2.y-uy*hl-ux*hw);
-        ctx.closePath(); ctx.fill();
-    }
-
-    function vecLabel3D(v, letter, color, offX, offY) {
-        const scale = getScale();
-        const { cx, cy } = getOrigin();
-        const mid = iso({ x:v.x*0.52, y:v.y*0.52, z:v.z*0.52 }, scale, cx, cy);
-        const lx = mid.x + (offX||0), ly = mid.y + (offY||0);
-        ctx.fillStyle=color; ctx.strokeStyle=color;
-        ctx.lineWidth=1.2; ctx.setLineDash([]); ctx.lineCap='round';
-        const ay=ly-LABEL_LIFT;
-        ctx.beginPath(); ctx.moveTo(lx-7,ay); ctx.lineTo(lx+2,ay); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(lx+7,ay); ctx.lineTo(lx+2,ay-3.5); ctx.lineTo(lx+2,ay+3.5); ctx.closePath(); ctx.fill();
-        ctx.font=`italic ${LABEL_SIZE}px "Source Serif 4",Georgia,serif`;
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText(letter, lx, ly);
-    }
-
-    function axisLabel3D(v, text, color) {
-        const scale = getScale();
-        const { cx, cy } = getOrigin();
-        const p = iso({ x:v.x*1.20, y:v.y*1.20, z:v.z*1.20 }, scale, cx, cy);
-        ctx.fillStyle=color;
-        ctx.font='bold 12px "Geist",ui-sans-serif,sans-serif';
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText(text, p.x, p.y);
-    }
-
-    function draw() {
-        ctx.clearRect(0,0,W,H);
-
-        const scale = getScale();
-        const { cx, cy } = getOrigin();
-        const O3 = {x:0,y:0,z:0};
-        const b = getB();
-        const c = cross3(a3, b);
-        const cMag = Math.hypot(c.x,c.y,c.z);
-
-        // XZ grid
-        ctx.strokeStyle = col.faint+'50';
-        ctx.lineWidth = 0.6; ctx.setLineDash([]);
-        for (let i=-1; i<=1; i++) {
-            const p1=iso({x:-1,y:0,z:i},scale,cx,cy), p2=iso({x:1,y:0,z:i},scale,cx,cy);
-            ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
-            const q1=iso({x:i,y:0,z:-1},scale,cx,cy), q2=iso({x:i,y:0,z:1},scale,cx,cy);
-            ctx.beginPath(); ctx.moveTo(q1.x,q1.y); ctx.lineTo(q2.x,q2.y); ctx.stroke();
+        drop(b, P.faint); drop(c, P.faint);
+        /* the parallelogram a and b span — its area is |c| */
+        const pa = iso(v, A3), pb = iso(v, b), pab = iso(v, { x: A3.x + b.x, y: A3.y + b.y, z: A3.z + b.z });
+        ctx.beginPath(); ctx.moveTo(pO.x, pO.y); ctx.lineTo(pa.x, pa.y); ctx.lineTo(pab.x, pab.y); ctx.lineTo(pb.x, pb.y); ctx.closePath();
+        ctx.fillStyle = 'rgba(30,80,128,0.10)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(30,80,128,0.45)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+        /* the sense a → b, in the plane of the two */
+        const bp = { x: b.x - A3.x * b.x, y: b.y, z: b.z };           /* b's part across a */
+        const bl = Math.hypot(bp.x, bp.y, bp.z), phi = Math.atan2(bl, b.x);
+        if (bl > 0.02 && phi > 0.15) {
+            const e = { x: bp.x / bl, y: bp.y / bl, z: bp.z / bl }, r = 0.32;
+            ctx.strokeStyle = P.soft; ctx.lineWidth = 1.3; ctx.beginPath();
+            const N = 30, end = phi - 0.12;
+            for (let i = 0; i <= N; i++) {
+                const t = end * i / N, q = iso(v, { x: r * Math.cos(t) + r * Math.sin(t) * e.x, y: r * Math.sin(t) * e.y, z: r * Math.sin(t) * e.z });
+                i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y);
+            }
+            ctx.stroke();
+            const q1 = iso(v, { x: r * Math.cos(end) + r * Math.sin(end) * e.x, y: r * Math.sin(end) * e.y, z: r * Math.sin(end) * e.z });
+            const q2 = iso(v, { x: r * Math.cos(phi) + r * Math.sin(phi) * e.x, y: r * Math.sin(phi) * e.y, z: r * Math.sin(phi) * e.z });
+            PV.arrow(ctx, q1.x, q1.y, q2.x, q2.y, P.soft, 1.3);
+            const qm = iso(v, { x: 0.5 * Math.cos(phi / 2) + 0.5 * Math.sin(phi / 2) * e.x, y: 0.5 * Math.sin(phi / 2) * e.y, z: 0.5 * Math.sin(phi / 2) * e.z });
+            PV.serif(ctx, P, 'φ', qm.x, qm.y, P.soft, 15);
         }
+        const tip = (q, col, t) => {
+            const p = iso(v, q), dx = p.x - pO.x, dy = p.y - pO.y, L = Math.hypot(dx, dy) || 1;
+            PV.arrow(ctx, pO.x, pO.y, p.x, p.y, col, 2.6, P.stage);
+            PV.vsym(ctx, P, t, p.x + dx / L * 18, p.y + dy / L * 18 + 4, col);
+        };
+        if (cm > 0.01) tip(c, P.res, 'c');
+        tip(A3, P.ink, 'a');
+        tip(b, P.acc, 'b');
+        PV.dot(ctx, pO.x, pO.y, 3.5, P.ink);
 
-        // Axes
-        const AL=1.25;
-        arrow3D(O3,{x:AL,y:0,z:0},col.faint+'90',1);
-        arrow3D(O3,{x:0,y:AL,z:0},col.faint+'90',1);
-        arrow3D(O3,{x:0,y:0,z:AL},col.faint+'90',1);
-        axisLabel3D({x:AL,y:0,z:0},'x',col.faint);
-        axisLabel3D({x:0,y:AL,z:0},'y',col.faint);
-        axisLabel3D({x:0,y:0,z:AL},'z',col.faint);
-
-        // Plane spanned by a and b
-        const pa=iso(a3,scale,cx,cy);
-        const pb=iso(b,scale,cx,cy);
-        const pab=iso({x:a3.x+b.x,y:a3.y+b.y,z:a3.z+b.z},scale,cx,cy);
-        const pO=iso(O3,scale,cx,cy);
-        ctx.beginPath();
-        ctx.moveTo(pO.x,pO.y); ctx.lineTo(pa.x,pa.y); ctx.lineTo(pab.x,pab.y); ctx.lineTo(pb.x,pb.y);
-        ctx.closePath();
-        ctx.fillStyle=col.acc+'18'; ctx.fill();
-        ctx.strokeStyle=col.acc+'40'; ctx.lineWidth=0.8; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
-
-        // c = a × b  — draw with actual magnitude (not normalized)
-        if (cMag > 0.01) {
-            arrow3D(O3, c, col.orange, 2.6);
-            vecLabel3D(c, 'c', col.orange, 16, -14);
-        }
-
-        // a and b
-        arrow3D(O3, a3, col.ink, 2.6);
-        vecLabel3D(a3, 'a', col.ink, 16, 8);
-
-        arrow3D(O3, b, col.acc, 2.6);
-        vecLabel3D(b, 'b', col.acc, -16, 8);
-
-        // Origin dot
-        const pOrigin = iso(O3, scale, cx, cy);
-        ctx.fillStyle=col.ink; ctx.setLineDash([]);
-        ctx.beginPath(); ctx.arc(pOrigin.x,pOrigin.y,4,0,Math.PI*2); ctx.fill();
-
-        const fmt = v => v.toFixed(2);
-        document.getElementById('cross-r-b').textContent=
-            '('+fmt(b.x)+', '+fmt(b.y)+', '+fmt(b.z)+')';
-        document.getElementById('cross-r-c').textContent=
-            '('+fmt(c.x)+', '+fmt(c.y)+', '+fmt(c.z)+')';
-        document.getElementById('cross-r-mag').textContent=cMag.toFixed(3)+' u';
+        const f = x => PV.num(x, 2), sep = PV.isCS() ? '; ' : ', ';
+        PV.put('cross-r-b', '(' + f(b.x) + sep + f(b.y) + sep + f(b.z) + ')');
+        PV.put('cross-r-c', '(' + f(c.x) + sep + f(c.y) + sep + f(c.z) + ')');
+        PV.put('cross-r-mag', PV.num(cm, 3) + ' u');
     }
 
-    function wireSlider(id, valId, fromSlider, toDisplay) {
-        const sl=document.getElementById(id), vl=document.getElementById(valId);
+    function wire(id, valId, set, show) {
+        const sl = document.getElementById(id), vl = document.getElementById(valId);
         if (!sl) return;
-        sl.addEventListener('input', () => {
-            fromSlider(parseFloat(sl.value));
-            if (vl) vl.textContent=toDisplay(parseFloat(sl.value));
-        });
-        if (vl) vl.textContent=toDisplay(parseFloat(sl.value));
+        const sync = () => { set(parseFloat(sl.value)); if (vl) vl.textContent = show(parseFloat(sl.value)); V.redraw(); };
+        sl.addEventListener('input', sync);
+        document.addEventListener('langchange', sync);
+        sync();
     }
-    wireSlider('cross-phi',   'cross-phi-val',   v=>{phi_b=v*DEG;},       v=>v+'°');
-    wireSlider('cross-theta', 'cross-theta-val', v=>{theta_b=v*DEG;},     v=>v+'°');
-    wireSlider('cross-scale', 'cross-scale-val', v=>{bScale=v;},          v=>parseFloat(v).toFixed(2));
-
-    let lastT=0, frames=0;
-    const fpsEl=document.getElementById('cross-fps');
-    function frame(ts) {
-        draw(); frames++;
-        if (ts-lastT>=1000) { if(fpsEl) fpsEl.textContent=frames+' fps · live'; frames=0; lastT=ts; }
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+    wire('cross-phi', 'cross-phi-val', x => { phiB = x * DEG; }, x => x + '°');
+    wire('cross-theta', 'cross-theta-val', x => { thB = x * DEG; }, x => PV.num(x, 0) + '°');
+    wire('cross-scale', 'cross-scale-val', x => { lenB = x; }, x => PV.num(x, 2));
 }());
 </script>
 

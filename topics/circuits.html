@@ -913,7 +913,7 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Charging a capacitor</span><span lang="cs">Nabíjení kondenzátoru</span></span>
-                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
+                <span id="sim-fps" style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);"></span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -1090,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
        Horizontal edge h:i,j joins (i,j)-(i+1,j); vertical v:i,j joins
        (i,j)-(i,j+1).                                                      */
     let NX = 6, NY = 4;               /* recomputed to fit the canvas */
-    const TARGET = 74;                /* preferred spacing between points, px */
+    const TARGET = 112;               /* preferred spacing between points, px */
     const nodeIdx = (i, j) => j * NX + i;
     const ekey = (o, i, j) => o + ':' + i + ',' + j;
     function edgeNodes(c) {
@@ -1198,7 +1198,9 @@ document.addEventListener('DOMContentLoaded', () => {
             C('h', 3, 3, 'wire'), C('h', 4, 3, 'wire'),
         ],
     };
+    let presetName = 'loop', edited = false;
     function loadPreset(name) {
+        presetName = name; edited = false;
         comps = new Map();
         fitGrid();
         const list = (PRESETS[name] || PRESETS.loop)();
@@ -1462,11 +1464,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawResistor(a, b, hot) {
         const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
         const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
-        const body = Math.min(34, len * 0.5), lead = (len - body) / 2;
+        const body = Math.min(56, len * 0.44), lead = (len - body) / 2;
         ctx.beginPath();
+        ctx.lineJoin = 'round';
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(a.x + ux * lead, a.y + uy * lead);
-        const teeth = 6, amp = 6;
+        const teeth = 6, amp = 7;
         for (let k = 0; k <= teeth; k++) {
             const tt = lead + (body * k) / teeth;
             const sgn = (k % 2 === 0) ? 1 : -1;
@@ -1481,16 +1484,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawBattery(a, b, c, hot) {
         const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
         const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
-        const mid = len / 2, gap = 5;
+        const mid = len / 2, gap = 6;
         ctx.strokeStyle = hot ? col.acc : col.ink;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y); ctx.lineTo(a.x + ux * (mid - gap), a.y + uy * (mid - gap));
         ctx.moveTo(a.x + ux * (mid + gap), a.y + uy * (mid + gap)); ctx.lineTo(b.x, b.y);
         ctx.stroke();
-        /* long plate on the + side */
+        /* long plate on the + side, marked */
         const plusFirst = !c.flip;
-        const L1 = plusFirst ? 13 : 7, L2 = plusFirst ? 7 : 13;
+        const L1 = plusFirst ? 15 : 8, L2 = plusFirst ? 8 : 15;
+        const pp = plusFirst ? mid - gap : mid + gap;
+        /* on the side away from the part's own labels, which flip to the left
+           in the board's last column */
+        const side = (c.o === 'v' && (a.x + b.x) / 2 > W - 150) ? -1 : 1;
+        label('+', a.x + ux * (pp - 9) + nx * 19 * side, a.y + uy * (pp - 9) + ny * 19 * side, 11, hot ? col.acc : col.soft, 'center', true);
         ctx.lineWidth = plusFirst ? 1.6 : 3;
         ctx.beginPath();
         ctx.moveTo(a.x + ux * (mid - gap) - nx * L1, a.y + uy * (mid - gap) - ny * L1);
@@ -1505,7 +1513,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawCapacitor(a, b, hot) {
         const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
         const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
-        const mid = len / 2, gap = 4.5, pl = 11;
+        const mid = len / 2, gap = 5, pl = 14;
         ctx.strokeStyle = hot ? col.acc : col.ink;
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -1523,7 +1531,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawSwitch(a, b, c, hot) {
         const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
         const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
-        const mid = len / 2, gap = 12;
+        const mid = len / 2, gap = 14;
         ctx.strokeStyle = hot ? col.acc : col.ink;
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -1533,7 +1541,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const p0 = { x: a.x + ux * (mid - gap), y: a.y + uy * (mid - gap) };
         const p1 = c.closed
             ? { x: a.x + ux * (mid + gap), y: a.y + uy * (mid + gap) }
-            : { x: a.x + ux * (mid + gap * 0.4) - nx * 13, y: a.y + uy * (mid + gap * 0.4) - ny * 13 };
+            : { x: a.x + ux * (mid + gap * 0.4) - nx * 15, y: a.y + uy * (mid + gap * 0.4) - ny * 15 };
         ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
         ctx.fillStyle = col.ink;
         ctx.beginPath(); ctx.arc(p0.x, p0.y, 2.6, 0, Math.PI * 2); ctx.fill();
@@ -1543,16 +1551,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function label(txt, x, y, size, colr, align, bg) {
         ctx.save();
-        ctx.font = size + 'px ' + MONO;
+        ctx.font = Math.max(10.5, size) + 'px ' + MONO;
         ctx.textAlign = align || 'center';
         ctx.textBaseline = 'middle';
         if (bg) {
-            const w = ctx.measureText(txt).width;
-            let bx = x - w / 2 - 3;
-            if (align === 'left')  bx = x - 3;
-            if (align === 'right') bx = x - w - 3;
-            ctx.fillStyle = bg;
-            ctx.fillRect(bx, y - size / 2 - 3, w + 6, size + 6);
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.deep;
+            ctx.strokeText(txt, x, y);
         }
         ctx.fillStyle = colr;
         ctx.fillText(txt, x, y);
@@ -1566,12 +1570,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /* lattice */
         ctx.fillStyle = col.soft;
-        ctx.globalAlpha = 0.45;
+        ctx.globalAlpha = 0.4;
         for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
             const p = nodePos(i, j, L);
-            ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2); ctx.fill();
         }
         ctx.globalAlpha = 1;
+        ctx.lineCap = 'round';
 
         /* the edge under the pointer */
         if (hoverKey && tool !== 'select') {
@@ -1615,12 +1620,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const speed = Math.max(0.08, Math.min(0.5, 0.5 * rel));
                 const dir = I > 0 ? 1 : -1;
                 const phase = ((ts / 1000) * speed * dir) % 1;
-                for (let d = 0; d < 3; d++) {
-                    let u = (phase + d / 3) % 1;
+                const nd = Math.max(3, Math.round(len / 32));
+                for (let d = 0; d < nd; d++) {
+                    let u = (phase + d / nd) % 1;
                     if (u < 0) u += 1;
-                    ctx.globalAlpha = 0.85;
+                    ctx.globalAlpha = 0.9;
                     ctx.beginPath();
-                    ctx.arc(a.x + (b.x - a.x) * u, a.y + (b.y - a.y) * u, 2.4, 0, Math.PI * 2);
+                    ctx.arc(a.x + (b.x - a.x) * u, a.y + (b.y - a.y) * u, 2.6, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
@@ -1634,7 +1640,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const [a, b] = edgeEnds(c, L);
                 const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
                 const vert = (c.o === 'v');
-                const ox = vert ? 16 : 0, oy = vert ? 0 : -17;
                 let l1 = '', l2 = '';
                 if (c.kind === 'resistor')  { l1 = fmtR(c.R); }
                 if (c.kind === 'battery')   { l1 = dec(c.emf.toFixed(1)) + ' V' + (c.r > 0 ? ' · r ' + fmtR(c.r) : ''); }
@@ -1643,12 +1648,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const I = sol.cur.get(c), U = sol.volt.get(c);
                 if (c.kind === 'capacitor') l2 = fmtSI(Math.abs(U), 'V', 2) + ' · ' + fmtSI(Math.abs(U) * c.Cap * 1e-6, 'C', 1);
                 else if (I !== undefined && c.kind !== 'switch') l2 = fmtSI(Math.abs(I), 'A', 2) + ' · ' + fmtSI(Math.abs(U || 0), 'V', 2);
-                label(l1, mx + ox, my + oy, 10, col.soft, vert ? 'left' : 'center', col.paper);
                 /* a phone-width board has cells too narrow for "I · U" on one line
                    beside a part: there it is stacked, current over voltage */
                 const parts = l2 && W < 520 ? l2.split(' · ') : [l2];
-                parts.forEach((p, i) => {
-                    if (p) label(p, mx + ox, my + oy + (vert ? 13 : -13) * (i + 1), 10, col.acc, vert ? 'left' : 'center', col.paper);
+                /* a vertical part is labelled on its right, or on its left where
+                   the right would run off the board; a horizontal one below it,
+                   clear of the node potentials, which sit above and to the left */
+                ctx.font = '11px ' + MONO;
+                const wmax = Math.max(ctx.measureText(l1).width, ...parts.map(q => ctx.measureText(q || '').width));
+                const leftSide = vert && mx + 22 + wmax > W - 6;
+                const ox = vert ? (leftSide ? -22 : 22) : 0, oy = vert ? -7 : 22;
+                const al = vert ? (leftSide ? 'right' : 'left') : 'center';
+                label(l1, mx + ox, my + oy, 11, col.ink, al, true);
+                parts.forEach((q, i) => {
+                    if (q) label(q, mx + ox, my + oy + 14 * (i + 1), 10.5, col.acc, al, true);
                 });
             }
         }
@@ -1664,8 +1677,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const i = nd % NX, j = Math.floor(nd / NX);
                     const p = nodePos(i, j, L);
                     ctx.fillStyle = col.ink;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 3.4, 0, Math.PI * 2); ctx.fill();
-                    label('φ ' + dec(sol.V[nd].toFixed(2)) + ' V', p.x, p.y - 13, 10, col.faint, 'center', col.paper);
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 3.6, 0, Math.PI * 2); ctx.fill();
+                    label('φ = ' + dec(sol.V[nd].toFixed(2)) + ' V', p.x - 8, p.y - 14, 10.5, col.soft, 'right', true);
                 }
             }
         }
@@ -1674,12 +1687,12 @@ document.addEventListener('DOMContentLoaded', () => {
         label(mode === 'dc'
                 ? t('steady state — long after switching', 'ustálený stav — dlouho po sepnutí')
                 : t('the instant the switch closes',        'okamžik sepnutí'),
-              12, 15, 10, col.faint, 'left', col.paper);
+              16, 18, 11.5, col.soft, 'left', true);
     }
 
     /* ══ Readout ═════════════════════════════════════════════════════════ */
     const $ = id => document.getElementById(id);
-    function setTxt(id, s) { const e = $(id); if (e) e.textContent = s; }
+    function setTxt(id, s) { const e = $(id); if (e && e.textContent !== s) e.textContent = s; }
 
     function refresh() {
         fitGrid();
@@ -1690,10 +1703,10 @@ document.addEventListener('DOMContentLoaded', () => {
                           nosource: t('no source', 'chybí zdroj'),
                           trivial:  t('nothing connected', 'nic není spojeno'),
                           short:    t('short circuit', 'zkrat') }[sol.why] || '—';
-            if (st) st.textContent = why;
+            setTxt('pg-status', why);
             ['pg-I', 'pg-Req', 'pg-P', 'pg-loop'].forEach(id => setTxt(id, '—'));
         } else {
-            if (st) st.textContent = t('solved', 'vyřešeno');
+            setTxt('pg-status', t('solved', 'vyřešeno'));
             setTxt('pg-I',   fmtSI(sol.I, 'A', 3));
             setTxt('pg-Req', isFinite(sol.Req) ? fmtR(sol.Req) : '∞');
             setTxt('pg-P',   fmtSI(sol.P, 'W', 3));
@@ -1751,6 +1764,7 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('pointercancel', () => { tap = null; });
     function place(ev) {
         const p = pos(ev), L = layout();
+        edited = true;
         const e = edgeAt(p.x, p.y, L);
         if (!e) { selKey = null; refresh(); return; }
         const k = ekey(e.o, e.i, e.j);
@@ -1794,7 +1808,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     toggle('pg-tgl-vals', v => { show.vals = v; request(); });
     toggle('pg-tgl-phi',  v => { show.phi  = v; request(); });
-    toggle('pg-tgl-flow', v => { show.flow = v; request(); });
+    toggle('pg-tgl-flow', v => { show.flow = v; kick(); });
 
     function slider(id, valId, fmt, set) {
         const inp = $(id);
@@ -1804,6 +1818,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!c) return;
             set(c, +inp.value);
             setTxt(valId, fmt(+inp.value));
+            edited = true;
             refresh();
         });
     }
@@ -1817,30 +1832,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (c && c.kind === 'battery') { c.flip = !c.flip; refresh(); }
     });
     $('pg-clear') && $('pg-clear').addEventListener('click', () => {
-        comps = new Map(); selKey = null; refresh();
+        comps = new Map(); selKey = null; edited = true; refresh();
     });
 
-    /* ══ Frame loop — only while charge is shown ═════════════════════════ */
-    let pending = false;
+    /* ══ Frame loop — only while charge is shown, and only on screen ═════ */
+    let pending = false, visible = true, looping = false;
     function request() {
-        if (show.flow || pending) return;      /* the loop already redraws */
+        if ((show.flow && looping) || pending) return;      /* the loop already redraws */
         pending = true;
         requestAnimationFrame(ts => { pending = false; draw(ts); });
     }
     function loop(ts) {
-        if (show.flow) draw(ts);
+        if (!(show.flow && visible)) { looping = false; return; }
+        draw(ts);
         requestAnimationFrame(loop);
     }
+    function kick() {
+        if (looping || !(show.flow && visible)) { request(); return; }
+        looping = true;
+        requestAnimationFrame(loop);
+    }
+    if (window.IntersectionObserver)
+        new IntersectionObserver(es => { visible = es[0].isIntersecting; kick(); }).observe(wrap);
 
     function resize() {
         const dpr = window.devicePixelRatio || 1;
         const r = wrap.getBoundingClientRect();
+        if (Math.max(r.width, 320) === W && Math.max(r.height, 260) === H) return;
         W = Math.max(r.width, 320);
         H = Math.max(r.height, 260);
         canvas.width  = Math.round(W * dpr);
         canvas.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        fitGrid();
+        if (!edited) loadPreset(presetName); else fitGrid();
         request();
     }
     resize();
@@ -1848,7 +1872,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('langchange', () => refresh());
 
     loadPreset('loop');
-    requestAnimationFrame(loop);
+    kick();
 }());
 </script>
 
@@ -1945,24 +1969,59 @@ document.addEventListener('DOMContentLoaded', () => {
     function Vc(t)  { return state.emf * (1 - Math.exp(-t / tau())); }  // V
     function Ic(t)  { return (state.emf / state.R) * Math.exp(-t / tau()); } // A
 
-    /* ── Drawing ───────────────────────────────────────────────── */
-    const SCHEM_H = 140;                       /* strip reserved for the circuit */
-    const PAD_L = 72, PAD_R = 24, PAD_T = 32 + SCHEM_H, PAD_B = 52;
+    /* The charging runs 0 → 6τ on a display clock of PLAY seconds, then holds
+       the finished curve for HOLD seconds and starts again. τ itself is
+       0.1 s at the defaults — shown in real time the whole charge would be
+       over in 0.6 s — so the picture is slowed and the canvas says by how
+       much; every number on it and in the readout is the physical time. */
+    const PLAY = 6, HOLD = 2.2;
 
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const dec = v => isCS() ? String(v).replace('.', ',') : String(v);
+    const stage = () => col.deep;
+    function sym(text, x, y, color, size, align, subTxt) {
+        ctx.save();
+        ctx.font = 'italic ' + size + 'px "Source Serif 4", Georgia, serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        const w = ctx.measureText(text).width;
+        ctx.font = 'italic ' + Math.round(size * 0.7) + 'px "Source Serif 4", Georgia, serif';
+        const w2 = subTxt ? ctx.measureText(subTxt).width + 1 : 0;
+        const x0 = align === 'right' ? x - w - w2 : align === 'left' ? x : x - (w + w2) / 2;
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = stage(); ctx.fillStyle = color;
+        ctx.font = 'italic ' + size + 'px "Source Serif 4", Georgia, serif';
+        ctx.strokeText(text, x0, y); ctx.fillText(text, x0, y);
+        if (subTxt) {
+            ctx.font = 'italic ' + Math.round(size * 0.7) + 'px "Source Serif 4", Georgia, serif';
+            ctx.strokeText(subTxt, x0 + w + 1, y + size * 0.28); ctx.fillText(subTxt, x0 + w + 1, y + size * 0.28);
+        }
+        ctx.restore();
+        return x0 + w + w2;
+    }
+    function mono(text, x, y, color, size, align, base) {
+        ctx.save();
+        ctx.font = size + 'px "Geist", ui-sans-serif, sans-serif';
+        ctx.textAlign = align || 'left'; ctx.textBaseline = base || 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 3.5; ctx.strokeStyle = stage();
+        ctx.strokeText(text, x, y);
+        ctx.fillStyle = color; ctx.fillText(text, x, y);
+        ctx.restore();
+    }
+
+    /* ── Drawing ───────────────────────────────────────────────── */
     /* A schematic of the very circuit the graph describes: source, resistor,
        capacitor and a closed switch, with charge visibly flowing at the rate
        I(t) and the plates filling up as U_C rises. */
-    function drawSchematic(t) {
-        const w = Math.min(360, W * 0.62), h = 92;
-        const x0 = (W - w) / 2, y0 = 24;
+    function drawSchematic(t, y0) {
+        const w = Math.min(420, W * 0.6), h = 96;
+        const x0 = (W - w) / 2;
         const x1 = x0 + w, y1 = y0 + h;
-        const uc = Vc(t), ic = Ic(t), i0 = state.emf / state.R;
+        const ic = Ic(t), i0 = state.emf / state.R, uc = Vc(t);
         const frac = state.emf > 0 ? uc / state.emf : 0;
 
         ctx.save();
         ctx.strokeStyle = col.ink;
         ctx.lineWidth = 2;
-        ctx.lineCap = 'butt';
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
         /* battery on the left edge */
         const bm = (y0 + y1) / 2;
@@ -1970,18 +2029,18 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.moveTo(x0, y0); ctx.lineTo(x0, bm - 6);
         ctx.moveTo(x0, bm + 6); ctx.lineTo(x0, y1);
         ctx.stroke();
-        ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(x0 - 13, bm - 6); ctx.lineTo(x0 + 13, bm - 6); ctx.stroke();
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(x0 - 7, bm + 6); ctx.lineTo(x0 + 7, bm + 6); ctx.stroke();
+        ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(x0 - 15, bm - 6); ctx.lineTo(x0 + 15, bm - 6); ctx.stroke();
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(x0 - 8, bm + 6); ctx.lineTo(x0 + 8, bm + 6); ctx.stroke();
 
         /* resistor on the top edge */
         ctx.lineWidth = 2;
-        const rx0 = x0 + w * 0.30, rw = w * 0.30;
+        const rx0 = x0 + w * 0.32, rw = w * 0.26;
         ctx.beginPath();
         ctx.moveTo(x0, y0); ctx.lineTo(rx0, y0);
         for (let k = 0; k <= 6; k++) {
-            const off = (k === 0 || k === 6) ? 0 : ((k % 2) ? -7 : 7);
+            const off = (k === 0 || k === 6) ? 0 : ((k % 2) ? -8 : 8);
             ctx.lineTo(rx0 + (rw * k) / 6, y0 + off);
         }
         ctx.lineTo(x1, y0);
@@ -1992,31 +2051,32 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.moveTo(x1, y0); ctx.lineTo(x1, bm - 5);
         ctx.moveTo(x1, bm + 5); ctx.lineTo(x1, y1);
         ctx.stroke();
-        ctx.lineWidth = 2.6;
-        ctx.beginPath(); ctx.moveTo(x1 - 12, bm - 5); ctx.lineTo(x1 + 12, bm - 5); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x1 - 12, bm + 5); ctx.lineTo(x1 + 12, bm + 5); ctx.stroke();
+        ctx.lineWidth = 2.8;
+        ctx.beginPath(); ctx.moveTo(x1 - 15, bm - 5); ctx.lineTo(x1 + 15, bm - 5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x1 - 15, bm + 5); ctx.lineTo(x1 + 15, bm + 5); ctx.stroke();
 
         /* closed switch on the bottom edge */
         ctx.lineWidth = 2;
         const sx = x0 + w * 0.5;
         ctx.beginPath();
-        ctx.moveTo(x0, y1); ctx.lineTo(sx - 13, y1);
-        ctx.lineTo(sx + 11, y1 - 4);
-        ctx.moveTo(sx + 13, y1); ctx.lineTo(x1, y1);
+        ctx.moveTo(x0, y1); ctx.lineTo(sx - 14, y1);
+        ctx.lineTo(sx + 12, y1 - 3);
+        ctx.moveTo(sx + 14, y1); ctx.lineTo(x1, y1);
         ctx.stroke();
         ctx.fillStyle = col.ink;
-        ctx.beginPath(); ctx.arc(sx - 13, y1, 2.6, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(sx + 13, y1, 2.6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(sx - 14, y1, 2.8, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(sx + 14, y1, 2.8, 0, Math.PI * 2); ctx.fill();
 
         /* charge on the plates, growing with U_C */
-        ctx.font = '12px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.globalAlpha = 0.25 + 0.75 * frac;
-        ctx.fillStyle = col.acc;
+        ctx.globalAlpha = 0.2 + 0.8 * frac;
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 1.8;
         for (let k = -1; k <= 1; k++) {
-            ctx.fillText('+', x1 + k * 8, bm - 12);
-            ctx.fillText('−', x1 + k * 8, bm + 12);
+            const px = x1 + k * 10;
+            ctx.beginPath();
+            ctx.moveTo(px - 3.5, bm - 14); ctx.lineTo(px + 3.5, bm - 14);
+            ctx.moveTo(px, bm - 17.5); ctx.lineTo(px, bm - 10.5);
+            ctx.moveTo(px - 3.5, bm + 14); ctx.lineTo(px + 3.5, bm + 14);
+            ctx.stroke();
         }
         ctx.globalAlpha = 1;
 
@@ -2024,212 +2084,150 @@ document.addEventListener('DOMContentLoaded', () => {
         const rel = i0 > 0 ? ic / i0 : 0;
         if (rel > 0.01) {
             const per = [[x0, y0, x1, y0], [x1, y0, x1, y1], [x1, y1, x0, y1], [x0, y1, x0, y0]];
-            const ph = ((t * 0.55 / Math.max(tau(), 1e-6)) * 0.06) % 1;
+            const ph = (dispT * 0.22 * rel + dispT * 0.05) % 1;
             ctx.fillStyle = col.acc;
             for (const seg of per) {
-                for (let d = 0; d < 4; d++) {
-                    let u = (ph + d / 4) % 1;
+                const n = Math.max(3, Math.round(Math.hypot(seg[2] - seg[0], seg[3] - seg[1]) / 34));
+                for (let d = 0; d < n; d++) {
+                    const u = (ph + d / n) % 1;
                     ctx.globalAlpha = 0.25 + 0.75 * rel;
                     ctx.beginPath();
-                    ctx.arc(seg[0] + (seg[2] - seg[0]) * u, seg[1] + (seg[3] - seg[1]) * u, 2.3, 0, Math.PI * 2);
+                    ctx.arc(seg[0] + (seg[2] - seg[0]) * u, seg[1] + (seg[3] - seg[1]) * u, 2.6, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
             ctx.globalAlpha = 1;
         }
-
-        /* labels */
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.fillStyle = col.soft;
-        ctx.textAlign = 'center';
-        ctx.fillText('R', rx0 + rw / 2, y0 - 18);
-        ctx.textAlign = 'right';
-        ctx.fillText('ε', x0 - 18, bm);
-        ctx.textAlign = 'left';
-        ctx.fillText('C', x1 + 18, bm);
-        /* the two live values sit beside the parts they belong to; a phone-width
-           canvas has no room out there, so they go under the circuit's corners */
-        const under = x0 < 96;
-        ctx.fillStyle = col.acc;
-        ctx.textAlign = under ? 'right' : 'left';
-        ctx.fillText('U_C = ' + uc.toFixed(2) + ' V', under ? x1 + 4 : x1 + 18, under ? y1 + 18 : bm + 16);
-        ctx.fillStyle = col.faint;
-        ctx.textAlign = under ? 'left' : 'right';
-        ctx.fillText('I = ' + (ic * 1000).toFixed(2) + ' mA', under ? x0 - 4 : x0 - 18, under ? y1 + 18 : bm + 16);
         ctx.restore();
+
+        /* the parts' names */
+        sym('R', rx0 + rw / 2, y0 - 22, col.ink, 17, 'center');
+        sym('ε', x0 - 26, bm, col.ink, 17, 'center');
+        sym('C', x1 + 30, bm, col.ink, 17, 'center');
+        return y1;
     }
 
-    function draw(ts) {
+    let dispT = 0;                 /* display clock, s */
+    function draw() {
         const show = window._rcShow || { current: true, tau: true, asymptote: true };
-
-        // Advance simulation time
-        const LOOP_DURATION = 6; // multiples of tau shown
-        const T_MAX = tau() * LOOP_DURATION;
-
-        if (t0 === null) t0 = ts;
-        const elapsed = (ts - t0) / 1000;   // s
-        simT = elapsed % T_MAX;
+        const T_MAX = tau() * 6;
+        const u = Math.min(1, (dispT % (PLAY + HOLD)) / PLAY);
+        simT = u * T_MAX;
 
         ctx.clearRect(0, 0, W, H);
-        drawSchematic(simT);
+        const low = !!badge && badge.parentElement === wrap;
+        const schemBot = drawSchematic(simT, 34);
 
+        const PAD_L = 66, PAD_R = 26;
+        const PAD_T = schemBot + 44, PAD_B = low ? 118 : 50;
         const plotW = W - PAD_L - PAD_R;
-        const plotH = H - PAD_T - PAD_B;
-        const ox = PAD_L, oy = PAD_T + plotH;  // origin (bottom-left of plot)
+        const plotH = Math.max(120, H - PAD_T - PAD_B);
+        const ox = PAD_L, oy = PAD_T + plotH;
 
-        // ── Background for plot area ──
-        ctx.fillStyle = col.deep + 'cc';
-        ctx.fillRect(ox, PAD_T, plotW, plotH);
+        /* the slow-motion factor, stated */
+        const slow = PLAY / T_MAX;
+        if (slow > 1.05)
+            mono((isCS() ? 'zpomaleno ' : 'slowed ') + dec((slow >= 10 ? slow.toFixed(0) : slow.toFixed(1))) + '×',
+                 W - 18, 18, col.faint, 10.5, 'right');
 
-        // ── Asymptote ──
+        // ── Asymptote ε ──
         if (show.asymptote) {
-            const yEpsilon = oy - plotH; // ε is top of y-axis
-            ctx.strokeStyle = col.acc + '60';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([8, 5]);
-            ctx.beginPath();
-            ctx.moveTo(ox, yEpsilon);
-            ctx.lineTo(ox + plotW, yEpsilon);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = col.acc + '90';
-            ctx.font = '12px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText('ε = ' + state.emf.toFixed(1) + ' V', ox + 6, yEpsilon - 3);
+            ctx.save();
+            ctx.strokeStyle = col.acc; ctx.globalAlpha = 0.55;
+            ctx.lineWidth = 1.3; ctx.setLineDash([7, 5]);
+            ctx.beginPath(); ctx.moveTo(ox, oy - plotH); ctx.lineTo(ox + plotW, oy - plotH); ctx.stroke();
+            ctx.restore();
+            sym('ε', ox + plotW - 8, oy - plotH - 13, col.acc, 17, 'right');
         }
 
         // ── τ marker ──
         if (show.tau) {
-            const tauSec = tau();
-            const xTau   = ox + (tauSec / T_MAX) * plotW;
-            ctx.strokeStyle = col.faint + 'a0';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([4, 3]);
-            ctx.beginPath();
-            ctx.moveTo(xTau, PAD_T);
-            ctx.lineTo(xTau, oy);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = col.faint;
-            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText('τ', xTau, oy + 6);
-        }
-
-        // ── V_C curve ──
-        {
-            ctx.strokeStyle = col.acc;
-            ctx.lineWidth = 2.5;
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            const steps = Math.max(60, Math.round(plotW));
-            let started = false;
-            for (let i = 0; i <= steps; i++) {
-                const t = (i / steps) * T_MAX;
-                if (t > simT) break;
-                const x = ox + (t / T_MAX) * plotW;
-                const y = oy - (Vc(t) / state.emf) * plotH;
-                if (!started) { ctx.moveTo(x, y); started = true; }
-                else ctx.lineTo(x, y);
+            const xTau = ox + plotW / 6;
+            ctx.save();
+            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+            ctx.beginPath(); ctx.moveTo(xTau, oy - plotH); ctx.lineTo(xTau, oy); ctx.stroke();
+            ctx.restore();
+            sym('τ', xTau, oy + 16, col.ink, 16, 'center');
+            if (show.asymptote) {
+                const y63 = oy - (1 - Math.exp(-1)) * plotH;
+                ctx.save();
+                ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+                ctx.beginPath(); ctx.moveTo(ox, y63); ctx.lineTo(xTau, y63); ctx.stroke();
+                ctx.restore();
+                mono('63 %', ox + 6, y63 - 9, col.faint, 10.5, 'left');
             }
-            ctx.stroke();
         }
 
-        // ── I(t) curve (faint, scaled so I₀ maps to top) ──
+        // ── I(t), scaled so I₀ reaches the top ──
+        const steps = Math.max(80, Math.round(plotW));
         if (show.current) {
             const I0 = state.emf / state.R;
-            ctx.strokeStyle = col.soft + '70';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([5, 3]);
+            ctx.save();
+            ctx.strokeStyle = col.soft; ctx.globalAlpha = 0.7;
+            ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]); ctx.lineJoin = 'round';
             ctx.beginPath();
-            const steps = Math.max(60, Math.round(plotW));
-            let started = false;
             for (let i = 0; i <= steps; i++) {
-                const t = (i / steps) * T_MAX;
-                if (t > simT) break;
-                const x = ox + (t / T_MAX) * plotW;
-                const y = oy - (Ic(t) / I0) * plotH;
-                if (!started) { ctx.moveTo(x, y); started = true; }
-                else ctx.lineTo(x, y);
+                const tt = (i / steps) * T_MAX;
+                if (tt > simT) break;
+                const x = ox + (tt / T_MAX) * plotW, y = oy - (Ic(tt) / I0) * plotH;
+                i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
             }
             ctx.stroke();
-            ctx.setLineDash([]);
-            // I(t) label
-            if (simT < T_MAX * 0.3) {
-                ctx.fillStyle = col.soft + '90';
-                ctx.font = 'italic 13px "Source Serif 4", serif';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                const labelX = ox + (simT / T_MAX) * plotW + 6;
-                const labelY = oy - (Ic(simT) / I0) * plotH;
-                if (labelX < ox + plotW - 30) ctx.fillText('I(t)', labelX, labelY);
-            }
+            ctx.restore();
+            sym('I(t)', ox + 14, oy - plotH + 18, col.soft, 15, 'left');
         }
 
-        // ── Moving dot on V_C curve ──
+        // ── U_C(t) ──
+        ctx.save();
+        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.6; ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++) {
+            const tt = (i / steps) * T_MAX;
+            if (tt > simT) break;
+            const x = ox + (tt / T_MAX) * plotW, y = oy - (Vc(tt) / state.emf) * plotH;
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.stroke();
+        ctx.restore();
         {
-            const x = ox + (simT / T_MAX) * plotW;
-            const y = oy - (Vc(simT) / state.emf) * plotH;
-            ctx.fillStyle   = col.acc;
-            ctx.strokeStyle = col.paper;
-            ctx.lineWidth   = 2;
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.arc(x, y, 6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
+            const x = ox + (simT / T_MAX) * plotW, y = oy - (Vc(simT) / state.emf) * plotH;
+            ctx.fillStyle = col.acc; ctx.strokeStyle = col.ink; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(x, y, 5.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
         }
 
         // ── Axes ──
-        ctx.strokeStyle = col.ink;
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([]);
-        // Y axis
-        ctx.beginPath(); ctx.moveTo(ox, PAD_T - 4); ctx.lineTo(ox, oy); ctx.stroke();
-        // X axis
-        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + plotW + 4, oy); ctx.stroke();
-
-        // Y axis ticks & labels
-        ctx.fillStyle = col.faint;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        [0, 0.25, 0.5, 0.75, 1.0].forEach(frac => {
-            const yy = oy - frac * plotH;
-            const vv = frac * state.emf;
-            ctx.beginPath(); ctx.moveTo(ox - 4, yy); ctx.lineTo(ox, yy); ctx.stroke();
-            ctx.fillText(vv.toFixed(1) + 'V', ox - 7, yy);
-        });
-
-        // X axis label
-        ctx.fillStyle = col.faint;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(document.documentElement.getAttribute('data-lang') === 'cs'
-            ? 'čas (s)  →  0 až 6τ' : 'time (s)  →  0 to 6τ', ox + plotW / 2, oy + 18);
-
-        // Y axis label
         ctx.save();
-        ctx.translate(16, oy - plotH / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(document.documentElement.getAttribute('data-lang') === 'cs'
-            ? 'V_C (volty)' : 'V_C (volts)', 0, 0);
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.3; ctx.fillStyle = col.ink;
+        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox, PAD_T - 16); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ox, PAD_T - 22); ctx.lineTo(ox - 4, PAD_T - 13); ctx.lineTo(ox + 4, PAD_T - 13); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + plotW + 10, oy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ox + plotW + 16, oy); ctx.lineTo(ox + plotW + 7, oy - 4); ctx.lineTo(ox + plotW + 7, oy + 4); ctx.fill();
+        ctx.lineWidth = 1;
+        [0, 0.25, 0.5, 0.75, 1.0].forEach(fr => {
+            const yy = oy - fr * plotH;
+            ctx.beginPath(); ctx.moveTo(ox - 4, yy); ctx.lineTo(ox, yy); ctx.stroke();
+        });
+        for (let k = 1; k <= 6; k++) {
+            const xx = ox + k * plotW / 6;
+            ctx.beginPath(); ctx.moveTo(xx, oy); ctx.lineTo(xx, oy + 4); ctx.stroke();
+        }
         ctx.restore();
+        [0, 0.25, 0.5, 0.75, 1.0].forEach(fr =>
+            mono(dec((fr * state.emf).toFixed(1)) + ' V', ox - 8, oy - fr * plotH, col.faint, 10.5, 'right'));
+        for (let k = 2; k <= 6; k++) mono(k + 'τ', ox + k * plotW / 6, oy + 15, col.faint, 10.5, 'center');
+        const e = sym('U', ox + 10, PAD_T - 18, col.ink, 16, 'left', 'C');
+        mono('(V)', e + 5, PAD_T - 18, col.faint, 10.5, 'left');
+        sym('t', ox + plotW + 4, oy - 13, col.ink, 16, 'right');
 
-        // ── Readouts ──
+        // ── Readouts, written only when they change ──
         const tauS  = tau();
         const vcNow = Vc(simT);
         const iNow  = Ic(simT);
         const qNow  = state.C * 1e-6 * vcNow;  // coulombs
         const pct   = (vcNow / state.emf * 100).toFixed(1);
 
-        function fmtTau(t) {
-            return t >= 0.1 ? t.toFixed(3) + ' s' : (t * 1000).toFixed(1) + ' ms';
+        function fmtTau(tt) {
+            return tt >= 0.1 ? tt.toFixed(3) + ' s' : (tt * 1000).toFixed(1) + ' ms';
         }
         function fmtI(a) {
             const mA = a * 1000;
@@ -2241,29 +2239,33 @@ document.addEventListener('DOMContentLoaded', () => {
             if (uC < 1000) return uC.toFixed(2) + ' μC';
             return mC.toFixed(3) + ' mC';
         }
-
-        const $ = id => document.getElementById(id);
-        if ($('r-tau'))  $('r-tau').textContent  = fmtTau(tauS);
-        if ($('r-vc'))   $('r-vc').textContent   = vcNow.toFixed(3) + ' V';
-        if ($('r-I'))    $('r-I').textContent    = fmtI(iNow);
-        if ($('r-Q'))    $('r-Q').textContent    = fmtQ(qNow);
-        if ($('r-pct'))  $('r-pct').textContent  = pct + ' %';
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        put('r-tau', fmtTau(tauS));
+        put('r-vc', vcNow.toFixed(3) + ' V');
+        put('r-I', fmtI(iNow));
+        put('r-Q', fmtQ(qNow));
+        put('r-pct', pct + ' %');
     }
+    const badge = wrap.querySelector('.canvas-formula-badge');
 
-    /* ── RAF loop ───────────────────────────────────────────────── */
-    let lastSecond = 0, frames = 0;
-    const fpsEl = document.getElementById('sim-fps');
-
+    /* ── the loop: runs while the canvas is on screen ───────────── */
+    let raf = 0, last = 0, visible = true;
     function frame(ts) {
-        draw(ts);
-        frames++;
-        if (ts - lastSecond >= 1000) {
-            if (fpsEl) fpsEl.textContent = frames + ' fps · live';
-            frames = 0; lastSecond = ts;
-        }
-        requestAnimationFrame(frame);
+        const dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0;
+        last = ts;
+        dispT += dt;
+        draw();
+        if (visible) raf = requestAnimationFrame(frame); else { raf = 0; last = 0; }
     }
-    requestAnimationFrame(frame);
+    function start() { if (!raf && visible) { last = 0; raf = requestAnimationFrame(frame); } }
+    if (window.IntersectionObserver)
+        new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) start(); }).observe(wrap);
+    new ResizeObserver(() => { if (!raf) requestAnimationFrame(() => draw()); }).observe(wrap);
+    document.addEventListener('langchange', () => { if (!raf) requestAnimationFrame(() => draw()); });
+    /* a changed parameter restarts the charge from an empty capacitor */
+    document.querySelectorAll('#p-R, #p-C, #p-emf').forEach(el => el.addEventListener('input', () => { dispT = 0; }));
+    document.getElementById('btn-reset')?.addEventListener('click', () => { dispT = 0; });
+    start();
 
 }());
 </script>

@@ -83,7 +83,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Rings of charge</span><span lang="cs">Prstence náboje</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -129,7 +128,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-row">
@@ -137,11 +135,11 @@
                         <span class="readout-val" id="r-phi">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="Q_{\text{annulus}}"></span>
+                        <span class="readout-label"><span data-tex="Q"></span> <span lang="en">of the annulus</span><span lang="cs">mezikruží</span></span>
                         <span class="readout-val" id="r-q">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\varphi_{\text{point}} = kQ/z"></span>
+                        <span class="readout-label"><span lang="en">point charge </span><span lang="cs">bodový náboj </span><span data-tex="kQ/z"></span></span>
                         <span class="readout-val" id="r-pt">—</span>
                     </div>
                 </div>
@@ -247,37 +245,161 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 24-70 — the potential on the axis of a charged annulus. Physics
+   unchanged: φ = σ/(2ε₀)(√(z²+R²) − √(z²+r²)); at the defaults 10.3 mV. */
 (function () {
     'use strict';
-
     const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
 
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    /* ── the house style (shared by the Physics 2 exercise pages) ───────── */
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+    const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                  teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    function palette() {
+        const R = document.documentElement;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#7a2868',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink: tok(R, '--ink', '#363026'), soft: tok(R, '--ink-soft', '#4d4436'),
+            faint: tok(R, '--ink-faint', '#7A6A52'), paper: tok(R, '--paper', '#FFFDF6'),
+            deep: tok(R, '--paper-deep', '#efead6'), stage: tok(R, '--paper-cool', '#eef0e8'),
+            acc: tok(document.body, '--accent', '#3D2E8A'),
         };
     }
-    const col = readCol();
+    let col = palette();
+    /* a number with a real minus sign and, in Czech, a decimal comma */
+    function num(v, d) {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    }
+    function line(x1, y1, x2, y2, c, lw, dash) {
+        ctx.strokeStyle = c; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    /* shaft + filled head, head min(11, 0.36 L); `under` lays a stage-coloured
+       band beneath it where it crosses busy drawing */
+    function arrow(x1, y1, x2, y2, c, lw, under) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        const pass = (cc, w) => {
+            ctx.strokeStyle = cc; ctx.fillStyle = cc; ctx.lineWidth = w;
+            ctx.setLineDash([]); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+            if (cc === col.stage) ctx.stroke();
+        };
+        if (under) pass(col.stage, (lw || 2) + 4);
+        pass(c, lw || 2);
+    }
+    function dot(x, y, r, fill, stroke, lw) {
+        ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
+    }
+    /* a symbol: serif italic with a halo in the stage's tone */
+    function sym(t, x, y, c, size, align, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+        ctx.strokeText(t, x, y);
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+        ctx.lineWidth = 1;
+    }
+    function symW(t, size, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        return ctx.measureText(t).width;
+    }
+    /* a symbol with a drawn subscript; returns the x where it ends */
+    function sub(main, s, x, y, c, size, align, subUpright) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        const w1 = symW(main, size), w2 = symW(s, ss, subUpright);
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        sym(main, x0, y, c, size, 'left');
+        sym(s, x0 + w1 + 1, y + size * 0.3, c, ss, 'left', subUpright);
+        return x0 + tw;
+    }
+    /* a symbol with a stroked vector arrow over it (and an optional subscript) */
+    function vsym(main, x, y, c, size, s, align) {
+        size = size || 17;
+        const w = symW(main, size), ws = s ? symW(s, Math.round(size * 0.7)) + 1 : 0, tw = w + ws;
+        const x0 = align === 'left' ? x : align === 'right' ? x - tw : x - tw / 2;
+        if (s) sub(main, s, x0, y, c, size, 'left'); else sym(main, x0, y, c, size, 'left');
+        const ay = y - size * 0.62, a1 = x0 + 1, a2 = x0 + w + 1;
+        ctx.strokeStyle = col.stage; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2, ay); ctx.stroke();
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a2 + 1, ay); ctx.lineTo(a2 - 4, ay - 2.6); ctx.lineTo(a2 - 4, ay + 2.6);
+        ctx.closePath(); ctx.fill();
+        return x0 + tw;
+    }
+    /* small print: captions, ticks, notes */
+    function small(t, x, y, c, size, align, bold) {
+        ctx.font = (bold ? '600 ' : '') + (size || 11) + 'px ' + SANS;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+    }
+    /* the caption stack, top left: a kicker in capitals and a serif line */
+    function caption(kicker, title, note, x, y) {
+        x = x === undefined ? 16 : x; y = y === undefined ? 18 : y;
+        if (kicker) small(kicker, x, y, col.soft, 10.5);
+        if (title) {
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+            ctx.strokeText(title, x, y + 21); ctx.fillStyle = col.ink; ctx.fillText(title, x, y + 21);
+            ctx.lineWidth = 1;
+        }
+        if (note) small(note, x, y + 40, col.faint, 10.5);
+    }
+    /* a dimension line with end ticks and a serif label, offset to one side */
+    function dim(x1, y1, x2, y2, off, label, c, lsub) {
+        c = c || col.soft;
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L, ny = dx / L;
+        const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+        ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+        ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+        ctx.stroke();
+        if (label) {
+            const k = off >= 0 ? 14 : -14, lx = (ax + bx) / 2 + nx * k, ly = (ay + by) / 2 + ny * k;
+            if (lsub) sub(label, lsub, lx, ly, c, 16); else sym(label, lx, ly, c, 16);
+        }
+    }
+    /* ground or wall, hatched on the side the line is drawn clockwise from */
+    function hatch(x1, y1, x2, y2, depth, c) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = c || col.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
+            ctx.beginPath(); ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth); ctx.stroke();
+        }
+    }
+    /* axes of a plot frame: ticks at round numbers */
+    function niceStep(range, px, want) {
+        const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+        return 10 * p;
+    }
+    function tickTxt(v, step) {
+        const d = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9));
+        return num(v, d);
+    }
 
     const E0 = 8.854e-12, K = 8.99e9;
     const R_M = 0.13;
@@ -287,9 +409,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const show = { rings: !prm };
 
     const SLIDERS = [
-        ['p-z',    'z',    v => v.toFixed(2)],
-        ['p-hole', 'hole', v => v.toFixed(2)],
-        ['p-sig',  'sig',  v => v.toFixed(2) + ' pC/m²'],
+        ['p-z',    'z',    v => num(v, 2)],
+        ['p-hole', 'hole', v => num(v, 2)],
+        ['p-sig',  'sig',  v => num(v, 2) + ' pC/m²'],
     ];
     SLIDERS.forEach(([id, key, fmt]) => {
         const inp = document.getElementById(id);
@@ -297,99 +419,166 @@ document.addEventListener('DOMContentLoaded', () => {
         inp.addEventListener('input', () => {
             state[key] = +inp.value;
             lbl.textContent = fmt(state[key]);
+            redraw();
         });
     });
+    const syncVals = () => SLIDERS.forEach(([id, key, fmt]) => { document.getElementById(id + '-val').textContent = fmt(state[key]); });
+    document.addEventListener('langchange', syncVals);
+    syncVals();
     document.getElementById('btn-reset').addEventListener('click', () => {
         state = { ...DEFAULTS };
-        SLIDERS.forEach(([id, key, fmt]) => {
-            document.getElementById(id).value = state[key];
-            document.getElementById(id + '-val').textContent = fmt(state[key]);
-        });
+        SLIDERS.forEach(([id, key]) => { document.getElementById(id).value = state[key]; });
+        syncVals(); redraw();
     });
     document.getElementById('tgl-rings')?.addEventListener('click', function () {
         show.rings = !show.rings;
         this.querySelector('.toggle-box')?.classList.toggle('on');
+        redraw();
     });
 
-    function physics() {
-        const z = state.z * R_M, r = state.hole * R_M;
+    function physicsAt(zR) {
+        const z = zR * R_M, r = state.hole * R_M;
         const sig = state.sig * 1e-12;
         const phi = sig / (2 * E0) *
             (Math.sqrt(z * z + R_M * R_M) - Math.sqrt(z * z + r * r));
         const Q = sig * Math.PI * (R_M * R_M - r * r);
         return { phi, Q, phiPt: K * Q / z };
     }
+    const physics = () => physicsAt(state.z);
 
-    /* squashed-ellipse perspective drawing */
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
+    /* the ring element sweeps the annulus, one pass every 3.3 s */
+    let sweep = 0;
+    function step(dt) { sweep = (sweep + dt / 3.3) % 1; }
+    function moving() { return show.rings; }
+
+    function draw() {
         const f = physics();
+        const badgeLow = !!wrap.querySelector('.canvas-formula-badge') && W >= 640;
+        const top = 70, bot = H - (badgeLow ? 104 : 24);
+        const narrow = W < 620;
 
-        const cx = W * 0.42, cy = H * 0.66;
-        const Rpx = Math.min(W, H) * 0.34;
-        const rPx = Rpx * state.hole;
-        const squash = 0.38;
+        /* ── the annulus and P, in an oblique view (the disc foreshortened by
+           0.38, the axis by 0.93). The view is fitted to the present z, so the
+           proportions of disc and distance are always true. ── */
+        const SQ = 0.38, AX = Math.sqrt(1 - SQ * SQ);
+        const colW = narrow ? W : W * 0.54;
+        const sceneBot = narrow ? top + (bot - top) * 0.58 : bot;
+        const Rpx = Math.max(40, Math.min(colW * 0.4, (sceneBot - top - 40) / (state.z * AX + SQ + 0.15)));
+        const cx = narrow ? W * 0.5 : colW * 0.5 + 6, cy = sceneBot - Rpx * SQ - 14;
+        const rPx = Rpx * state.hole, zTop = cy - state.z * Rpx * AX;
 
-        /* axis line */
-        const zTop = cy - Math.min(state.z, 4) * Rpx * 0.42;
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
-        ctx.beginPath(); ctx.moveTo(cx, cy + Rpx * squash + 18);
-        ctx.lineTo(cx, zTop - 34); ctx.stroke();
-        ctx.setLineDash([]);
-
-        /* annulus: outer ellipse filled, hole cut */
+        /* the axis behind the disc, then the disc, then the axis in front */
+        line(cx, cy, cx, zTop - 26, col.faint, 1, [5, 5]);
         ctx.beginPath();
-        ctx.ellipse(cx, cy, Rpx, Rpx * squash, 0, 0, Math.PI * 2);
-        ctx.ellipse(cx, cy, rPx, rPx * squash, 0, 0, Math.PI * 2, true);
-        ctx.fillStyle = 'rgba(122,40,104,0.22)';
-        ctx.fill('evenodd');
+        ctx.ellipse(cx, cy, Rpx, Rpx * SQ, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx, cy, rPx, rPx * SQ, 0, 0, Math.PI * 2, true);
+        ctx.fillStyle = col.acc; ctx.globalAlpha = 0.18; ctx.fill('evenodd'); ctx.globalAlpha = 1;
         ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.ellipse(cx, cy, Rpx, Rpx * squash, 0, 0, Math.PI * 2); ctx.stroke();
-        ctx.beginPath(); ctx.ellipse(cx, cy, rPx, rPx * squash, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(cx, cy, Rpx, Rpx * SQ, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(cx, cy, rPx, rPx * SQ, 0, 0, Math.PI * 2); ctx.stroke();
+        line(cx, cy + rPx * SQ, cx, cy + Rpx * SQ + 22, col.faint, 1, [5, 5]);
+        sym('σ', cx - Rpx * 0.92, cy - Rpx * SQ - 12, col.acc, 17);
 
-        /* sweeping ring element */
+        /* the sweeping ring element and its distance to P */
         if (show.rings) {
-            const t = (ts * 0.0003) % 1;
-            const rr = rPx + (Rpx - rPx) * t;
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4;
-            ctx.beginPath(); ctx.ellipse(cx, cy, rr, rr * squash, 0, 0, Math.PI * 2); ctx.stroke();
-            /* distance line ring → P */
-            const px = cx + rr, py = cy;
-            ctx.strokeStyle = col.acc; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cx, zTop); ctx.stroke();
-            ctx.setLineDash([]);
+            const rr = rPx + (Rpx - rPx) * sweep;
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 2.6;
+            ctx.beginPath(); ctx.ellipse(cx, cy, rr, rr * SQ, 0, 0, Math.PI * 2); ctx.stroke();
+            line(cx + rr, cy, cx, zTop, INK.crimson, 1.2, [4, 4]);
+        }
+        /* the two radii on the near side, and z up the axis */
+        line(cx, cy, cx - rPx * 0.7, cy + rPx * SQ * 0.7, col.ink, 1.2);
+        sym('r', cx - rPx * 0.7 - 8, cy + rPx * SQ * 0.7 + 8, col.ink, 16, 'right');
+        line(cx, cy, cx + Rpx * 0.82, cy + Rpx * SQ * 0.57, col.ink, 1.2);
+        sym('R', cx + Rpx * 0.82 + 10, cy + Rpx * SQ * 0.57 + 6, col.ink, 16, 'left');
+        dim(cx, cy, cx, zTop, -22, 'z');
+        dot(cx, zTop, 5, col.ink);
+        sym('P', cx + 12, zTop - 10, col.ink, 17, 'left');
+
+        /* ── φ along the axis, beside the point charge Q would be ── */
+        let gl, gr, gT, gB;
+        if (narrow) { gl = 56; gr = 26; gT = sceneBot + 44; gB = bot - 30; }
+        else { gl = colW + 50; gr = 26; gT = top + 30; gB = bot - 30; }
+        if (gB - gT > 80) {
+            const pw = W - gl - gr, ph = gB - gT, zMax = 4;
+            let pMax = 0;
+            for (let i = 0; i <= 40; i++) { const zz = 0.2 + (zMax - 0.2) * i / 40; pMax = Math.max(pMax, physicsAt(zz).phi); }
+            pMax = Math.max(pMax, physicsAt(0.5).phiPt * 0.6) * 1.12 * 1e3;
+            const X = zz => gl + zz / zMax * pw, Y = p => gB - Math.min(p, pMax * 1.04) / pMax * ph;
+            arrow(gl, gB, gl + pw + 10, gB, col.soft, 1.1);
+            arrow(gl, gB, gl, gT - 12, col.soft, 1.1);
+            for (let zz = 1; zz <= zMax; zz++) {
+                line(X(zz), gB - 4, X(zz), gB + 4, col.soft, 1);
+                small(String(zz), X(zz), gB + 15, col.faint, 10.5, 'center');
+            }
+            const st = niceStep(pMax, ph, 42);
+            for (let v = st; v < pMax * 0.98; v += st) {
+                line(gl - 4, Y(v), gl + 4, Y(v), col.soft, 1);
+                small(tickTxt(v, st), gl - 8, Y(v), col.faint, 10.5, 'right');
+            }
+            small('0', gl - 8, gB + 12, col.faint, 10.5, 'right');
+            small('z / R', gl + pw + 8, gB + 30, col.soft, 11, 'right');
+            sym('φ', gl + 12, gT - 6, col.soft, 16, 'left');
+            small('(mV)', gl + 24, gT - 6, col.soft, 11, 'left');
+            /* kQ/z: the same charge at the centre, dashed */
+            ctx.save(); ctx.beginPath(); ctx.rect(gl, gT + 6, pw + 4, ph - 6); ctx.clip();
+            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.3; ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            for (let i = 0; i <= 160; i++) { const zz = 0.2 + (zMax - 0.2) * i / 160; const y = Y(physicsAt(zz).phiPt * 1e3); i ? ctx.lineTo(X(zz), y) : ctx.moveTo(X(zz), y); }
+            ctx.stroke(); ctx.setLineDash([]);
+            ctx.restore();
+            ctx.strokeStyle = col.acc; ctx.lineWidth = 2.4; ctx.lineJoin = 'round';
+            ctx.beginPath();
+            for (let i = 0; i <= 160; i++) { const zz = 0.2 + (zMax - 0.2) * i / 160; const y = Y(physicsAt(zz).phi * 1e3); i ? ctx.lineTo(X(zz), y) : ctx.moveTo(X(zz), y); }
+            ctx.stroke();
+            const px = X(state.z), py = Y(f.phi * 1e3);
+            line(px, py, px, gB, col.faint, 1, [3, 4]);
+            dot(px, py, 5, col.acc, col.ink);
+            sym('P', px + 10, py - 12, col.ink, 15, 'left');
+            /* the key */
+            const ky = gT + 8, kx = gl + pw * 0.42;
+            line(kx, ky, kx + 22, ky, col.acc, 2.4);
+            small(T('annulus', 'mezikruží'), kx + 28, ky, col.soft, 11);
+            line(kx, ky + 18, kx + 22, ky + 18, col.ink, 1.3, [5, 4]);
+            sym('kQ/z', kx + 28, ky + 18, col.ink, 14, 'left');
         }
 
-        /* point P */
-        ctx.fillStyle = col.ink;
-        ctx.beginPath(); ctx.arc(cx, zTop, 4.5, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = col.soft;
-        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('P', cx + 10, zTop);
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.fillText('z = ' + state.z.toFixed(2) + ' R', cx + 10, (zTop + cy) / 2);
+        caption(T('THE POTENTIAL ON THE AXIS', 'POTENCIÁL NA OSE'),
+                T('summed ring by ring', 'sečtený prstenec po prstenci'));
 
-        /* labels */
-        ctx.fillStyle = col.soft;
-        ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('R', cx + (Rpx + rPx) / 2, cy + 6);
-        ctx.fillText('σ', cx - Rpx * 0.8, cy - Rpx * squash - 16);
-        ctx.fillText('r', cx + rPx * 0.6, cy - 6);
-
-        /* readouts */
-        const $ = id => document.getElementById(id);
-        $('r-phi').textContent = (f.phi * 1e3).toFixed(2) + ' mV';
-        $('r-q').textContent   = (f.Q * 1e12).toFixed(3) + ' pC';
-        $('r-pt').textContent  = (f.phiPt * 1e3).toFixed(2) + ' mV';
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        put('r-phi', num(f.phi * 1e3, 2) + ' mV');
+        put('r-q', num(f.Q * 1e12, 3) + ' pC');
+        put('r-pt', num(f.phiPt * 1e3, 2) + ' mV');
     }
 
-    function frame(ts) {
-        draw(ts || 0);
-        requestAnimationFrame(frame);
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+        W = Math.max(r.width, 200); H = Math.max(r.height, 200);
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    requestAnimationFrame(frame);
+    resize();
+    let raf = 0, visible = true, lastTs = 0;
+    function paint(ts) { col = palette(); ctx.clearRect(0, 0, W, H); draw(ts || performance.now()); }
+    function loop(ts) {
+        raf = 0;
+        const dt = lastTs ? Math.min((ts - lastTs) / 1000, 1 / 20) : 0;
+        lastTs = ts;
+        step(dt);
+        paint(ts);
+        if (visible && moving()) raf = requestAnimationFrame(loop); else lastTs = 0;
+    }
+    function redraw() { if (!raf) raf = requestAnimationFrame(loop); }
+    new ResizeObserver(() => { resize(); paint(); }).observe(wrap);
+    if (window.IntersectionObserver) new IntersectionObserver(es => {
+        visible = es.some(e => e.isIntersecting);
+        if (visible) redraw();
+    }).observe(wrap);
+    document.addEventListener('langchange', redraw);
+
+    redraw();
 }());
 </script>
 

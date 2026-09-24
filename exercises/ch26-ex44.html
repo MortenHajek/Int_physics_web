@@ -83,7 +83,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Match the graph</span><span lang="cs">Trefte graf</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -121,7 +120,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">At current U, R</span><span lang="cs">Při aktuálním U, R</span></div>
@@ -134,7 +132,7 @@
                         <span class="readout-val" id="r-i">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="Q(4.0\,\mathrm{s}) = P \cdot t"></span>
+                        <span class="readout-label" data-tex="Q(4\,\mathrm{s}) = P \cdot t"></span>
                         <span class="readout-val" id="r-q4">—</span>
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Target · 2.50 mJ @ 4.0 s</span><span lang="cs">Cíl · 2,50 mJ @ 4,0 s</span></div>
@@ -235,43 +233,165 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- ── Simulation ────────────────────────────────────────────────── -->
 <script>
+/* Ex. 26-44 — match the printed graph: the heat Q = (U²/R)·t reaches 2.50 mJ
+   at 4.0 s. The default U = 0.200 V is deliberately off-target; the answer is
+   U ≈ 0.112 V at R = 20 Ω. Physics unchanged. */
 (function () {
     'use strict';
-
     const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const wrap = canvas.parentElement;
 
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
+    /* ── the house style (shared by the Physics 2 exercise pages) ───────── */
+    const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+    const T = (en, cs) => (isCS() ? cs : en);
+    const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+    const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                  teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+    const tok = (el, k, d) => getComputedStyle(el).getPropertyValue(k).trim() || d;
+    function palette() {
+        const R = document.documentElement;
         return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#a25a28',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+            ink: tok(R, '--ink', '#363026'), soft: tok(R, '--ink-soft', '#4d4436'),
+            faint: tok(R, '--ink-faint', '#7A6A52'), paper: tok(R, '--paper', '#FFFDF6'),
+            deep: tok(R, '--paper-deep', '#efead6'), stage: tok(R, '--paper-cool', '#eef0e8'),
+            acc: tok(document.body, '--accent', '#3D2E8A'),
         };
     }
-    const col = readCol();
+    let col = palette();
+    /* a number with a real minus sign and, in Czech, a decimal comma */
+    function num(v, d) {
+        const s = (Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d).replace('-', '−');
+        return isCS() ? s.replace('.', ',') : s;
+    }
+    function line(x1, y1, x2, y2, c, lw, dash) {
+        ctx.strokeStyle = c; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    /* shaft + filled head, head min(11, 0.36 L); `under` lays a stage-coloured
+       band beneath it where it crosses busy drawing */
+    function arrow(x1, y1, x2, y2, c, lw, under) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        if (L < 3) return;
+        const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+        const pass = (cc, w) => {
+            ctx.strokeStyle = cc; ctx.fillStyle = cc; ctx.lineWidth = w;
+            ctx.setLineDash([]); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+            if (cc === col.stage) ctx.stroke();
+        };
+        if (under) pass(col.stage, (lw || 2) + 4);
+        pass(c, lw || 2);
+    }
+    function dot(x, y, r, fill, stroke, lw) {
+        ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.2; ctx.stroke(); }
+    }
+    /* a symbol: serif italic with a halo in the stage's tone */
+    function sym(t, x, y, c, size, align, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+        ctx.strokeText(t, x, y);
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+        ctx.lineWidth = 1;
+    }
+    function symW(t, size, upright) {
+        ctx.font = (upright ? '' : 'italic ') + (size || 16) + 'px ' + SERIF;
+        return ctx.measureText(t).width;
+    }
+    /* a symbol with a drawn subscript; returns the x where it ends */
+    function sub(main, s, x, y, c, size, align, subUpright) {
+        size = size || 16;
+        const ss = Math.round(size * 0.7);
+        const w1 = symW(main, size), w2 = symW(s, ss, subUpright);
+        const tw = w1 + 1 + w2;
+        const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+        sym(main, x0, y, c, size, 'left');
+        sym(s, x0 + w1 + 1, y + size * 0.3, c, ss, 'left', subUpright);
+        return x0 + tw;
+    }
+    /* a symbol with a stroked vector arrow over it (and an optional subscript) */
+    function vsym(main, x, y, c, size, s, align) {
+        size = size || 17;
+        const w = symW(main, size), ws = s ? symW(s, Math.round(size * 0.7)) + 1 : 0, tw = w + ws;
+        const x0 = align === 'left' ? x : align === 'right' ? x - tw : x - tw / 2;
+        if (s) sub(main, s, x0, y, c, size, 'left'); else sym(main, x0, y, c, size, 'left');
+        const ay = y - size * 0.62, a1 = x0 + 1, a2 = x0 + w + 1;
+        ctx.strokeStyle = col.stage; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2, ay); ctx.stroke();
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(a1, ay); ctx.lineTo(a2 - 2, ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a2 + 1, ay); ctx.lineTo(a2 - 4, ay - 2.6); ctx.lineTo(a2 - 4, ay + 2.6);
+        ctx.closePath(); ctx.fill();
+        return x0 + tw;
+    }
+    /* small print: captions, ticks, notes */
+    function small(t, x, y, c, size, align, bold) {
+        ctx.font = (bold ? '600 ' : '') + (size || 11) + 'px ' + SANS;
+        ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = c; ctx.fillText(t, x, y);
+    }
+    /* the caption stack, top left: a kicker in capitals and a serif line */
+    function caption(kicker, title, note, x, y) {
+        x = x === undefined ? 16 : x; y = y === undefined ? 18 : y;
+        if (kicker) small(kicker, x, y, col.soft, 10.5);
+        if (title) {
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = col.stage;
+            ctx.strokeText(title, x, y + 21); ctx.fillStyle = col.ink; ctx.fillText(title, x, y + 21);
+            ctx.lineWidth = 1;
+        }
+        if (note) small(note, x, y + 40, col.faint, 10.5);
+    }
+    /* a dimension line with end ticks and a serif label, offset to one side */
+    function dim(x1, y1, x2, y2, off, label, c, lsub) {
+        c = c || col.soft;
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+        const nx = -dy / L, ny = dx / L;
+        const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+        ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+        ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+        ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5);
+        ctx.stroke();
+        if (label) {
+            const k = off >= 0 ? 14 : -14, lx = (ax + bx) / 2 + nx * k, ly = (ay + by) / 2 + ny * k;
+            if (lsub) sub(label, lsub, lx, ly, c, 16); else sym(label, lx, ly, c, 16);
+        }
+    }
+    /* ground or wall, hatched on the side the line is drawn clockwise from */
+    function hatch(x1, y1, x2, y2, depth, c) {
+        const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+        const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+        ctx.strokeStyle = c || col.faint; ctx.lineWidth = 1; ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        for (let d = 0; d < L; d += 11) {
+            const px = x1 + ux * d, py = y1 + uy * d;
+            ctx.beginPath(); ctx.moveTo(px, py);
+            ctx.lineTo(px + nx * depth - ux * depth, py + ny * depth - uy * depth); ctx.stroke();
+        }
+    }
+    /* axes of a plot frame: ticks at round numbers */
+    function niceStep(range, px, want) {
+        const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+        for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+        return 10 * p;
+    }
+    function tickTxt(v, step) {
+        const d = step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9));
+        return num(v, d);
+    }
 
-    /* exercise target: Q = 2.50 mJ after t = 4.0 s */
-    const T_MAX   = 4.0;      /* s   — time axis        */
-    const Q_MAX   = 4.0;      /* mJ  — heat axis        */
-    const Q_TGT   = 2.50;     /* mJ  — target heat      */
-    const LOOP_MS = 5000;     /* one sweep + hold       */
+    const T_MAX = 4.0, Q_MAX = 4.0, Q_TGT = 2.50;   /* s, mJ, mJ */
+    const LOOP = 5.0;                                /* s: one sweep and a hold */
 
     const DEFAULTS = { u: 0.200, r: 20 };   /* deliberately off-target */
     let state = { ...DEFAULTS };
@@ -279,207 +399,157 @@ document.addEventListener('DOMContentLoaded', () => {
     const show = { target: true, anim: !prm };
     if (prm) document.getElementById('tgl-anim')?.querySelector('.toggle-box')?.classList.remove('on');
 
-    /* ── Slider wiring ──────────────────────────────────────────── */
-    const fmtU = v => v.toFixed(3) + ' V';
-    const fmtR = v => v.toFixed(1) + ' Ω';
-    function bindSlider(id, key, fmt) {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
+    const fmtU = v => num(v, 3) + ' V';
+    const fmtR = v => num(v, 1) + ' Ω';
+    const SL = [['p-u', 'u', fmtU], ['p-r', 'r', fmtR]];
+    SL.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
         if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    }
-    bindSlider('p-u', 'u', fmtU);
-    bindSlider('p-r', 'r', fmtR);
-
+        inp.addEventListener('input', () => { state[key] = +inp.value; if (lbl) lbl.textContent = fmt(state[key]); redraw(); });
+    });
+    const syncVals = () => SL.forEach(([id, key, fmt]) => { const l = document.getElementById(id + '-val'); if (l) l.textContent = fmt(state[key]); });
+    document.addEventListener('langchange', syncVals);
+    syncVals();
     document.getElementById('btn-reset')?.addEventListener('click', () => {
         state = { ...DEFAULTS };
-        [['p-u', 'u', fmtU], ['p-r', 'r', fmtR]].forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
-            if (inp) inp.value = state[key];
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
+        SL.forEach(([id, key]) => { const inp = document.getElementById(id); if (inp) inp.value = state[key]; });
+        syncVals(); redraw();
     });
-
     function wireToggle(id, key) {
         document.getElementById(id)?.addEventListener('click', function () {
             show[key] = !show[key];
             this.querySelector('.toggle-box')?.classList.toggle('on');
+            redraw();
         });
     }
     wireToggle('tgl-target', 'target');
     wireToggle('tgl-anim',   'anim');
 
-    /* ── Drawing helpers ────────────────────────────────────────── */
-    function line(x1, y1, x2, y2) {
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    }
+    let clock = 0;
+    function step(dt) { clock = (clock + dt) % LOOP; }
+    function moving() { return show.anim; }
 
-    function resistorV(x, y0, y1, amp) {
-        const n = 6, seg = (y1 - y0) / n;
-        ctx.beginPath(); ctx.moveTo(x, y0);
-        for (let i = 0; i < n; i++) {
-            const dx = (i % 2 === 0 ? 1 : -1) * amp;
-            ctx.lineTo(x + dx, y0 + seg * (i + 0.5));
-        }
-        ctx.lineTo(x, y1); ctx.stroke();
-    }
-
-    /* ── Circuit sketch (left third) ────────────────────────────── */
-    function drawCircuit() {
-        const regionW = W * 0.32;
-        const bw  = Math.max(64, Math.min(136, regionW - 84));
-        const bh  = Math.min(180, H * 0.40);
-        const cxs = Math.max(72, regionW * 0.56);
-        const cys = H * 0.44;
-        const x0 = cxs - bw / 2, x1 = cxs + bw / 2;
-        const y0 = cys - bh / 2, y1 = cys + bh / 2;
-
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
-        line(x0, y0, x1, y0);                       /* top wire    */
-        line(x0, y1, x1, y1);                       /* bottom wire */
-
-        /* left side — battery */
-        line(x0, y0, x0, cys - 6);
-        line(x0, cys + 7, x0, y1);
-        ctx.lineWidth = 2;
-        line(x0 - 11, cys - 6, x0 + 11, cys - 6);   /* long plate  */
-        ctx.lineWidth = 3.4;
-        line(x0 - 5, cys + 7, x0 + 5, cys + 7);     /* short plate */
-
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText('+', x0 + 16, cys - 9);
-        ctx.fillText('−', x0 + 16, cys + 10);
-
-        ctx.fillStyle = col.acc;
-        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('U', x0 - 24, cys + 1);
-
-        /* right side — resistor */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-        line(x1, y0, x1, cys - 22);
-        resistorV(x1, cys - 22, cys + 22, 6);
-        line(x1, cys + 22, x1, y1);
-
-        ctx.fillStyle = col.ink;
-        ctx.font = 'italic 15px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'left';
-        ctx.fillText('R', x1 + 14, cys + 1);
-
-        /* current arrow on top wire */
-        ctx.fillStyle = col.soft;
+    /* the circuit: a cell and a resistor that warms up */
+    function circuit(x0, y0, x1, y1, pW) {
+        const cys = (y0 + y1) / 2;
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.moveTo(cxs + 10, y0);
-        ctx.lineTo(cxs + 1, y0 - 4);
-        ctx.lineTo(cxs + 1, y0 + 4);
-        ctx.closePath(); ctx.fill();
-        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText('I', cxs - 8, y0 - 6);
+        ctx.moveTo(x0, cys - 8); ctx.lineTo(x0, y0); ctx.lineTo(x1, y0); ctx.lineTo(x1, cys - 30);
+        ctx.moveTo(x1, cys + 30); ctx.lineTo(x1, y1); ctx.lineTo(x0, y1); ctx.lineTo(x0, cys + 8);
+        ctx.stroke();
+        line(x0 - 16, cys - 8, x0 + 16, cys - 8, col.ink, 2.2);
+        line(x0 - 8, cys + 8, x0 + 8, cys + 8, col.ink, 4);
+        small('+', x0 + 22, cys - 14, col.soft, 12, 'left', true);
+        sym('U', x0 - 26, cys, col.acc, 18, 'right');
+        /* the resistor */
+        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x1, cys - 30);
+        for (let i = 0; i < 6; i++) ctx.lineTo(x1 + (i % 2 ? -8 : 8), cys - 30 + 60 * (i + 0.5) / 6);
+        ctx.lineTo(x1, cys + 30); ctx.stroke();
+        sym('R', x1 + 20, cys, col.ink, 18, 'left');
+        /* heat rising from it, stronger with P */
+        const heat = Math.min(1, pW / 4e-3);
+        ctx.strokeStyle = INK.crimson; ctx.lineWidth = 1.4; ctx.globalAlpha = 0.25 + 0.75 * heat;
+        for (let k = -1; k <= 1; k++) {
+            ctx.beginPath();
+            for (let i = 0; i <= 16; i++) {
+                const yy = cys - 12 + 24 * i / 16, xx = x1 + 34 + k * 9 + Math.sin(i / 16 * Math.PI * 2 + k) * 3;
+                i ? ctx.lineTo(xx + 18, yy) : ctx.moveTo(xx + 18, yy);
+            }
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        sym('Q', x1 + 60, cys - 26, INK.crimson, 16, 'left');
+        /* the current on the top wire */
+        arrow((x0 + x1) / 2 - 12, y0, (x0 + x1) / 2 + 12, y0, col.ink, 1.6);
+        sym('I', (x0 + x1) / 2, y0 - 16, col.ink, 16);
     }
 
-    /* ── Q(t) plot (right two-thirds) ───────────────────────────── */
-    function drawPlot(ts, q4, matched) {
-        const px0 = W * 0.32 + 46;
-        const px1 = W - 26;
-        const py0 = 34;
-        const py1 = H - 112;   /* leaves the bottom strip to the equation badge */
-        const xOf = t => px0 + (t / T_MAX) * (px1 - px0);
-        const yOf = q => py1 - (q / Q_MAX) * (py1 - py0);
+    function draw() {
+        const pW = state.u * state.u / state.r;      /* W  */
+        const iA = state.u / state.r;                /* A  */
+        const q4 = pW * T_MAX * 1000;                /* mJ */
+        const matched = Math.abs(q4 - Q_TGT) < 0.05;
+        const badgeLow = !!wrap.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 600;
+        const top = 74, bot = H - (badgeLow ? 104 : 26);
 
-        /* axes */
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.2; ctx.lineCap = 'butt';
-        line(px0, py0, px0, py1);
-        line(px0, py1, px1, py1);
-
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        for (let t = 0; t <= T_MAX; t++) {
-            const x = xOf(t);
-            ctx.strokeStyle = col.soft;
-            line(x, py1, x, py1 + 4);
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.fillText(t.toFixed(0), x, py1 + 8);
+        /* the circuit on the left (above the plot on a phone) */
+        if (narrow) circuit(70, top + 30, W * 0.5, top + 150, pW);
+        else {
+            const cw = Math.min(170, W * 0.22);
+            circuit(58, top + 70, 58 + cw, top + 70 + Math.min(220, (bot - top) * 0.46), pW);
         }
-        for (let q = 0; q <= Q_MAX; q++) {
-            const y = yOf(q);
-            line(px0 - 4, y, px0, y);
-            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-            ctx.fillText(q.toFixed(0), px0 - 8, y);
-        }
-        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('t (s)', (px0 + px1) / 2, py1 + 24);
-        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('Q (mJ)', px0 - 4, py0 - 8);
 
-        /* target line — dashed soft ink, square end-marker */
+        /* Q(t) and the target */
+        const px0 = narrow ? 52 : Math.max(W * 0.36, 58 + Math.min(170, W * 0.22) + 150), px1 = W - 30;
+        const py0 = narrow ? top + 210 : top + 30, py1 = bot - 30;
+        const X = t => px0 + (t / T_MAX) * (px1 - px0), Y = q => py1 - (q / Q_MAX) * (py1 - py0);
+        arrow(px0, py1, px1 + 12, py1, col.soft, 1.1);
+        arrow(px0, py1, px0, py0 - 14, col.soft, 1.1);
+        for (let t = 1; t <= T_MAX; t++) { line(X(t), py1 - 4, X(t), py1 + 4, col.soft, 1); small(String(t), X(t), py1 + 15, col.faint, 10.5, 'center'); }
+        for (let q = 1; q <= Q_MAX; q++) { line(px0 - 4, Y(q), px0 + 4, Y(q), col.soft, 1); small(String(q), px0 - 8, Y(q), col.faint, 10.5, 'right'); }
+        small('0', px0 - 8, py1 + 12, col.faint, 10.5, 'right');
+        small('t (s)', px1 + 8, py1 + 30, col.soft, 11, 'right');
+        sym('Q', px0 + 12, py0 - 20, col.soft, 16, 'left');
+        small('(mJ)', px0 + 24, py0 - 20, col.soft, 11, 'left');
+
         if (show.target) {
             const tc = matched ? col.acc : col.soft;
-            ctx.strokeStyle = tc; ctx.lineWidth = 1.6;
-            ctx.setLineDash([6, 5]);
-            line(xOf(0), yOf(0), xOf(T_MAX), yOf(Q_TGT));
-            ctx.setLineDash([]);
-            ctx.fillStyle = tc;
-            ctx.fillRect(xOf(T_MAX) - 3.5, yOf(Q_TGT) - 3.5, 7, 7);
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-            ctx.fillText((matched ? '✓ ' : '') + 'target: 2.50 mJ @ 4.0 s',
-                         xOf(T_MAX) - 2, yOf(Q_TGT) - 10);
+            line(X(0), Y(0), X(T_MAX), Y(Q_TGT), tc, 1.6, [6, 5]);
+            ctx.fillStyle = tc; ctx.fillRect(X(T_MAX) - 4, Y(Q_TGT) - 4, 8, 8);
+            small((matched ? '✓ ' : '') + T('target 2.50 mJ at 4.0 s', 'cíl 2,50 mJ ve 4,0 s'),
+                  X(T_MAX) - 4, Y(Q_TGT) - 16, tc, 11, 'right', matched);
         }
-
-        /* live accent line — Q(t) = (U²/R)·t, swept head */
-        let tEnd = T_MAX;
-        if (show.anim) {
-            const cyc   = (ts % LOOP_MS) / LOOP_MS;
-            const sweep = Math.min(cyc / 0.86, 1);    /* sweep, then hold */
-            tEnd = sweep * T_MAX;
-        }
-        const slope = q4 / T_MAX;                     /* mJ per s */
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(px0, py0 - 2, px1 - px0 + 2, py1 - py0 + 4);
-        ctx.clip();
-        ctx.strokeStyle = col.acc; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
-        line(xOf(0), yOf(0), xOf(tEnd), yOf(slope * tEnd));
-        if (show.anim && tEnd < T_MAX) {
-            ctx.beginPath();
-            ctx.arc(xOf(tEnd), yOf(slope * tEnd), 4, 0, Math.PI * 2);
-            ctx.fillStyle = col.acc; ctx.fill();
-            ctx.strokeStyle = col.paper; ctx.lineWidth = 1.5; ctx.stroke();
-        }
+        /* the line the sliders set, swept out if the animation is on */
+        const slope = q4 / T_MAX;
+        const tEnd = show.anim ? Math.min(clock / (LOOP * 0.86), 1) * T_MAX : T_MAX;
+        ctx.save(); ctx.beginPath(); ctx.rect(px0, py0 - 4, px1 - px0 + 4, py1 - py0 + 6); ctx.clip();
+        line(X(0), Y(0), X(tEnd), Y(slope * tEnd), col.acc, 2.4);
+        if (show.anim && tEnd < T_MAX) dot(X(tEnd), Y(slope * tEnd), 5, col.acc, col.ink);
         ctx.restore();
+        /* named halfway along the drawn part, above and left of it */
+        const lx = tEnd * 0.55;
+        if (tEnd > T_MAX * 0.35 && Y(slope * lx) > py0 + 20) sym('Q = Pt', X(lx) - 12, Y(slope * lx) - 14, col.acc, 16, 'right');
+
+        caption(T('MATCH THE PRINTED GRAPH', 'TREFTE TIŠTĚNÝ GRAF'),
+                matched ? T('the line lies on the target', 'přímka leží na cíli')
+                        : T('set U so the line meets the target', 'nastavte U tak, aby přímka trefila cíl'));
+
+        const put = (id, t) => { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; };
+        const prec = v => { const s = v.toPrecision(3); return isCS() ? s.replace('.', ',') : s; };
+        put('r-p', prec(pW * 1000) + ' mW');
+        put('r-i', prec(iA * 1000) + ' mA');
+        put('r-q4', num(q4, 2) + ' mJ');
+        put('r-match', matched ? T('✓ matched', '✓ shoda') : '—');
     }
 
-    /* ── Main draw ──────────────────────────────────────────────── */
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-
-        const pW  = state.u * state.u / state.r;      /* W  */
-        const iA  = state.u / state.r;                /* A  */
-        const q4  = pW * T_MAX * 1000;                /* mJ */
-        const matched = Math.abs(q4 - Q_TGT) < 0.05;
-
-        drawCircuit();
-        drawPlot(ts, q4, matched);
-
-        const $ = id => document.getElementById(id);
-        if ($('r-p'))     $('r-p').textContent     = (pW * 1000).toPrecision(3) + ' mW';
-        if ($('r-i'))     $('r-i').textContent     = (iA * 1000).toPrecision(3) + ' mA';
-        if ($('r-q4'))    $('r-q4').textContent    = q4.toFixed(2) + ' mJ';
-        if ($('r-match')) $('r-match').textContent = matched ? '✓ matched' : '—';
+    let W = 0, H = 0;
+    function resize() {
+        const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+        W = Math.max(r.width, 200); H = Math.max(r.height, 200);
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-
-    function frame(ts) {
-        draw(ts || 0);
-        requestAnimationFrame(frame);
+    resize();
+    let raf = 0, visible = true, lastTs = 0;
+    function paint(ts) { col = palette(); ctx.clearRect(0, 0, W, H); draw(ts || performance.now()); }
+    function loop(ts) {
+        raf = 0;
+        const dt = lastTs ? Math.min((ts - lastTs) / 1000, 1 / 20) : 0;
+        lastTs = ts;
+        step(dt);
+        paint(ts);
+        if (visible && moving()) raf = requestAnimationFrame(loop); else lastTs = 0;
     }
-    requestAnimationFrame(frame);
+    function redraw() { if (!raf) raf = requestAnimationFrame(loop); }
+    new ResizeObserver(() => { resize(); paint(); }).observe(wrap);
+    if (window.IntersectionObserver) new IntersectionObserver(es => {
+        visible = es.some(e => e.isIntersecting);
+        if (visible) redraw();
+    }).observe(wrap);
+    document.addEventListener('langchange', redraw);
+
+    redraw();
 }());
 </script>
 

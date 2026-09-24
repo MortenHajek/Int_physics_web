@@ -85,7 +85,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Slip sandbox</span><span lang="cs">Sandbox: prokluz</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -111,7 +110,7 @@
                     </div>
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name"><span lang="en">Static μ_s</span><span lang="cs">Statické μ_s</span></span>
+                            <span class="sim-control-name"><span lang="en">Static μ<sub>s</sub></span><span lang="cs">Statické μ<sub>s</sub></span></span>
                             <span class="sim-control-val" id="p-mu-val">0.40</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -147,7 +146,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">The competition</span><span lang="cs">Soupeření</span></div>
@@ -160,12 +158,12 @@
                         <span class="readout-val" id="r-amax">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\mu_s g\ \text{(available)}"></span>
+                        <span class="readout-label"><span data-tex="\mu_s g"></span> <span lang="en">available</span><span lang="cs">k dispozici</span></span>
                         <span class="readout-val" id="r-mug">—</span>
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Verdict</span><span lang="cs">Výsledek</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="\text{top block}"></span>
+                        <span class="readout-label"><span lang="en">top body</span><span lang="cs">horní těleso</span></span>
                         <span class="readout-val" id="r-verdict">—</span>
                     </div>
                     <div class="readout-row">
@@ -248,6 +246,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/oscillation.html"><span lang="en">← Topic: Oscillation</span><span lang="cs">← Téma: Kmity</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -269,178 +268,351 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Ex. 15-24 — m = 1.8 kg rides on M = 10 kg, k = 200 N/m, μ_s = 0.40, the
+   floor frictionless. Together they oscillate at ω = √(k/(M+m)) = 4.12 rad/s;
+   the top body is carried by static friction alone, which must supply
+   m·ω²A at the turning points: ω²A ≤ μ_s g → A_max = μ_s g/ω² = 23 cm.
+   Both bodies are integrated (symplectic Euler, a stick/slip switch, kinetic
+   friction taken equal to the static value as the exercise gives only one),
+   so above A_max the top body really slides and the friction drains energy
+   until the motion can stick again. The gauge compares the friction needed,
+   m|a|, with the friction available, μ_s mg. Played at half speed. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6e6a',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
-    }
-    const col = readCol();
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
 
-    const g = 9.8;
-    /* a in cm */
+    const g = 9.8, SLOW = 0.5;
     const DEFAULTS = { a: 35, mu: 0.40, m: 1.8, mm: 10, k: 200 };
     let state = { ...DEFAULTS };
     const show = { amp: true };
-    let slipDrift = 0;
-
-    const fmtA  = v => v.toFixed(1) + ' cm';
-    const fmtMu = v => v.toFixed(2);
-    const fmtM  = v => v.toFixed(1) + ' kg';
-    const fmtK  = v => v.toFixed(0) + ' N/m';
-    const SLIDERS = [['p-a', 'a', fmtA], ['p-mu', 'mu', fmtMu], ['p-m', 'm', fmtM],
-                     ['p-mm', 'mm', fmtM], ['p-k', 'k', fmtK]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-            slipDrift = 0;
-        });
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    let x = 0, vx = 0, y = 0, vy = 0, stuck = true, need = 0;
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const SLIDERS = [
+        ['p-a',  'a',  v => KIT.dec(v.toFixed(1)) + ' cm'],
+        ['p-mu', 'mu', v => KIT.dec(v.toFixed(2))],
+        ['p-m',  'm',  v => KIT.dec(v.toFixed(1)) + ' kg'],
+        ['p-mm', 'mm', v => KIT.dec(v.toFixed(1)) + ' kg'],
+        ['p-k',  'k',  v => v.toFixed(0) + ' N/m'],
+    ];
+    function release() { x = y = state.a / 100; vx = vy = 0; stuck = true; }
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
-        slipDrift = 0;
+    }
+    SLIDERS.forEach(([id, key, fmt]) => {
+        const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
+        inp.addEventListener('input', () => { state[key] = +inp.value; lbl.textContent = fmt(state[key]); release(); });
     });
-    document.getElementById('tgl-amp')?.addEventListener('click', function () {
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); release(); });
+    document.getElementById('tgl-amp').addEventListener('click', function () {
         show.amp = !show.amp;
-        this.querySelector('.toggle-box')?.classList.toggle('on');
+        this.querySelector('.toggle-box').classList.toggle('on', show.amp);
     });
+    document.addEventListener('langchange', syncLabels);
+    syncLabels(); release();
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const A  = state.a / 100;
-        const om = Math.sqrt(state.k / (state.mm + state.m));
-        const aMax = om * om * A;
-        const avail = state.mu * g;
-        const slips = aMax > avail;
-        const Amax = avail / (om * om);
-
-        /* SHM (slow motion ×0.45) */
-        const phase = om * 0.45 * ts / 1000;
-        const xOsc = Math.sin(phase);            /* −1..1 */
-        const accN = -xOsc;                      /* ∝ acceleration */
-
-        /* visual scale */
-        const floorY = H * 0.66;
-        const eqX = W * 0.52;
-        const Apx = 10 + state.a * 3.2;
-        const bx = eqX + Apx * xOsc;
-
-        /* the top block drifts when demand exceeds friction near turning points */
-        if (slips && Math.abs(xOsc) > 0.92) slipDrift += Math.sign(accN) * 0.5;
-        slipDrift *= 0.999;
-        slipDrift = Math.max(-34, Math.min(34, slipDrift));
-
-        /* wall + floor */
-        const wallX = 40;
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.moveTo(wallX, H * 0.2); ctx.lineTo(wallX, floorY); ctx.stroke();
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        for (let y = H * 0.2 + 6; y < floorY - 2; y += 12) {
-            ctx.beginPath(); ctx.moveTo(wallX, y); ctx.lineTo(wallX - 9, y - 8); ctx.stroke();
+    /* one step of both bodies; friction on the top body is f (the bottom feels −f) */
+    function step(dt) {
+        const { m, mm: M, k, mu } = state, fmax = mu * m * g;
+        let f;
+        if (stuck) {
+            const a = -k * x / (M + m);
+            need = Math.abs(m * a);
+            if (need <= fmax) f = m * a;
+            else { stuck = false; f = Math.sign(a) * fmax; }
+        } else {
+            f = Math.sign(vx - vy) * fmax;
+            need = Math.abs(-k * x / (M + m) * m);
         }
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(wallX, floorY); ctx.lineTo(W - 24, floorY); ctx.stroke();
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-        ctx.fillText('frictionless floor', W - 28, floorY + 8);
-
-        /* amplitude markers */
-        if (show.amp) {
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-            [eqX - Apx, eqX, eqX + Apx].forEach(x => {
-                ctx.beginPath(); ctx.moveTo(x, floorY + 2); ctx.lineTo(x, floorY - 120);
-                ctx.stroke();
-            });
-            ctx.setLineDash([]);
-            ctx.fillStyle = col.soft;
-            ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            ctx.fillText('−A', eqX - Apx, floorY - 124);
-            ctx.fillText('+A', eqX + Apx, floorY - 124);
-        }
-
-        /* spring */
-        const bw = 120, bh = 52;
-        const segN = 9, x0s = wallX, x1s = bx - bw / 2;
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(x0s, floorY - bh / 2);
-        for (let i = 0; i < segN; i++) {
-            ctx.lineTo(x0s + (x1s - x0s) * (i + 0.5) / segN,
-                       floorY - bh / 2 + (i % 2 ? -9 : 9));
-        }
-        ctx.lineTo(x1s, floorY - bh / 2); ctx.stroke();
-
-        /* bottom block M */
-        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
-        ctx.fillRect(bx - bw / 2, floorY - bh, bw, bh);
-        ctx.strokeRect(bx - bw / 2, floorY - bh, bw, bh);
-        ctx.fillStyle = col.ink;
-        ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('M', bx, floorY - bh / 2);
-
-        /* top block m (with slip drift) */
-        const tw = 56, thh = 34;
-        const tx = bx + slipDrift;
-        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
-        ctx.fillRect(tx - tw / 2, floorY - bh - thh, tw, thh);
-        ctx.strokeRect(tx - tw / 2, floorY - bh - thh, tw, thh);
-        ctx.fillStyle = col.ink;
-        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-        ctx.fillText('m', tx, floorY - bh - thh / 2);
-
-        if (slips) {
-            ctx.fillStyle = col.acc;
-            ctx.font = '11px "Geist", ui-sans-serif, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            ctx.fillText('● SLIPPING — A too large', eqX, H * 0.14);
-        }
-
-        const $ = id => document.getElementById(id);
-        if ($('r-om'))     $('r-om').textContent     = om.toFixed(2) + ' rad/s';
-        if ($('r-amax'))   $('r-amax').textContent   = aMax.toFixed(2) + ' m/s²';
-        if ($('r-mug'))    $('r-mug').textContent    = avail.toFixed(2) + ' m/s²';
-        if ($('r-verdict'))$('r-verdict').textContent= slips ? 'slips' : 'holds on';
-        if ($('r-amaxa'))  $('r-amaxa').textContent  = (Amax * 100).toFixed(1) + ' cm';
+        vy += f / m * dt; vx += (-k * x - f) / M * dt;
+        if (stuck) vy = vx;
+        x += vx * dt; y += vy * dt;
+        if (!stuck && Math.abs(vx - vy) < 2e-3 && Math.abs(-k * x / (M + m) * m) <= fmax) { stuck = true; vy = vx; }
+        return f;
     }
 
-    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
+    let fNow = 0;
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const { m, mm: M, k, mu } = state;
+        const om = Math.sqrt(k / (M + m)), amax = om * om * state.a / 100, Amax = mu * g / (om * om);
+        const n = 40, dt = v.dt * SLOW / n;
+        for (let i = 0; i < n; i++) fNow = step(dt);
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const top = 84, bot = H - (low ? 108 : 30);
+
+        /* ── wall, spring, the two bodies on a frictionless floor ── */
+        const wallX = 24, floorY = Math.min(bot - 70, top + (narrow ? 230 : 300));
+        const Mw = narrow ? 96 : 140, Mh = narrow ? 50 : 64, mw = narrow ? 48 : 64, mh = narrow ? 30 : 38;
+        const eqX = wallX + (narrow ? 150 : 240) + Mw / 2;                 /* centre of M at x = 0 */
+        const kx = (W - 30 - Mw / 2 - eqX) / 0.55;                          /* px per metre */
+        const Mx = eqX + x * kx;
+        /* floor and wall */
+        KIT.line(ctx, wallX, floorY, W - 10, floorY, C.ink, 1.6);
+        KIT.line(ctx, wallX, floorY - 150, wallX, floorY, C.ink, 1.6);
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.45; ctx.lineWidth = 0.9;
+        for (let gx = wallX + 6; gx < W - 10; gx += 10) { ctx.beginPath(); ctx.moveTo(gx, floorY); ctx.lineTo(gx - 7, floorY + 7); ctx.stroke(); }
+        for (let gy = floorY - 146; gy < floorY; gy += 10) { ctx.beginPath(); ctx.moveTo(wallX, gy); ctx.lineTo(wallX - 7, gy + 7); ctx.stroke(); }
+        ctx.globalAlpha = 1;
+        /* spring */
+        const sy = floorY - Mh / 2, s0 = wallX, s1 = Mx - Mw / 2, turns = 12;
+        ctx.strokeStyle = C.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(s0, sy);
+        const lead = 12;
+        ctx.lineTo(s0 + lead, sy);
+        for (let i = 0; i <= turns * 2; i++) {
+            const px = s0 + lead + (s1 - s0 - 2 * lead) * i / (turns * 2);
+            ctx.lineTo(px, sy + (i % 2 ? -9 : 9) * (i && i < turns * 2 ? 1 : 0));
+        }
+        ctx.lineTo(s1, sy); ctx.stroke();
+        KIT.sym(ctx, 'k', (s0 + s1) / 2, sy - 22, C.soft, 16);
+        /* amplitude marks on the floor: the chosen A, and the limit A_max */
+        if (show.amp) {
+            [[state.a / 100, C.soft, 'A'], [Amax, I.crimson, 'A']].forEach(([aa, col, t], j) => {
+                [-1, 1].forEach(sg => {
+                    const px = eqX + sg * aa * kx;
+                    if (px < wallX + 10 || px > W - 10) return;
+                    KIT.line(ctx, px, floorY + 2, px, floorY + 14 + j * 16, col, 1.4, j ? [] : [3, 2]);
+                });
+                const px = eqX + aa * kx;
+                if (px < W - 20) j ? KIT.symSub(ctx, 'A', 'max', px + 4, floorY + 30, col, 15, 'left')
+                                   : KIT.sym(ctx, 'A', px + 4, floorY + 14, col, 15, 'left');
+            });
+            KIT.line(ctx, eqX, floorY + 2, eqX, floorY + 10, C.ink, 1.4);
+        }
+        /* bodies: the top one drawn at its true offset, clamped to the block's top face */
+        ctx.fillStyle = I.block; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+        ctx.fillRect(Mx - Mw / 2, floorY - Mh, Mw, Mh); ctx.strokeRect(Mx - Mw / 2, floorY - Mh, Mw, Mh);
+        KIT.sym(ctx, 'M', Mx, floorY - Mh / 2, C.ink, 16);
+        const rel = Math.max(-(Mw - mw) / 2, Math.min((Mw - mw) / 2, (y - x) * kx));
+        const mx = Mx + rel, myT = floorY - Mh - mh;
+        ctx.fillStyle = stuck ? '#e9e1c6' : '#f0d2cb'; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+        ctx.fillRect(mx - mw / 2, myT, mw, mh); ctx.strokeRect(mx - mw / 2, myT, mw, mh);
+        KIT.sym(ctx, 'm', mx, myT + mh / 2, C.ink, 16);
+        /* the friction on the top body, drawn at the contact, to the gauge's scale */
+        const cap = mu * m * g, fs = (narrow ? 50 : 70) / Math.max(cap, 1e-6);
+        if (Math.abs(fNow) > 0.02) {
+            KIT.arrow(ctx, mx, floorY - Mh - 3, mx + fNow * fs, floorY - Mh - 3, I.crimson, 2.2, true);
+            KIT.symSub(ctx, 'f', stuck ? 's' : 'd', mx + fNow * fs + (fNow > 0 ? 8 : -8), floorY - Mh - 16, I.crimson, 16, fNow > 0 ? 'left' : 'right');
+        }
+
+        /* ── the gauge: friction needed against friction available ── */
+        const gx = narrow ? 24 : W - 260, gw = narrow ? W - 48 : 230, gy = top + (narrow ? 14 : 20), gh = 16;
+        const kg = gw / Math.max(cap, m * amax) / 1.05;
+        ctx.fillStyle = C.acc; ctx.globalAlpha = 0.25;
+        ctx.fillRect(gx, gy, Math.min(need, cap) * kg, gh); ctx.globalAlpha = 1;
+        if (need > cap) {
+            ctx.save(); ctx.beginPath(); ctx.rect(gx + cap * kg, gy, (need - cap) * kg, gh); ctx.clip();
+            ctx.strokeStyle = I.crimson; ctx.lineWidth = 1;
+            for (let hx = gx + cap * kg - gh; hx < gx + need * kg; hx += 6) { ctx.beginPath(); ctx.moveTo(hx, gy + gh); ctx.lineTo(hx + gh, gy); ctx.stroke(); }
+            ctx.restore();
+        }
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4; ctx.strokeRect(gx, gy, cap * kg, gh);
+        KIT.line(ctx, gx + m * amax * kg, gy - 4, gx + m * amax * kg, gy + gh + 4, C.acc, 1.4, [3, 2]);
+        KIT.small(ctx, KIT.T('needed m|a|', 'potřeba m|a|'), gx, gy + gh + 12, C.acc, 10.5);
+        KIT.small(ctx, 'mω²A', gx + m * amax * kg, gy + gh + 12, C.acc, 10.5, 'center');
+        KIT.small(ctx, KIT.T('available μ_s mg', 'k dispozici μ_s mg').replace('μ_s', 'μₛ'), gx + cap * kg, gy - 9, C.ink, 10.5, 'right');
+
+        KIT.caption(ctx, KIT.T('THE PASSENGER', 'PASAŽÉR'),
+            amax <= mu * g ? KIT.T('static friction is enough: the top body rides along', 'statické tření stačí: horní těleso jede s sebou')
+                           : KIT.T('too much at the turning points: the top body slides', 'v bodech obratu nestačí: horní těleso klouže'));
+        if (!narrow) KIT.small(ctx, KIT.T('slowed 2×', 'zpomaleno 2×'), 16, 64, C.faint, 10.5);
+
+        KIT.put('r-om', KIT.dec(om.toFixed(2)) + ' rad/s');
+        KIT.put('r-amax', KIT.dec(amax.toFixed(2)) + ' m/s²');
+        KIT.put('r-mug', KIT.dec((mu * g).toFixed(2)) + ' m/s²');
+        KIT.put('r-verdict', amax <= mu * g ? KIT.T('holds', 'drží') : KIT.T('slips', 'prokluzuje'));
+        KIT.put('r-amaxa', KIT.dec((Amax * 100).toFixed(1)) + ' cm');
+    }
 }());
 </script>
 

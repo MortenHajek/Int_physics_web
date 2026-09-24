@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>00 Maxwell’s equations and the tools · Electrodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="electrodynamics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Electrodynamics</span><span lang="cs">Elektrodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="electrodynamics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 00 · Introduction</span><span lang="cs">Kapitola 00 · Úvod</span> · Griffiths 1, 7.3</div>
+            <h1><span lang="en">Maxwell’s equations and the tools</span><span lang="cs">Maxwellovy rovnice a nástroje</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\vec F = q\big(\vec E + \vec v\times\vec B\big)"></div>
+            <div class="eq-caption"><span lang="en">The fields are defined by the force they exert on a charge</span><span lang="cs">Pole jsou definována silou, kterou působí na náboj</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Classical electrodynamics is contained in four equations for two vector fields, <span data-tex="\vec E(\vec r,t)"></span> and <span data-tex="\vec B(\vec r,t)"></span>, together with the force they exert on a moving charge. The equations relate the <em>flux</em> and the <em>circulation</em> of the fields to their sources, charge and current; the Lorentz force then states what the fields do. The course first applies the equations to static fields, then treats fields that change in time, rewrites the whole theory in the four-vector language of special relativity, and ends with fields in matter and with radiation.</span><span lang="cs">Klasická elektrodynamika je obsažena ve čtyřech rovnicích pro dvě vektorová pole, <span data-tex="\vec E(\vec r,t)"></span> a <span data-tex="\vec B(\vec r,t)"></span>, a v síle, kterou tato pole působí na pohybující se náboj. Rovnice svazují <em>tok</em> a <em>cirkulaci</em> vektorů pole s jejich zdroji, náboji a proudy; Lorentzova síla pak říká, co pole způsobí. Kurz rovnice nejprve užívá pro statická pole, potom se věnuje polím proměnným v čase, celou teorii přepíše do čtyřvektorového jazyka speciální teorie relativity a končí polem v látkovém prostředí a zářením.</span></p>
+                <p><span lang="en">Three ideas recur throughout: <em>superposition</em> — the equations are linear, so the fields of separate sources add; <em>boundary conditions</em> — a solution is fixed only once its behaviour on the edge of the region is given; and <em>relativity</em> — electric and magnetic fields are two aspects of one field, and which aspect is seen depends on the observer. The mathematics is vector calculus: gradient, divergence and curl, and the two integral theorems that turn Maxwell’s equations from integral into differential form.</span><span lang="cs">Celým kurzem procházejí tři myšlenky: <em>superpozice</em> — rovnice jsou lineární, takže pole jednotlivých zdrojů se sčítají; <em>okrajové podmínky</em> — řešení je určeno teprve tehdy, je-li zadáno jeho chování na hranici oblasti; a <em>relativita</em> — elektrické a magnetické pole jsou dvě stránky jednoho pole a to, kterou z nich pozorovatel vidí, závisí na vztažné soustavě. Matematickým aparátem je vektorová analýza: gradient, divergence a rotace a dvě integrální věty, které převádějí Maxwellovy rovnice z integrálního tvaru do diferenciálního.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\begin{aligned}\nabla\cdot\vec E &amp;= \dfrac{\rho}{\varepsilon_0}\\ \nabla\cdot\vec B &amp;= 0\end{aligned}"></span>
+                        <span class="ck-eq" data-tex="\begin{aligned}\nabla\times\vec E &amp;= -\dfrac{\partial\vec B}{\partial t}\\ \nabla\times\vec B &amp;= \mu_0\vec J + \mu_0\varepsilon_0\dfrac{\partial\vec E}{\partial t}\end{aligned}"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">On the left, the divergences: charge is the source of <span data-tex="\vec E"></span>, and <span data-tex="\vec B"></span> has no sources at all. On the right, the curls: a changing <span data-tex="\vec B"></span> drives a circulation of <span data-tex="\vec E"></span> (Faraday), and a current or a changing <span data-tex="\vec E"></span> drives a circulation of <span data-tex="\vec B"></span> (Ampère, with Maxwell’s correction). Together with the Lorentz force this is the whole of classical electrodynamics in vacuum; every chapter that follows is a special case of these equations, a reformulation of them, or their extension to matter.</span><span lang="cs">Vlevo divergence: zdrojem <span data-tex="\vec E"></span> je náboj, <span data-tex="\vec B"></span> nemá zdroje žádné. Vpravo rotace: proměnné <span data-tex="\vec B"></span> vyvolává cirkulaci <span data-tex="\vec E"></span> (Faraday), proud nebo proměnné <span data-tex="\vec E"></span> vyvolává cirkulaci <span data-tex="\vec B"></span> (Ampère s Maxwellovou opravou). Spolu s Lorentzovou silou je to celá klasická elektrodynamika ve vakuu; každá další kapitola je zvláštním případem těchto rovnic, jejich přeformulováním nebo rozšířením na látkové prostředí.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Integral form — flux</span><span lang="cs">Integrální tvar — tok</span></span>
+                        <span class="cf-eq" data-tex="\oint_{\partial\Omega}\vec E\cdot\mathrm{d}\vec a = \dfrac{1}{\varepsilon_0}\int_{\Omega}\rho\,\mathrm{d}\tau"></span>
+                        <span class="cf-eq" data-tex="\oint_{\partial\Omega}\vec B\cdot\mathrm{d}\vec a = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en"><span data-tex="\Omega"></span> is any region of space and <span data-tex="\partial\Omega"></span> its closed boundary, with the normal pointing outwards. The flux of <span data-tex="\vec E"></span> out of a closed surface measures the charge inside (Gauss’s law); the flux of <span data-tex="\vec B"></span> is always zero — field lines of <span data-tex="\vec B"></span> neither begin nor end. <span class="cf-ref">(Griffiths 2.2.1, 7.3.3)</span></span>
+                        <span lang="cs"><span data-tex="\Omega"></span> je libovolná oblast prostoru a <span data-tex="\partial\Omega"></span> její uzavřená hranice s normálou mířící ven. Tok <span data-tex="\vec E"></span> uzavřenou plochou udává náboj uvnitř (Gaussův zákon); tok <span data-tex="\vec B"></span> je vždy nulový — indukční čáry nikde nezačínají ani nekončí. <span class="cf-ref">(Griffiths 2.2.1, 7.3.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Integral form — circulation</span><span lang="cs">Integrální tvar — cirkulace</span></span>
+                        <span class="cf-eq" data-tex="\oint_{\partial S}\vec E\cdot\mathrm{d}\vec l = -\dfrac{\mathrm{d}}{\mathrm{d}t}\int_S\vec B\cdot\mathrm{d}\vec a"></span>
+                        <span class="cf-eq" data-tex="\oint_{\partial S}\vec B\cdot\mathrm{d}\vec l = \mu_0\int_S\Big(\vec J + \varepsilon_0\dfrac{\partial\vec E}{\partial t}\Big)\cdot\mathrm{d}\vec a"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en"><span data-tex="S"></span> is a surface bounded by the closed curve <span data-tex="\partial S"></span>, the two oriented by the right-hand rule. The circulation of <span data-tex="\vec E"></span> is minus the rate of change of magnetic flux; the circulation of <span data-tex="\vec B"></span> is fixed by the current through <span data-tex="S"></span> plus Maxwell’s <em>displacement current</em> <span data-tex="\varepsilon_0\,\partial\vec E/\partial t"></span>. <span class="cf-ref">(Griffiths 7.3.3)</span></span>
+                        <span lang="cs"><span data-tex="S"></span> je plocha ohraničená uzavřenou křivkou <span data-tex="\partial S"></span>, obě orientované pravidlem pravé ruky. Cirkulace <span data-tex="\vec E"></span> je rovna záporně vzaté rychlosti změny magnetického indukčního toku; cirkulaci <span data-tex="\vec B"></span> určuje proud plochou <span data-tex="S"></span> a Maxwellův <em>posuvný proud</em> <span data-tex="\varepsilon_0\,\partial\vec E/\partial t"></span>. <span class="cf-ref">(Griffiths 7.3.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Divergence theorem</span><span lang="cs">Gaussova–Ostrogradského věta</span></span>
+                        <span class="cf-eq" data-tex="\int_\Omega(\nabla\cdot\vec v)\,\mathrm{d}\tau = \oint_{\partial\Omega}\vec v\cdot\mathrm{d}\vec a"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The sources inside a region add up to the flux out of it. Applied to the flux equations for an arbitrarily small region, it turns <span data-tex="\oint\vec E\cdot\mathrm{d}\vec a = Q/\varepsilon_0"></span> into <span data-tex="\nabla\cdot\vec E = \rho/\varepsilon_0"></span> — the integral form holds for every region, so the integrands must agree point by point. <span class="cf-ref">(Griffiths 1.3.4)</span></span>
+                        <span lang="cs">Zdroje uvnitř oblasti dávají dohromady tok z oblasti ven. Použita na rovnice pro tok v libovolně malé oblasti převádí <span data-tex="\oint\vec E\cdot\mathrm{d}\vec a = Q/\varepsilon_0"></span> na <span data-tex="\nabla\cdot\vec E = \rho/\varepsilon_0"></span> — integrální tvar platí pro každou oblast, takže integrandy se musejí shodovat bod po bodu. <span class="cf-ref">(Griffiths 1.3.4)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Stokes’ theorem</span><span lang="cs">Stokesova věta</span></span>
+                        <span class="cf-eq" data-tex="\int_S(\nabla\times\vec v)\cdot\mathrm{d}\vec a = \oint_{\partial S}\vec v\cdot\mathrm{d}\vec l"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The curl summed over a surface equals the circulation around its edge, whatever the shape of the surface. It converts the two circulation laws into <span data-tex="\nabla\times\vec E = -\partial\vec B/\partial t"></span> and the Ampère–Maxwell law. <span class="cf-ref">(Griffiths 1.3.5)</span></span>
+                        <span lang="cs">Rotace sečtená přes plochu je rovna cirkulaci po jejím okraji, ať má plocha jakýkoli tvar. Převádí oba zákony pro cirkulaci na <span data-tex="\nabla\times\vec E = -\partial\vec B/\partial t"></span> a na Ampérův–Maxwellův zákon. <span class="cf-ref">(Griffiths 1.3.5)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Two identities, and potentials</span><span lang="cs">Dvě identity a potenciály</span></span>
+                        <span class="cf-eq" data-tex="\nabla\times(\nabla f) = 0"></span>
+                        <span class="cf-eq" data-tex="\nabla\cdot(\nabla\times\vec v) = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">A gradient has no curl and a curl has no divergence. Read backwards (on a region without holes), a curl-free field is a gradient and a divergence-free field is a curl — which is why <span data-tex="\vec E = -\nabla V"></span> in statics and <span data-tex="\vec B = \nabla\times\vec A"></span> always. By the <em>Helmholtz theorem</em>, a field that vanishes at infinity is fixed completely by its divergence and its curl, which is exactly what Maxwell’s equations supply. <span class="cf-ref">(Griffiths 1.2.7, 1.6)</span></span>
+                        <span lang="cs">Gradient nemá rotaci a rotace nemá divergenci. Čteno obráceně (na oblasti bez děr): pole bez rotace je gradientem a pole bez divergence je rotací — proto ve statice <span data-tex="\vec E = -\nabla V"></span> a vždy <span data-tex="\vec B = \nabla\times\vec A"></span>. Podle <em>Helmholtzovy věty</em> je pole, které v nekonečnu vymizí, zcela určeno svou divergencí a rotací, a právě ty Maxwellovy rovnice zadávají. <span class="cf-ref">(Griffiths 1.2.7, 1.6)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The Dirac delta</span><span lang="cs">Diracova delta funkce</span></span>
+                        <span class="cf-eq" data-tex="\nabla\cdot\dfrac{\hat r}{r^2} = 4\pi\,\delta^3(\vec r)"></span>
+                        <span class="cf-eq" data-tex="\int f(\vec r)\,\delta^3(\vec r - \vec a)\,\mathrm{d}\tau = f(\vec a)"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The field <span data-tex="\hat r/r^2"></span> spreads outwards everywhere and yet has zero divergence wherever <span data-tex="r \ne 0"></span>; its entire flux, <span data-tex="4\pi"></span>, comes from the origin. The delta function — strictly a distribution, not a function — records this, and lets a point charge be written as a density: <span data-tex="\rho(\vec r) = q\,\delta^3(\vec r - \vec r_q)"></span>. <span class="cf-ref">(Griffiths 1.5)</span></span>
+                        <span lang="cs">Pole <span data-tex="\hat r/r^2"></span> všude míří ven, a přesto má všude kromě <span data-tex="r = 0"></span> nulovou divergenci; celý jeho tok, <span data-tex="4\pi"></span>, vychází z počátku. Delta funkce — přesně vzato distribuce, nikoli funkce — to zachycuje a umožňuje zapsat bodový náboj jako hustotu: <span data-tex="\rho(\vec r) = q\,\delta^3(\vec r - \vec r_q)"></span>. <span class="cf-ref">(Griffiths 1.5)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <span class="topic-nav-btn prev disabled">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">—</div>
+        </span>
+        <a href="electrodynamics-01.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">01 · <span lang="en">Scalar potential and Poisson’s equation</span><span lang="cs">Skalární potenciál a Poissonova rovnice</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="electrodynamics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

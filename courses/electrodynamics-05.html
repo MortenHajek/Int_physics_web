@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>05 Vector potential · Electrodynamics — Interactive Physics Lab</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="course.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="../lang.js"></script>
+</head>
+<body class="electrodynamics">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="../index.html">
+            <span class="glyph">∮</span>
+            <span>Interactive Physics Lab</span>
+            <small><span lang="en">Electrodynamics</span><span lang="cs">Elektrodynamika</span></small>
+        </a>
+        <nav class="nav">
+            <a href="electrodynamics.html"><span lang="en">Course</span><span lang="cs">Kurz</span></a>
+            <a href="#concept"><span lang="en">Concepts</span><span lang="cs">Koncepty</span></a>
+            <div class="lang-switch" role="group" aria-label="Language / Jazyk">
+                <button type="button" data-lang-btn="en">EN</button>
+                <button type="button" data-lang-btn="cs">CS</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="page">
+
+
+    <section class="topic-hero chapter-hero">
+        <div>
+            <div class="num"><span lang="en">Chapter 05 · Magnetostatics I</span><span lang="cs">Kapitola 05 · Magnetostatika I</span> · Griffiths 5.2–5.4</div>
+            <h1><span lang="en">Vector potential</span><span lang="cs">Vektorový potenciál</span></h1>
+        </div>
+        <div class="eq-wrap">
+            <div class="eq-big" data-tex="\nabla^2\vec A = -\mu_0\vec J"></div>
+            <div class="eq-caption"><span lang="en">Three Poisson equations, one for each Cartesian component</span><span lang="cs">Tři Poissonovy rovnice, jedna pro každou kartézskou složku</span></div>
+        </div>
+    </section>
+
+    <section id="concept">
+        <div class="section-head">
+            <h2><span lang="en">Concepts and equations</span><span lang="cs">Pojmy a rovnice</span></h2>
+        </div>
+        <div class="core-concept">
+            <div class="core-concept-text">
+                <p><span lang="en">Magnetostatics deals with steady currents, <span data-tex="\nabla\cdot\vec J = 0"></span>. The magnetic field then has no sources, <span data-tex="\nabla\cdot\vec B = 0"></span>, and its curl is set by the current, <span data-tex="\nabla\times\vec B = \mu_0\vec J"></span>. A divergence-free field is the curl of another field: <span data-tex="\vec B = \nabla\times\vec A"></span>. The <em>vector potential</em> <span data-tex="\vec A"></span> is not unique — any gradient may be added to it — and this freedom is used to impose the <em>Coulomb gauge</em>, <span data-tex="\nabla\cdot\vec A = 0"></span>.</span><span lang="cs">Magnetostatika se zabývá ustálenými proudy, <span data-tex="\nabla\cdot\vec J = 0"></span>. Magnetické pole pak nemá zdroje, <span data-tex="\nabla\cdot\vec B = 0"></span>, a jeho rotaci určuje proud, <span data-tex="\nabla\times\vec B = \mu_0\vec J"></span>. Pole bez divergence je rotací jiného pole: <span data-tex="\vec B = \nabla\times\vec A"></span>. <em>Vektorový potenciál</em> <span data-tex="\vec A"></span> není určen jednoznačně — lze k němu přičíst libovolný gradient — a této volnosti se využije k zavedení <em>Coulombovy kalibrační podmínky</em> <span data-tex="\nabla\cdot\vec A = 0"></span>.</span></p>
+                <p><span lang="en">Ampère’s law then becomes Poisson’s equation for each Cartesian component of <span data-tex="\vec A"></span>, and the whole machinery of electrostatics carries over: the solution can be written down at once, and its curl is the Biot–Savart law. Whether <span data-tex="\vec A"></span> is merely a device or something physical is a question that quantum mechanics answers in its favour.</span><span lang="cs">Ampérův zákon pak přejde v Poissonovu rovnici pro každou kartézskou složku <span data-tex="\vec A"></span> a celý aparát elektrostatiky lze převzít: řešení je možné ihned napsat a jeho rotací vznikne Biotův–Savartův zákon. Otázku, zda je <span data-tex="\vec A"></span> jen pomůckou, nebo něčím fyzikálním, rozhoduje ve prospěch druhé možnosti kvantová mechanika.</span></p>
+            </div>
+            <div class="core-formulas">
+                <div class="core-key">
+                    <span class="ck-label"><span lang="en">Where the chapter starts</span><span lang="cs">Odkud kapitola vychází</span></span>
+                    <div class="ck-eqs">
+                        <span class="ck-eq" data-tex="\vec B = \nabla\times\vec A"></span>
+                        <span class="ck-eq" data-tex="\vec A(\vec r) = \dfrac{\mu_0}{4\pi}\int\dfrac{\vec J(\vec r\,{}&#x27;)}{R}\,\mathrm{d}\tau&#x27;"></span>
+                    </div>
+                    <p class="ck-note"><span lang="en">Compare <span data-tex="V = (4\pi\varepsilon_0)^{-1}\int\rho/R\,\mathrm{d}\tau&#x27;"></span>: the replacement <span data-tex="\rho/\varepsilon_0 \to \mu_0\vec J"></span> turns one into the other, component by component. The analogy holds for Cartesian components only — in curvilinear coordinates the unit vectors themselves vary, and <span data-tex="\nabla^2\vec A"></span> is not the Laplacian of each component.</span><span lang="cs">Srovnejme s <span data-tex="V = (4\pi\varepsilon_0)^{-1}\int\rho/R\,\mathrm{d}\tau&#x27;"></span>: záměna <span data-tex="\rho/\varepsilon_0 \to \mu_0\vec J"></span> převede jedno v druhé, složku po složce. Analogie platí jen pro kartézské složky — v křivočarých souřadnicích se mění i jednotkové vektory a <span data-tex="\nabla^2\vec A"></span> není laplaciánem jednotlivých složek.</span></p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">The equations of magnetostatics</span><span lang="cs">Rovnice magnetostatiky</span></span>
+                        <span class="cf-eq" data-tex="\nabla\cdot\vec B = 0,\qquad \nabla\times\vec B = \mu_0\vec J"></span>
+                        <span class="cf-eq" data-tex="\oint\vec B\cdot\mathrm{d}\vec l = \mu_0 I"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Ampère’s law in integral form yields <span data-tex="\vec B"></span> only when symmetry does most of the work — an infinite wire, a long solenoid, a toroid. It also presupposes a closed, steady current: for a finite segment of wire, or a capacitor that is charging, different surfaces spanning the same loop give different answers, which points ahead to Maxwell’s correction. <span class="cf-ref">(Griffiths 5.3)</span></span>
+                        <span lang="cs">Ampérův zákon v integrálním tvaru vydá <span data-tex="\vec B"></span> jen tehdy, když většinu práce udělá symetrie — nekonečný vodič, dlouhý solenoid, toroid. Navíc předpokládá uzavřený ustálený proud: pro konečný úsek vodiče nebo pro nabíjející se kondenzátor dávají různé plochy napnuté na tutéž smyčku různé výsledky, což ukazuje k Maxwellově opravě. <span class="cf-ref">(Griffiths 5.3)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Curl of a curl</span><span lang="cs">Rotace rotace</span></span>
+                        <span class="cf-eq" data-tex="\nabla\times(\nabla\times\vec A) = \nabla(\nabla\cdot\vec A) - \nabla^2\vec A"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">With <span data-tex="\vec B = \nabla\times\vec A"></span>, Ampère’s law reads <span data-tex="\nabla(\nabla\cdot\vec A) - \nabla^2\vec A = \mu_0\vec J"></span>. The first term is what the gauge condition removes. <span class="cf-ref">(Griffiths 1.2.7)</span></span>
+                        <span lang="cs">S <span data-tex="\vec B = \nabla\times\vec A"></span> zní Ampérův zákon <span data-tex="\nabla(\nabla\cdot\vec A) - \nabla^2\vec A = \mu_0\vec J"></span>. První člen je tím, co odstraní kalibrační podmínka. <span class="cf-ref">(Griffiths 1.2.7)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Coulomb gauge</span><span lang="cs">Coulombova kalibrační podmínka</span></span>
+                        <span class="cf-eq" data-tex="\vec A\;\to\;\vec A + \nabla\lambda"></span>
+                        <span class="cf-eq" data-tex="\nabla\cdot\vec A = 0"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Adding a gradient leaves <span data-tex="\vec B"></span> unchanged. The condition can always be met: if a given <span data-tex="\vec A_0"></span> has <span data-tex="\nabla\cdot\vec A_0 \ne 0"></span>, solving <span data-tex="\nabla^2\lambda = -\nabla\cdot\vec A_0"></span> — once more Poisson’s equation — gives the <span data-tex="\lambda"></span> that removes it. It is also called the radiation or transverse gauge. <span class="cf-ref">(Griffiths 5.4.1)</span></span>
+                        <span lang="cs">Přičtení gradientu <span data-tex="\vec B"></span> nezmění. Podmínku lze vždy splnit: má-li zvolené <span data-tex="\vec A_0"></span> nenulovou divergenci, dá řešení rovnice <span data-tex="\nabla^2\lambda = -\nabla\cdot\vec A_0"></span> — opět Poissonovy — takovou funkci <span data-tex="\lambda"></span>, která ji odstraní. Nazývá se též radiační nebo transverzální kalibrace. <span class="cf-ref">(Griffiths 5.4.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Biot–Savart law</span><span lang="cs">Biotův–Savartův zákon</span></span>
+                        <span class="cf-eq" data-tex="\vec B(\vec r) = \dfrac{\mu_0}{4\pi}\int\dfrac{\vec J(\vec r\,{}&#x27;)\times\hat R}{R^2}\,\mathrm{d}\tau&#x27;"></span>
+                        <span class="cf-eq" data-tex="\vec B = \dfrac{\mu_0I}{4\pi}\oint\dfrac{\mathrm{d}\vec l\,{}&#x27;\times\hat R}{R^2}"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">The curl of the solution for <span data-tex="\vec A"></span>. The derivative acts on the unprimed coordinates, so only <span data-tex="1/R"></span> is differentiated, with <span data-tex="\nabla(1/R) = -\hat R/R^2"></span>. For a thin wire, <span data-tex="\vec J\,\mathrm{d}\tau&#x27; \to I\,\mathrm{d}\vec l\,{}&#x27;"></span>. <span class="cf-ref">(Griffiths 5.2.2)</span></span>
+                        <span lang="cs">Rotace řešení pro <span data-tex="\vec A"></span>. Derivuje se podle nečárkovaných souřadnic, takže se derivuje jen <span data-tex="1/R"></span>, přičemž <span data-tex="\nabla(1/R) = -\hat R/R^2"></span>. Pro tenký vodič <span data-tex="\vec J\,\mathrm{d}\tau&#x27; \to I\,\mathrm{d}\vec l\,{}&#x27;"></span>. <span class="cf-ref">(Griffiths 5.2.2)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">Magnetic flux through the potential</span><span lang="cs">Indukční tok pomocí potenciálu</span></span>
+                        <span class="cf-eq" data-tex="\Phi = \int_S\vec B\cdot\mathrm{d}\vec a = \oint_{\partial S}\vec A\cdot\mathrm{d}\vec l"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en">Stokes’ theorem. Outside a long ideal solenoid <span data-tex="\vec B = 0"></span>, yet <span data-tex="\vec A"></span> circulates round it, <span data-tex="A = \Phi/2\pi s"></span>. An electron passing outside feels no force, but the phase of its wave function shifts by <span data-tex="e\Phi/\hbar"></span> — the Aharonov–Bohm effect, in which <span data-tex="\vec A"></span> has physical consequences where <span data-tex="\vec B"></span> has none. <span class="cf-ref">(Griffiths 5.4.1)</span></span>
+                        <span lang="cs">Stokesova věta. Vně dlouhého ideálního solenoidu je <span data-tex="\vec B = 0"></span>, přesto <span data-tex="\vec A"></span> kolem něj obíhá, <span data-tex="A = \Phi/2\pi s"></span>. Elektron prolétající vně nepocítí žádnou sílu, fáze jeho vlnové funkce se však posune o <span data-tex="e\Phi/\hbar"></span> — Aharonovův–Bohmův jev, v němž má <span data-tex="\vec A"></span> fyzikální důsledky tam, kde <span data-tex="\vec B"></span> nemá žádné. <span class="cf-ref">(Griffiths 5.4.1)</span></span>
+                    </p>
+                </div>
+                <div class="core-formula">
+                    <div class="cf-head">
+                        <span class="cf-desc"><span lang="en">A vector that is not a vector</span><span lang="cs">Vektor, který není vektorem</span></span>
+                        <span class="cf-eq" data-tex="\vec r\to-\vec r:\qquad \vec E\to-\vec E,\qquad \vec B\to\vec B"></span>
+                    </div>
+                    <p class="cf-note">
+                        <span lang="en"><span data-tex="\vec E"></span> is a polar vector; <span data-tex="\vec B"></span>, the cross product of two polar vectors (or the curl of one), is an axial vector, a <em>pseudovector</em>: under inversion of space it does not change sign. The Lorentz force <span data-tex="q\vec v\times\vec B"></span> is again polar, as a force must be. <span class="cf-ref">(Griffiths 5.1.2)</span></span>
+                        <span lang="cs"><span data-tex="\vec E"></span> je polární vektor; <span data-tex="\vec B"></span>, vektorový součin dvou polárních vektorů (nebo rotace polárního vektoru), je vektor axiální, <em>pseudovektor</em>: při inverzi prostoru nemění znaménko. Lorentzova síla <span data-tex="q\vec v\times\vec B"></span> je opět polární, jak síla být musí. <span class="cf-ref">(Griffiths 5.1.2)</span></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="topic-nav">
+        <a href="electrodynamics-04.html" class="topic-nav-btn prev">
+            <div class="topic-nav-dir"><span lang="en">← Previous</span><span lang="cs">← Předchozí</span></div>
+            <div class="topic-nav-title">04 · <span lang="en">Electric field in matter</span><span lang="cs">Elektrické pole v látce</span></div>
+        </a>
+        <a href="electrodynamics-06.html" class="topic-nav-btn next">
+            <div class="topic-nav-dir"><span lang="en">Next →</span><span lang="cs">Další →</span></div>
+            <div class="topic-nav-title">06 · <span lang="en">Magnetic dipole and magnetic force</span><span lang="cs">Magnetický dipól a magnetická síla</span></div>
+        </a>
+    </nav>
+
+    <a class="back chapter-back" href="electrodynamics.html">
+        <span class="back-dir"><span lang="en">← All chapters</span><span lang="cs">← Všechny kapitoly</span></span>
+        <span class="back-title"><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </a>
+
+
+    <footer class="foot">
+        <span><span lang="en">Questions/Bugs? :)</span><span lang="cs">Dotazy/Připomínky? :)</span> --->  <a href="mailto:Martin.Hajek3@vutbr.cz" style="color:inherit;text-decoration:none;letter-spacing:inherit;">Martin.Hajek3@vutbr.cz</a></span>
+        <span><span lang="en">Electrodynamics and Special Relativity</span><span lang="cs">Elektrodynamika a speciální teorie relativity</span></span>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false });
+    });
+});
+</script>
+</body>
+</html>

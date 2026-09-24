@@ -39,6 +39,16 @@
     --c-optics:           #d4a418;   /* Saffron — refraction, prisms, lenses */
     --c-quantum:          #2a1f50;   /* Midnight Indigo — atom, photon, uncertainty */
 
+    /* Advanced courses (advanced.html) */
+    --c-theomechanics:    #9a5b13;   /* Bronze — Lagrange, Hamilton */
+    --c-oscwavesoptics:   #2e7d4f;   /* Deep green — oscillators, light */
+    --c-modernphysics:    #a83279;   /* Cerise — quanta, atoms, nuclei */
+    --c-electrodynamics:  #2b50b8;   /* Ultramarine — Maxwell's fields, relativity */
+    --c-statquantum:      #6b7a1a;   /* Olive — ensembles, wavefunctions */
+    --c-advquantum:       #6a3d9a;   /* Violet — operators, spin */
+    --c-solidstate:       #b1282e;   /* Crimson — crystals, bands */
+    --c-particleoptics:   #0e7c86;   /* Deep cyan — electron and ion beams */
+
     /* Vol. I topic accents */
     --c-vectors:    #1e5080;   /* Prussian Blue — direction, geometry */
     --c-kinematics: #7a3c1a;   /* Burnt Sienna — motion paths */
@@ -345,6 +355,7 @@ a.brand {
 }
 .vol-btn.vol-1 { border-top: 3px solid var(--c-mechanics); }
 .vol-btn.vol-2 { border-top: 3px solid var(--c-electric); }
+.vol-btn.vol-3 { border-top: 3px solid var(--ink); }
 
 .vol-btn .vol-label {
     font-family: var(--f-serif);
@@ -1003,6 +1014,49 @@ body[class] footer.foot {
 /* ============================================================
    Topic accents at page level
    ============================================================ */
+/* Advanced courses — the cards on advanced.html and the body of each courses/ page */
+.theoretical-mechanics     { --accent: var(--c-theomechanics); }
+.oscillations-waves-optics { --accent: var(--c-oscwavesoptics); }
+.modern-physics            { --accent: var(--c-modernphysics); }
+.electrodynamics           { --accent: var(--c-electrodynamics); }
+.stat-quantum              { --accent: var(--c-statquantum); }
+.solid-state               { --accent: var(--c-solidstate); }
+.particle-optics           { --accent: var(--c-particleoptics); }
+.adv-quantum               { --accent: var(--c-advquantum); }
+
+/* "← Back" button on advanced.html and the course pages */
+.back {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: min(100%, 340px);
+    padding: 18px 24px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper-vol);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.back:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+    border-bottom-color: var(--ink);
+}
+.back-dir {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+.back-title {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.1;
+}
+.course-chapters { margin-bottom: 88px; }
+
 body.mechanics  { --accent: var(--c-mechanics); }
 body.dynamics   { --accent: var(--c-mechanics); }
 body.springs    { --accent: var(--c-springs); }
@@ -1320,8 +1374,8 @@ html {
 /* The equation strip. On a phone mobile.js lifts the badge off the canvas
    and puts it here, directly under the picture, set like a displayed
    equation beneath a figure. The panel grows by the strip so the canvas
-   keeps the height its scene was laid out for. Movie badges keep their
-   dark stage colours from their own rules — only the position changes. */
+   keeps the height its scene was laid out for. The mission's badge keeps
+   its dark stage colours from its own rule — only the position changes. */
 @media (max-width: 640px) {
     .canvas-panel > .canvas-formula-badge.eq-strip {
         position: static;
@@ -1347,9 +1401,8 @@ html {
         border-top: 1px dashed var(--ink-faint);
         padding-top: 9px;
     }
-    /* movies: the caption line continues the dark stage */
-    #lab.movie .canvas-panel > .sim-hint.hint-strip,
-    #lab2.movie .canvas-panel > .sim-hint.hint-strip,
+    /* the mission: the caption line continues its dark stage (the movies
+       are on paper and need nothing here) */
     #lab.mission .canvas-panel > .sim-hint.hint-strip { background: rgba(16, 19, 28, 0.86); }
 }
 
@@ -1448,4 +1501,64 @@ html {
     }
     .lang-switch [data-lang-btn] { padding: 10px 13px 9px; font-size: 12px; }
     .ex-nav a { padding-top: 8px; }
+}
+
+/* ══ Sandbox layout, 2026-09-23 ═══════════════════════════════════════
+   The side panels used to set the canvas's height: a .lab grid row is as
+   tall as its tallest cell, so a long stack of sliders stretched the canvas
+   into a portrait strip (circuits 685 × 1367, rotation 685 × 1216). Now the
+   canvas has a height of its own, sized to the screen, and takes the width
+   the narrower panel column gives up; when the panels still run longer, the
+   canvas stays in view beside them (sticky under the 80px header) instead
+   of growing. Movies (.movie, .mission) keep their own rules. Desktop only:
+   tablets and phones keep the stacked layout verified on 2026-09-14. */
+@media (min-width: 961px) {
+    .lab:not(.movie):not(.mission) {
+        grid-template-columns: minmax(0, 1fr) 328px;
+        align-items: start;
+        gap: 24px;
+    }
+    .lab:not(.movie):not(.mission) > .canvas-panel {
+        position: sticky;
+        top: 92px;
+        min-height: 0;
+    }
+    .lab:not(.movie):not(.mission) > .canvas-panel > .canvas-wrap {
+        flex: 0 0 auto;
+        min-height: 0;
+        height: clamp(440px, calc(100vh - 160px), 700px);
+    }
+    .lab:not(.movie):not(.mission) > .side-stack { gap: 16px; }
+}
+/* Compact panels: the same controls in less height. Fine pointers only —
+   a touch screen keeps the larger hit areas set under (pointer: coarse). */
+@media (min-width: 961px) and (pointer: fine) {
+    .lab .side-panel .panel-head { padding: 9px 14px; font-size: 10.5px; letter-spacing: 0.14em; }
+    .lab .side-panel .panel-body { padding: 8px 14px 10px; }
+    .lab .side-panel .sim-control { padding: 7px 0 8px; }
+    .lab .side-panel .sim-control-head { margin-bottom: 6px; }
+    .lab .side-panel .sim-control-name { font-size: 13.5px; }
+    .lab .side-panel .readout-section { padding: 6px 0 2px; }
+    .lab .side-panel .readout-row { padding: 5px 0; }
+    .lab .side-panel .readout-label { font-size: 14.5px; }
+    .lab .side-panel .toggle-row { padding: 6px 0; gap: 9px; }
+    .lab .side-panel .toggle-name { font-size: 13.5px; }
+}
+
+/* The canvas head's title is set in capitals, but the status beside it often
+   carries a symbol and a unit ("t = 0,30 s"), and capitals would turn the
+   time into a period and seconds into siemens. The status keeps its case. */
+.canvas-panel .canvas-head > span + span { text-transform: none; letter-spacing: 0.04em; }
+
+/* Tablets (641–960 px) stack the canvas over its panels; the canvas used to
+   take only the panel's 520 px minimum (~470 px of drawing). It now takes a
+   share of the screen, like the desktop rule, without growing with the
+   panels. */
+@media (min-width: 641px) and (max-width: 960px) {
+    .lab:not(.movie):not(.mission) > .canvas-panel { min-height: 0; }
+    .lab:not(.movie):not(.mission) > .canvas-panel > .canvas-wrap {
+        flex: 0 0 auto;
+        min-height: 0;
+        height: clamp(460px, 56vh, 640px);
+    }
 }

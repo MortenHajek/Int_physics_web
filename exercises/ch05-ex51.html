@@ -85,7 +85,6 @@
         <div class="canvas-panel">
             <div class="canvas-head">
                 <span><span class="accent-pip"></span><span lang="en">Cord sandbox</span><span lang="cs">Sandbox: provazy</span></span>
-                <span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-faint);">live</span>
             </div>
             <div class="canvas-wrap">
                 <canvas id="sim-canvas"></canvas>
@@ -139,7 +138,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">System</span><span lang="cs">Soustava</span></div>
@@ -234,6 +232,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/force-and-motion.html"><span lang="en">← Topic: Force &amp; Motion</span><span lang="cs">← Téma: Síla a pohyb</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -255,159 +254,333 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Ex. 5-51 — m₁ = 12, m₂ = 24, m₃ = 31 kg in a row, pulled at m₃ by
+   T₃ = 65 N: a = T₃/Σm = 0,970 m/s², T₁ = m₁a = 11,6 N, T₂ = (m₁ + m₂)a
+   = 34,9 N. The train left to right as in the figure; each cord drawn as
+   a pair of arrows (a cord pulls both blocks it joins), all on one newton
+   scale. Below: every tension as the masses it has to drag, block by block
+   — T₁ drags m₁, T₂ drags m₁ + m₂, T₃ drags all three. Static. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#b94d28',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
+    /* the caption; on a narrow stage a long title wraps onto a second line */
+    function cap(ctx, kicker, title, sub) {
+        const W = ctx.canvas.width / (window.devicePixelRatio || 1), SER = 'italic 17px "Source Serif 4",Georgia,serif';
+        ctx.font = SER;
+        if (ctx.measureText(title).width <= W - 32) { KIT.caption(ctx, kicker, title, sub); return; }
+        const words = title.split(' ');
+        let a = '';
+        while (words.length > 1 && ctx.measureText(a ? a + ' ' + words[0] : words[0]).width <= W - 32) a = a ? a + ' ' + words.shift() : words.shift();
+        KIT.caption(ctx, kicker, a);
+        ctx.font = SER; ctx.fillStyle = KIT.colours().ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(words.join(' '), 16, 60);
+        if (sub) KIT.small(ctx, sub, 16, 79, KIT.colours().faint, 10.5);
     }
-    const col = readCol();
 
-    const DEFAULTS = { t3: 65, m1: 12, m2: 24, m3: 31 };
+
+    const DEFAULTS = { T3: 65, m1: 12, m2: 24, m3: 31 };
     let state = { ...DEFAULTS };
     const show = { tension: true };
-
-    const fmtF = v => v.toFixed(1) + ' N';
-    const fmtM = v => v.toFixed(1) + ' kg';
-    const SLIDERS = [['p-t3', 't3', fmtF], ['p-m1', 'm1', fmtM],
-                     ['p-m2', 'm2', fmtM], ['p-m3', 'm3', fmtM]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw);
+    const SLIDERS = [
+        ['p-t3', 'T3', v => KIT.dec(v.toFixed(1)) + ' N'],
+        ['p-m1', 'm1', v => KIT.dec(v.toFixed(1)) + ' kg'],
+        ['p-m2', 'm2', v => KIT.dec(v.toFixed(1)) + ' kg'],
+        ['p-m3', 'm3', v => KIT.dec(v.toFixed(1)) + ' kg'],
+    ];
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    SLIDERS.forEach(([id, key]) => {
+        document.getElementById(id).addEventListener('input', e => { state[key] = +e.target.value; syncLabels(); V.redraw(); });
     });
-    document.getElementById('tgl-tension')?.addEventListener('click', function () {
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); V.redraw(); });
+    document.addEventListener('langchange', syncLabels);
+    document.getElementById('tgl-tension').addEventListener('click', function () {
         show.tension = !show.tension;
-        this.querySelector('.toggle-box')?.classList.toggle('on');
+        this.querySelector('.toggle-box').classList.toggle('on', show.tension);
+        V.redraw();
     });
+    syncLabels();
 
-    function arrow(x1, y1, x2, y2, color, lw) {
-        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
-        if (len < 2) return;
-        const ux = dx / len, uy = dy / len;
-        const hl = Math.min(12, len * 0.3), hw = hl * 0.42;
-        ctx.strokeStyle = color; ctx.fillStyle = color;
-        ctx.lineWidth = lw; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(x1, y1);
-        ctx.lineTo(x2 - ux * hl * 0.6, y2 - uy * hl * 0.6); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
-        ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
-        ctx.closePath(); ctx.fill();
+    const TINT = ['#d9cfa8', '#e4dab7', '#efe7cc'];
+    function hatch(ctx, x0, x1, y, C) {
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.4; ctx.lineWidth = 0.9;
+        for (let x = x0 + 4; x < x1; x += 10) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 7, y + 7); ctx.stroke(); }
+        ctx.globalAlpha = 1;
     }
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
-        const a  = state.t3 / (state.m1 + state.m2 + state.m3);
-        const T1 = state.m1 * a;
-        const T2 = (state.m1 + state.m2) * a;
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
+        const m = [state.m1, state.m2, state.m3], M = m[0] + m[1] + m[2];
+        const a = state.T3 / M, T = [m[0] * a, (m[0] + m[1]) * a, state.T3];
+        const top = 96, bot = H - (low ? 108 : 34);
+        const L = narrow ? 14 : 36, R = W - (narrow ? 14 : 36);
 
-        /* animated drift: blocks slide right with the computed acceleration, loop */
-        const cyc = (ts / 1000) % 3.2;
-        const tv  = Math.min(cyc, 2.4);
-        const drift = 0.5 * a * tv * tv * 26;          /* px, exaggerated */
+        /* blocks sized by mass (side ∝ √m), cords of fixed length */
+        const side = m.map(q => (narrow ? 11 : 17) * Math.sqrt(q));
+        const free = R - L - (side[0] + side[1] + side[2]);
+        const cord = Math.max(30, free * 0.3), tail = Math.max(50, free * 0.36);
+        const width = side[0] + side[1] + side[2] + 2 * cord + tail;
+        const x0 = L + Math.max(0, (R - L - width) / 2);
+        const gy = top + (bot - top) * (narrow ? 0.42 : 0.45);
+        const xs = [x0, x0 + side[0] + cord, x0 + side[0] + side[1] + 2 * cord];
+        const kN = Math.min((cord - 14) / Math.max(T[1], 1), (tail - 24) / state.T3);
 
-        const gy = H * 0.62;
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.moveTo(20, gy); ctx.lineTo(W - 20, gy); ctx.stroke();
-        ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-        for (let x = 26; x < W - 22; x += 13) {
-            ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x - 8, gy + 9); ctx.stroke();
-        }
-
-        /* blocks sized by mass; on a narrow canvas the whole train (blocks,
-           gaps, pull arrow and its slide) shrinks to fit, the lettering does not */
-        const sizes = [state.m1, state.m2, state.m3].map(m => 34 + m * 1.1);
-        const train = sizes.reduce((s, v) => s + Math.min(v, 84), 0) + 2 * 46 + 54 + state.t3 * 0.9;
-        const k = Math.min(1, (W * 0.94 - 94) / train);
-        const gapPx = 46 * k;
-        let x = W * 0.06 + drift * k;
-        const rects = [];
-        sizes.forEach((s, i) => {
-            const bh = Math.min(s, 74) * k, bw = Math.min(s, 84) * k;
-            rects.push([x, gy - bh, bw, bh]);
-            x += bw + gapPx;
+        KIT.line(ctx, L, gy, R, gy, C.ink, 1.6);
+        hatch(ctx, L, R, gy, C);
+        /* the cords, all at one height, so they are horizontal */
+        const yc = gy - Math.min(...side) * 0.45;
+        KIT.line(ctx, xs[0] + side[0], yc, xs[1], yc, C.soft, 1.4);
+        KIT.line(ctx, xs[1] + side[1], yc, xs[2], yc, C.soft, 1.4);
+        KIT.line(ctx, xs[2] + side[2], yc, xs[2] + side[2] + tail, yc, C.soft, 1.4);
+        m.forEach((q, i) => {
+            ctx.fillStyle = TINT[i]; ctx.fillRect(xs[i], gy - side[i], side[i], side[i]);
+            ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.strokeRect(xs[i], gy - side[i], side[i], side[i]);
+            KIT.symSub(ctx, 'm', String(i + 1), xs[i] + side[i] / 2, gy - side[i] / 2, C.ink, narrow ? 14 : 16);
         });
+        /* each cord pulls both blocks it joins: a pair of equal, opposite arrows */
+        if (show.tension) {
+            [[0, 1], [1, 2]].forEach(([i, j], n) => {
+                const len = T[n] * kN, yA = yc, yB = yc;
+                if (len > 3) {
+                    KIT.arrow(ctx, xs[i] + side[i], yA - 9, xs[i] + side[i] + len, yA - 9, I.green, 2.2, true);
+                    KIT.arrow(ctx, xs[j], yB + 9, xs[j] - len, yB + 9, I.green, 2.2, true);
+                }
+                KIT.symSub(ctx, 'T', String(n + 1), (xs[i] + side[i] + xs[j]) / 2, Math.min(yA, yB) - 26, I.green, 16);
+            });
+        }
+        const lT3 = state.T3 * kN, y3 = yc;
+        KIT.arrow(ctx, xs[2] + side[2], y3 - 9, xs[2] + side[2] + lT3, y3 - 9, I.green, 2.6, true);
+        KIT.symSub(ctx, 'T', '3', xs[2] + side[2] + lT3 + 8, y3 - 22, I.green, 16, 'left');
+        /* the whole train accelerates together */
+        const ay = gy - Math.max(...side) - 44;
+        KIT.arrow(ctx, xs[0], ay, xs[0] + (narrow ? 44 : 70), ay, I.violet, 2, true);
+        KIT.vec(ctx, 'a', xs[0] + (narrow ? 44 : 70) + 12, ay - 4, I.violet, 16);
+        /* the newton scale */
+        const step = [5, 10, 20, 50].find(s => s * kN >= 26) || 50;
+        KIT.line(ctx, R - step * kN, 84, R, 84, C.soft, 1.4);
+        KIT.line(ctx, R - step * kN, 80, R - step * kN, 88, C.soft, 1); KIT.line(ctx, R, 80, R, 88, C.soft, 1);
+        KIT.small(ctx, step + ' N', R - step * kN - 6, 84, C.soft, 10.5, 'right');
 
-        /* cords + tension labels */
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.8;
-        for (let i = 0; i < 2; i++) {
-            const [xa, ya, wa, ha] = rects[i];
-            const [xb, yb] = rects[i + 1];
-            const y = gy - 18;
-            ctx.beginPath(); ctx.moveTo(xa + wa, y); ctx.lineTo(xb, y); ctx.stroke();
-            if (show.tension) {
-                ctx.fillStyle = col.acc;
-                ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-                ctx.fillText('T' + (i + 1), (xa + wa + xb) / 2, y - 6);
+        /* ── each tension, as the masses it drags ───────────────────── */
+        const bb = { x: L + 40, y: gy + 44, w: R - L - 60 };
+        const rowH = Math.max(22, Math.min(34, (bot - bb.y - 20) / 3.4));
+        const kb = bb.w / Math.max(state.T3, 1);
+        KIT.small(ctx, KIT.T('each cord drags every block behind it', 'každý provaz táhne všechny kvádry za sebou'), bb.x - 40, bb.y - 14, C.soft, 11);
+        for (let n = 0; n < 3; n++) {
+            const y = bb.y + n * (rowH + 8);
+            let x = bb.x;
+            for (let i = 0; i <= n; i++) {
+                const w = m[i] * a * kb;
+                ctx.fillStyle = TINT[i]; ctx.fillRect(x, y, w, rowH);
+                ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, rowH);
+                if (w > 44) KIT.symSub(ctx, 'm', String(i + 1), x + w / 2 - 6, y + rowH / 2, C.soft, 14, 'center', 'a');
+                x += w;
             }
+            KIT.line(ctx, x, y - 2, x, y + rowH + 2, I.green, 2.2);
+            KIT.symSub(ctx, 'T', String(n + 1), bb.x - 10, y + rowH / 2, I.green, 16, 'right');
         }
-        /* pulling force */
-        const [x3, y3, w3, h3] = rects[2];
-        arrow(x3 + w3, gy - 18, x3 + w3 + (30 + state.t3 * 0.9) * k, gy - 18, col.acc, 2.6);
-        ctx.fillStyle = col.acc;
-        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-        ctx.fillText('T₃', x3 + w3 + (34 + state.t3 * 0.9) * k, gy - 24);
 
-        /* draw blocks on top */
-        rects.forEach(([bx, by, bw, bh], i) => {
-            ctx.fillStyle = col.paper;
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
-            ctx.fillRect(bx, by, bw, bh);
-            ctx.strokeRect(bx, by, bw, bh);
-            ctx.fillStyle = col.ink;
-            ctx.font = 'italic 14px "Source Serif 4", Georgia, serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('m' + (i + 1), bx + bw / 2, by + bh / 2);
-        });
+        cap(ctx, KIT.T('THREE BLOCKS, THREE CORDS', 'TŘI KVÁDRY, TŘI PROVAZY'),
+                    KIT.T('one acceleration for all, a different tension in each cord', 'jedno zrychlení pro všechny, v každém provazu jiné napětí'));
 
-        const $ = id => document.getElementById(id);
-        if ($('r-a'))  $('r-a').textContent  = a.toFixed(3) + ' m/s²';
-        if ($('r-t1')) $('r-t1').textContent = T1.toFixed(1) + ' N';
-        if ($('r-t2')) $('r-t2').textContent = T2.toFixed(1) + ' N';
+        KIT.put('r-a', KIT.dec(a.toFixed(3)) + ' m/s²');
+        KIT.put('r-t1', KIT.dec(T[0].toFixed(1)) + ' N');
+        KIT.put('r-t2', KIT.dec(T[1].toFixed(1)) + ' N');
     }
-
-    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
 }());
 </script>
 

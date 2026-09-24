@@ -74,6 +74,13 @@
 .assignment-text .given { white-space: nowrap; }
 
 /* ── Sandbox canvas internals (same contract as topic pages) ──── */
+/* The stage a sandbox is drawn on: Vol I (mechanics) sits on the warm
+   parchment of its topic pages, Vol II keeps the cool tint. Canvas label
+   halos read --stage too, so they always match the paper under them. */
+body.vectors, body.kinematics, body.dynamics, body.energy, body.systems,
+body.rotation, body.gravity, body.oscillation, body.waves, body.thermo {
+    --stage: var(--paper-deep);
+}
 .canvas-wrap {
     flex: 1;
     position: relative;
@@ -82,7 +89,7 @@
     background:
         linear-gradient(var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
         linear-gradient(90deg, var(--ink-grid) 1px, transparent 1px) 0 0 / 16px 16px,
-        var(--paper-cool);
+        var(--stage, var(--paper-cool));
 }
 #sim-canvas {
     position: absolute;

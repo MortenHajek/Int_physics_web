@@ -105,7 +105,7 @@
                 <div class="panel-body">
                     <div class="sim-control">
                         <div class="sim-control-head">
-                            <span class="sim-control-name"><span lang="en">Block mass m</span><span lang="cs">Hmotnost klínku m</span></span>
+                            <span class="sim-control-name"><span lang="en">Block mass m</span><span lang="cs">Hmotnost kvádru m</span></span>
                             <span class="sim-control-val" id="p-m-val">250 g</span>
                         </div>
                         <input class="sim-control-range" type="range"
@@ -133,7 +133,6 @@
             <div class="side-panel">
                 <div class="panel-head">
                     <span><span class="accent-pip"></span><span lang="en">Readout</span><span lang="cs">Odečty</span></span>
-                    <span style="font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);">live</span>
                 </div>
                 <div class="panel-body">
                     <div class="readout-section"><span lang="en">During the compression</span><span lang="cs">Během stlačování</span></div>
@@ -147,11 +146,11 @@
                     </div>
                     <div class="readout-section" style="margin-top:4px;"><span lang="en">Deduced</span><span lang="cs">Odvozeno</span></div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="v\ \text{at impact}"></span>
+                        <span class="readout-label"><span data-tex="v"></span> <span lang="en">at impact</span><span lang="cs">při dopadu</span></span>
                         <span class="readout-val" id="r-v">—</span>
                     </div>
                     <div class="readout-row">
-                        <span class="readout-label" data-tex="d'\ \text{at}\ 2v"></span>
+                        <span class="readout-label"><span data-tex="d'"></span> <span lang="en">for twice the speed</span><span lang="cs">pro dvojnásobnou rychlost</span></span>
                         <span class="readout-val" id="r-d2">—</span>
                     </div>
                 </div>
@@ -256,6 +255,7 @@
 
     <nav class="ex-nav">
         <a href="../topics/work-and-energy.html"><span lang="en">← Topic: Work &amp; Energy</span><span lang="cs">← Téma: Práce a energie</span></a>
+        <a href="vol1.html"><span lang="en">All Physics 1 exercises</span><span lang="cs">Všechny úlohy Fyziky 1</span></a>
         <a href="../index.html"><span lang="en">All topics ↑</span><span lang="cs">Všechna témata ↑</span></a>
     </nav>
 
@@ -277,191 +277,345 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+/* Ex. 7-54 — m = 250 g lands on a spring k = 2,5 N/cm and compresses it
+   d = 12 cm before it first stops. Down to that point W_g = mgd = 0,29 J,
+   W_s = −½kd² = −1,80 J, and W_g + W_s = 0 − ½mv² gives v = 3,5 m/s at
+   impact; at twice that speed ½kd'² − mgd' = ½m(2v)² gives d' = 23 cm.
+   The fall is drawn to scale: the block drops from h = v²/2g above the
+   spring (0,61 m at the defaults), lands and compresses it to d — slowed
+   4×, looped. Right: the two works and their sum, ΔE_k, as signed bars. */
 (function () {
     'use strict';
-
-    const canvas = document.getElementById('sim-canvas');
-    const ctx    = canvas.getContext('2d');
-    const dpr    = window.devicePixelRatio || 1;
-    const wrap   = canvas.parentElement;
-
-    let W = 0, H = 0;
-    function resize() {
-        const r = wrap.getBoundingClientRect();
-        W = Math.max(r.width,  200);
-        H = Math.max(r.height, 200);
-        canvas.width  = Math.round(W * dpr);
-        canvas.height = Math.round(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    new ResizeObserver(resize).observe(wrap);
-
-    function readCol() {
-        const s = getComputedStyle(document.documentElement);
-        return {
-            ink:   s.getPropertyValue('--ink').trim()       || '#363026',
-            acc:   getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#2d6b3a',
-            soft:  s.getPropertyValue('--ink-soft').trim()  || '#4d4436',
-            faint: s.getPropertyValue('--ink-faint').trim() || '#7A6A52',
-            paper: s.getPropertyValue('--paper').trim()     || '#FFFDF6',
+    /* ── the house style: drawing helpers and a loop that runs only when it
+          must (the same kit on every Physics 2 exercise page of this pass) ── */
+    const KIT = (function () {
+        const SERIF = '"Source Serif 4",Georgia,serif', SANS = '"Geist",ui-sans-serif,sans-serif';
+        const INK = { blue: '#2a62a8', green: '#2d7a45', crimson: '#a8243b', violet: '#6d4a9c',
+                      teal: '#127070', amber: '#c47a17', block: '#e9e1c6' };
+        const isCS = () => document.documentElement.getAttribute('data-lang') === 'cs';
+        const T = (en, cs) => (isCS() ? cs : en);
+        const dec = s => (isCS() ? String(s).replace('.', ',') : String(s));
+        const num = (v, d) => dec((Math.abs(v) < Math.pow(10, -d) / 2 ? 0 : v).toFixed(d)).replace('-', '−');
+        const tok = (k, d) => getComputedStyle(document.documentElement).getPropertyValue(k).trim() || d;
+        function colours() {
+            return { ink: tok('--ink', '#363026'), soft: tok('--ink-soft', '#4d4436'),
+                     faint: tok('--ink-faint', '#7A6A52'), paper: tok('--paper', '#FFFDF6'),
+                     stage: getComputedStyle(document.body).getPropertyValue('--stage').trim() || tok('--paper-cool', '#FFFFEC'),
+                     acc: getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#363026' };
+        }
+        let C = colours();
+        function sym(ctx, t, x, y, col, size, align) {
+            ctx.font = 'italic ' + (size || 16) + 'px ' + SERIF;
+            ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+            ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            ctx.strokeText(t, x, y); ctx.fillStyle = col; ctx.fillText(t, x, y); ctx.lineWidth = 1;
+        }
+        /* a symbol with a subscript (and an optional tail, e.g. "/2"), drawn;
+           all halos go down before any ink, so no halo bites into a glyph;
+           returns the x where it ends */
+        function symSub(ctx, m, s, x, y, col, size, align, tail) {
+            size = size || 16;
+            const ss = Math.round(size * 0.7), fm = 'italic ' + size + 'px ' + SERIF, fs = 'italic ' + ss + 'px ' + SERIF;
+            ctx.font = fm; const w1 = ctx.measureText(m).width, w3 = tail ? ctx.measureText(tail).width + 1 : 0;
+            ctx.font = fs; const w2 = ctx.measureText(s).width, tw = w1 + 1 + w2 + w3;
+            const x0 = align === 'right' ? x - tw : align === 'left' ? x : x - tw / 2;
+            const parts = [[m, x0, y, fm], [s, x0 + w1 + 1, y + size * 0.28, fs]];
+            if (tail) parts.push([tail, x0 + w1 + 2 + w2, y, fm]);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+            ctx.lineWidth = 4; ctx.strokeStyle = C.stage;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.strokeText(t, px, py); });
+            ctx.fillStyle = col;
+            parts.forEach(([t, px, py, f]) => { ctx.font = f; ctx.fillText(t, px, py); });
+            ctx.lineWidth = 1;
+            return x0 + tw;
+        }
+        /* a letter with a vector arrow stroked over it */
+        function vec(ctx, t, x, y, col, size, s) {
+            size = size || 17;
+            ctx.font = 'italic ' + size + 'px ' + SERIF;
+            const w = ctx.measureText(t).width;
+            if (s) symSub(ctx, t, s, x - w / 2, y, col, size, 'left'); else sym(ctx, t, x, y, col, size);
+            const ay = y - size * 0.62, x1 = x - w / 2 + 1, x2 = x + w / 2 + 2;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(x1, ay); ctx.lineTo(x2 - 2, ay); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2 + 1, ay); ctx.lineTo(x2 - 4, ay - 2.6); ctx.lineTo(x2 - 4, ay + 2.6);
+            ctx.closePath(); ctx.fill();
+        }
+        function small(ctx, t, x, y, col, size, align) {
+            ctx.font = (size || 11) + 'px ' + SANS;
+            ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = col; ctx.fillText(t, x, y);
+        }
+        function caption(ctx, kicker, title, sub) {
+            small(ctx, kicker, 16, 18, C.soft, 10.5);
+            ctx.font = 'italic 17px ' + SERIF; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = C.ink; ctx.fillText(title, 16, 39);
+            if (sub) small(ctx, sub, 16, 58, C.faint, 10.5);
+        }
+        function line(ctx, x1, y1, x2, y2, col, lw, dash) {
+            ctx.strokeStyle = col; ctx.lineWidth = lw || 1; ctx.setLineDash(dash || []);
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+        }
+        function arrow(ctx, x1, y1, x2, y2, col, lw, under) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+            if (L < 3) return;
+            if (under) arrow(ctx, x1, y1, x2, y2, C.stage, (lw || 2) + 3.5);
+            const ux = dx / L, uy = dy / L, hl = Math.min(11, L * 0.36), hw = hl * 0.5;
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw || 2;
+            ctx.setLineDash([]); ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hl * 0.9, y2 - uy * hl * 0.9); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * hl + uy * hw, y2 - uy * hl - ux * hw);
+            ctx.lineTo(x2 - ux * hl - uy * hw, y2 - uy * hl + ux * hw);
+            ctx.closePath(); ctx.fill();
+        }
+        function dot(ctx, x, y, r, fill, stroke) {
+            ctx.fillStyle = fill; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke(); }
+        }
+        /* a dimension line with end ticks and a serif label, offset to one side */
+        function dim(ctx, x1, y1, x2, y2, off, label, col) {
+            const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+            const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+            col = col || C.soft;
+            ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+            ctx.moveTo(ax - nx * 5, ay - ny * 5); ctx.lineTo(ax + nx * 5, ay + ny * 5);
+            ctx.moveTo(bx - nx * 5, by - ny * 5); ctx.lineTo(bx + nx * 5, by + ny * 5); ctx.stroke();
+            if (label) sym(ctx, label, (ax + bx) / 2 + nx * (off >= 0 ? 14 : -14), (ay + by) / 2 + ny * (off >= 0 ? 14 : -14), col, 16);
+        }
+        /* ⊙ out of the page, ⊗ into it */
+        function outOf(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, Math.max(1.2, r * 0.32), 0, Math.PI * 2); ctx.fill();
+        }
+        function into(ctx, x, y, r, col) {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+            const q = r * 0.62; ctx.beginPath();
+            ctx.moveTo(x - q, y - q); ctx.lineTo(x + q, y + q); ctx.moveTo(x + q, y - q); ctx.lineTo(x - q, y + q); ctx.stroke();
+        }
+        const niceStep = (range, px, want) => {
+            const raw = range * (want || 60) / Math.max(px, 1), p = Math.pow(10, Math.floor(Math.log10(raw)));
+            for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p;
+            return 10 * p;
         };
+        /* a graph frame: box {x,y,w,h}, ranges, ticks at round numbers, titles */
+        function graph(ctx, box, xr, yr, o) {
+            o = o || {};
+            const X = v => box.x + (v - xr[0]) / (xr[1] - xr[0]) * box.w;
+            const Y = v => box.y + box.h - (v - yr[0]) / (yr[1] - yr[0]) * box.h;
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(box.x, box.y); ctx.lineTo(box.x, box.y + box.h); ctx.lineTo(box.x + box.w, box.y + box.h); ctx.stroke();
+            if (yr[0] < 0 && yr[1] > 0) line(ctx, box.x, Y(0), box.x + box.w, Y(0), C.faint, 1, [3, 4]);
+            const sx = o.xStep || niceStep(xr[1] - xr[0], box.w, 70), sy = o.yStep || niceStep(yr[1] - yr[0], box.h, 50);
+            const fx = o.xFmt || (v => num(v, sx < 1 ? (sx < 0.1 ? 2 : 1) : 0));
+            const fy = o.yFmt || (v => num(v, sy < 1 ? (sy < 0.1 ? 2 : 1) : 0));
+            ctx.strokeStyle = C.soft; ctx.lineWidth = 1;
+            for (let v = Math.ceil(xr[0] / sx - 1e-9) * sx; v <= xr[1] + 1e-9; v += sx) {
+                const x = X(v); ctx.beginPath(); ctx.moveTo(x, box.y + box.h); ctx.lineTo(x, box.y + box.h + 4); ctx.stroke();
+                small(ctx, fx(v), x, box.y + box.h + 14, C.faint, 10.5, 'center');
+            }
+            for (let v = Math.ceil(yr[0] / sy - 1e-9) * sy; v <= yr[1] + 1e-9; v += sy) {
+                const y = Y(v); ctx.beginPath(); ctx.moveTo(box.x - 4, y); ctx.lineTo(box.x, y); ctx.stroke();
+                small(ctx, fy(v), box.x - 7, y, C.faint, 10.5, 'right');
+            }
+            if (o.xTitle) small(ctx, o.xTitle, box.x + box.w, box.y + box.h + 30, C.soft, 11, 'right');
+            if (o.yTitle) small(ctx, o.yTitle, box.x + 6, box.y - 12, C.soft, 11, 'left');
+            return { X, Y };
+        }
+        /* the canvas: dpr-sized, a redraw coalesced into one frame, a loop that
+           runs only while `moving()` says so and the canvas is on screen, a
+           repaint after every resize (a resize clears the canvas) */
+        function mount(canvas, draw, moving) {
+            const ctx = canvas.getContext('2d'), wrap = canvas.parentElement;
+            const V = { ctx, W: 0, H: 0, t: 0, dt: 0 };
+            let raf = 0, last = 0, visible = true, queued = false;
+            function size() {
+                const r = wrap.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+                const W = Math.max(r.width, 200), H = Math.max(r.height, 200);
+                if (W === V.W && H === V.H) return;
+                V.W = W; V.H = H;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            function paint() { C = colours(); ctx.clearRect(0, 0, V.W, V.H); draw(V); }
+            function frame(ts) {
+                raf = 0;
+                V.dt = last ? Math.min((ts - last) / 1000, 1 / 20) : 0; last = ts;
+                V.t += V.dt;
+                paint();
+                if (visible && moving && moving()) raf = requestAnimationFrame(frame); else last = 0;
+            }
+            V.kick = function () { if (!raf) raf = requestAnimationFrame(frame); };
+            V.redraw = function () {
+                if (raf || queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; if (!raf) { V.dt = 0; paint(); } });
+            };
+            size();
+            new ResizeObserver(() => { size(); paint(); }).observe(wrap);
+            if (window.IntersectionObserver) new IntersectionObserver(es => {
+                visible = es.some(e => e.isIntersecting);
+                if (visible) V.kick();
+            }).observe(wrap);
+            document.addEventListener('langchange', () => V.redraw());
+            /* a canvas asking for a face the page has not loaded yet draws in the
+               fallback font (Georgia's old-style digits); paint again once it is in */
+            if (document.fonts) {
+                document.fonts.ready.then(() => V.redraw());
+                document.fonts.addEventListener('loadingdone', () => V.redraw());
+            }
+            V.kick();
+            return V;
+        }
+        /* text into the page, only when it changed */
+        function put(id, t) { const el = document.getElementById(id); if (el && el.textContent !== t) el.textContent = t; }
+        return { INK, isCS, T, dec, num, colours: () => C, sym, symSub, vec, small, caption, line, arrow, dot,
+                 dim, outOf, into, niceStep, graph, mount, put };
+    }());
+    /* the caption; on a narrow stage a long title wraps onto a second line */
+    function cap(ctx, kicker, title, sub) {
+        const W = ctx.canvas.width / (window.devicePixelRatio || 1), SER = 'italic 17px "Source Serif 4",Georgia,serif';
+        ctx.font = SER;
+        if (ctx.measureText(title).width <= W - 32) { KIT.caption(ctx, kicker, title, sub); return; }
+        const words = title.split(' ');
+        let a = '';
+        while (words.length > 1 && ctx.measureText(a ? a + ' ' + words[0] : words[0]).width <= W - 32) a = a ? a + ' ' + words.shift() : words.shift();
+        KIT.caption(ctx, kicker, a);
+        ctx.font = SER; ctx.fillStyle = KIT.colours().ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(words.join(' '), 16, 60);
+        if (sub) KIT.small(ctx, sub, 16, 79, KIT.colours().faint, 10.5);
     }
-    const col = readCol();
 
-    const g = 9.8;
-    /* m grams, k N/cm, d cm */
-    const DEFAULTS = { m: 250, k: 2.5, d: 12 };
+
+    const g = 9.8, SLOW = 4;
+    const DEFAULTS = { m: 250, k: 2.5, d: 12 };   /* g, N/cm, cm */
     let state = { ...DEFAULTS };
     const show = { marks: true };
-
-    const fmtG = v => v.toFixed(0) + ' g';
-    const fmtK = v => v.toFixed(1) + ' N/cm';
-    const fmtD = v => v.toFixed(1) + ' cm';
-    const SLIDERS = [['p-m', 'm', fmtG], ['p-k', 'k', fmtK], ['p-d', 'd', fmtD]];
-    SLIDERS.forEach(([id, key, fmt]) => {
-        const inp = document.getElementById(id);
-        const lbl = document.getElementById(id + '-val');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            state[key] = +inp.value;
-            if (lbl) lbl.textContent = fmt(state[key]);
-        });
-    });
-    document.getElementById('btn-reset')?.addEventListener('click', () => {
-        state = { ...DEFAULTS };
+    const V = KIT.mount(document.getElementById('sim-canvas'), draw, () => true);
+    const SLIDERS = [
+        ['p-m', 'm', v => v.toFixed(0) + ' g'],
+        ['p-k', 'k', v => KIT.dec(v.toFixed(1)) + ' N/cm'],
+        ['p-d', 'd', v => KIT.dec(v.toFixed(1)) + ' cm'],
+    ];
+    function syncLabels() {
         SLIDERS.forEach(([id, key, fmt]) => {
-            const inp = document.getElementById(id);
-            const lbl = document.getElementById(id + '-val');
+            const inp = document.getElementById(id), lbl = document.getElementById(id + '-val');
             if (inp) inp.value = state[key];
             if (lbl) lbl.textContent = fmt(state[key]);
         });
+    }
+    let t0 = 0;
+    SLIDERS.forEach(([id, key]) => {
+        document.getElementById(id).addEventListener('input', e => { state[key] = +e.target.value; syncLabels(); t0 = V.t; });
     });
-    document.getElementById('tgl-marks')?.addEventListener('click', function () {
+    document.getElementById('btn-reset').addEventListener('click', () => { state = { ...DEFAULTS }; syncLabels(); t0 = V.t; });
+    document.addEventListener('langchange', syncLabels);
+    document.getElementById('tgl-marks').addEventListener('click', function () {
         show.marks = !show.marks;
-        this.querySelector('.toggle-box')?.classList.toggle('on');
+        this.querySelector('.toggle-box').classList.toggle('on', show.marks);
     });
+    syncLabels();
 
     function physics() {
-        const m = state.m / 1000;
-        const k = state.k * 100;             /* N/m */
-        const d = state.d / 100;             /* m */
-        const Wg = m * g * d;
-        const Ws = -0.5 * k * d * d;
-        const ke = -Ws - Wg;
-        const v  = ke > 0 ? Math.sqrt(2 * ke / m) : 0;
-        /* doubled speed: ½k d'² − mg d' − ½m(2v)² = 0 */
-        const A = 0.5 * k, B = -m * g, C = -0.5 * m * (2 * v) ** 2;
-        const d2 = (-B + Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+        const m = state.m / 1000, k = state.k * 100, d = state.d / 100;
+        const Wg = m * g * d, Ws = -0.5 * k * d * d, ke = -Ws - Wg;
+        const v = ke > 0 ? Math.sqrt(2 * ke / m) : 0;
+        const A = 0.5 * k, B = -m * g, Cc = -0.5 * m * (2 * v) ** 2;
+        const d2 = (-B + Math.sqrt(B * B - 4 * A * Cc)) / (2 * A);
         return { m, k, d, Wg, Ws, v, d2 };
     }
-
-    function spring(x, y0, y1, coils, width) {
-        const seg = (y1 - y0) / coils;
-        ctx.strokeStyle = col.soft; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(x, y0);
-        for (let i = 0; i < coils; i++) {
-            ctx.lineTo(x + (i % 2 ? -width : width), y0 + seg * (i + 0.5));
-        }
+    function spring(ctx, x, y0, y1, w, col) {
+        const n = 12, seg = (y1 - y0) / n;
+        ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(x, y0);
+        for (let i = 0; i < n; i++) ctx.lineTo(x + (i % 2 ? -w : w), y0 + seg * (i + 0.5));
         ctx.lineTo(x, y1); ctx.stroke();
     }
 
-    function draw(ts) {
-        ctx.clearRect(0, 0, W, H);
+    function draw(v) {
+        const ctx = v.ctx, W = v.W, H = v.H, C = KIT.colours(), I = KIT.INK;
+        const low = !!ctx.canvas.parentElement.querySelector('.canvas-formula-badge') && W >= 640;
+        const narrow = W < 560;
         const ph = physics();
+        const h = ph.v * ph.v / (2 * g);                          /* drop height, m */
+        const L0 = 0.30;                                           /* the relaxed spring, m (drawn) */
 
-        /* timeline: fall (analytic), then connected SHM about equilibrium */
-        const hDrop = ph.v * ph.v / (2 * g);          /* m above the spring top */
-        const tFall = ph.v > 0 ? Math.sqrt(2 * hDrop / g) : 0.6;
-        const om = Math.sqrt(ph.k / ph.m);
-        const xEq = ph.m * g / ph.k;                  /* equilibrium compression */
-        const SLOW = 3.2;                             /* slow-motion stretch */
-        const Tshm = 2 * Math.PI / om;
-        const period = (tFall + 2.2 * Tshm) * SLOW + 0.8;
-        const tau = (ts / 1000) % period / SLOW;
+        /* on a phone the work bars go on top and the fall below them */
+        const top = narrow ? 262 : 96, bot = H - (low ? 108 : 34);
+        const sceneW = narrow ? W * 0.5 : W * 0.44;
+        const cx = narrow ? W * 0.4 : sceneW * 0.5 + 10;
+        const bh = 0.07;                                           /* block height, m */
+        const k = (bot - top - 20) / (h + L0 + bh + 0.04);         /* px per metre */
+        const floor = bot - 4, yTop0 = floor - L0 * k;             /* the spring's top, relaxed */
 
-        /* compression x(t) after contact (measured down from natural length) */
-        function comp(t) {
-            return xEq * (1 - Math.cos(om * t)) + ph.v / om * Math.sin(om * t);
+        /* the clock: free fall, then the compression to the turning point, then a pause */
+        const tFall = ph.v / g, om = Math.sqrt(ph.k / ph.m);
+        const xeq = ph.m * g / ph.k, A = Math.sqrt(xeq * xeq + (ph.v / om) ** 2);
+        const tComp = (Math.PI / 2 + Math.atan2(xeq, ph.v / om)) / om;
+        const T = (v.t - t0) / SLOW % (tFall + tComp + 0.3);
+        let y, vy;                                                 /* compression (m, + down) and speed */
+        if (T < tFall) { y = -h + 0.5 * g * T * T; vy = g * T; }
+        else if (T < tFall + tComp) { const s = T - tFall; y = xeq + A * Math.sin(om * s - Math.atan2(xeq, ph.v / om)); vy = A * om * Math.cos(om * s - Math.atan2(xeq, ph.v / om)); }
+        else { y = ph.d; vy = 0; }
+        const yTop = yTop0 + Math.max(0, y) * k;                   /* the spring's top now */
+
+        /* the floor, the spring, the block */
+        KIT.line(ctx, cx - 70, floor, cx + 70, floor, C.ink, 1.6);
+        ctx.strokeStyle = C.ink; ctx.globalAlpha = 0.4; ctx.lineWidth = 0.9;
+        for (let x = cx - 66; x < cx + 70; x += 10) { ctx.beginPath(); ctx.moveTo(x, floor); ctx.lineTo(x - 7, floor + 7); ctx.stroke(); }
+        ctx.globalAlpha = 1;
+        spring(ctx, cx, floor, yTop, 14, I.violet);
+        KIT.line(ctx, cx - 20, yTop, cx + 20, yTop, C.ink, 2);
+        const by = yTop0 + y * k;                                  /* the block's bottom */
+        const bw = 60, bhp = bh * k;
+        ctx.fillStyle = I.block; ctx.fillRect(cx - bw / 2, by - bhp, bw, bhp);
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.strokeRect(cx - bw / 2, by - bhp, bw, bhp);
+        KIT.sym(ctx, 'm', cx, by - bhp / 2, C.ink, 15);
+        if (vy > 0.05) {
+            const la = Math.min(70, vy / Math.max(ph.v, 0.1) * 60);
+            KIT.arrow(ctx, cx + bw / 2 + 14, by - bhp / 2, cx + bw / 2 + 14, by - bhp / 2 + la, I.blue, 2, true);
+            KIT.vec(ctx, 'v', cx + bw / 2 + 28, by - bhp / 2 + la / 2, I.blue, 16);
         }
-        let yBlock;                                   /* metres below drop start */
-        if (tau < tFall) yBlock = 0.5 * g * tau * tau;
-        else             yBlock = hDrop + Math.max(comp(tau - tFall), -hDrop * 0.2);
-
-        /* channel geometry */
-        const cx = W * 0.5;
-        const chW = 120;
-        const topY = 34, botY = H - 40;
-        const springTopY0 = botY - (botY - topY) * 0.45;   /* natural spring top */
-        const pxPerM = (springTopY0 - topY - 40) / Math.max(hDrop, 0.2);
-        const pxPerMc = 320;                               /* compression scale */
-
-        /* walls */
-        ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
-        [[cx - chW / 2, -1], [cx + chW / 2, 1]].forEach(([x, side]) => {
-            ctx.beginPath(); ctx.moveTo(x, springTopY0 - 60); ctx.lineTo(x, botY); ctx.stroke();
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1;
-            for (let y = springTopY0 - 54; y < botY - 2; y += 12) {
-                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 9 * side, y - 8); ctx.stroke();
-            }
-            ctx.strokeStyle = col.ink; ctx.lineWidth = 1.8;
-        });
-        /* floor of the channel */
-        ctx.beginPath(); ctx.moveTo(cx - chW / 2, botY); ctx.lineTo(cx + chW / 2, botY); ctx.stroke();
-
-        const compression = tau < tFall ? 0 : Math.max(comp(tau - tFall), 0);
-        const sTop = springTopY0 + compression * pxPerMc;
-        spring(cx, Math.min(sTop, botY - 8), botY, 8, 22);
-
-        /* compression markers */
         if (show.marks) {
-            const dPx = springTopY0 + ph.d * pxPerMc;
-            ctx.strokeStyle = col.faint; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-            ctx.beginPath(); ctx.moveTo(cx - chW / 2 - 26, springTopY0);
-            ctx.lineTo(cx + chW / 2 + 8, springTopY0); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(cx - chW / 2 - 26, dPx);
-            ctx.lineTo(cx + chW / 2 + 8, dPx); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.strokeStyle = col.soft; ctx.lineWidth = 1.1;
-            ctx.beginPath(); ctx.moveTo(cx - chW / 2 - 20, springTopY0);
-            ctx.lineTo(cx - chW / 2 - 20, dPx); ctx.stroke();
-            ctx.fillStyle = col.soft;
-            ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-            ctx.fillText('d', cx - chW / 2 - 26, (springTopY0 + dPx) / 2);
+            const xl = cx - bw / 2 - 18;
+            KIT.line(ctx, cx - 60, yTop0, cx + 60, yTop0, C.faint, 1, [3, 4]);
+            KIT.line(ctx, cx - 60, yTop0 + ph.d * k, cx + 60, yTop0 + ph.d * k, C.faint, 1, [3, 4]);
+            KIT.dim(ctx, xl, yTop0, xl, yTop0 + ph.d * k, 0, '', C.soft);
+            KIT.sym(ctx, 'd', xl - 10, yTop0 + ph.d * k / 2, C.soft, 16, 'right');
+            if (yTop0 + ph.d2 * k < floor - 4) {
+                KIT.line(ctx, cx - 40, yTop0 + ph.d2 * k, cx + 60, yTop0 + ph.d2 * k, I.crimson, 1, [2, 4]);
+                KIT.sym(ctx, 'd′', cx + 64, yTop0 + ph.d2 * k, I.crimson, 15, 'left');
+            }
+            KIT.dim(ctx, cx + bw / 2 + 60, yTop0 - h * k, cx + bw / 2 + 60, yTop0, 0, '', C.soft);
+            KIT.sym(ctx, 'h', cx + bw / 2 + 70, yTop0 - h * k / 2, C.soft, 16, 'left');
         }
 
-        /* block: falls, then rides the spring top */
-        const bw = 62, bh = 44;
-        let byDraw;
-        if (tau < tFall) {
-            byDraw = Math.min(topY + yBlock * pxPerM, springTopY0 - bh);
-        } else {
-            byDraw = Math.min(springTopY0 + comp(tau - tFall) * pxPerMc - bh, botY - bh - 4);
-        }
-        ctx.fillStyle = col.paper; ctx.strokeStyle = col.ink; ctx.lineWidth = 2;
-        ctx.fillRect(cx - bw / 2, byDraw, bw, bh);
-        ctx.strokeRect(cx - bw / 2, byDraw, bw, bh);
-        ctx.fillStyle = col.ink;
-        ctx.font = 'italic 13px "Source Serif 4", Georgia, serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('m', cx, byDraw + bh / 2);
+        /* ── the works down to the turning point, and their sum ──────── */
+        const bx0 = narrow ? W * 0.55 : sceneW + (W - sceneW) * 0.5, by0 = narrow ? 110 : top + 70;
+        const half = narrow ? W * 0.4 : (W - sceneW) * 0.42;
+        const kW = half / Math.max(Math.abs(ph.Ws), 0.01) * 0.95;
+        const rows = [[ph.Wg, I.blue, 'W', 'g'], [ph.Ws, I.violet, 'W', 's'], [ph.Wg + ph.Ws, I.amber, 'ΔE', 'k']];
+        const rh = 30;
+        KIT.small(ctx, KIT.T('down to the lowest point (J)', 'až do nejnižšího bodu (J)'), bx0 - half, by0 - 20, C.soft, 11);
+        KIT.line(ctx, bx0, by0 - 8, bx0, by0 + rows.length * (rh + 12), C.soft, 1.2);
+        rows.forEach(([val, col, sname, sub], i) => {
+            const y = by0 + i * (rh + 12), w = val * kW;
+            if (i === 2) KIT.line(ctx, bx0 - half, y - 6, bx0 + half, y - 6, C.faint, 1, [3, 3]);
+            ctx.fillStyle = col; ctx.globalAlpha = 0.3; ctx.fillRect(Math.min(bx0, bx0 + w), y, Math.abs(w), rh - 8); ctx.globalAlpha = 1;
+            ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.strokeRect(Math.min(bx0, bx0 + w), y, Math.abs(w), rh - 8);
+            KIT.symSub(ctx, sname, sub, w >= 0 ? bx0 - 8 : bx0 + 8, y + (rh - 8) / 2, col, 15, w >= 0 ? 'right' : 'left');
+        });
+        KIT.small(ctx, KIT.T('the sum is 0 − ½mv²: it gives the speed at impact', 'součet je 0 − ½mv²: dá rychlost při dopadu'), bx0 - half, by0 + 3 * (rh + 12) + 6, C.faint, 10.5);
 
-        /* impact-speed caption */
-        ctx.fillStyle = col.faint;
-        ctx.font = '10px "Geist", ui-sans-serif, sans-serif';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-        ctx.fillText('impact v = ' + ph.v.toFixed(2) + ' m/s', 26, 22);
+        cap(ctx, KIT.T('A BLOCK ON A SPRING', 'KVÁDR NA PRUŽINĚ'),
+                    KIT.T('gravity and the spring share the work', 'o práci se dělí tíha a pružina'),
+                    KIT.T('to scale, 4× slower than real time', 've skutečném měřítku, zpomaleno 4×'));
 
-        const $ = id => document.getElementById(id);
-        if ($('r-wg')) $('r-wg').textContent = ph.Wg.toFixed(2) + ' J';
-        if ($('r-ws')) $('r-ws').textContent = ph.Ws.toFixed(2) + ' J';
-        if ($('r-v'))  $('r-v').textContent  = ph.v.toFixed(2) + ' m/s';
-        if ($('r-d2')) $('r-d2').textContent = (ph.d2 * 100).toFixed(1) + ' cm';
+        KIT.put('r-wg', KIT.num(ph.Wg, 2) + ' J');
+        KIT.put('r-ws', KIT.num(ph.Ws, 2) + ' J');
+        KIT.put('r-v', KIT.dec(ph.v.toFixed(2)) + ' m/s');
+        KIT.put('r-d2', KIT.dec((ph.d2 * 100).toFixed(1)) + ' cm');
     }
-
-    function frame(ts) { draw(ts || 0); requestAnimationFrame(frame); }
-    requestAnimationFrame(frame);
 }());
 </script>
 
